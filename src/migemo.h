@@ -1,9 +1,9 @@
-/* vim:set ts=8 sts=4 sw=4 tw=0 */
+/* vim:set ts=8 sts=4 sw=4 tw=0: */
 /*
  * migemo.h -
  *
  * Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
- * Last Change: 14-May-2002.
+ * Last Change: 15-May-2002.
  */
 
 #ifndef MIGEMO_H

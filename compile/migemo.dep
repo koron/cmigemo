@@ -1,10 +1,5 @@
 # Microsoft Developer Studio Generated Dependency File, included by migemo.mak
 
 .\main.c : \
-	".\dbg.h"\
 	".\migemo.h"\
-	".\mnode.h"\
-	".\rxgen.h"\
-	".\wordbuf.h"\
-	".\wordlist.h"\
 	

@@ -1,4 +1,4 @@
-/* vim:set ts=8 sts=4 sw=4 tw=0 */
+/* vim:set ts=8 sts=4 sw=4 tw=0: */
 
 #if defined(_MSC_VER) && !defined(ANSI_DEBUG)
 # include <crtdbg.h>

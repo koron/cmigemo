@@ -1,19 +1,15 @@
+/* vim:set ts=8 sts=8 sw=8 tw=0: */
 /*
  * main.c - migemoライブラリテストドライバ
  *
  * Written By:  Muraoka Taro  <koron@tka.att.en.jp>
- * Last Change: 14-May-2002.
+ * Last Change: 15-May-2002.
  */
 
 #include <stdio.h>
 #include <time.h>
 #include <string.h>
 
-#include "dbg.h"
-#include "wordbuf.h"
-#include "wordlist.h"
-#include "mnode.h"
-#include "rxgen.h"
 #include "migemo.h"
 
 #define MIGEMODICT_NAME "migemo-dict"
@@ -51,14 +47,11 @@ query_loop(migemo* p)
     int
 main(int argc, char** argv)
 {
-#ifndef _SPLITED_MIGEMO
-    void migemo_print(migemo* object);
-    int mode_print = 0;
-#endif
     int mode_vim = 0;
     char* dict = NULL;
     migemo *pmigemo;
     FILE *fplog = stdout;
+    char *word = NULL;
 
     while (*++argv)
     {
@@ -68,10 +61,8 @@ main(int argc, char** argv)
 	    mode_vim = 1;
 	else if (argv[1] && (!strcmp("--dict", *argv) || !strcmp("-d", *argv)))
 	    dict = *++argv;
-#ifndef _SPLITED_MIGEMO
-	else if (!strcmp("--print-node", *argv) || !strcmp("-p", *argv))
-	    mode_print = 1;
-#endif
+	else if (argv[1] && (!strcmp("--word", *argv) || !strcmp("-w", *argv)))
+	    word = *++argv;
     }
 
 #ifdef _PROFILE
@@ -82,14 +73,20 @@ main(int argc, char** argv)
     if (!dict)
     {
 	pmigemo = migemo_open("./dict/" MIGEMODICT_NAME);
-	fprintf(fplog, "migemo_open(%s)=%p\n",
-		"./dict/" MIGEMODICT_NAME, pmigemo);
+	if (!word)
+	{
+	    fprintf(fplog, "migemo_open(%s)=%p\n",
+		    "./dict/" MIGEMODICT_NAME, pmigemo);
+	}
 	if (!pmigemo || !migemo_is_enable(pmigemo))
 	{
 	    migemo_close(pmigemo); /* NULLをcloseしても問題はない */
 	    pmigemo = migemo_open("../dict/" MIGEMODICT_NAME);
-	    fprintf(fplog, "migemo_open(%s)=%p\n",
-		    "../dict/" MIGEMODICT_NAME, pmigemo);
+	    if (!word)
+	    {
+		fprintf(fplog, "migemo_open(%s)=%p\n",
+			"../dict/" MIGEMODICT_NAME, pmigemo);
+	    }
 	}
     }
     else
@@ -97,11 +94,6 @@ main(int argc, char** argv)
 
     if (!pmigemo)
 	return 1;
-
-#ifndef _SPLITED_MIGEMO
-    if (mode_print)
-	migemo_print(pmigemo);
-#endif
     else
     {
 	if (mode_vim)
@@ -112,8 +104,20 @@ main(int argc, char** argv)
 	    migemo_set_operator(pmigemo, MIGEMO_OPINDEX_NEWLINE, "\\_s*");
 	}
 #ifndef _PROFILE
-	printf("clock()=%f\n", (float)clock() / CLOCKS_PER_SEC);
-	query_loop(pmigemo);
+	if (word)
+	{
+	    unsigned char *ans;
+
+	    ans = migemo_query(pmigemo, word);
+	    if (ans)
+		fprintf(fplog, mode_vim ? "%s" : "%s\n", ans);
+	    migemo_release(pmigemo, ans);
+	}
+	else
+	{
+	    printf("clock()=%f\n", (float)clock() / CLOCKS_PER_SEC);
+	    query_loop(pmigemo);
+	}
 #else
 	/* プロファイル用 */
 	{
@@ -132,30 +136,6 @@ main(int argc, char** argv)
 #endif
 	migemo_close(pmigemo);
     }
-
-#ifdef FULL_LINK_TEST
-    /* 統計データ表示 */
-    fprintf(stderr, "n_mnode_new=      %8d\n", n_mnode_new);
-    fprintf(stderr, "n_mnode_delete=   %8d\n", n_mnode_delete);
-    fprintf(stderr, "n_rnode_new=      %8d\n", n_rnode_new);
-    fprintf(stderr, "n_rnode_delete=   %8d\n", n_rnode_delete);
-    fprintf(stderr, "n_wordbuf_open=   %8d\n", n_wordbuf_open);
-    fprintf(stderr, "n_wordbuf_close=  %8d\n", n_wordbuf_close);
-    fprintf(stderr, "n_wordlist_open=  %8d\n", n_wordlist_open);
-    fprintf(stderr, "n_wordlist_close= %8d\n", n_wordlist_close);
-    fprintf(stderr, "n_wordlist_total= %8d\n", n_wordlist_total);
-#ifdef _MSC_VER
-    _RPT1(_CRT_WARN, "n_mnode_new=      %8d\n", n_mnode_new);
-    _RPT1(_CRT_WARN, "n_mnode_delete=   %8d\n", n_mnode_delete);
-    _RPT1(_CRT_WARN, "n_rnode_new=      %8d\n", n_rnode_new);
-    _RPT1(_CRT_WARN, "n_rnode_delete=   %8d\n", n_rnode_delete);
-    _RPT1(_CRT_WARN, "n_wordbuf_open=   %8d\n", n_wordbuf_open);
-    _RPT1(_CRT_WARN, "n_wordbuf_close=  %8d\n", n_wordbuf_close);
-    _RPT1(_CRT_WARN, "n_wordlist_open=   %8d\n", n_wordlist_open);
-    _RPT1(_CRT_WARN, "n_wordlist_close=%8d\n", n_wordlist_close);
-    _RPT1(_CRT_WARN, "n_wordlist_total= %8d\n", n_wordlist_total);
-#endif
-#endif
 
     if (fplog != stdout)
 	fclose(fplog);

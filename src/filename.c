@@ -1,8 +1,8 @@
-/* vi:set ts=8 sts=4 sw=4 tw=0: */
+/* vim:set ts=8 sts=4 sw=4 tw=0: */
 /*
  * filename.c - Operate filename.
  *
- * Last change: 07-Aug-2001.
+ * Last change: 15-May-2002.
  * Written by:  Muraoka Taro  <koron@tka.att.ne.jp>
  */
 
