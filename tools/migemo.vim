@@ -4,7 +4,8 @@
 "   Direct search for Japanese with Romaji --- Migemo support script.
 "
 " Maintainer:  MURAOKA Taro <koron@tka.att.ne.jp>
-" Last Change: 01-Jun-2002.
+" Modified:    Yasuhiro Matsumoto <mattn_jp@hotmail.com>
+" Last Change: 07-Jun-2003.
 
 " Japanese Description:
 
@@ -41,5 +42,34 @@ if has('migemo')
   endfunction
   nnoremap <Leader>f :call <SID>SearchChar(0)<CR>
 else
-  " TODO: include megemo.vim by mattn
+  " non-builtin version
+  let g:migemodict = s:SearchDict()
+  command! -nargs=* Migemo :call <SID>MigemoSearch(<q-args>)
+  nnoremap <silent> <leader>mi :call <SID>MigemoSearch('')<cr>
+
+  function! s:MigemoSearch(word)
+    if executable('cmigemo') == ''
+      echohl ErrorMsg
+      echo 'Error: cmigemo is not installed'
+      echohl None
+      return
+    endif
+  
+    let retval = a:word != '' ? a:word : input('MIGEMO:')
+    if retval == ''
+      return
+    endif
+    let retval = system('cmigemo -v -w "'.retval.'" -d "'.g:migemodict.'"')
+    if retval == ''
+      return
+    endif
+    let @/ = retval
+    let v:errmsg = ''
+    silent! normal n
+    if v:errmsg != ''
+      echohl ErrorMsg
+      echo v:errmsg
+      echohl None
+    endif
+  endfunction
 endif
