@@ -2,7 +2,7 @@
 #
 # デフォルトコンフィギュレーションファイル
 #
-# Last Change:	19-Oct-2003.
+# Last Change:	29-Nov-2003.
 # Base Idea:	AIDA Shinra
 # Maintainer:	MURAOKA Taro <koron@tka.att.ne.jp>
 
@@ -47,5 +47,7 @@ INSTALL_DATA	= $(INSTALL) -m 644
 ##############################################################################
 # 定数
 #
-O = o
-EXE =
+O		= o
+EXE		=
+CONFIG_DEFAULT	= compile/config_default.mk
+CONFIG_IN	= compile/config.mk.in

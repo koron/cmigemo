@@ -2,7 +2,7 @@ C/Migemoライブラリ説明書
                                                             Since: 15-Aug-2001
                                                                 Version: 1.1.1
                                                   Author: MURAOKA Taro (KoRoN)
-                                                     Last Change: 28-Oct-2003.
+                                                     Last Change: 29-Nov-2003.
 
 説明
   C/MigemoはMigemo(Ruby/Migemo)をC言語で実装したものです。C/Migemoライブラリを
@@ -78,6 +78,7 @@ C/Migemoライブラリ説明書
   (Windows + Cygwin)
   必要な外部プログラム、ネットワーク接続を揃えて以下を実行することでテストプロ
   グラムcmigemoと辞書ファイルがビルドされます:
+    $ ./configure
     $ make cyg
     $ make cyg-dict
   実行はcp932(Shift-JIS)で利用するならば:
@@ -118,6 +119,7 @@ C/Migemoライブラリ説明書
   (GNU/gcc:Linux他)
   必要な外部プログラム、ネットワーク接続を揃えて以下を実行することでテストプロ
   グラムcmigemoと辞書ファイルがビルドされます:
+    $ ./configure
     $ make gcc
     $ make gcc-dict
   実行はcp932(Shift-JIS)で利用するならば:
@@ -358,6 +360,7 @@ C/Migemoライブラリ説明書
 
 更新箇所 {{{1
   ● (1.1.023)
+    configureスクリプトを導入
     Doxygenを導入する
     queryそのもので辞書を引くのを忘れていたのを修正
     tools/Migemo.cs:体裁修正

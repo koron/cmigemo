@@ -2,7 +2,7 @@
 #
 # Clean up アーキテクチャ非依存
 #
-# Last Change:	29-Oct-2003.
+# Last Change:	29-Nov-2003.
 # Written By:	MURAOKA Taro <koron@tka.att.ne.jp>
 
 clean-migemo:
@@ -32,3 +32,4 @@ distclean: clean distclean-arch distclean-migemo
 	-$(RM) *.dll
 	-$(RM) *.dylib
 	-$(RM) tags
+	-$(CP) $(CONFIG_DEFAULT) config.mk
