@@ -3,7 +3,7 @@
  * migemo.c -
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 24-Jan-2002.
+ * Last Change: 10-Feb-2002.
  */
 
 #include <stdio.h>
@@ -26,6 +26,7 @@
 /* migemoオブジェクト */
 struct _migemo
 {
+    int enable;
     mtree_p mtree;
     romaji* roma2hira;
     romaji* hira2kata;
@@ -58,7 +59,10 @@ migemo_load(migemo* obj, int dict_id, char* dict_file)
 
 		fclose(fp);
 		if (mtree)
+		{
 		    obj->mtree = mtree;
+		    obj->enable = 1;
+		}
 		else
 		    return MIGEMO_DICTID_INVALID; /* Exhausted memory */
 	    }
@@ -99,6 +103,7 @@ migemo_open(char* dict)
     /* migemoオブジェクトと各メンバを構築 */
     if (!(obj = (migemo*)malloc(sizeof(migemo))))
 	return obj;
+    obj->enable = 0;
     obj->mtree = mnode_open(NULL);
     obj->rx = rxgen_open();
     obj->roma2hira =	romaji_open();
@@ -129,10 +134,13 @@ migemo_open(char* dict)
 	strcat(kata_dict, "/" DICT_HIRA2KATA);
 	strcat(h2z_dict, "/" DICT_HAN2ZEN);
 
-	migemo_load(obj, MIGEMO_DICTID_MIGEMO, dict);
-	migemo_load(obj, MIGEMO_DICTID_ROMA2HIRA, roma_dict);
-	migemo_load(obj, MIGEMO_DICTID_HIRA2KATA, kata_dict);
-	migemo_load(obj, MIGEMO_DICTID_HAN2ZEN, h2z_dict);
+	if (migemo_load(obj, MIGEMO_DICTID_MIGEMO, dict)
+		!= MIGEMO_DICTID_INVALID)
+	{
+	    migemo_load(obj, MIGEMO_DICTID_ROMA2HIRA, roma_dict);
+	    migemo_load(obj, MIGEMO_DICTID_HIRA2KATA, kata_dict);
+	    migemo_load(obj, MIGEMO_DICTID_HAN2ZEN, h2z_dict);
+	}
     }
     return obj;
 }
@@ -317,10 +325,13 @@ migemo_setproc_int2char(migemo* object, MIGEMO_PROC_INT2CHAR proc)
 	rxgen_setproc_int2char(object->rx, (RXGEN_PROC_INT2CHAR)proc);
 }
 
+/*
+ * migemo辞書が読み込まれているかを調べる
+ */
     int
 migemo_is_enable(migemo* obj)
 {
-    return (obj && obj->mtree) ? 1 : 0;
+    return obj ? obj->enable : 0;
 }
 
 #if 1

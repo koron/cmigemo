@@ -3,7 +3,7 @@
  * wordbuf.h -
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 21-Jan-2002.
+ * Last Change: 10-Feb-2002.
  */
 
 #include <stdio.h>
@@ -90,14 +90,19 @@ wordbuf_add(wordbuf_p p, unsigned char ch)
 
     if (newlen > p->len && !wordbuf_extend(p, newlen))
 	return 0;
+    else
+    {
 #if 1
-    p->buf[p->last++]	= ch;
-    p->buf[p->last  ]	= '\0';
+	unsigned char *buf = p->buf + p->last;
+
+	buf[0] = ch;
+	buf[1] = '\0';
 #else
-    /* リトルエンディアンを仮定するなら使えるが… */
-    *(unsigned short*)&p->buf[p->last++] = (unsigned short)ch;
+	/* リトルエンディアンを仮定するなら使えるが… */
+	*(unsigned short*)&p->buf[p->last] = (unsigned short)ch;
 #endif
-    return p->last;
+    }
+    return ++p->last;
 }
 
     int

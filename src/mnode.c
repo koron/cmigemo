@@ -3,7 +3,7 @@
  * mnode.c - mnode interfaces.
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 24-Jan-2002.
+ * Last Change: 10-Feb-2002.
  */
 
 #include <stdio.h>
@@ -163,7 +163,8 @@ mnode_load(mtree_p mtree, FILE* fp)
     wordlist_p *ppword;
     /* 読み込みバッファ用変数 */
     unsigned char cache[MNODE_BUFSIZE];
-    int remain = 0, point = 0;
+    unsigned char *cache_ptr = cache;
+    unsigned char *cache_tail = cache;
 
     buf = wordbuf_open();
     prevlabel = wordbuf_open();
@@ -179,14 +180,15 @@ mnode_load(mtree_p mtree, FILE* fp)
      */
     do
     {
-	if (point >= remain)
+	if (cache_ptr >= cache_tail)
 	{
-	    remain = fread(cache, 1, MNODE_BUFSIZE, fp);
-	    point = 0;
-	    ch = (remain <= 0 && feof(fp)) ? EOF : cache[point++];
+	    cache_ptr = cache;
+	    cache_tail = cache + fread(cache, 1, MNODE_BUFSIZE, fp);
+	    ch = (cache_tail <= cache && feof(fp)) ? EOF : *cache_ptr;
 	}
 	else
-	    ch = cache[point++];
+	    ch = *cache_ptr;
+	++cache_ptr;
 
 	/* 状態:modeのオートマトン */
 	switch (mode)

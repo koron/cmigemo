@@ -2,7 +2,7 @@
  * main.c - migemoライブラリテストドライバ
  *
  * Written By:  Muraoka Taro  <koron@tka.att.en.jp>
- * Last Change: 24-Jan-2002.
+ * Last Change: 10-Feb-2002.
  */
 
 #include <stdio.h>
@@ -55,6 +55,7 @@ main(int argc, char** argv)
     int mode_vim = 0;
     char* dict = NULL;
     migemo *pmigemo;
+    FILE *fplog = stdout;
 
     while (*++argv)
     {
@@ -70,14 +71,22 @@ main(int argc, char** argv)
 #endif
     }
 
+#ifdef _PROFILE
+    fplog = fopen("exe.log", "wt");
+#endif
+
     /* 辞書をカレントディレクトリと1つ上のディレクトリから捜す */
     if (!dict)
     {
 	pmigemo = migemo_open("./dict/" MIGEMODICT_NAME);
+	fprintf(fplog, "migemo_open(%s)=%p\n",
+		"./dict/" MIGEMODICT_NAME, pmigemo);
 	if (!pmigemo || !migemo_is_enable(pmigemo))
 	{
 	    migemo_close(pmigemo); /* NULLをcloseしても問題はない */
 	    pmigemo = migemo_open("../dict/" MIGEMODICT_NAME);
+	    fprintf(fplog, "migemo_open(%s)=%p\n",
+		    "../dict/" MIGEMODICT_NAME, pmigemo);
 	}
     }
     else
@@ -106,19 +115,16 @@ main(int argc, char** argv)
 	/* プロファイル用 */
 	{
 	    unsigned char *ans;
-	    FILE* fp = fopen("exe.log", "wt");
 
 	    ans = migemo_query(pmigemo, "a");
 	    if (ans)
-		fprintf(fp, "  [%s]\n", ans);
+		fprintf(fplog, "  [%s]\n", ans);
 	    migemo_release(pmigemo, ans);
 
 	    ans = migemo_query(pmigemo, "k");
 	    if (ans)
-		fprintf(fp, "  [%s]\n", ans);
+		fprintf(fplog, "  [%s]\n", ans);
 	    migemo_release(pmigemo, ans);
-
-	    fclose(fp);
 	}
 #endif
 	migemo_close(pmigemo);
@@ -148,5 +154,7 @@ main(int argc, char** argv)
 #endif
 #endif
 
+    if (fplog != stdout)
+	fclose(fplog);
     return 0;
 }
