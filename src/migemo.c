@@ -3,7 +3,7 @@
  * migemo.c -
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 12-Nov-2002.
+ * Last Change: 17-Oct-2003.
  */
 
 #include <stdio.h>
@@ -52,52 +52,52 @@ struct _migemo
     int 
 migemo_load(migemo* obj, int dict_id, char* dict_file)
 {
-    FILE *fp;
-
     if (!obj && dict_file)
 	return MIGEMO_DICTID_INVALID;
 
-    switch (dict_id)
+    if (dict_id == MIGEMO_DICTID_MIGEMO)
     {
-	case MIGEMO_DICTID_MIGEMO:
-	    /* migemo辞書読み込み */
-	    if ((fp = fopen(dict_file, "rt")) != NULL)
-	    {
-		mtree_p mtree = mnode_load(obj->mtree, fp);
+	/* migemo辞書読み込み */
+	FILE *fp;
+	mtree_p mtree;
 
-		fclose(fp);
-		if (mtree)
-		{
-		    obj->mtree = mtree;
-		    obj->enable = 1;
-		}
-		else
-		    return MIGEMO_DICTID_INVALID; /* Exhausted memory */
-	    }
-	    else
-		return MIGEMO_DICTID_INVALID; /* Can't find file */
-	    break;
+	if ((fp = fopen(dict_file, "rt")) == NULL)
+	    return MIGEMO_DICTID_INVALID;	/* Can't find file */
+	mtree = mnode_load(obj->mtree, fp);
+	fclose(fp);
+	if (!mtree)
+	    return MIGEMO_DICTID_INVALID;	/* Exhausted memory */
+	obj->mtree = mtree;
+	obj->enable = 1;
+	return dict_id;				/* Loaded successfully */
+    }
+    else
+    {
+	romaji *dict;
 
-	case MIGEMO_DICTID_ROMA2HIRA:
-	    /* ローマ字辞書読み込み */
-	    romaji_load(obj->roma2hira, dict_file);
-	    break;
-
-	case MIGEMO_DICTID_HIRA2KATA:
-	    /* カタカナ辞書読み込み */
-	    romaji_load(obj->hira2kata, dict_file);
-	    break;
-
-	case MIGEMO_DICTID_HAN2ZEN:
-	    /* 半角→全角辞書読み込み */
-	    romaji_load(obj->han2zen, dict_file);
-	    break;
-
-	default:
+	switch (dict_id)
+	{
+	    case MIGEMO_DICTID_ROMA2HIRA:
+		/* ローマ字辞書読み込み */
+		dict = obj->roma2hira;
+		break;
+	    case MIGEMO_DICTID_HIRA2KATA:
+		/* カタカナ辞書読み込み */
+		dict = obj->hira2kata;
+		break;
+	    case MIGEMO_DICTID_HAN2ZEN:
+		/* 半角→全角辞書読み込み */
+		dict = obj->han2zen;
+		break;
+	    default:
+		dict = NULL;
+		break;
+	}
+	if (dict && romaji_load(dict, dict_file) == 0)
+	    return dict_id;
+	else
 	    return MIGEMO_DICTID_INVALID;
     }
-
-    return dict_id;
 }
 
 /*

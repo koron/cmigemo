@@ -3,7 +3,7 @@
  * rxgen.h - regular expression generator
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 15-May-2002.
+ * Last Change: 17-Oct-2003.
  */
 
 #ifndef RXGEN_H
@@ -16,12 +16,12 @@ typedef int (*rxgen_proc_int2char)(unsigned int, unsigned char*);
 #define RXGEN_PROC_INT2CHAR rxgen_proc_int2char
 
 /* for rxgen_set_operator */
-#define RXGEN_OPINDEX_OR 0
-#define RXGEN_OPINDEX_NEST_IN 1
-#define RXGEN_OPINDEX_NEST_OUT 2
-#define RXGEN_OPINDEX_SELECT_IN 3
-#define RXGEN_OPINDEX_SELECT_OUT 4
-#define RXGEN_OPINDEX_NEWLINE 5
+#define RXGEN_OPINDEX_OR		0
+#define RXGEN_OPINDEX_NEST_IN		1
+#define RXGEN_OPINDEX_NEST_OUT		2
+#define RXGEN_OPINDEX_SELECT_IN		3
+#define RXGEN_OPINDEX_SELECT_OUT	4
+#define RXGEN_OPINDEX_NEWLINE		5
 
 extern int n_rnode_new;
 extern int n_rnode_delete;

@@ -3,7 +3,7 @@
  * romaji.c - ƒ[ƒ}š•ÏŠ·
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 15-May-2002.
+ * Last Change: 17-Oct-2003.
  */
 
 #include <stdio.h>
@@ -318,15 +318,17 @@ romaji_load_stub(romaji* object, FILE* fp)
     int
 romaji_load(romaji* object, unsigned char* filename)
 {
-    int result = 0;
     FILE *fp;
    
     if (object && filename && (fp = fopen(filename, "rt")))
     {
-	result = romaji_load_stub(object, fp);
+	int result = result = romaji_load_stub(object, fp);
+
 	fclose(fp);
+	return result;
     }
-    return result;
+    else
+	return -1;
 }
 
     unsigned char*

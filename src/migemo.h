@@ -3,7 +3,7 @@
  * migemo.h -
  *
  * Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
- * Last Change: 16-May-2002.
+ * Last Change: 17-Oct-2003.
  */
 
 #ifndef MIGEMO_H
@@ -12,19 +12,19 @@
 #define MIGEMO_VERSION "1.1"
 
 /* for migemo_load() */
-#define MIGEMO_DICTID_INVALID	    0
-#define MIGEMO_DICTID_MIGEMO	    1
-#define MIGEMO_DICTID_ROMA2HIRA	    2
-#define MIGEMO_DICTID_HIRA2KATA	    3
-#define MIGEMO_DICTID_HAN2ZEN	    4
+#define MIGEMO_DICTID_INVALID		0
+#define MIGEMO_DICTID_MIGEMO		1
+#define MIGEMO_DICTID_ROMA2HIRA		2
+#define MIGEMO_DICTID_HIRA2KATA		3
+#define MIGEMO_DICTID_HAN2ZEN		4
 
 /* for migemo_set_operator()/migemo_get_operator().  see: rxgen.h */
-#define MIGEMO_OPINDEX_OR 0
-#define MIGEMO_OPINDEX_NEST_IN 1
-#define MIGEMO_OPINDEX_NEST_OUT 2
-#define MIGEMO_OPINDEX_SELECT_IN 3
-#define MIGEMO_OPINDEX_SELECT_OUT 4
-#define MIGEMO_OPINDEX_NEWLINE 5
+#define MIGEMO_OPINDEX_OR		0
+#define MIGEMO_OPINDEX_NEST_IN		1
+#define MIGEMO_OPINDEX_NEST_OUT		2
+#define MIGEMO_OPINDEX_SELECT_IN	3
+#define MIGEMO_OPINDEX_SELECT_OUT	4
+#define MIGEMO_OPINDEX_NEWLINE		5
 
 /* see: rxgen.h */
 typedef int (*MIGEMO_PROC_CHAR2INT)(unsigned char*, unsigned int*);
