@@ -54,8 +54,13 @@ migemo_load(migemo* obj, int dict_id, char* dict_file)
 	    /* migemoŽ«‘“Ç‚Ýž‚Ý */
 	    if (fp = fopen(dict_file, "rt"))
 	    {
-		obj->node = mnode_load(obj->node, fp);
+		mnode* node = mnode_load(obj->node, fp);
+
 		fclose(fp);
+		if (node)
+		    obj->node = node;
+		else
+		    return MIGEMO_DICTID_INVALID; /* Exhausted memory */
 	    }
 	    else
 		return MIGEMO_DICTID_INVALID; /* Can't find file */
