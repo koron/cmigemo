@@ -3,7 +3,7 @@
  * romaji.c - ローマ字変換
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 18-Oct-2003.
+ * Last Change: 19-Oct-2003.
  */
 
 #include <stdio.h>
@@ -134,6 +134,7 @@ romanode_query(romanode* node, unsigned char* key, int* skip)
     return node;
 }
 
+#if 0 /* 未使用のため */
     static void
 romanode_print_stub(romanode* node, unsigned char* p)
 {
@@ -158,6 +159,7 @@ romanode_print(romanode* node)
 	return;
     romanode_print_stub(node, NULL);
 }
+#endif
 
 /*
  * romaji interfaces

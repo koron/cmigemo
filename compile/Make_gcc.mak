@@ -2,7 +2,7 @@
 #
 # GNU/gcc(Linux‘¼)—pMakefile
 #
-# Last Change:	16-May-2002.
+# Last Change:	19-Oct-2003.
 # Base Idea:	AIDA Shinra
 # Written By:	MURAOKA Taro <koron@tka.att.ne.jp>
 
@@ -18,6 +18,7 @@ LDFLAGS_MIGEMO	= -Wl,-rpath,.,-rpath,/usr/local/lib,-rpath,/usr/lib
 
 include config.mk
 include compile/unix.mak
+include src/depend.mak
 include compile/clean_unix.mak
 include compile/clean.mak
 

@@ -2,21 +2,22 @@
 #
 # Cygwin用Makefile
 #
-# Last Change:	16-May-2002.
+# Last Change:	19-Oct-2003.
 # Base Idea:	AIDA Shinra
-# Written By:	MURAOKA Taro <koron@tka.att.ne.jp>
+# Maintainer:	MURAOKA Taro <koron@tka.att.ne.jp>
 
 ##############################################################################
 # 環境に応じてこの変数を変更する
 #
-libmigemo_LIB = libmigemo.dll.a
-libmigemo_DSO = cygmigemo1.dll
+libmigemo_LIB = $(outdir)libmigemo.dll.a
+libmigemo_DSO = $(outdir)cygmigemo1.dll
 EXEEXT = .exe
 CFLAGS_MIGEMO =
 LDFLAGS_MIGEMO =
 
 include config.mk
 include compile/unix.mak
+include src/depend.mak
 include compile/clean_unix.mak
 include compile/clean.mak
 
@@ -24,8 +25,8 @@ include compile/clean.mak
 # 環境に応じてライブラリ構築法を変更する
 #
 $(libmigemo_LIB): $(libmigemo_DSO)
-$(libmigemo_DSO): $(libmigemo_OBJ) migemo.def
-	dllwrap --dllname $(libmigemo_DSO) --implib $(libmigemo_LIB) --def migemo.def $(libmigemo_OBJ)
+$(libmigemo_DSO): $(libmigemo_OBJ) $(srcdir)migemo.def
+	dllwrap --dllname $(libmigemo_DSO) --implib $(libmigemo_LIB) --def $(srcdir)migemo.def $(libmigemo_OBJ)
 
 install-lib: $(libmigemo_DSO) $(libmigemo_LIB)
 	$(INSTALL_DATA)		$(libmigemo_LIB) $(libdir)

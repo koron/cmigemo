@@ -2,7 +2,7 @@ C/Migemoライブラリ説明書
                                                             Since: 15-Aug-2001
                                                                 Version: 1.1.1
                                                   Author: MURAOKA Taro (KoRoN)
-                                                     Last Change: 18-Oct-2003.
+                                                     Last Change: 19-Oct-2003.
 
 説明
   C/MigemoはMigemo(Ruby/Migemo)をC言語で実装したものです。C/Migemoライブラリを
@@ -63,8 +63,8 @@ C/Migemoライブラリ説明書
     3. Windows + Borland C++
     4. MacOS X + Developer Tools
     5. GNU/gcc:Linux他
-  現在のところ以上5環境での動作確認を完了しています。5.のGNU/gccについてはVine
-  Linux 2.1.5とFreeBSD 3.5.1-RELEASEで動作の確認をしました。
+  現在のところ以上5環境での動作確認を完了しています。5.のGNU/gccについては
+  FreeBSD 5.0で動作の確認をしました。
 
   (Windows + VisualC++)
   次のコマンドでRelease/内にmigemo.dllとcmigemo.exeが作成されます。
@@ -73,7 +73,7 @@ C/Migemoライブラリ説明書
     > nmake msvc-dict
   で辞書ファイルをビルドできます。migemo.dswをVC++6.0で開き、ビルドする方法も
   あります。以上が終了すれば次のコマンドでテストプログラムが動作します。
-    > .\Release\cmigemo -d dict/migemo-dict
+    > .\build\cmigemo -d dict/migemo-dict
 
   (Windows + Cygwin)
   必要な外部プログラム、ネットワーク接続を揃えて以下を実行することでテストプロ
@@ -81,9 +81,9 @@ C/Migemoライブラリ説明書
     $ make cyg
     $ make cyg-dict
   実行はcp932(Shift-JIS)で利用するならば:
-    $ ./cmigemo -d dict/migemo-dict
+    $ ./build/cmigemo -d dict/migemo-dict
   euc-jpで利用するならば:
-    $ ./cmigemo -d dict/euc-jp.d/migemo-dict
+    $ ./build/cmigemo -d dict/euc-jp.d/migemo-dict
   を実行します。インストールとアンインストールはroot権限で次のコマンドを実行す
   ることで行なえます。インストール場所についてはconfig.mkを参照してください。
     # make cyg-install
@@ -96,7 +96,7 @@ C/Migemoライブラリ説明書
     > nmake bc-dict
   で辞書ファイルをビルドできます。以上が終了すれば次のコマンドでテストプログラ
   ムが動作します。
-    > .\cmigemo -d dict/migemo-dict
+    > .\build\cmigemo -d dict/migemo-dict
 
   (MacOS X + Developer Tools)
   必要な外部プログラム、ネットワーク接続を揃えて以下を実行することでテストプロ
@@ -104,9 +104,9 @@ C/Migemoライブラリ説明書
     % make osx
     % make osx-dict
   実行はcp932(Shift-JIS)で利用するならば:
-    % ./cmigemo -d dict/migemo-dict
+    % ./build/cmigemo -d dict/migemo-dict
   euc-jpで利用するならば:
-    % ./cmigemo -d dict/euc-jp.d/migemo-dict
+    % ./build/cmigemo -d dict/euc-jp.d/migemo-dict
   を実行します。インストールとアンインストールはroot権限で次のコマンドを実行す
   ることで行なえます。インストール場所についてはconfig.mkを参照してください。
     # make osx-install
@@ -121,9 +121,9 @@ C/Migemoライブラリ説明書
     $ make gcc
     $ make gcc-dict
   実行はcp932(Shift-JIS)で利用するならば:
-    $ ./cmigemo -d dict/migemo-dict
+    $ ./build/cmigemo -d dict/migemo-dict
   euc-jpで利用するならば:
-    $ ./cmigemo -d dict/euc-jp.d/migemo-dict
+    $ ./build/cmigemo -d dict/euc-jp.d/migemo-dict
   を実行します。インストールとアンインストールはroot権限で次のコマンドを実行す
   ることで行なえます。インストール場所についてはconfig.mkを参照してください。
     # make gcc-install
@@ -357,7 +357,9 @@ C/Migemoライブラリ説明書
     }
 
 更新箇所 {{{1
-  ● (1.1.022)
+  ● (1.1.023)
+    ビルドディレクトリを変更(動作確認済:mvc,cyg,gcc,bc5)
+    (1.1.023)migemo.c:EXPORTSの削除他
     (1.1.022)dict/roma2hira.datに~→～の変換を追加
     (1.1.021)Windows用Makefileを修正
     (1.1.020)romaji.cのテストコードを分離

@@ -1,10 +1,9 @@
 # vim:set ts=8 sts=8 sw=8 tw=0:
 #
-# Cygwin—pMakefile
+# MacOSX—pMakefile
 #
-# Last Change:	16-May-2002.
-# Base Idea:	AIDA Shinra
-# Written By:	MURAOKA Taro <koron@tka.att.ne.jp>
+# Last Change:	19-Oct-2003.
+# Maintainer:	MURAOKA Taro <koron@tka.att.ne.jp>
 
 ##############################################################################
 # ŠÂ‹«‚É‰‚¶‚Ä‚±‚Ì•Ï”‚ğ•ÏX‚·‚é
@@ -18,6 +17,7 @@ LDFLAGS_MIGEMO	=
 
 include config.mk
 include compile/unix.mak
+include src/depend.mak
 include compile/clean_unix.mak
 include compile/clean.mak
 

@@ -2,13 +2,13 @@
 #
 # C/Migemo Makefile
 #
-# Last Change: 22-Jun-2002.
-# Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
+# Last Change: 19-Oct-2003.
+# Maintainer:	MURAOKA Taro <koron@tka.att.ne.jp>
 
 default: tags
 
-tags: *.c *.h
-	ctags *.c *.h
+tags: src/*.c src/*.h
+	ctags src/*.c src/*.h
 
 ##############################################################################
 # for Borland C 5

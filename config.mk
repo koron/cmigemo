@@ -2,13 +2,13 @@
 #
 # デフォルトコンフィギュレーションファイル
 #
-# Last Change:	18-Oct-2003.
+# Last Change:	19-Oct-2003.
 # Base Idea:	AIDA Shinra
-# Written By:	MURAOKA Taro <koron@tka.att.ne.jp>
+# Maintainer:	MURAOKA Taro <koron@tka.att.ne.jp>
 
-srcdir = ./
-objdir = ./
-outdir = ./
+srcdir = ./src/
+objdir = ./build/object/
+outdir = ./build/
 
 ##############################################################################
 # インストールディレクトリの設定
@@ -43,3 +43,9 @@ INSTALL		= /usr/bin/install -c
 #INSTALL	= /usr/ucb/install -c
 INSTALL_PROGRAM	= $(INSTALL) -m 755
 INSTALL_DATA	= $(INSTALL) -m 644
+
+##############################################################################
+# 定数
+#
+O = o
+EXE =

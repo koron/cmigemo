@@ -3,7 +3,7 @@
  * migemo.c -
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 17-Oct-2003.
+ * Last Change: 19-Oct-2003.
  */
 
 #include <stdio.h>
@@ -23,12 +23,15 @@
 #define DICT_ROMA2HIRA "roma2hira.dat"
 #define DICT_HIRA2KATA "hira2kata.dat"
 #define DICT_HAN2ZEN "han2zen.dat"
+#define VOWELS_STRING "aiueo"
 
 #ifdef __BORLANDC__
 # define EXPORTS __declspec(dllexport)
 #else
 # define EXPORTS
 #endif
+
+typedef int (*MIGEMO_PROC_ADDWORD)(void* data, unsigned char* word);
 
 /* migemoオブジェクト */
 struct _migemo
@@ -39,11 +42,24 @@ struct _migemo
     romaji* hira2kata;
     romaji* han2zen;
     rxgen* rx;
+    MIGEMO_PROC_ADDWORD addword;
 };
 
 /*
  * migemo interfaces
  */
+
+    static mtree_p
+load_mtree_dictionary(mtree_p mtree, char* dict_file)
+{
+    FILE *fp;
+
+    if ((fp = fopen(dict_file, "rt")) == NULL)
+	return NULL;			/* Can't find file */
+    mtree = mnode_load(mtree, fp);
+    fclose(fp);
+    return mtree;
+}
 
 /*
  * 既存のmigemoオブジェクトに辞書ファイルを追加読込する。
@@ -58,18 +74,13 @@ migemo_load(migemo* obj, int dict_id, char* dict_file)
     if (dict_id == MIGEMO_DICTID_MIGEMO)
     {
 	/* migemo辞書読み込み */
-	FILE *fp;
 	mtree_p mtree;
 
-	if ((fp = fopen(dict_file, "rt")) == NULL)
-	    return MIGEMO_DICTID_INVALID;	/* Can't find file */
-	mtree = mnode_load(obj->mtree, fp);
-	fclose(fp);
-	if (!mtree)
-	    return MIGEMO_DICTID_INVALID;	/* Exhausted memory */
+	if ((mtree = load_mtree_dictionary(obj->mtree, dict_file)) == NULL)
+	    return MIGEMO_DICTID_INVALID;
 	obj->mtree = mtree;
 	obj->enable = 1;
-	return dict_id;				/* Loaded successfully */
+	return dict_id;			/* Loaded successfully */
     }
     else
     {
@@ -133,6 +144,7 @@ migemo_open(char* dict)
 	char dir[_MAX_PATH];
 	char roma_dict[_MAX_PATH], kata_dict[_MAX_PATH], h2z_dict[_MAX_PATH];
 	char *tmp;
+	mtree_p mtree;
 
 	filename_directory(dir, dict);
 	tmp = strlen(dir) ? dir : ".";
@@ -143,12 +155,14 @@ migemo_open(char* dict)
 	strcat(kata_dict, "/" DICT_HIRA2KATA);
 	strcat(h2z_dict, "/" DICT_HAN2ZEN);
 
-	if (migemo_load(obj, MIGEMO_DICTID_MIGEMO, dict)
-		!= MIGEMO_DICTID_INVALID)
+	mtree = load_mtree_dictionary(obj->mtree, dict);
+	if (mtree)
 	{
-	    migemo_load(obj, MIGEMO_DICTID_ROMA2HIRA, roma_dict);
-	    migemo_load(obj, MIGEMO_DICTID_HIRA2KATA, kata_dict);
-	    migemo_load(obj, MIGEMO_DICTID_HAN2ZEN, h2z_dict);
+	    obj->mtree = mtree;
+	    obj->enable = 1;
+	    romaji_load(obj->roma2hira, roma_dict);
+	    romaji_load(obj->hira2kata, kata_dict);
+	    romaji_load(obj->han2zen, h2z_dict);
 	}
     }
     return obj;
@@ -178,31 +192,31 @@ migemo_close(migemo* obj)
  * query version 2
  */
 
-    EXPORTS
+/*
+ * mnodeの持つ単語リストを正規表現生成エンジンに入力する。
+ */
     static void
 migemo_query_proc(mnode* p, void* data)
 {
-    rxgen *rx = (rxgen*)data;
+    migemo *object = (migemo*)data;
     wordlist_p list = p->list;
 
     for (; list; list = list->next)
-	rxgen_add(rx, list->ptr);
+	object->addword(object, list->ptr);
 }
 
 /*
  * バッファを用意してmnodeに再帰で書き込ませる
  */
-    EXPORTS
     static void
 add_mnode_query(migemo* object, unsigned char* query)
 {
     mnode *pnode;
 
     if ((pnode = mnode_query(object->mtree, query)) != NULL)
-	mnode_traverse(pnode, migemo_query_proc, object->rx);
+	mnode_traverse(pnode, migemo_query_proc, object);
 }
 
-    EXPORTS
     static int
 add_roma(migemo* object, unsigned char* query)
 {
@@ -211,12 +225,12 @@ add_roma(migemo* object, unsigned char* query)
     hira = romaji_convert(object->roma2hira, query, &stop);
     if (!stop)
     {
-	rxgen_add(object->rx, hira);
+	object->addword(object, hira);
 	/* 平仮名による辞書引き */
 	add_mnode_query(object, hira);
 	/* 片仮名文字列を生成し候補に加える */
 	kata = romaji_convert(object->hira2kata, hira, NULL);
-	rxgen_add(object->rx, kata);
+	object->addword(object, kata);
 	/* カタカナによる辞書引き */
 	add_mnode_query(object, kata);
 	romaji_release(object->hira2kata, kata); /* カタカナ解放 */
@@ -230,30 +244,31 @@ add_roma(migemo* object, unsigned char* query)
  * ローマ字変換が不完全だった時に、[aiueo]および"xn"と"xtu"を補って変換して
  * みる。
  */
-    EXPORTS
     static void
 add_dubious_roma(migemo* object, rxgen* rx, unsigned char* query)
 {
+    static unsigned char candidate[] = VOWELS_STRING;
     int len;
     char *buf;
-    unsigned char candidate[] = "aiueo", *ptr;
 
     if (!(len = strlen(query)))
 	return;
     if (!(buf = malloc(len + 1 + 3))) /* NULと拡張文字用(最長:xtu) */
 	return;
-    strcpy(buf, query);
+    memcpy(buf, query, len + 1);
     buf[len + 1] = '\0';
 
     if (!strchr(candidate, buf[len - 1]))
     {
+	unsigned char *ptr;
+
 	/* [aiueo]を順番に補う */
 	for (ptr = candidate; *ptr; ++ptr)
 	{
 	    buf[len] = *ptr;
 	    add_roma(object, buf);
 	}
-	/* 未確定単語の長さが2未満か、未確定文字の直前が拇印ならば… */
+	/* 未確定単語の長さが2未満か、未確定文字の直前が母音ならば… */
 	if (len < 2 || strchr(candidate, buf[len - 2]))
 	{
 	    if (buf[len - 1] == 'n')
@@ -306,20 +321,19 @@ parse_query(unsigned char* query)
 /*
  * 1つの単語をmigemo変換。引数のチェックは行なわない。
  */
-    static unsigned char*
+    static int
 query_a_word(migemo* object, unsigned char* query)
 {
-    unsigned char* answer;
     unsigned char* zen;
 
     /* query自信はもちろん候補に加える */
-    rxgen_add(object->rx, query);
+    object->addword(object, query);
 
     /* queryを全角にして候補に加える */
     zen = romaji_convert(object->han2zen, query, NULL);
     if (zen != NULL)
     {
-	rxgen_add(object->rx, zen);
+	object->addword(object, zen);
 	romaji_release(object->han2zen, zen);
     }
 
@@ -327,20 +341,13 @@ query_a_word(migemo* object, unsigned char* query)
     if (add_roma(object, query))
 	add_dubious_roma(object, object->rx, query);
 
-    /* queryそのものによる辞書引き */
-    add_mnode_query(object, query);
-
-    /* 検索パターン(正規表現)生成 */
-    answer = rxgen_generate(object->rx);
-    rxgen_reset(object->rx);
-
-    return answer;
+    return 1;
 }
 
-    static void
-query_free(unsigned char* buf)
+    static int
+addword_rxgen(migemo* object, unsigned char* word)
 {
-    rxgen_release(NULL, buf);
+    return rxgen_add(object->rx, word);
 }
 
     EXPORTS
@@ -362,14 +369,19 @@ migemo_query(migemo* object, unsigned char* query)
 	if (outbuf == NULL)
 	    goto MIGEMO_QUERY_END; /* 出力用のメモリ領域不足のためエラー */
 
+	/* 単語群をrxgenオブジェクトに入力し正規表現を得る */
+	object->addword = (MIGEMO_PROC_ADDWORD)addword_rxgen;
+	rxgen_reset(object->rx);
 	for (p = querylist; p; p = p->next)
 	{
 	    unsigned char* answer;
 
-	    //printf("HERE %s\n", p->ptr);
-	    answer = query_a_word(object, p->ptr);
+	    query_a_word(object, p->ptr);
+	    /* 検索パターン(正規表現)生成 */
+	    answer = rxgen_generate(object->rx);
+	    rxgen_reset(object->rx);
 	    wordbuf_cat(outbuf, answer);
-	    query_free(answer);
+	    rxgen_release(object->rx, answer);
 	}
     }
 

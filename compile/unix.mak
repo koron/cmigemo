@@ -2,27 +2,35 @@
 #
 # UNIXŒn‹¤’ÊMakefile
 #
-# Last Change:	21-Dec-2002.
+# Last Change:	19-Oct-2003.
 # Base Idea:	AIDA Shinra
-# Written By:	MURAOKA Taro <koron@tka.att.ne.jp>
+# Maintainer:	MURAOKA Taro <koron@tka.att.ne.jp>
 
-libmigemo_SRC = \
-		filename.c migemo.c mnode.c romaji.c \
-		rxgen.c wordbuf.c wordlist.c
-libmigemo_OBJ = $(libmigemo_SRC:.c=.o)
+libmigemo_SRC = $(SRC)
+libmigemo_OBJ = $(OBJ)
 
 DEFINES	=
 CFLAGS	= -O2 -Wall $(DEFINES) $(CFLAGS_MIGEMO)
 LDFLAGS = $(LDFLAGS_MIGEMO)
 LIBS	= 
 
-default: cmigemo$(EXEEXT)
+default: dirs $(outdir)cmigemo$(EXEEXT)
 
-cmigemo$(EXEEXT): main.o $(libmigemo_LIB)
-	$(CC) -o $@ main.o -L. -lmigemo $(LDFLAGS)
+dirs:
+	@for i in $(objdir) $(outdir); do \
+		if test ! -d $$i; then \
+			$(MKDIR) $$i; \
+		fi \
+	done
 
-main.o: main.c
-	$(CC) -c $< -o $@ $(CFLAGS)
+$(outdir)cmigemo$(EXEEXT): $(objdir)main.$(O) $(libmigemo_LIB)
+	$(CC) -o $@ $(objdir)main.$(O) -L. -L$(outdir) -lmigemo $(LDFLAGS)
+
+$(objdir)main.o: $(srcdir)main.c
+	$(CC) $(CFLAGS) -o $@ -c $<
+
+$(objdir)%.o: $(srcdir)%.c
+	$(CC) $(CFLAGS) -o $@ -c $<
 
 ##############################################################################
 # Install
