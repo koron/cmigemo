@@ -2,22 +2,12 @@
 /*
  * migemo.h -
  *
- * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 14-Aug-2001.
+ * Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
+ * Last Change: 14-May-2002.
  */
 
 #ifndef MIGEMO_H
 #define MIGEMO_H
-
-#if !defined(C_DECL_BEGIN) && !defined(C_DECL_END)
-# ifdef __cplusplus
-#  define C_DECL_BEGIN() extern "C" {
-#  define C_DECL_END() }
-# else
-#  define C_DECL_BEGIN()
-#  define C_DECL_END()
-# endif
-#endif
 
 /* for migemo_load() */
 #define MIGEMO_DICTID_INVALID	    0
@@ -40,7 +30,10 @@ typedef int (*MIGEMO_PROC_INT2CHAR)(unsigned int, unsigned char*);
 
 typedef struct _migemo migemo;
 
-C_DECL_BEGIN();
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 migemo* migemo_open(char* dict);
 void migemo_close(migemo* object);
 unsigned char* migemo_query(migemo* object, unsigned char* query);
@@ -54,5 +47,9 @@ void migemo_setproc_int2char(migemo* object, MIGEMO_PROC_INT2CHAR proc);
 int migemo_load(migemo* obj, int dict_id, char* dict_file);
 int migemo_is_enable(migemo* obj);
 C_DECL_END();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* MIGEMO_H */

@@ -35,11 +35,11 @@ OutDir=.\Release
 
 !IF "$(RECURSE)" == "0" 
 
-ALL : "$(OUTDIR)\migemo.exe"
+ALL : "$(OUTDIR)\cmigemo.exe"
 
 !ELSE 
 
-ALL : "dll_migemo - Win32 Release" "$(OUTDIR)\migemo.exe"
+ALL : "dll_migemo - Win32 Release" "$(OUTDIR)\cmigemo.exe"
 
 !ENDIF 
 
@@ -50,8 +50,8 @@ CLEAN :
 !ENDIF 
 	-@erase "$(INTDIR)\main.obj"
 	-@erase "$(INTDIR)\vc60.idb"
-	-@erase "$(OUTDIR)\migemo.exe"
-	-@erase "$(OUTDIR)\migemo.map"
+	-@erase "$(OUTDIR)\cmigemo.exe"
+	-@erase "$(OUTDIR)\cmigemo.map"
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
@@ -95,12 +95,12 @@ BSC32_FLAGS=/nologo /o"$(OUTDIR)\migemo.bsc"
 BSC32_SBRS= \
 	
 LINK32=link.exe
-LINK32_FLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /incremental:no /pdb:"$(OUTDIR)\migemo.pdb" /map:"$(INTDIR)\migemo.map" /machine:I386 /out:"$(OUTDIR)\migemo.exe" 
+LINK32_FLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /incremental:no /pdb:"$(OUTDIR)\cmigemo.pdb" /map:"$(INTDIR)\cmigemo.map" /machine:I386 /out:"$(OUTDIR)\cmigemo.exe" 
 LINK32_OBJS= \
 	"$(INTDIR)\main.obj" \
 	"$(OUTDIR)\migemo.lib"
 
-"$(OUTDIR)\migemo.exe" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
+"$(OUTDIR)\cmigemo.exe" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
     $(LINK32) @<<
   $(LINK32_FLAGS) $(LINK32_OBJS)
 <<
@@ -115,11 +115,11 @@ OutDir=.\Debug
 
 !IF "$(RECURSE)" == "0" 
 
-ALL : "$(OUTDIR)\migemo.exe"
+ALL : "$(OUTDIR)\cmigemo.exe"
 
 !ELSE 
 
-ALL : "dll_migemo - Win32 Debug" "$(OUTDIR)\migemo.exe"
+ALL : "dll_migemo - Win32 Debug" "$(OUTDIR)\cmigemo.exe"
 
 !ENDIF 
 
@@ -131,9 +131,9 @@ CLEAN :
 	-@erase "$(INTDIR)\main.obj"
 	-@erase "$(INTDIR)\vc60.idb"
 	-@erase "$(INTDIR)\vc60.pdb"
-	-@erase "$(OUTDIR)\migemo.exe"
-	-@erase "$(OUTDIR)\migemo.map"
-	-@erase "$(OUTDIR)\migemo.pdb"
+	-@erase "$(OUTDIR)\cmigemo.exe"
+	-@erase "$(OUTDIR)\cmigemo.map"
+	-@erase "$(OUTDIR)\cmigemo.pdb"
 
 "$(OUTDIR)" :
     if not exist "$(OUTDIR)/$(NULL)" mkdir "$(OUTDIR)"
@@ -177,12 +177,12 @@ BSC32_FLAGS=/nologo /o"$(OUTDIR)\migemo.bsc"
 BSC32_SBRS= \
 	
 LINK32=link.exe
-LINK32_FLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /incremental:no /pdb:"$(OUTDIR)\migemo.pdb" /map:"$(INTDIR)\migemo.map" /debug /machine:I386 /out:"$(OUTDIR)\migemo.exe" /pdbtype:sept 
+LINK32_FLAGS=kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /incremental:no /pdb:"$(OUTDIR)\cmigemo.pdb" /map:"$(INTDIR)\cmigemo.map" /debug /machine:I386 /out:"$(OUTDIR)\cmigemo.exe" /pdbtype:sept 
 LINK32_OBJS= \
 	"$(INTDIR)\main.obj" \
 	"$(OUTDIR)\migemo.lib"
 
-"$(OUTDIR)\migemo.exe" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
+"$(OUTDIR)\cmigemo.exe" : "$(OUTDIR)" $(DEF_FILE) $(LINK32_OBJS)
     $(LINK32) @<<
   $(LINK32_FLAGS) $(LINK32_OBJS)
 <<
@@ -194,7 +194,7 @@ LINK32_OBJS= \
 !IF EXISTS("compile\migemo.dep")
 !INCLUDE "compile\migemo.dep"
 !ELSE 
-!MESSAGE Warning: cannot find "migemo.dep"
+!MESSAGE Warning: cannot find "compile\migemo.dep"
 !ENDIF 
 !ENDIF 
 

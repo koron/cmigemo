@@ -2,7 +2,7 @@ VimにおけるMigemo DLLの使用法
                                                              since 14-Aug-2001
                                                                    Version 1.0
                                                           Muraoka Taro (KoRoN)
-                                                     Last Change: 19-Jan-2002.
+                                                     Last Change: 14-May-2002.
 
 説明
   Migemo DLLはローマ字入力を日本語検索の正規表現に変換するライブラリです。これ
@@ -21,7 +21,7 @@ VimにおけるMigemo DLLの使用法
   - Vim日本語版情報 (C/Migemo情報有)
       http://www.kaoriya.net/
   - Vim掲示板
-      http://www.kaoriya.net/~koron/bbs/bbs.cgi
+      http://www.kaoriya.net/bbs/bbs.cgi
 
 インストール手順
   以下の説明ではVimをインストールした(gvim.exeの置いてある)ディレクトリを$VIM
@@ -34,20 +34,20 @@ VimにおけるMigemo DLLの使用法
     runtime/plugin/migemo.vimを$VIM/runtime/plugin/に置きます。この作業は同梱
     のruntimeディレクトリを$VIMへ上書きコピーすれば完了できます。関係の無い
     ファイルはまったく触らず上書きできますので安心して上書きコピーしてくださ
-    い。
+    い。その他、個人ディレクトリvimfiles/pluginに置くこともできます。
   3. 辞書ファイルをインストールする
-    $VIM/dictというディレクトリを作り、migemo-dict、roma2hira.dat、そして
-    hira2kata.datを置きます。この作業は同梱のdictディレクトリを$VIMへ上書きコ
-    ピーすれば完了できます。関係の無いファイルはまったく触らず上書きできますの
-    で安心して上書きコピーしてください。
+    $VIM/dictというディレクトリを作り、migemo-dict、roma2hira.dat、han2zen.dat
+    そしてhira2kata.datを置きます。この作業は同梱のdictディレクトリを$VIMへ上
+    書きコピーすれば完了できます。関係の無いファイルはまったく触らず上書きでき
+    ますので安心して上書きコピーしてください。
 
   つまり実のところ、このアーカイブに含まれる全てのファイルとディレクトリを、
   $VIMへコピーすればインストールは完了します。
 
 使用方法
-  インストール作業の後、Vimを起動するとMigemoは無効の状態になります。これは
-  Migemoを使用するとVimの動作が非常に遅くなってしまう場合があるからです。次の
-  ように'migemo'オプションを設定することで有効にすることができます:
+  インストール作業の後、Vimを起動するとMigemoは無効の状態になっています。これ
+  はMigemoを使用するとVimの動作が非常に遅くなってしまう場合があるからです。次
+  のように'migemo'オプションを設定することで有効にすることができます:
         :set migemo
   常に有効の状態で起動したい場合には上記設定を_vimrcに記述すると良いでしょう。
   また一度有効にした後で無効に戻すには'nomigemo'オプションを設定します:
@@ -86,6 +86,8 @@ VimにおけるMigemo DLLの使用法
   えていただいた高林 哲さんに。
 
 更新箇所
+  ● xx-May-2002
+    C/Migemo 1.1と再パッケージ
   ● 08-Sep-2001
     プラグインでhas('migemo')をチェックするように変更
   ● 14-Aug-2001

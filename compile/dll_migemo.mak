@@ -212,7 +212,7 @@ LINK32_OBJS= \
 !IF EXISTS("compile\dll_migemo.dep")
 !INCLUDE "compile\dll_migemo.dep"
 !ELSE 
-!MESSAGE Warning: cannot find "dll_migemo.dep"
+!MESSAGE Warning: cannot find "compile\dll_migemo.dep"
 !ENDIF 
 !ENDIF 
 
