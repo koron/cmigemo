@@ -2,7 +2,7 @@ C/Migemoライブラリ説明書
                                                              since 15-Aug-2001
                                                                    Version 1.1
                                                   Author: MURAOKA Taro (KoRoN)
-                                                     Last Change: 25-Mar-2003.
+                                                     Last Change: 21-Aug-2003.
 
 説明
   C/MigemoはMigemo(Ruby/Migemo)をC言語で実装したものです。C/Migemoライブラリを
@@ -43,6 +43,7 @@ C/Migemoライブラリ説明書
     compile/            :各プラットホーム用のメイクファイル置き場
     doc/                :ドキュメント置き場
     dict/               :辞書置き場
+    msvc/               :VC6用プロジェクトファイル群
     tool/               :各種ツール
 
 コンパイル方法
@@ -319,7 +320,8 @@ C/Migemoライブラリ説明書
     }
 
 更新箇所 {{{1
-  ● (1.1.012)
+  ● (1.1.014)
+    (1.1.014)MSVC用プロジェクトファイルをmsvc/以下へ移動
     (1.1.013)cmigemoに--emacs/-e及び--nonewline/-nを追加
     (1.1.012)mkpkgを改良
     (1.1.011)dict/roma2hira.datに[bp]y[aiueo]のエントリを追加
