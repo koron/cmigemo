@@ -2,7 +2,7 @@ C/Migemoライブラリ説明書
                                                              since 15-Aug-2001
                                                                    Version 1.1
                                                   Author: MURAOKA Taro (KoRoN)
-                                                     Last Change: 22-Jun-2002.
+                                                     Last Change: 24-Oct-2002.
 
 説明
   C/MigemoはMigemo(Ruby/Migemo)をC言語で実装したものです。C/Migemoライブラリを
@@ -316,7 +316,8 @@ C/Migemoライブラリ説明書
     }
 
 更新箇所 {{{1
-  ● (1.1.3)
+  ● (1.1.004)
+    (1.1.004)連文節に対応(β版扱い)
     (1.1.003)Solaris用メイクファイルMake_sun.makを追加、未動作チェック
     (1.1.002)辞書の1行に複数エントリを出力できなくなっていた問題を修正
     (1.1.001)migemo.vimをUNIX系に対応

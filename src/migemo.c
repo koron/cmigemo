@@ -3,12 +3,13 @@
  * migemo.c -
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 16-May-2002.
+ * Last Change: 24-Oct-2002.
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "wordbuf.h"
 #include "wordlist.h"
@@ -273,45 +274,123 @@ add_dubious_roma(migemo* object, rxgen* rx, unsigned char* query)
     free(buf);
 }
 
+/*
+ * queryを文節に分解する。文節の切れ目は通常アルファベットの大文字。文節が複
+ * 数文字の大文字で始まった文節は非大文字を区切りとする。
+ */
+    static wordlist_p
+parse_query(unsigned char* query)
+{
+    unsigned char *buf = query;
+    wordlist_p querylist = NULL, *pp = &querylist;
+
+    while (*buf != '\0')
+    {
+	unsigned char *start = buf++;
+
+	if (isupper(start[0]) && isupper(buf[0]))
+	{
+	    ++buf;
+	    while (buf[0] != '\0' && isupper(buf[0]))
+		++buf;
+	}
+	else
+	    while (buf[0] != '\0' && !isupper(buf[0]))
+		++buf;
+	*pp = wordlist_open_len(start, buf - start);
+	pp = &(*pp)->next;
+    }
+    return querylist;
+}
+
+/*
+ * 1つの単語をmigemo変換。引数のチェックは行なわない。
+ */
+    static unsigned char*
+query_a_word(migemo* object, unsigned char* query)
+{
+    unsigned char* answer;
+    unsigned char* zen;
+
+    /* query自信はもちろん候補に加える */
+    rxgen_add(object->rx, query);
+
+    /* queryを全角にして候補に加える */
+    zen = romaji_convert(object->han2zen, query, NULL);
+    if (zen != NULL)
+    {
+	rxgen_add(object->rx, zen);
+	romaji_release(object->han2zen, zen);
+    }
+
+    /* 平仮名、カタカナ、及びそれによる辞書引き追加 */
+    if (add_roma(object, query))
+	add_dubious_roma(object, object->rx, query);
+
+    /* queryそのものによる辞書引き */
+    add_mnode_query(object, query);
+
+    /* 検索パターン(正規表現)生成 */
+    answer = rxgen_generate(object->rx);
+    rxgen_reset(object->rx);
+
+    return answer;
+}
+
+    static void
+query_free(unsigned char* buf)
+{
+    rxgen_release(NULL, buf);
+}
+
     EXPORTS
     unsigned char*
 migemo_query(migemo* object, unsigned char* query)
 {
-    unsigned char* answer = NULL;
+    unsigned char *retval = NULL;
+    wordlist_p querylist = NULL;
+    wordbuf_p outbuf = NULL;
 
     if (object && object->rx && query)
     {
-	unsigned char* zen;
-	/* query自信はもちろん候補に加える */
-	rxgen_add(object->rx, query);
+	wordlist_p p;
 
-	/* queryを全角にして候補に加える */
-	if ((zen = romaji_convert(object->han2zen, query, NULL)) != NULL)
+	querylist = parse_query(query);
+	if (querylist == NULL)
+	    goto MIGEMO_QUERY_END; /* 空queryのためエラー */
+	outbuf = wordbuf_open();
+	if (outbuf == NULL)
+	    goto MIGEMO_QUERY_END; /* 出力用のメモリ領域不足のためエラー */
+
+	for (p = querylist; p; p = p->next)
 	{
-	    rxgen_add(object->rx, zen);
-	    romaji_release(object->han2zen, zen);
+	    unsigned char* answer;
+
+	    printf("HERE %s\n", p->ptr);
+	    answer = query_a_word(object, p->ptr);
+	    wordbuf_cat(outbuf, answer);
+	    query_free(answer);
 	}
-
-	/* 平仮名、カタカナ、及びそれによる辞書引き追加 */
-	if (add_roma(object, query))
-	    add_dubious_roma(object, object->rx, query);
-
-	/* queryそのものによる辞書引き */
-	add_mnode_query(object, query);
-
-	/* 検索パターン(正規表現)生成 */
-	answer = rxgen_generate(object->rx);
-	rxgen_reset(object->rx);
     }
 
-    return answer;
+MIGEMO_QUERY_END:
+    if (outbuf)
+    {
+	retval = outbuf->buf;
+	outbuf->buf = NULL;
+	wordbuf_close(outbuf);
+    }
+    if (querylist)
+	wordlist_close(querylist);
+
+    return retval;
 }
 
     EXPORTS
     void
 migemo_release(migemo* p, unsigned char* string)
 {
-    rxgen_release(NULL, string);
+    free(string);
 }
 
     EXPORTS
