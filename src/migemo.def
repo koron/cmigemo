@@ -1,0 +1,7 @@
+LIBRARY MIGEMO
+DESCRIPTION "Migemo DLL"
+EXPORTS
+	migemo_open	@1
+	migemo_close	@2
+	migemo_query	@3
+	migemo_release	@4
