@@ -90,8 +90,13 @@ wordbuf_add(wordbuf_p p, unsigned char ch)
 
     if (newlen > p->len && !wordbuf_extend(p, newlen))
 	return 0;
+#if 1
     p->buf[p->last++]	= ch;
     p->buf[p->last  ]	= '\0';
+#else
+    /* リトルエンディアンを仮定するなら使えるが… */
+    *(unsigned short*)&p->buf[p->last++] = (unsigned short)ch;
+#endif
     return p->last;
 }
 
