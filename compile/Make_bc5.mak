@@ -2,14 +2,14 @@
 #
 # Borland C 5óp Makefile
 #
-# Last Change:	16-May-2002.
+# Last Change:	27-May-2002.
 # Written By:	MURAOKA Taro <koron@tka.att.ne.jp>
 
 # éQçléëóø:
 #	http://www2.justnet.ne.jp/~tyche/bcbbugs/bcc32-option.html
 #	http://www2.justnet.ne.jp/~tyche/bcbbugs/ilink32-option.html
 
-default: release
+default: rel
 
 !include config.mk
 !include compile\clean_dos.mak
@@ -30,7 +30,7 @@ LIBS	= import32.lib cw32mt.lib
 
 LD = ilink32
 
-release: cmigemo.exe
+rel: cmigemo.exe
 
 cmigemo.exe: main.obj $(libmigemo_LIB)
 	$(LD) $(LDFLAGS) c0x32.obj main.obj, $@, , $(libmigemo_LIB) $(LIBS), ,

@@ -2,7 +2,7 @@ C/Migemoライブラリ説明書
                                                              since 15-Aug-2001
                                                                    Version 1.1
                                                   Author: MURAOKA Taro (KoRoN)
-                                                     Last Change: 16-May-2002.
+                                                     Last Change: 27-May-2002.
 
 説明
   C/MigemoはMigemo(Ruby/Migemo)をC言語で実装したものです。C/Migemoライブラリを
@@ -110,6 +110,9 @@ C/Migemoライブラリ説明書
   ることで行なえます。インストール場所についてはconfig.mkを参照してください。
     # make osx-install
     # make osx-uninstall
+  インストールにより辞書ファイルは
+    /usr/local/share/migemo/{エンコード名}
+  に置かれます。
 
   (GNU/gcc:Linux他)
   必要な外部プログラム、ネットワーク接続を揃えて以下を実行することでテストプロ
@@ -124,6 +127,9 @@ C/Migemoライブラリ説明書
   ることで行なえます。インストール場所についてはconfig.mkを参照してください。
     # make gcc-install
     # make gcc-uninstall
+  インストールにより辞書ファイルは
+    /usr/local/share/migemo/{エンコード名}
+  に置かれます。
 
 利用条件
   このC/Migemoライブラリは以下の条件に同意できる方のみ利用が許可されます。
@@ -152,7 +158,9 @@ C/Migemoライブラリ説明書
     Borland C++用Makefileの基礎
 
 
-辞書について
+付録
+
+辞書について {{{1
   C/Migemoではローマ字を日本語へ変換するのに辞書ファイルdict/migemo-dictを必要
   とします。ファイルdict/migemo-dictはこのアーカイブに含まれていませんが、辞書
   ファイルのビルド時にインターネットを通じて自動的にダウンロードする仕組みにな
@@ -178,18 +186,18 @@ C/Migemoライブラリ説明書
   - SKK Openlab (最新のSKK-JISYO.Lが入手可能)
       http://openlab.ring.gr.jp/skk/index-j.html
 
-型リファレンス
+型リファレンス {{{1
   C/Migemoで利用される型について述べる。
 
 - migemo*;
     Migemoオブジェクト。migemo_open()で作成され、migemo_close()で破棄される。
 
 - int (*MIGEMO_PROC_CHAR2INT)(unsigned char*, unsigned int*);
-    バイト列(unsigned char*)をコード(unsigned int)に変換するプロシージャ型。
-    Shift-JISやEUC-JP以外のエンコードの文字列を扱うとき、もしくは特殊文字の処
-    理を行いたいときに定義する。戻り値は文字列のうち処理したバイト数で、0を返
-    せばデフォルトのプロシージャが実行される。この仕組みで必要な文字だけに処理
-    を施すことが出来る。
+    バイト列(unsigned char*)を文字コード(unsigned int)に変換するプロシージャ
+    型。Shift-JISやEUC-JP以外のエンコードの文字列を扱うとき、もしくは特殊文字
+    の処理を行いたいときに定義する。戻り値は文字列のうち処理したバイト数で、0
+    を返せばデフォルトのプロシージャが実行される。この仕組みで必要な文字だけに
+    処理を施すことが出来る。
 
 - int (*MIGEMO_PROC_INT2CHAR)(unsigned int, unsigned char*);
     コード(unsigned int)をバイト列(unsigned char*)に変換するプロシージャ型。
@@ -198,7 +206,7 @@ C/Migemoライブラリ説明書
     デフォルトのプロシージャが実行される。この仕組みで必要な文字だけに処理を施
     すことが出来る。
 
-関数リファレンス
+関数リファレンス {{{1
   C/Migemoライブラリで提供されるAPIを以下で解説する。実際の使用例はアーカイブ
   に含まれるmain.cを参照のこと。
 
@@ -282,7 +290,34 @@ C/Migemoライブラリ説明書
     Migemoオブジェクトにコード変換用のプロシージャを設定する。プロシージャにつ
     いての詳細は「型リファレンス」セクションのMIGEMO_PROC_INT2CHARを参照。
 
-更新箇所
+コーディングサンプル {{{1
+  C/Migemoを利用したコーディング例を示す。以下のサンプルは一切のエラー処理を行
+  なっていないので、実際の利用時には注意が必要。
+    #include <stdio.h>
+    #inlcude "migemo.h"
+    int main(int argc, char** argv)
+    {
+        migemo *m;
+        /* C/Migemoの準備: 辞書読込にはエラー検出のためloadを推奨 */
+        m = migemo_open(NULL);
+        migemo_load(m, MIGEMO_DICTID_MIGEMO, "./dict/migemo-dict");
+        /* 必要な回数だけqueryを行なう */
+        {
+            unsigned char* p;
+            p = migemo_query(m, "nezu");
+            printf("C/Migemo: %s\n", p);
+            migemo_release(m, p); /* queryの結果は必ずreleaseする */
+        }
+        /* 利用し終わったmigemoオブジェクトはcloseする */
+        migemo_close(m);
+        return 0;
+    }
+
+更新箇所 {{{1
+  ● 27-May-2002 (1.1 正式版)
+    正式版リリース
+    ドキュメントブラッシュアップ
+    Makefile修正:releaseが./Releaseのためにビルドできなかった問題
   ● 16-May-2002 (1.1-beta2)
     BC5対応のためブチ切れ寸前…(_ _;;;
     Makefileの構造変更(BC5対応のため)
@@ -304,9 +339,10 @@ C/Migemoライブラリ説明書
     起動を1割から2割高速化 (mnode.c)
   ● 21-Aug-2001
     main.cのgets()をfgets()に変更
+}}}
 
 -------------------------------------------------------------------------------
                   生きる事への強い意志が同時に自分と異なる生命をも尊ぶ心となる
                                     MURAOKA Taro/村岡太郎<koron@tka.att.ne.jp>
 
- vi:set ts=8 sts=2 sw=2 tw=78 et ft=memo:
+ vi:set ts=8 sts=2 sw=2 tw=78 et fdm=marker ft=memo:

@@ -2,20 +2,20 @@
 #
 # Visual C++—p Makefile
 #
-# Last Change:	16-May-2002.
+# Last Change:	27-May-2002.
 # Written By:	MURAOKA Taro <koron@tka.att.ne.jp>
 
-default: release
+default: rel
 
 !include config.mk
 !include compile/clean_dos.mak
 !include compile/clean.mak
 !include dict/dict.mak
 
-release:
+rel:
 	$(MAKE) /nologo /f compile\migemo.mak CFG="migemo - Win32 Release"
 
-debug:
+dbg:
 	$(MAKE) /nologo /f compile\migemo.mak CFG="migemo - Win32 Debug"
 
 dictionary: cd-dict msvc
