@@ -4,7 +4,7 @@
 #
 # Last Change:	19-Oct-2003.
 # Base Idea:	AIDA Shinra
-# Written By:	MURAOKA Taro <koron@tka.att.ne.jp>
+# Maintainer:	MURAOKA Taro <koron@tka.att.ne.jp>
 
 ##############################################################################
 # ŠÂ‹«‚É‰‚¶‚Ä‚±‚Ì•Ï”‚ğ•ÏX‚·‚é
