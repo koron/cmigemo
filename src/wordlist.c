@@ -3,7 +3,7 @@
  * wordlist.h -
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 11-Aug-2001.
+ * Last Change: 21-Jan-2002.
  */
 
 #include <stdlib.h>
@@ -15,8 +15,9 @@ int n_wordlist_delete	= 0;
 int n_wordlist_total	= 0;
 
     wordlist*
-wordlist_new(unsigned char* ptr)
+wordlist_new_len(unsigned char* ptr, int len)
 {
+#if 1
     wordlist *p;
 
     ++n_wordlist_new;
@@ -39,6 +40,29 @@ wordlist_new(unsigned char* ptr)
 #endif
     }
     return p;
+#else
+    if (ptr && len > 1)
+    {
+	wordlist *p;
+
+	if (p = (wordlist*)malloc(sizeof(*p) + len))
+	{
+	    ++n_wordlist_new;
+	    n_wordlist_total += len;
+	    p->ptr  = (char*)(p + 1);
+	    p->next = NULL;
+	    memcpy(p->ptr, ptr, len);
+	}
+	return p;
+    }
+    return NULL;
+#endif
+}
+
+    wordlist*
+wordlist_new(unsigned char* ptr)
+{
+    return ptr ? wordlist_new_len(ptr, strlen(ptr) + 1) : NULL;
 }
 
     void
@@ -49,7 +73,7 @@ wordlist_delete(wordlist* p)
 	wordlist *next = p->next;
 
 	++n_wordlist_delete;
-	free(p->ptr);
+	//free(p->ptr);
 	free(p);
 	p = next;
     }
