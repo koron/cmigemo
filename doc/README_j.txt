@@ -28,42 +28,40 @@ C/Migemoライブラリ説明書
 ファイル構成
   C/Migemoのパッケージは現在のところ次のようなファイル・ディレクトリから構成さ
   れています。
+  (ファイル)
     Makefile            :統合メイクファイル
+    README.txt          :各ドキュメントへのポインタ
+    VERSION             :バージョン番号
+    config.mk           :メイクコンフィギュレーション
     migemo.dsw          :VC6のワークスペース
     *.dsp               :VC6用プロジェクト(migemo.dswから参照される)
     migemo.h            :ライブラリを利用するのためのインクルードファイル
     main.c              :ライブラリを利用するサンプルプログラム
     *.c                 :ライブラリのソース
     *.h                 :ライブラリのソース用インクルードファイル
+  (ディレクトリ)
     compile/            :各プラットホーム用のメイクファイル置き場
+    doc/                :ドキュメント置き場
     dict/               :辞書置き場
     tool/               :各種ツール
-    testdata/           :開発テストに利用したデータの置き場
 
 コンパイル方法
-  Windowsの場合:
-    次のコマンドでRelease/内にmigemo.dllとmigemo.exeが作成されます。
-      > nmake msvc
-    migemo.dswをVC++6.0で開き、ビルドする方法もあります。
+  (Windows + VisualC++)
+  次のコマンドでRelease/内にmigemo.dllとmigemo.exeが作成されます。
+    > nmake msvc
+  migemo.dswをVC++6.0で開き、ビルドする方法もあります。
 
-  コンパイル自体がcygwinやLinux上で可能なことは確認してあります。ソースのある
-  ディレクトリで:
-    $ gcc *.c -o migemo
-  としてみてください。サンプルアプリケーションmigemoがコンパイルされます。
-  Windows以外のプラットホーム(UNIXやLinux)で使用する場合には、辞書ファイルのエ
-  ンコードをコンバートする必要が生じる可能性があります。辞書についての詳細は
-  「辞書について」のセクションを参照してください。autotoolsによるライブラリと
-  してコンパイルするための:
-    $ ./configure && make && make install
-  は準備していません。どなたかやっていただけませんか?。
+  (Windows + Cygwin)
+  (MacOS X + Developer tools)
+  (Linux + gcc)
 
 利用条件
   このC/Migemoライブラリは以下の条件に同意できる方のみ利用が許可されます。
 
-  1. ソースコードの著作権は放棄しません。
+  1. アーカイブ内のソースコードを含む全ファイルの著作権は村岡にあります。
   2. このライブラリを使用したために生じた損害については一切補償しません。
   3. 詳細は決まっていませんが、C/Migemoのソースコードは幅広く低コストで利用で
-     きるようにLGPLかBSD、もしくはそれらに準ずるライセンスを適用します。
+     きるようにLGPLかBSD、もしくはそれに準ずるライセンスを適用します。
 
   特に辞書のライセンスが非常にグレーなので確定できていないのです。
 
@@ -213,6 +211,7 @@ C/Migemoライブラリ説明書
 
 更新箇所
   ● 15-May-2002 (1.1a-beta)
+    ドキュメントブラッシュアップ
     Cygwin/MacOS X/Linux用にMakefileを作成
     strip.plとlensort.plをtool/optimize-dict.plに統合
     tool/conv.plをtool/skk2migemodict.plに名称変更
