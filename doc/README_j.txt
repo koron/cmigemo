@@ -1,0 +1,166 @@
+C/Migemoライブラリ説明書
+                                                             since 15-Aug-2001
+                                                                   Version 1.0
+                                                          Muraoka Taro (KoRoN)
+                                                     Last Change: 16-Aug-2001.
+
+説明 {{{1
+  C/MigemoはMigemo(もしくはRuby/Migemo)をC言語で実装したものです。C/Migemoライ
+  ブラリを利用するソフトウェアは「ローマ字のまま日本語を(インクリメンタルに)検
+  索する」機能を持つことが可能になります。C言語で実装したことにより、本家
+  Ruby/Migemoに比べ、C言語で書かれた多くのソフトウェアからの利用が容易になるこ
+  と、及び実行速度の向上が期待できます。
+
+  またC/Migemoを利用するためには別途辞書ファイル(dict/migemo-dict)を作成・入手
+  する必要があります。自分でまったくのゼロから辞書を作成することもできますが、
+  Ruby/Migemoのmigemo-dictを流用したり、SKKの辞書からコンバートすることも可能
+  です。詳しくは下記の「辞書について」のセクションを参照してください。
+
+  Migemoとは高林 哲さんが考案した「ローマ字入力を日本語検索のための正規表現に
+  変換する」ツールです。もともとはEmacs上でローマ字のまま日本語をインクリメン
+  タル検索するために、RubyとEmacs LISPで実装されていました。
+
+  - 本家Ruby/Migemoサイト (Migemoに関する詳細情報)
+      http://migemo.namazu.org/
+  - C/Migemo作者のサイト (C/Migemoの情報)
+      http://ixeris.bios.ics.saitama-u.ac.jp/~koron/
+
+ファイル構成 {{{1
+  C/Migemoのパッケージは現在のところ次のようなファイル・ディレクトリから構成さ
+  れています。
+    Makefile            :cygwin make + VC6によるテスト用メイクファイル
+    migemo.dsw          :VC6のワークスペース
+    *.dsp               :VC6用プロジェクト(migemo.dswから参照される)
+    migemo.h            :ライブラリを利用するのためのインクルードファイル
+    main.c              :ライブラリを利用するサンプルプログラム
+    *.c                 :ライブラリのソース
+    *.h                 :ライブラリのソース用インクルードファイル
+    dict                :辞書置き場
+    tool                :各種ツール
+    testdata            :開発テストに利用したデータの置き場
+
+コンパイル方法 {{{1
+  現在はWindows上でVC++6を用いてDLLをコンパイルするためのファイルしか用意され
+  ていません。DLLを作成するにはmigemo.dswをVisual Studioで開き、dll_migemoプロ
+  ジェクトをビルドすれば完了です。
+
+  コンパイル自体がcygwinやLinux上で可能なことは確認してあります。ソースのある
+  ディレクトリで:
+    $ gcc *.c -o migemo
+  としてみてください。サンプルアプリケーションmigemoがコンパイルされます。
+  Windows以外のプラットホーム(UNIXやLinux)で使用する場合には、辞書ファイルのエ
+  ンコードをコンバートする必要が生じる可能性があります。詳しくは「辞書につい
+  て」のセクションを参照してください。なおautotoolsによるライブラリとしてコン
+  パイルするための:
+    $ ./configure && make && make install
+  は準備していません。どなたかやっていただけませんか?。
+
+利用条件 {{{1
+  このC/Migemoライブラリは以下の条件に同意できる方のみ利用が許可されます。
+
+  1. ソースコードの著作権は放棄しません。
+  2. このライブラリを使用したために生じた損害については一切補償しません。
+  3. まだ詳細こそ決まっていませんが、C/Migemoのソースコードは幅広く低コストで
+     利用できるようにLGPLかBSD、もしくはそれに準ずるライセンスの適用を行ないま
+     す。
+
+  特に辞書のライセンスが非常にグレーなので確定できていないのです。
+
+質問・連絡先 {{{1
+  C/Migemoに関する質問・要望等は村岡(下記アドレス参照)まで連絡してください。ソ
+  フトウェアからC/Migemoを使用したい場合の問い合わせも受け付けます。
+
+謝辞 {{{1
+  Migemoを発案されRuby/Migemoを作成され、C/Migemoについての相談にMLで親切に答
+  えていただいた高林 哲さんに。
+
+
+辞書について {{{1
+  C/Migemoではローマ字を日本語へ変換するのに辞書ファイルdict/migemo-dictを必要
+  とします。ファイルdict/migemo-dictはこのアーカイブに含まれていませんが、
+    1. vim向けにコンパイル済みのMigemo DLLから持ってくるか
+    2. Ruby/Migemoのものを流用するか
+    3. SKKの辞書ファイルからコンバートする
+  ことができます。
+
+  SKKからコンバートするためのツールはPerlで書かれたtool/conv.plとして収録され
+  ています。SKK-JISYO.Lを下記URLから取得して次のようにコンバートします。
+    $ perl tool/conv.pl < SKK-JISYO.L > dict/migemo-dict
+  tool/strip.plは辞書ファイルから重複単語を削除するためのツールです。
+
+  C/Migemoでは
+    1. dict/migemo-dict以外にも、
+    2. ローマ字を平仮名に変換するためのファイル(dict/roma2hira.dat)や、
+    3. 平仮名を片仮名に変換するためのファイル(dict/hira2kata.dat)や、
+    4. 半角文字を全角文字に変換するためのファイル(dict/han2zen.dat)
+  を使用しています。これらの全てのファイルは単にデータテーブルとして機能してい
+  るだけでなく、システムのエンコード(漢字コード)の違いを吸収する役割も担ってい
+  ます。つまり先に挙げた4ファイルをWindowsで使う場合にはsjisに、UNIXやLinuxで
+  使う場合にはeuc-jpに変換する必要があるのです。変換にはnkfやqkcを使うと良いで
+  しょう。
+
+  - Migemo DLL配布ページ (sjisのmigemo-dictが入手可能)
+      http://ixeris.bios.ics.saitama-u.ac.jp/~koron/
+  - Ruby/Migemo (euc-jpのmigemo-dictが入手可能)
+      http://migemo.namazu.org/
+  - SKK Openlab (最新のオリジナルのSKK-JISYO.Lが入手可能)
+      http://openlab.ring.gr.jp/skk/index-j.html
+
+関数リファレンス {{{1
+  C/Migemoライブラリで提供されるAPIを以下で解説する。実際の使用例はアーカイブ
+  に含まれるmain.cを参照のこと。
+
+  migemo* migemo_open(char* dict); {{{2
+    Migemoオブジェクトを作成する。作成に成功するとオブジェクトが戻り値として返
+    り、失敗するとNULLが返る。dictで指定したファイルがmigemo-dict辞書としてオ
+    ブジェクト作成時に読み込まれる。辞書と同じディレクトリに:
+      1. roma2hira.dat
+      2. hira2kata.dat
+      3. han2zen.dat
+    という名前のファイルが存在すれば、存在したものだけが読み込まれる。dictに
+    NULLを指定した場合には、辞書を含めていかなるファイルも読み込まれない。ファ
+    イルはオブジェクト作成後にもmigemo_load()関数を使用することで追加読み込み
+    ができる。
+
+  void migemo_close(migemo* object); {{{2
+    Migemoオブジェクトを破棄し、使用していたリソースを解放する。
+
+  unsigned char* migemo_query(migemo* object, unsigned char* query); {{{2
+    queryで与えられた文字列(ローマ字)を日本語検索のための正規表現へ変換する。
+    戻り値は変換された結果の文字列(正規表現)で、使用後はmigemo_release()関数へ
+    渡すことで解放しなければならない。
+
+  void migemo_release(migemo* object, unsigned char* string); {{{2
+    使い終わったmigemo_query()関数で得られた正規表現を解放する。
+
+  int migemo_load(migemo* obj, int dict_id, char* dict_file); {{{2
+    Migemoオブジェクトに辞書、またはデータファイルを追加読み込みする。
+    dict_fileは読み込むファイル名を指定する。dict_idは読み込む辞書・データの種
+    類を指定するもので以下のうちどれか一つを指定する。
+      MIGEMO_DICTID_MIGEMO      mikgemo-dict辞書
+      MIGEMO_DICTID_ROMA2HIRA   ローマ字→平仮名変換表
+      MIGEMO_DICTID_HIRA2KATA   平仮名→カタカナ変換表
+      MIGEMO_DICTID_HAN2ZEN     半角→全角変換表
+    戻り値は実際に読み込んだ種類を示し、上記の他に読み込みに失敗したことを示す
+    次の価が返ることがある。
+      MIGEMO_DICTID_INVALID     
+
+  int migemo_is_enable(migemo* obj); {{{2
+
+  int migemo_set_operator(migemo* object, int index, unsigned char* op); {{{2
+      MIGEMO_OPINDEX_OR
+      MIGEMO_OPINDEX_NEST_IN
+      MIGEMO_OPINDEX_NEST_OUT
+      MIGEMO_OPINDEX_SELECT_IN
+      MIGEMO_OPINDEX_SELECT_OUT
+      MIGEMO_OPINDEX_NEWLINE
+
+  const unsigned char* migemo_get_operator(migemo* object, int index); {{{2
+  void migemo_setproc_char2int(migemo* object, MIGEMO_PROC_CHAR2INT proc); {{{2
+  void migemo_setproc_int2char(migemo* object, MIGEMO_PROC_INT2CHAR proc); {{{2
+
+{{{1
+-------------------------------------------------------------------------------
+                  生きる事への強い意志が同時に自分と異なる生命をも尊ぶ心となる
+                                    Muraoka Taro/村岡太郎<koron@tka.att.ne.jp>
+ vi:set ts=8 sts=2 sw=2 tw=78 et fdm=marker:
