@@ -2,7 +2,7 @@
 #
 # roma2hira.dat - ローマ字→平仮名変換表
 # 
-# Last Change: 17-Jan-2003.
+# Last Change: 15-Oct-2003.
 # Written By:  Muraoka Taro  <koron@tka.att.ne.jp>
 
 # こいつをカスタマイズすることでローマ字の入力方式が変わります。
@@ -318,3 +318,28 @@ kwa	くぁ
 #.	。
 #[	「
 #]	」
+
+
+mba	んば
+mbi	んび
+mbu	んぶ
+mbe	んべ
+mbo	んぼ
+
+mpa	んぱ
+mpi	んぴ
+mpu	んぷ
+mpe	んぺ
+mpo	んぽ
+
+mma	んま
+mmi	んみ
+mmu	んむ
+mme	んめ
+mmo	んも
+
+tcha	っちゃ
+tchi	っち
+tchu	っちゅ
+tche	っちぇ
+tcho	っちょ

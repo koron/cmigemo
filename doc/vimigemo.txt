@@ -2,7 +2,7 @@ VimにおけるMigemo DLLの使用法
                                                              since 14-Aug-2001
                                                                    Version 1.0
                                                           Muraoka Taro (KoRoN)
-                                                     Last Change: 27-May-2002.
+                                                     Last Change: 15-Oct-2003.
 
 説明
   Migemo DLLはローマ字入力を日本語検索の正規表現に変換するライブラリです。これ
@@ -96,4 +96,4 @@ VimにおけるMigemo DLLの使用法
 -------------------------------------------------------------------------------
                   生きる事への強い意志が同時に自分と異なる生命をも尊ぶ心となる
                                     Muraoka Taro/村岡太郎<koron@tka.att.ne.jp>
- vi:set ts=8 sts=2 sw=2 tw=78 et:
+ vi:set ts=8 sts=2 sw=2 tw=78 et fdm=marker ft=memo:
