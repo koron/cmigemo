@@ -3,7 +3,7 @@
  * migemo.c -
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 24-Oct-2002.
+ * Last Change: 12-Nov-2002.
  */
 
 #include <stdio.h>
@@ -366,7 +366,7 @@ migemo_query(migemo* object, unsigned char* query)
 	{
 	    unsigned char* answer;
 
-	    printf("HERE %s\n", p->ptr);
+	    //printf("HERE %s\n", p->ptr);
 	    answer = query_a_word(object, p->ptr);
 	    wordbuf_cat(outbuf, answer);
 	    query_free(answer);

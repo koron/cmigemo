@@ -2,7 +2,7 @@
 #
 # UNIXŒn‹¤’ÊMakefile
 #
-# Last Change:	16-May-2002.
+# Last Change:	21-Dec-2002.
 # Base Idea:	AIDA Shinra
 # Written By:	MURAOKA Taro <koron@tka.att.ne.jp>
 
@@ -41,7 +41,7 @@ install-dict:
 	$(INSTALL_DATA) dict/han2zen.dat $(dictdir)/cp932
 	$(INSTALL_DATA) dict/hira2kata.dat $(dictdir)/cp932
 	$(INSTALL_DATA) dict/roma2hira.dat $(dictdir)/cp932
-	if [ -e dict/euc-jp.d ]; then \
+	if [ -d dict/euc-jp.d ]; then \
 	  $(INSTALL_DATA) dict/euc-jp.d/migemo-dict $(dictdir)/euc-jp; \
 	  $(INSTALL_DATA) dict/euc-jp.d/han2zen.dat $(dictdir)/euc-jp; \
 	  $(INSTALL_DATA) dict/euc-jp.d/hira2kata.dat $(dictdir)/euc-jp; \

@@ -2,7 +2,7 @@
 #
 # 辞書ファイルのメンテナンス
 # 
-# Last Change: 22-Jun-2002.
+# Last Change: 21-Dec-2002.
 # Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
 
 # 必須プログラム
@@ -24,8 +24,8 @@ $(DICT_BASE): $(SKKDIC_FILE) ../tools/skk2migemo.pl ../tools/optimize-dict.pl
 	$(PERL) ../tools/optimize-dict.pl < dict.tmp > $@
 	-$(RM) dict.tmp
 $(SKKDIC_FILE):
-	$(HTTP) $(SKKDIC_BASEURL)/$@.bz2
-	$(BUNZIP2) $@.bz2
+	$(HTTP) $(SKKDIC_BASEURL)/$@.gz
+	$(GUNZIP) $@.gz
 
 ##############################################################################
 # Dictionary in cp932
