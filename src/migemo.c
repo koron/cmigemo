@@ -3,7 +3,7 @@
  * migemo.c -
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 28-Oct-2003.
+ * Last Change: 29-Dec-2003.
  */
 
 #include <stdio.h>
@@ -375,7 +375,7 @@ query_a_word(migemo* object, unsigned char* query)
     add_mnode_query(object, query);
 
     /* query‚ð‘SŠp‚É‚µ‚ÄŒó•â‚É‰Á‚¦‚é */
-    zen = romaji_convert(object->han2zen, query, NULL);
+    zen = romaji_convert2(object->han2zen, query, 0, NULL);
     if (zen != NULL)
     {
 	object->addword(object, zen);

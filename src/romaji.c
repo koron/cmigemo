@@ -3,7 +3,7 @@
  * romaji.c - ローマ字変換
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 19-Oct-2003.
+ * Last Change: 29-Dec-2003.
  */
 
 #include <stdio.h>
@@ -204,7 +204,6 @@ romaji_close(romaji* object)
 romaji_add_table(romaji* object, unsigned char* key, unsigned char* value)
 {
     int len;
-    unsigned char* key_lower;
     romanode **ref_node;
 
     if (!object || !key || !value)
@@ -218,31 +217,25 @@ romaji_add_table(romaji* object, unsigned char* key, unsigned char* value)
     if (len == 0 || len >= ROMAJI_KEY_MAXLEN)
 	return 3; /* Too short/long key string */
 
-    /* keyは小文字に変換する */
-    if (!(key_lower = strdup_lower(key)))
-	return 4;
-
-    if (!(ref_node = romanode_dig(&object->node, key_lower)))
+    if (!(ref_node = romanode_dig(&object->node, key)))
     {
-	free(key_lower);
-	return 5; /* Memory exhausted */
+	return 4; /* Memory exhausted */
     }
-    /*printf("romaji_add_table(\"%s\", \"%s\")\n", key_lower, value);*/
+    /*printf("romaji_add_table(\"%s\", \"%s\")\n", key, value);*/
     strcpy((*ref_node)->value, value);
 
     /* 「ん」と「っ」は保存しておく */
-    if (!strcmp(key_lower, ROMAJI_FIXKEY_XN))
+    if (!strcmp(key, ROMAJI_FIXKEY_XN))
     {
-	/*fprintf(stderr, "XN: key_lower=%s, value=%s\n", key_lower, value);*/
+	/*fprintf(stderr, "XN: key=%s, value=%s\n", key, value);*/
 	strcpy(object->fixvalue_xn, value);
     }
-    if (!strcmp(key_lower, ROMAJI_FIXKEY_XTU))
+    if (!strcmp(key, ROMAJI_FIXKEY_XTU))
     {
-	/*fprintf(stderr, "XTU: key_lower=%s, value=%s\n", key_lower, value);*/
+	/*fprintf(stderr, "XTU: key=%s, value=%s\n", key, value);*/
 	strcpy(object->fixvalue_xtu, value);
     }
 
-    free(key_lower);
     return 0;
 }
 
@@ -342,16 +335,23 @@ romaji_load(romaji* object, unsigned char* filename)
 }
 
     unsigned char*
-romaji_convert(romaji* object, unsigned char* string, unsigned char** ppstop)
+romaji_convert2(romaji* object, unsigned char* string, int ignorecase,
+	unsigned char** ppstop)
 {
     /* Argument "ppstop" receive conversion stoped position. */
     wordbuf_p buf = NULL;
     unsigned char *lower = NULL;
     unsigned char *answer = NULL;
+    unsigned char *input = string;
     int stop = -1;
 
-    if (object && string && (lower = strdup_lower(string))
-	    && (buf = wordbuf_open()))
+    if (ignorecase)
+    {
+	lower = strdup_lower(string);
+	input = lower;
+    }
+
+    if (object && string && input && (buf = wordbuf_open()))
     {
 	int i;
 
@@ -361,15 +361,15 @@ romaji_convert(romaji* object, unsigned char* string, unsigned char** ppstop)
 	    int skip;
 
 	    /* 「っ」の判定 */
-	    if (object->fixvalue_xtu[0] && lower[i] == lower[i + 1]
-		    && !strchr(ROMAJI_FIXKEY_NONXTU, lower[i]))
+	    if (object->fixvalue_xtu[0] && input[i] == input[i + 1]
+		    && !strchr(ROMAJI_FIXKEY_NONXTU, input[i]))
 	    {
 		++i;
 		wordbuf_cat(buf, object->fixvalue_xtu);
 		continue;
 	    }
 
-	    node = romanode_query(object->node, &lower[i], &skip);
+	    node = romanode_query(object->node, &input[i], &skip);
 	    if (!skip)
 	    {
 #if 0
@@ -379,7 +379,7 @@ romaji_convert(romaji* object, unsigned char* string, unsigned char** ppstop)
 		 * 合となる。今回は泣く。
 		 */
 		/* 「n(子音)」を「ん(子音)」に変換 */
-		if (lower[i] == ROMAJI_FIXKEY_N && object->fixvalue_xn[0])
+		if (input[i] == ROMAJI_FIXKEY_N && object->fixvalue_xn[0])
 		{
 		    ++i;
 		    wordbuf_cat(buf, object->fixvalue_xn);
@@ -395,7 +395,7 @@ romaji_convert(romaji* object, unsigned char* string, unsigned char** ppstop)
 	    else if (!node)
 	    {
 		/* 「n(子音)」を「ん(子音)」に変換 */
-		if (skip == 1 && lower[i] == ROMAJI_FIXKEY_N
+		if (skip == 1 && input[i] == ROMAJI_FIXKEY_N
 			&& object->fixvalue_xn[0])
 		{
 		    ++i;
@@ -421,6 +421,12 @@ romaji_convert(romaji* object, unsigned char* string, unsigned char** ppstop)
     if (buf)
 	wordbuf_close(buf);
     return answer;
+}
+
+    unsigned char*
+romaji_convert(romaji* object, unsigned char* string, unsigned char** ppstop)
+{
+    return romaji_convert2(object, string, 1, ppstop);
 }
 
     void
