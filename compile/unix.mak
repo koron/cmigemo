@@ -2,10 +2,11 @@
 #
 # UNIXŒn‹¤’ÊMakefile
 #
-# Last Change:	14-May-2002.
+# Last Change:	15-May-2002.
 # Base Idea:	AIDA Shinra
 # Written By:	MURAOKA Taro <koron@tka.att.ne.jp>
 
+#prefix	= ./local
 prefix	= /usr/local
 bindir	= $(prefix)/bin
 libdir	= $(prefix)/lib
@@ -45,16 +46,19 @@ install-mkdir:
 	$(MKDIR) $(incdir)
 	$(MKDIR) $(docdir)
 	$(MKDIR) $(dictdir)
+	$(MKDIR) $(dictdir)/cp932
+	$(MKDIR) $(dictdir)/euc-jp
 
 install-dict:
-	if [ -e dict/migemo-dict ]; then \
-		$(INSTALL_DATA) dict/migemo-dict $(dictdir); \
-	fi
-	if [ -e dict/migemo-dict.cp932 ]; then \
-		$(INSTALL_DATA) dict/migemo-dict.cp932 $(dictdir); \
-	fi
-	if [ -e dict/migemo-dict.euc-jp ]; then \
-		$(INSTALL_DATA) dict/migemo-dict.euc-jp $(dictdir); \
+	$(INSTALL_DATA) dict/migemo-dict $(dictdir)/cp932
+	$(INSTALL_DATA) dict/han2zen.dat $(dictdir)/cp932
+	$(INSTALL_DATA) dict/hira2kata.dat $(dictdir)/cp932
+	$(INSTALL_DATA) dict/roma2hira.dat $(dictdir)/cp932
+	if [ -e dict/euc-jp.d ]; then \
+	  $(INSTALL_DATA) dict/euc-jp.d/migemo-dict $(dictdir)/euc-jp; \
+	  $(INSTALL_DATA) dict/euc-jp.d/han2zen.dat $(dictdir)/euc-jp; \
+	  $(INSTALL_DATA) dict/euc-jp.d/hira2kata.dat $(dictdir)/euc-jp; \
+	  $(INSTALL_DATA) dict/euc-jp.d/roma2hira.dat $(dictdir)/euc-jp; \
 	fi
 
 install: cmigemo$(EXEEXT) $(libmigemo_DSO) install-mkdir install-dict install-lib
@@ -64,7 +68,8 @@ install: cmigemo$(EXEEXT) $(libmigemo_DSO) install-mkdir install-dict install-li
 
 uninstall: uninstall-lib
 	$(RM) $(dictdir)/migemo-dict*
-	$(RM) -r $(dictdir) $(docdir)
+	$(RM) -r $(dictdir)
+	$(RM) -r $(docdir)
 	$(RM) $(incdir)/migemo.h
 	$(RM) $(docdir)/README_j.txt
 	$(RM) -r $(docdir)

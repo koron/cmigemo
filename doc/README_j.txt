@@ -2,7 +2,7 @@ C/Migemoライブラリ説明書
                                                              since 15-Aug-2001
                                                                    Version 1.1
                                                   Author: MURAOKA Taro (KoRoN)
-                                                     Last Change: 14-May-2002.
+                                                     Last Change: 15-May-2002.
 
 説明
   C/MigemoはMigemo(Ruby/Migemo)をC言語で実装したものです。C/Migemoライブラリを
@@ -212,7 +212,8 @@ C/Migemoライブラリ説明書
     いての詳細は「型リファレンス」セクションのMIGEMO_PROC_INT2CHARを参照。
 
 更新箇所
-  ● 14-May-2002 (1.1a-beta)
+  ● 15-May-2002 (1.1a-beta)
+    Cygwin/MacOS X/Linux用にMakefileを作成
     strip.plとlensort.plをtool/optimize-dict.plに統合
     tool/conv.plをtool/skk2migemodict.plに名称変更
     ドキュメント修正

@@ -6,7 +6,7 @@
 # Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
 
 # ïKê{ÉvÉçÉOÉâÉÄ
-# 	Perl, cURL, qkc, (cp, rm, mv)
+# 	Perl, cURL, qkc, (cp, rm, mv, mkdir)
 
 DICT 		= migemo-dict
 CURL_FLAGS 	=
@@ -15,40 +15,42 @@ SKKDIC_BASEURL 	= http://openlab.ring.gr.jp/skk/dic
 RM = rm -f
 CP = cp
 MV = mv
+MKDIR = mkdir -p
 
 cp932:		cp932-large
 cp932-large:	SKK-JISYO.L $(DICT)
-	qkc -q -s -u $(DICT)
 cp932-middle:	SKK-JISYO.M $(DICT)
-	qkc -q -s -u $(DICT)
 cp932-small:	SKK-JISYO.S $(DICT)
-	qkc -q -s -u $(DICT)
 
-euc-jp: 	euc-jp-large
-euc-jp-large: 	SKK-JISYO.L $(DICT)
-euc-jp-middle: 	SKK-JISYO.M $(DICT)
-euc-jp-small: 	SKK-JISYO.S $(DICT)
+EUCJP_DIR = euc-jp.d
+euc-jp: 	cp932-large euc-jp-files
+$(EUCJP_DIR):
+	$(MKDIR) $(EUCJP_DIR)
+euc-jp-files: $(EUCJP_DIR) $(EUCJP_DIR)/migemo-dict $(EUCJP_DIR)/han2zen.dat \
+		$(EUCJP_DIR)/hira2kata.dat $(EUCJP_DIR)/roma2hira.dat
+$(EUCJP_DIR)/migemo-dict: migemo-dict
+	qkc -q -e -u < $< > $@
+$(EUCJP_DIR)/han2zen.dat: han2zen.dat
+	qkc -q -e -u < $< > $@
+$(EUCJP_DIR)/hira2kata.dat: hira2kata.dat
+	qkc -q -e -u < $< > $@
+$(EUCJP_DIR)/roma2hira.dat: roma2hira.dat
+	qkc -q -e -u < $< > $@
 
 #
 # for Cygwin
 #
-cyg:		cp932-large $(DICT).cp932 $(DICT).euc-jp
+cyg:		euc-jp
 
 #
 # for MacOS X
 #
-osx:		cp932-large $(DICT).cp932 $(DICT).euc-jp
+osx:		euc-jp
 
 $(DICT): SKK-JISYO.LATEST
 	perl ../tools/skk2migemodict.pl < SKK-JISYO.LATEST \
 		| perl ../tools/optimize-dict.pl > $@
-$(DICT).euc-jp:	$(DICT)
-	$(CP) $(DICT) $(DICT).euc-jp
-	qkc -q -e -u $(DICT).euc-jp
-$(DICT).cp932:	$(DICT)
-	$(CP) $(DICT) $(DICT).cp932
-	qkc -q -s -u $(DICT).cp932
-
+	qkc -q -s -u $@
 SKK-JISYO.S:
 	curl $(CURL_FLAGS) -O $(SKKDIC_BASEURL)/$@.bz2
 	bzip2 -d $@.bz2
@@ -62,6 +64,11 @@ SKK-JISYO.L:
 	bzip2 -d $@.bz2
 	$(CP) $@ SKK-JISYO.LATEST
 
+#
+# Cleaning
+#
 clean:
+	$(RM) -r euc-jp.d
+distclean: clean
+	$(RM) $(DICT)
 	$(RM) SKK-JISYO*
-	$(RM) $(DICT) $(DICT).euc-jp $(DICT).cp932

@@ -28,7 +28,7 @@ LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 2002,5,14,15
+ FILEVERSION 2002,5,15,15
  PRODUCTVERSION 1,1,0,7
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
@@ -47,7 +47,7 @@ BEGIN
             VALUE "Comments", "ローマ字による日本語検索正規表現生成ライブラリ\0"
             VALUE "CompanyName", "KaoriYa\0"
             VALUE "FileDescription", "migemo in C\0"
-            VALUE "FileVersion", "2002, 5, 14, 15\0"
+            VALUE "FileVersion", "2002, 5, 15, 15\0"
             VALUE "InternalName", "migemo\0"
             VALUE "LegalCopyright", "2002 (C) MURAOKA Taro (KoRoN)/KaoriYa\0"
             VALUE "LegalTrademarks", "C/Migemo library\0"
