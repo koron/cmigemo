@@ -9,7 +9,7 @@ C/Migemoライブラリ説明書
   ブラリを利用するソフトウェアは「ローマ字のまま日本語を(インクリメンタルに)検
   索する」機能を持つことが可能になります。C言語で実装したことにより、本家
   Ruby/Migemoに比べ、C言語で書かれた多くのソフトウェアからの利用が容易になるこ
-  と、及び実行速度の向上が期待できます。
+  と、及び(たぶん)実行速度の向上が期待できます。
 
   またC/Migemoを利用するためには別途辞書ファイル(dict/migemo-dict)を作成・入手
   する必要があります。自分でまったくのゼロから辞書を作成することもできますが、
@@ -49,9 +49,9 @@ C/Migemoライブラリ説明書
     $ gcc *.c -o migemo
   としてみてください。サンプルアプリケーションmigemoがコンパイルされます。
   Windows以外のプラットホーム(UNIXやLinux)で使用する場合には、辞書ファイルのエ
-  ンコードをコンバートする必要が生じる可能性があります。詳しくは「辞書につい
-  て」のセクションを参照してください。なおautotoolsによるライブラリとしてコン
-  パイルするための:
+  ンコードをコンバートする必要が生じる可能性があります。辞書についての詳細は
+  「辞書について」のセクションを参照してください。なおautotoolsによるライブラ
+  リとしてコンパイルするための:
     $ ./configure && make && make install
   は準備していません。どなたかやっていただけませんか?。
 
@@ -106,6 +106,26 @@ C/Migemoライブラリ説明書
   - SKK Openlab (最新のオリジナルのSKK-JISYO.Lが入手可能)
       http://openlab.ring.gr.jp/skk/index-j.html
 
+型リファレンス {{{1
+  C/Migemoで利用される型について述べる。
+
+  migemo*; {{{2
+    Migemoオブジェクト。migemo_open()で作成され、migemo_close()で破棄される。
+
+  int (*MIGEMO_PROC_CHAR2INT)(unsigned char*, unsigned int*); {{{2
+    文字列(unsigned char*)をコード(unsigned int)に変換するプロシージャ型。
+    Shift-JISやEUC-JP以外のエンコードの文字列を扱うとき、もしくは特殊文字の処
+    理を行いたいときに定義する。戻り値は文字列のうち処理したバイト数で、0を返
+    せばデフォルトのプロシージャが実行される。この仕組みで必要な文字だけに処
+    理を施すことが出来る。
+
+  int (*MIGEMO_PROC_INT2CHAR)(unsigned int, unsigned char*); {{{2
+    コード(unsigned int)を文字列(unsigned char*)に変換するプロシージャ型。
+    Shift-JISやEUC-JP以外のエンコード文字列を扱うとき、もしくは特殊文字の処理
+    を行いたいときに定義する。戻り値は出力された文字列のバイト数で、0を返せば
+    デフォルトのプロシージャが実行される。この仕組みで必要な文字だけに処理を施
+    すことが出来る。
+
 関数リファレンス {{{1
   C/Migemoライブラリで提供されるAPIを以下で解説する。実際の使用例はアーカイブ
   に含まれるmain.cを参照のこと。
@@ -114,9 +134,9 @@ C/Migemoライブラリ説明書
     Migemoオブジェクトを作成する。作成に成功するとオブジェクトが戻り値として返
     り、失敗するとNULLが返る。dictで指定したファイルがmigemo-dict辞書としてオ
     ブジェクト作成時に読み込まれる。辞書と同じディレクトリに:
-      1. roma2hira.dat
-      2. hira2kata.dat
-      3. han2zen.dat
+      1. roma2hira.dat  (ローマ字→平仮名変換表)
+      2. hira2kata.dat  (平仮名→カタカナ変換表)
+      3. han2zen.dat    (半角→全角変換表)
     という名前のファイルが存在すれば、存在したものだけが読み込まれる。dictに
     NULLを指定した場合には、辞書を含めていかなるファイルも読み込まれない。ファ
     イルはオブジェクト作成後にもmigemo_load()関数を使用することで追加読み込み
@@ -136,28 +156,59 @@ C/Migemoライブラリ説明書
   int migemo_load(migemo* obj, int dict_id, char* dict_file); {{{2
     Migemoオブジェクトに辞書、またはデータファイルを追加読み込みする。
     dict_fileは読み込むファイル名を指定する。dict_idは読み込む辞書・データの種
-    類を指定するもので以下のうちどれか一つを指定する。
+    類を指定するもので以下のうちどれか一つを指定する:
+
       MIGEMO_DICTID_MIGEMO      mikgemo-dict辞書
       MIGEMO_DICTID_ROMA2HIRA   ローマ字→平仮名変換表
       MIGEMO_DICTID_HIRA2KATA   平仮名→カタカナ変換表
       MIGEMO_DICTID_HAN2ZEN     半角→全角変換表
+
     戻り値は実際に読み込んだ種類を示し、上記の他に読み込みに失敗したことを示す
     次の価が返ることがある。
       MIGEMO_DICTID_INVALID     
 
   int migemo_is_enable(migemo* obj); {{{2
+    Migemoオブジェクトにmigemo_dictが読み込めているかをチェックする。有効な
+    migemo_dictを読み込めて内部に変換テーブルが構築できていれば0以外(TRUE)を、
+    構築できていないときには0(FALSE)を返す。
 
   int migemo_set_operator(migemo* object, int index, unsigned char* op); {{{2
+    Migemoオブジェクトが生成する正規表現に使用するメタ文字(演算子)を指定する。
+    indexでどのメタ文字かを指定し、opで置き換える。indexには以下の値が指定可能
+    である:
+
       MIGEMO_OPINDEX_OR
+        論理和。デフォルトは "|" 。vimで利用する際は "\|" 。
       MIGEMO_OPINDEX_NEST_IN
+        グルーピングに用いる開き括弧。デフォルトは "(" 。vimではレジスタ\1～\9
+        に記憶させないようにするために "\%(" を用いる。Perlでも同様のことを目
+        論むならば "(?:" が使用可能。
       MIGEMO_OPINDEX_NEST_OUT
+        グルーピングの終了を表す閉じ括弧。デフォルトでは ")" 。vimでは "\)" 。
       MIGEMO_OPINDEX_SELECT_IN
+        選択の開始を表す開き角括弧。デフォルトでは "[" 。
       MIGEMO_OPINDEX_SELECT_OUT
+        選択の終了を表す閉じ角括弧。デフォルトでは "]" 。
       MIGEMO_OPINDEX_NEWLINE
+        各文字の間に挿入される「0個以上の空白もしくは改行にマッチする」パター
+        ン。デフォルトでは "" であり設定されない。vimでは "\_s*" を指定する。
+
+    デフォルトのメタ文字は特に断りがない限りPerlのそれと同じ意味である。設定に
+    成功すると戻り値は0となり、失敗すると0以外になる。
 
   const unsigned char* migemo_get_operator(migemo* object, int index); {{{2
+    Migemoオブジェクトが生成する正規表現に使用しているメタ文字(演算子)を取得す
+    る。indexについてはmigemo_set_operator()関数を参照。戻り値にはindexの指定
+    が正しければメタ文字を格納した文字列へのポインタが、不正であればNULLが返
+    る。
+
   void migemo_setproc_char2int(migemo* object, MIGEMO_PROC_CHAR2INT proc); {{{2
+    Migemoオブジェクトにコード変換用のプロシージャを設定する。プロシージャにつ
+    いての詳細は「型リファレンス」セクションのMIGEMO_PROC_CHAR2INTを参照。
+
   void migemo_setproc_int2char(migemo* object, MIGEMO_PROC_INT2CHAR proc); {{{2
+    Migemoオブジェクトにコード変換用のプロシージャを設定する。プロシージャにつ
+    いての詳細は「型リファレンス」セクションのMIGEMO_PROC_INT2CHARを参照。
 
 {{{1
 -------------------------------------------------------------------------------

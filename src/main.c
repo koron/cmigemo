@@ -2,7 +2,7 @@
  * main.c - migemoライブラリテストドライバ
  *
  * Written By:  Muraoka Taro  <koron@tka.att.en.jp>
- * Last Change: 12-Aug-2001.
+ * Last Change: 16-Aug-2001.
  */
 #include <stdio.h>
 #include <time.h>
@@ -64,8 +64,11 @@ main(int argc, char** argv)
     if (!dict)
     {
 	pmigemo = migemo_open("./dict/migemo-dict");
-	if (!migemo_is_enable(pmigemo))
+	if (!pmigemo || !migemo_is_enable(pmigemo))
+	{
+	    migemo_close(pmigemo); /* NULLをcloseしても問題はない */
 	    pmigemo = migemo_open("../dict/migemo-dict");
+	}
     }
     else
 	pmigemo = migemo_open(dict);

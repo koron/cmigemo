@@ -3,7 +3,7 @@
  * rxgen.c - regular expression generator
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 11-Aug-2001.
+ * Last Change: 16-Aug-2001.
  */
 
 #include <stdio.h>
@@ -101,7 +101,7 @@ default_char2int(unsigned char* in, unsigned int* out)
     static int
 default_int2char(unsigned int in, unsigned char* out)
 {
-    /* outは最低でも16バイトある、という仮定を置く */
+    /* outは最低でも16バイトはある、という仮定を置く */
 #if defined(RXGEN_ENC_SJISTINY)
     if (in >= 0x100)
     {
@@ -123,10 +123,12 @@ default_int2char(unsigned int in, unsigned char* out)
 	    case '[': case ']': case '~':
 #endif
 		if (out)
-		    out[len++] = '\\';
+		    out[len] = '\\';
+		++len;
 	    default:
 		if (out)
-		    out[len++] = (unsigned char)(in & 0xFF);
+		    out[len] = (unsigned char)(in & 0xFF);
+		++len;
 		break;
 	}
 	return len;
@@ -150,6 +152,20 @@ rxgen_setproc_int2char(rxgen* object, RXGEN_PROC_INT2CHAR proc)
 {
     if (object)
 	object->int2char = proc ? proc : default_int2char;
+}
+
+    static int
+rxgen_call_char2int(rxgen* object, unsigned char* pch, unsigned int* code)
+{
+    int len = object->char2int(pch, code);
+    return len ? len : default_char2int(pch, code);
+}
+
+    static int
+rxgen_call_int2char(rxgen* object, unsigned int code, unsigned char* buf)
+{
+    int len = object->int2char(code, buf);
+    return len ? len : default_int2char(code, buf);
 }
 
     rxgen*
@@ -192,10 +208,10 @@ rxgen_add(rxgen* object, unsigned char* word)
     while (1)
     {
 	unsigned int code;
-	int len = object->char2int(word, &code);
+	int len = rxgen_call_char2int(object, word, &code);
 
 	/* 終了条件 */
-	if (!code || !len)
+	if (!code)
 	{
 	    /* 入力パターンよりも長い既存パターンは破棄する */
 	    if (*ppnode)
@@ -254,7 +270,7 @@ rxgen_generate_stub(rxgen* object, wordbuf* buf, rnode* node)
 	{
 	    if (tmp->child)
 		continue;
-	    chlen = object->int2char(tmp->code, ch);
+	    chlen = rxgen_call_int2char(object, tmp->code, ch);
 	    ch[chlen] = '\0';
 	    /*printf("nochild: %s\n", ch);*/
 	    wordbuf_cat(buf, ch);
