@@ -3,7 +3,7 @@
  * mnode.c - mnode interfaces.
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 05-Aug-2001.
+ * Last Change: 08-Aug-2001.
  */
 
 #include <stdio.h>
@@ -249,9 +249,6 @@ mnode_query(mnode* node, unsigned char* query)
     return (query && *query != '\0' && node)
 	? mnode_query_stub(node, query) : 0;
 }
-
-typedef void (*mnode_traverse_proc)(mnode* node, void* data);
-#define MNODE_TRAVERSE_PROC mnode_traverse_proc
 
     static void
 mnode_traverse_stub(mnode* node, MNODE_TRAVERSE_PROC proc, void* data)

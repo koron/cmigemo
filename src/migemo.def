@@ -1,7 +1,14 @@
+; Written By:  Muraoka Taro <koron@tka.att.ne.jp>
+; Last Change: 08-Aug-2001.
+
 LIBRARY MIGEMO
 DESCRIPTION "Migemo DLL"
 EXPORTS
-	migemo_open	@1
-	migemo_close	@2
-	migemo_query	@3
-	migemo_release	@4
+	migemo_open			@1
+	migemo_close			@2
+	migemo_query			@3
+	migemo_release			@4
+	migemo_set_operator		@5
+	migemo_get_operator		@6
+	migemo_setproc_char2int		@7
+	migemo_setproc_int2char		@8

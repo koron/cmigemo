@@ -38,8 +38,13 @@ main(int argc, char** argv)
 	pmigemo = migemo_open("migemo-dict");
 	if (!pmigemo)
 	    pmigemo = migemo_open("../migemo-dict");
+
 	if (pmigemo)
 	{
+	    migemo_set_operator(pmigemo, MIGEMO_OPINDEX_OR, "\\|");
+	    migemo_set_operator(pmigemo, MIGEMO_OPINDEX_NEST_IN, "\\%(");
+	    migemo_set_operator(pmigemo, MIGEMO_OPINDEX_NEST_OUT, "\\)");
+	    migemo_set_operator(pmigemo, MIGEMO_OPINDEX_NEWLINE, "\\_s*");
 #ifndef _PROFILE
 	    printf("clock()=%d\n", clock());
 	    query_loop(pmigemo);

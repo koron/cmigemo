@@ -3,7 +3,7 @@
  * mnode.h -
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 04-Aug-2001.
+ * Last Change: 08-Aug-2001.
  */
 /*
  * Need to include <stdio.h>
@@ -13,8 +13,6 @@
 #define MNODE_H
 
 #include "cdecl.h"
-
-typedef struct _wordlist wordlist;
 
 /* ツリーオブジェクト */
 typedef struct _mnode mnode;

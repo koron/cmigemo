@@ -3,7 +3,7 @@
  * wordbuf.h -
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 07-Aug-2001.
+ * Last Change: 08-Aug-2001.
  */
 
 #include <stdio.h>
@@ -13,8 +13,8 @@
 
 #define WORDLEN_DEF 64
 
-extern int n_wordbuf_open = 0;
-extern int n_wordbuf_close = 0;
+int n_wordbuf_open = 0;
+int n_wordbuf_close = 0;
 
 struct _wordbuf
 {

@@ -3,7 +3,7 @@
  * migemo.c -
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 07-Aug-2001.
+ * Last Change: 08-Aug-2001.
  */
 
 #include <stdio.h>
@@ -24,6 +24,7 @@ struct _migemo
     mnode* node;
     romaji* roma2hira;
     romaji* hira2kata;
+    rxgen* rx;
 };
 
 /*
@@ -40,12 +41,16 @@ migemo_open(char* dict)
 	    && (fp = fopen(dict, "rt")) /* 辞書ファイルの存在確認 */
 	    && (obj = (migemo*)malloc(sizeof(migemo))))
     {
+#ifndef _MAX_PATH
+# define _MAX_PATH 1024 /* いい加減な数値 */
+#endif
 	char dir[_MAX_PATH], roma_dict[_MAX_PATH], kata_dict[_MAX_PATH];
 
 	obj->node = mnode_open(fp);
+	obj->rx = rxgen_open();
 	obj->roma2hira = romaji_open();
 	obj->hira2kata = romaji_open();
-	if (!obj->node || !obj->roma2hira || !obj->hira2kata)
+	if (!obj->node || !obj->rx || !obj->roma2hira || !obj->hira2kata)
 	{
 	    migemo_close(obj);
 	    obj = NULL;
@@ -75,6 +80,8 @@ migemo_close(migemo* obj)
 	    romaji_close(obj->hira2kata);
 	if (obj->roma2hira)
 	    romaji_close(obj->roma2hira);
+	if (obj->rx)
+	    rxgen_close(obj->rx);
 	if (obj->node)
 	    mnode_close(obj->node);
 	free(obj);
@@ -179,34 +186,33 @@ migemo_query(migemo* object, unsigned char* query)
 {
     unsigned char* answer = NULL;
     mnode *pnode;
-    rxgen *rx = rxgen_open();
 
-    if (rx = rxgen_open())
+    if (object->rx)
     {
 	unsigned char *stop, *hira, *kata;
 
-	rxgen_add(rx, query);
+	rxgen_add(object->rx, query);
 
 	/* 平仮名文字列を生成し候補に加える */
 	hira = romaji_convert(object->roma2hira, query, &stop);
 	if (!stop)
 	{
-	    rxgen_add(rx, hira);
+	    rxgen_add(object->rx, hira);
 	    /* 片仮名文字列を生成し候補に加える */
 	    kata = romaji_convert(object->hira2kata, hira, NULL);
-	    rxgen_add(rx, kata);
+	    rxgen_add(object->rx, kata);
 	    romaji_release(object->hira2kata, kata);
 	}
 	else
-	    migemo_query_stub(object, rx, query);
+	    migemo_query_stub(object, object->rx, query);
 	romaji_release(object->roma2hira, hira);
 
 	/* バッファを用意して再帰でバッファに書き込ませる */
 	if (pnode = mnode_query(object->node, query))
-	    mnode_traverse(pnode, migemo_query_proc, rx);
+	    mnode_traverse(pnode, migemo_query_proc, object->rx);
 
-	answer = rxgen_generate(rx);
-	rxgen_close(rx);
+	answer = rxgen_generate(object->rx);
+	rxgen_reset(object->rx);
     }
 
     return answer;
@@ -218,3 +224,29 @@ migemo_release(migemo* p, unsigned char* string)
     rxgen_release(NULL, string);
 }
 #endif
+
+    int
+migemo_set_operator(migemo* object, int index, unsigned char* op)
+{
+    return object ? rxgen_set_operator(object->rx, index, op) : 1;
+}
+
+    const unsigned char*
+migemo_get_operator(migemo* object, int index)
+{
+    return object ? rxgen_get_operator(object->rx, index) : NULL;
+}
+
+    void
+migemo_setproc_char2int(migemo* object, MIGEMO_PROC_CHAR2INT proc)
+{
+    if (object)
+	rxgen_setproc_char2int(object->rx, (RXGEN_PROC_CHAR2INT)proc);
+}
+
+    void
+migemo_setproc_int2char(migemo* object, MIGEMO_PROC_INT2CHAR proc)
+{
+    if (object)
+	rxgen_setproc_int2char(object->rx, (RXGEN_PROC_INT2CHAR)proc);
+}

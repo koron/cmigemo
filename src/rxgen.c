@@ -3,7 +3,7 @@
  * rxgen.c - regular expression generator
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 07-Aug-2001.
+ * Last Change: 08-Aug-2001.
  */
 
 #include <stdio.h>
@@ -14,21 +14,15 @@
 #include "rxgen.h"
 
 #define RXGEN_ENC_SJISTINY
-#define RXGEN_OP_VIM
+//#define RXGEN_OP_VIM
 
-#ifdef RXGEN_OP_VIM
-# define RXGEN_OP_OR "\\|"
-# define RXGEN_OP_NEST_IN "\\%("
-# define RXGEN_OP_NEST_OUT "\\)"
-# define RXGEN_OP_SELECT_IN "["
-# define RXGEN_OP_SELECT_OUT "]"
-#else
-# define RXGEN_OP_OR "|"
-# define RXGEN_OP_NEST_IN "("
-# define RXGEN_OP_NEST_OUT ")"
-# define RXGEN_OP_SELECT_IN "["
-# define RXGEN_OP_SELECT_OUT "]"
-#endif
+#define RXGEN_OP_MAXLEN 8
+#define RXGEN_OP_OR "|"
+#define RXGEN_OP_NEST_IN "("
+#define RXGEN_OP_NEST_OUT ")"
+#define RXGEN_OP_SELECT_IN "["
+#define RXGEN_OP_SELECT_OUT "]"
+#define RXGEN_OP_NEWLINE ""
 
 int n_rnode_new = 0;
 int n_rnode_delete = 0;
@@ -40,6 +34,12 @@ struct _rxgen
     rnode *node;
     RXGEN_PROC_CHAR2INT char2int;
     RXGEN_PROC_INT2CHAR int2char;
+    unsigned char op_or[RXGEN_OP_MAXLEN];
+    unsigned char op_nest_in[RXGEN_OP_MAXLEN];
+    unsigned char op_nest_out[RXGEN_OP_MAXLEN];
+    unsigned char op_select_in[RXGEN_OP_MAXLEN];
+    unsigned char op_select_out[RXGEN_OP_MAXLEN];
+    unsigned char op_newline[RXGEN_OP_MAXLEN];
 };
 
 /*
@@ -160,6 +160,12 @@ rxgen_open()
     {
 	rxgen_setproc_char2int(object, NULL);
 	rxgen_setproc_int2char(object, NULL);
+	strcpy(object->op_or,		RXGEN_OP_OR);
+	strcpy(object->op_nest_in,	RXGEN_OP_NEST_IN);
+	strcpy(object->op_nest_out,	RXGEN_OP_NEST_OUT);
+	strcpy(object->op_select_in,	RXGEN_OP_SELECT_IN);
+	strcpy(object->op_select_out,	RXGEN_OP_SELECT_OUT);
+	strcpy(object->op_newline,	RXGEN_OP_NEWLINE);
     }
     return object;
 }
@@ -200,22 +206,6 @@ rxgen_add(rxgen* object, unsigned char* word)
 	    break;
 	}
 
-#if 0
-	while (1)
-	{
-	    if (!(*ppnode))
-	    {
-		*ppnode = rnode_new();
-		(*ppnode)->code = code;
-		break;
-	    }
-	    else if ((*ppnode)->code == code)
-		break;
-	    ppnode = &(*ppnode)->next;
-	}
-	ppnode = &(*ppnode)->child;
-	word += len;
-#else
 	while (*ppnode && (*ppnode)->code != code)
 	    ppnode = &(*ppnode)->next;
 	if (*ppnode)
@@ -232,32 +222,9 @@ rxgen_add(rxgen* object, unsigned char* word)
 	}
 	ppnode = &(*ppnode)->child;
 	word += len;
-#endif
     }
     return 1;
 }
-
-#if 0
-    void
-rxgen_generate_stub_select(rxgen* object, wordbuf* buf, rnode* node)
-{
-    rnode *tmp = node;
-    
-    while (tmp && !tmp->child)
-	tmp = tmp->next;
-
-    if (!tmp || !tmp->child)
-    wordbufbuf_cat(buf, RXGEN_OP_SELECT_IN);
-    do
-    {
-	len = object->int2char(node->code, ch);
-	ch[len] = '\0';
-	wordbuf_cat(buf, ch);
-    }
-    while (node = node->next);
-    wordbufbuf_cat(buf, RXGEN_OP_SELECT_OUT);
-}
-#endif
 
     static void
 rxgen_generate_stub(rxgen* object, wordbuf* buf, rnode* node)
@@ -276,33 +243,15 @@ rxgen_generate_stub(rxgen* object, wordbuf* buf, rnode* node)
     }
     nochild = brother - haschild;
 
-#if 0
-    /* []によるグルーピングが不完全なバージョン */
-    if (brother > 1)
-	wordbuf_cat(buf, haschild > 0 ? RXGEN_OP_NEST_IN : RXGEN_OP_SELECT_IN);
-    while (1)
-    {
-	chlen = object->int2char(node->code, ch);
-	ch[chlen] = '\0';
-	wordbuf_cat(buf, ch);
-	if (node->child)
-	    rxgen_generate_stub(object, buf, node->child);
-	if (!(node = node->next))
-	    break;
-	if (haschild > 0)
-	    wordbuf_cat(buf, RXGEN_OP_OR);
-    }
-    if (brother > 1)
-	wordbuf_cat(buf, haschild > 0 ? RXGEN_OP_NEST_OUT : RXGEN_OP_SELECT_OUT);
-#else
+    /* 必要ならば()によるグルーピング */
     if (brother > 1 && haschild > 0)
-	wordbuf_cat(buf, RXGEN_OP_NEST_IN);
+	wordbuf_cat(buf, object->op_nest_in);
 #if 1
     /* 子の無いノードを先に[]によりグルーピング */
     if (nochild > 0)
     {
 	if (nochild > 1)
-	    wordbuf_cat(buf, RXGEN_OP_SELECT_IN);
+	    wordbuf_cat(buf, object->op_select_in);
 	for (tmp = node; tmp; tmp = tmp->next)
 	{
 	    if (tmp->child)
@@ -313,7 +262,7 @@ rxgen_generate_stub(rxgen* object, wordbuf* buf, rnode* node)
 	    wordbuf_cat(buf, ch);
 	}
 	if (nochild > 1)
-	    wordbuf_cat(buf, RXGEN_OP_SELECT_OUT);
+	    wordbuf_cat(buf, object->op_select_out);
     }
 #endif
 #if 1
@@ -322,7 +271,7 @@ rxgen_generate_stub(rxgen* object, wordbuf* buf, rnode* node)
     {
 	/* グループを出力済みならORで繋ぐ */
 	if (nochild > 0)
-	    wordbuf_cat(buf, RXGEN_OP_OR);
+	    wordbuf_cat(buf, object->op_or);
 	for (tmp = node; !tmp->child; tmp = tmp->next)
 	    ;
 	while (1)
@@ -331,19 +280,22 @@ rxgen_generate_stub(rxgen* object, wordbuf* buf, rnode* node)
 	    ch[chlen] = '\0';
 	    wordbuf_cat(buf, ch);
 	    /*printf("haschild: %s(brother=%d, haschild=%d)\n", ch, brother, haschild);*/
+	    /* 空白・改行飛ばしのパターンを挿入 */
+	    if (object->op_newline[0])
+		wordbuf_cat(buf, object->op_newline);
 	    rxgen_generate_stub(object, buf, tmp->child);
 	    for (tmp = tmp->next; tmp && !tmp->child; tmp = tmp->next)
 		;
 	    if (!tmp)
 		break;
 	    if (haschild > 1)
-		wordbuf_cat(buf, RXGEN_OP_OR);
+		wordbuf_cat(buf, object->op_or);
 	}
     }
 #endif
+    /* 必要ならば()によるグルーピング */
     if (brother > 1 && haschild > 0)
-	wordbuf_cat(buf, RXGEN_OP_NEST_OUT);
-#endif
+	wordbuf_cat(buf, object->op_nest_out);
 }
 
     unsigned char*
@@ -366,6 +318,64 @@ rxgen_generate(rxgen* object)
 rxgen_release(rxgen* object, unsigned char* string)
 {
     free(string);
+}
+
+/*
+ * rxgen_add()してきたパターンを全てリセット。
+ */
+    void
+rxgen_reset(rxgen* object)
+{
+    if (object)
+    {
+	rnode_delete(object->node);
+	object->node = NULL;
+    }
+}
+
+    static unsigned char*
+rxgen_get_operator_stub(rxgen* object, int index)
+{
+    switch (index)
+    {
+	case RXGEN_OPINDEX_OR:
+	    return object->op_or;
+	case RXGEN_OPINDEX_NEST_IN:
+	    return object->op_nest_in;
+	case RXGEN_OPINDEX_NEST_OUT:
+	    return object->op_nest_out;
+	case RXGEN_OPINDEX_SELECT_IN:
+	    return object->op_select_in;
+	case RXGEN_OPINDEX_SELECT_OUT:
+	    return object->op_select_out;
+	case RXGEN_OPINDEX_NEWLINE:
+	    return object->op_newline;
+	default:
+	    return NULL;
+    }
+}
+
+    const unsigned char*
+rxgen_get_operator(rxgen* object, int index)
+{
+    return (const unsigned char*)
+	(object ? rxgen_get_operator_stub(object, index) : NULL);
+}
+
+    int
+rxgen_set_operator(rxgen* object, int index, unsigned char* op)
+{
+    unsigned char* dest;
+
+    if (!object)
+	return 1; /* Invalid object */
+    if (strlen(op) >= RXGEN_OP_MAXLEN)
+	return 2; /* Too long operator */
+    if (!(dest = rxgen_get_operator_stub(object, index)))
+	return 3; /* No such an operator */
+    strcpy(dest, op);
+
+    return 0;
 }
 
 #if 0
