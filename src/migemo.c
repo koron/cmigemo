@@ -3,7 +3,7 @@
  * migemo.c -
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 14-Aug-2001.
+ * Last Change: 19-Jan-2002.
  */
 
 #include <stdio.h>

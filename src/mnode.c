@@ -3,7 +3,7 @@
  * mnode.c - mnode interfaces.
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 11-Aug-2001.
+ * Last Change: 19-Jan-2002.
  */
 
 #include <stdio.h>
@@ -75,7 +75,8 @@ mnode_print(mnode* vp, unsigned char* p)
 	mnode_print(vp->next, p);
 }
 
-#define MNODE_BUFENABLE 0
+/* 読み込みバッファを設定。Profileで10%弱速くなった */
+#define MNODE_BUFENABLE 1
 #define MNODE_BUFSIZE 16384
 
     void
@@ -91,11 +92,14 @@ mnode_close(mnode* p)
 mnode_load(mnode* root, FILE* fp)
 {
     mnode **pp = &root;
-    int mode = 0, cnt = 0;
-    int depth = 0, maxdepth = -1;
+    int mode = 0;
     int ch;
     wordbuf *buf;
     wordlist **ppword;
+#ifdef _DEBUG
+    int depth = 0, maxdepth = -1;
+#endif
+
 
 #if MNODE_BUFENABLE
     unsigned char cache[MNODE_BUFSIZE];
@@ -113,12 +117,14 @@ mnode_load(mnode* root, FILE* fp)
     do
     {
 #if MNODE_BUFENABLE
-	if (point >= remain)
+	if (point < remain)
+	    ch = cache[point++];
+	else
 	{
 	    remain = fread(cache, 1, MNODE_BUFSIZE, fp);
 	    point = 0;
+	    ch = (remain <= 0 && feof(fp)) ? EOF : cache[point++];
 	}
-	ch = (remain <= 0 && feof(fp)) ? EOF : cache[point++];
 #else
 	ch = fgetc(fp);
 #endif
@@ -139,8 +145,10 @@ mnode_load(mnode* root, FILE* fp)
 		}
 
 		mode = 1; /* ラベル単語の読込モード へ移行*/
-		depth = 0;
 		pp = &root;
+#ifdef _DEBUG
+		depth = 0;
+#endif
 		goto SEARCH_OR_NEW;
 
 	    case 1: /* ラベル単語の読込モード */
@@ -172,9 +180,10 @@ SEARCH_OR_NEW:
 			break;
 		    pp = &(*pp)->next;
 		}
-
+#ifdef _DEBUG
 		if (++depth > maxdepth)
 		    maxdepth = depth;
+#endif
 		break;
 
 	    case 2: /* 行末まで食い潰すモード */
