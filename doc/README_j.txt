@@ -46,14 +46,73 @@ C/Migemoライブラリ説明書
     tool/               :各種ツール
 
 コンパイル方法
+  コンパイルには以下の3段階の手順があります。
+    1. ライブラリとプログラムのビルド
+    2. 辞書ファイルのビルド
+    3. インストール
+  「辞書ファイルのビルド」には別途Perl, cURL, bzip2, qkcの外部プログラムと、イ
+  ンターネットへの接続が必要になります。これらを含むC/Migemoのビルドに必要な外
+  部プログラムは、config.mkを編集することで変更可能です。詳細はconfig.mkを参照
+  してください。config.mkのオリジナルファイルはcompile/config_default.mkとして
+  収録してあるのでいつでも復元可能です。
+
+  各プラットホームでのビルド方法の具体例は以下を参照してください。
+    1. Windows + VisualC++
+    2. Windows + Cygwin
+    3. MacOS X + Developer Tools
+    4. Linux + gcc
+  現在のところ以上4環境での動作確認を完了しています。
+
   (Windows + VisualC++)
-  次のコマンドでRelease/内にmigemo.dllとmigemo.exeが作成されます。
+  次のコマンドでRelease/内にmigemo.dllとcmigemo.exeが作成されます。
     > nmake msvc
-  migemo.dswをVC++6.0で開き、ビルドする方法もあります。
+  必要な外部プログラム、ネットワーク接続が揃っていれば
+    > nmake msvc-dict
+  で辞書ファイルをビルドできます。migemo.dswをVC++6.0で開き、ビルドする方法も
+  あります。以上が終了すれば次のコマンドでテストプログラムが動作します。
+    > .\Release\cmigemo -d dict/migemo-dict
 
   (Windows + Cygwin)
-  (MacOS X + Developer tools)
+  必要な外部プログラム、ネットワーク接続を揃えて以下を実行することでテストプロ
+  グラムcmigemoと辞書ファイルがビルドされます:
+    $ make cyg
+    $ make cyg-dict
+  実行はcp932(Shift-JIS)で利用するならば:
+    $ ./cmigemo -d dict/migemo-dict
+  euc-jpで利用するならば:
+    $ ./cmigemo -d dict/euc-jp.d/migemo-dict
+  を実行します。インストールとアンインストールは次のコマンドで行なえます。イン
+  ストール場所についてはconfig.mkを参照してください。
+    $ make cyg-install
+    $ make cyg-uninstall
+
+  (MacOS X + Developer Tools)
+  必要な外部プログラム、ネットワーク接続を揃えて以下を実行することでテストプロ
+  グラムcmigemoと辞書ファイルがビルドされます:
+    % make osx
+    % make osx-dict
+  実行はcp932(Shift-JIS)で利用するならば:
+    % ./cmigemo -d dict/migemo-dict
+  euc-jpで利用するならば:
+    % ./cmigemo -d dict/euc-jp.d/migemo-dict
+  を実行します。インストールとアンインストールは次のコマンドで行なえます。イン
+  ストール場所についてはconfig.mkを参照してください。
+    % make osx-install
+    % make osx-uninstall
+
   (Linux + gcc)
+  必要な外部プログラム、ネットワーク接続を揃えて以下を実行することでテストプロ
+  グラムcmigemoと辞書ファイルがビルドされます:
+    $ make linux
+    $ make linux-dict
+  実行はcp932(Shift-JIS)で利用するならば:
+    % ./cmigemo -d dict/migemo-dict
+  euc-jpで利用するならば:
+    % ./cmigemo -d dict/euc-jp.d/migemo-dict
+  を実行します。インストールとアンインストールは次のコマンドで行なえます。イン
+  ストール場所についてはconfig.mkを参照してください。
+    $ make linux-install
+    $ make linux-uninstall
 
 利用条件
   このC/Migemoライブラリは以下の条件に同意できる方のみ利用が許可されます。
@@ -76,16 +135,11 @@ C/Migemoライブラリ説明書
 
 辞書について
   C/Migemoではローマ字を日本語へ変換するのに辞書ファイルdict/migemo-dictを必要
-  とします。ファイルdict/migemo-dictはこのアーカイブに含まれていませんが、
-    1. vim向けにコンパイル済みのMigemo DLLから持ってくるか
-    2. Ruby/Migemoのものを流用するか
-    3. SKKの辞書ファイルからコンバートする
-  ことができます。
+  とします。ファイルdict/migemo-dictはこのアーカイブに含まれていませんが、辞書
+  ファイルのビルド時にインターネットを通じて自動的にダウンロードする仕組みにな
+  っています。また大変ですが自分で0から作成することも可能です。
 
-  SKKからコンバートするためのツールはPerlで書かれたtool/conv.plとして収録され
-  ています。SKK-JISYO.Lを下記URLから取得して次のようにコンバートします。
-    $ perl tool/conv.pl < SKK-JISYO.L > dict/migemo-dict
-  tool/strip.plは辞書ファイルから重複単語を削除するためのツールです。
+  辞書に関するツール、その使用法はdict/Makefileを参照してください。
 
   C/Migemoでは
     1. dict/migemo-dict以外にも、
@@ -95,11 +149,11 @@ C/Migemoライブラリ説明書
   を使用しています。これらの全てのファイルは単にデータテーブルとして機能してい
   るだけでなく、システムのエンコード(漢字コード)の違いを吸収する役割も担ってい
   ます。つまり先に挙げた4ファイルをWindowsで使う場合にはcp932に、UNIXやLinuxで
-  使う場合にはeuc-jpに変換する必要があるのです。変換にはnkfやqkcを使うと良いで
-  しょう。
+  使う場合にはeuc-jpに変換する必要があるのです。変換が必要だと予想される場合に
+  は、辞書ファイルのビルドと同時に自動的に行なわれるようになっています。
 
   - Migemo DLL配布ページ (cp932のmigemo-dictが入手可能)
-      http://www.kaoriya.net/~koron/
+      http://www.kaoriya.net/
   - Ruby/Migemo (euc-jpのmigemo-dictが入手可能)
       http://migemo.namazu.org/
   - SKK Openlab (最新のSKK-JISYO.Lが入手可能)
@@ -112,14 +166,14 @@ C/Migemoライブラリ説明書
     Migemoオブジェクト。migemo_open()で作成され、migemo_close()で破棄される。
 
 - int (*MIGEMO_PROC_CHAR2INT)(unsigned char*, unsigned int*);
-    文字列(unsigned char*)をコード(unsigned int)に変換するプロシージャ型。
+    バイト列(unsigned char*)をコード(unsigned int)に変換するプロシージャ型。
     Shift-JISやEUC-JP以外のエンコードの文字列を扱うとき、もしくは特殊文字の処
     理を行いたいときに定義する。戻り値は文字列のうち処理したバイト数で、0を返
-    せばデフォルトのプロシージャが実行される。この仕組みで必要な文字だけに処
-    理を施すことが出来る。
+    せばデフォルトのプロシージャが実行される。この仕組みで必要な文字だけに処理
+    を施すことが出来る。
 
 - int (*MIGEMO_PROC_INT2CHAR)(unsigned int, unsigned char*);
-    コード(unsigned int)を文字列(unsigned char*)に変換するプロシージャ型。
+    コード(unsigned int)をバイト列(unsigned char*)に変換するプロシージャ型。
     Shift-JISやEUC-JP以外のエンコード文字列を扱うとき、もしくは特殊文字の処理
     を行いたいときに定義する。戻り値は出力された文字列のバイト数で、0を返せば
     デフォルトのプロシージャが実行される。この仕組みで必要な文字だけに処理を施
@@ -193,7 +247,7 @@ C/Migemoライブラリ説明書
         ン。デフォルトでは "" であり設定されない。vimでは "\_s*" を指定する。
 
     デフォルトのメタ文字は特に断りがない限りPerlのそれと同じ意味である。設定に
-    成功すると戻り値は0となり、失敗すると0以外になる。
+    成功すると戻り値は1(0以外)となり、失敗すると0になる。
 
 - const unsigned char* migemo_get_operator(migemo* object, int index);
     Migemoオブジェクトが生成する正規表現に使用しているメタ文字(演算子)を取得す
@@ -211,6 +265,7 @@ C/Migemoライブラリ説明書
 
 更新箇所
   ● 15-May-2002 (1.1a-beta)
+    migemo_set_operator()の戻り値の意味を変更
     ドキュメントブラッシュアップ
     Cygwin/MacOS X/Linux用にMakefileを作成
     strip.plとlensort.plをtool/optimize-dict.plに統合

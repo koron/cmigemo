@@ -3,7 +3,7 @@
  * migemo.c -
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 14-May-2002.
+ * Last Change: 15-May-2002.
  */
 
 #include <stdio.h>
@@ -302,7 +302,13 @@ migemo_release(migemo* p, unsigned char* string)
     int
 migemo_set_operator(migemo* object, int index, unsigned char* op)
 {
-    return object ? rxgen_set_operator(object->rx, index, op) : 1;
+    if (object)
+    {
+	int retval = rxgen_set_operator(object->rx, index, op);
+	return retval ? 0 : 1;
+    }
+    else
+	return 0;
 }
 
     const unsigned char*

@@ -6,7 +6,7 @@
 # Base Idea:	AIDA Shinra
 # Written By:	MURAOKA Taro <koron@tka.att.ne.jp>
 
-!include config.mk
+include config.mk
 
 libmigemo_SRC = \
 		filename.c migemo.c mnode.c romaji.c \
