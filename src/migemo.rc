@@ -28,8 +28,8 @@ LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,0,0,3
- PRODUCTVERSION 1,0,0,1
+ FILEVERSION 2001,8,10,5
+ PRODUCTVERSION 1,0,0,5
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x9L
@@ -47,14 +47,14 @@ BEGIN
             VALUE "Comments", "ローマ字による日本語検索正規表現生成ライブラリ\0"
             VALUE "CompanyName", "KoRoNWorks\0"
             VALUE "FileDescription", "migemo in C\0"
-            VALUE "FileVersion", "1, 0, 0, 3\0"
+            VALUE "FileVersion", "2001, 8, 10, 5\0"
             VALUE "InternalName", "migemo\0"
-            VALUE "LegalCopyright", "Copyright (C) 2001\0"
+            VALUE "LegalCopyright", "Copyright (C) 2001 KoRoN\0"
             VALUE "LegalTrademarks", "\0"
             VALUE "OriginalFilename", "migemo.dll\0"
-            VALUE "PrivateBuild", "alpha 2\0"
-            VALUE "ProductName", "KoRoNWorks migemo\0"
-            VALUE "ProductVersion", "1, 0, 0, 1\0"
+            VALUE "PrivateBuild", "alpha 3\0"
+            VALUE "ProductName", "Migemo DLL\0"
+            VALUE "ProductVersion", "1, 0, 0, 5\0"
             VALUE "SpecialBuild", "\0"
         END
     END

@@ -31,15 +31,28 @@ query_loop(migemo* p)
     int
 main(int argc, char** argv)
 {
+    void migemo_print(migemo* object);
+    int mode_print = 0;
+    migemo *pmigemo;
+
+    while (*++argv)
+    {
+	if (!strcmp("--print-node", *argv) || !strcmp("-p", *argv))
+	    mode_print = 1;
+    }
+
     if (1)
     {
-	migemo *pmigemo;
 
 	pmigemo = migemo_open("migemo-dict");
 	if (!pmigemo)
 	    pmigemo = migemo_open("../migemo-dict");
+	if (!pmigemo)
+	    return 1;
 
-	if (pmigemo)
+	if (mode_print)
+	    migemo_print(pmigemo);
+	else
 	{
 	    migemo_set_operator(pmigemo, MIGEMO_OPINDEX_OR, "\\|");
 	    migemo_set_operator(pmigemo, MIGEMO_OPINDEX_NEST_IN, "\\%(");

@@ -3,7 +3,7 @@
  * mnode.c - mnode interfaces.
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 08-Aug-2001.
+ * Last Change: 09-Aug-2001.
  */
 
 #include <stdio.h>
@@ -41,7 +41,7 @@ mnode_delete(mnode* p)
     }
 }
 
-    static void
+    void
 mnode_print(mnode* vp, unsigned char* p)
 {
     static unsigned char buf [256];
@@ -52,8 +52,8 @@ mnode_print(mnode* vp, unsigned char* p)
 	p = &buf[0];
     p[0] = MNODE_GET_CH(vp);
     p[1] = '\0';
-    if (MNODE_GET_TERM(vp))
-	printf("%s\n", buf);
+    if (vp->list)
+	printf("%s (list=%p)\n", buf, vp->list);
     if (vp->child)
 	mnode_print(vp->child, p + 1);
     if (vp->next)
@@ -134,7 +134,6 @@ mnode_open(FILE* fp)
 		/* ラベルの終了を検出 */
 		if (ch == '\t')
 		{
-		    MNODE_SET_TERM(*pp, 1);
 		    wordbuf_reset(buf);
 		    mode = 3; /* 単語前空白読飛ばしモード へ移行 */
 		    continue;
@@ -233,12 +232,13 @@ mnode_size(mnode* p)
     static mnode*
 mnode_query_stub(mnode* node, unsigned char* query)
 {
-    while (node)
+    while (1)
     {
 	if (*query == MNODE_GET_CH(node))
 	    return (*++query == '\0') ? node :
 		(node->child ? mnode_query_stub(node->child, query) : NULL);
-	node = node->next;
+	if (!(node = node->next))
+	    break;
     }
     return NULL;
 }
@@ -253,12 +253,13 @@ mnode_query(mnode* node, unsigned char* query)
     static void
 mnode_traverse_stub(mnode* node, MNODE_TRAVERSE_PROC proc, void* data)
 {
-    while (node)
+    while (1)
     {
 	if (node->child)
 	    mnode_traverse_stub(node->child, proc, data);
 	proc(node, data);
-	node = node->next;
+	if (!(node = node->next))
+	    break;
     }
 }
 

@@ -3,7 +3,7 @@
  * migemo.c -
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 08-Aug-2001.
+ * Last Change: 09-Aug-2001.
  */
 
 #include <stdio.h>
@@ -88,49 +88,6 @@ migemo_close(migemo* obj)
     }
 }
 
-#if 0
-    void
-migemo_query_proc(mnode* p, void* data)
-{
-    wordbuf *buf = (wordbuf*)data;
-    wordlist *list = p->list;
-
-    for (; list; list = list->next)
-    {
-	if (wordbuf_last(buf) > 0)
-	    wordbuf_add(buf, ' ');
-	wordbuf_cat(buf, list->ptr);
-    }
-}
-
-    unsigned char*
-migemo_query(migemo* p, unsigned char* query)
-{
-    unsigned char* answer = NULL;
-    mnode *pnode;
-
-    /*printf("migemo_query(p=%p, query=\"%s\")\n", p, query);*/
-    if (pnode = mnode_query(p->node, query))
-    {
-	wordbuf *pwordbuf;
-
-	pwordbuf = wordbuf_open();
-	/* バッファを用意して再帰でバッファに書き込ませる */
-	mnode_traverse(pnode, migemo_query_proc, pwordbuf);
-	answer = strdup(wordbuf_get(pwordbuf));
-	wordbuf_close(pwordbuf);
-    }
-    /*printf("  pnode=%p, answer=%p\n", query, pnode, answer);*/
-
-    return answer;
-}
-
-    void
-migemo_release(migemo* p, unsigned char* string)
-{
-    free(string);
-}
-#else
 /*
  * query version 2
  */
@@ -223,7 +180,6 @@ migemo_release(migemo* p, unsigned char* string)
 {
     rxgen_release(NULL, string);
 }
-#endif
 
     int
 migemo_set_operator(migemo* object, int index, unsigned char* op)
@@ -250,3 +206,16 @@ migemo_setproc_int2char(migemo* object, MIGEMO_PROC_INT2CHAR proc)
     if (object)
 	rxgen_setproc_int2char(object->rx, (RXGEN_PROC_INT2CHAR)proc);
 }
+
+#if 1
+/*
+ * 主にデバッグ用の隠し関数
+ */
+
+    void
+migemo_print(migemo* object)
+{
+    if (object)
+	mnode_print(object->node, NULL);
+}
+#endif
