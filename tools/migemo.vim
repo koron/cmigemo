@@ -1,21 +1,33 @@
-" vi:set ts=8 sts=2 sw=2 tw=0:
+" vim:set ts=8 sts=2 sw=2 tw=0:
 "
-" migemo.vim - Direct search for Japanese with Romaji
-"		--- Migemo support script.
+" migemo.vim
+"   Direct search for Japanese with Romaji --- Migemo support script.
 "
-" Maintainer:  Muraoka Taro  <koron@tka.att.ne.jp>
-" Last Change: 14-May-2002.
+" Maintainer:  MURAOKA Taro <koron@tka.att.ne.jp>
+" Last Change: 16-May-2002.
 
 " Japanese Description:
 
-if !has('migemo') || exists('plugin_migemo_disable')
+if exists('plugin_migemo_disable')
   finish
 endif
 
-let s:migemosearchdir = $VIM . ',' . &runtimepath
-if &migemodict == '' || !filereadable(&migemodict)
-  let &migemodict = globpath(s:migemosearchdir, "dict/migemo-dict")
-endif
-if &migemodict == ''
-  let &migemodict = globpath(s:migemosearchdir, "migemo-dict")
+function! s:SearchDict()
+  let path = $VIM . ',' . &runtimepath
+  let dict = globpath(path, "dict/migemo-dict")
+  if dict == ''
+    let dict = globpath(path, "migemo-dict")
+    if dict == ''
+      return ''
+    endif
+  endif
+  return matchstr(dict, "^[^\<NL>]*")
+endfunction
+
+if has('migemo')
+  if &migemodict == '' || !filereadable(&migemodict)
+    let &migemodict = s:SearchDict()
+  endif
+else
+  " TODO: include megemo.vim by mattn
 endif

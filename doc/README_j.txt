@@ -59,9 +59,10 @@ C/Migemoライブラリ説明書
   各プラットホームでのビルド方法の具体例は以下を参照してください。
     1. Windows + VisualC++
     2. Windows + Cygwin
-    3. MacOS X + Developer Tools
-    4. Linux + gcc
-  現在のところ以上4環境での動作確認を完了しています。
+    3. Windows + Borland C++
+    4. MacOS X + Developer Tools
+    5. Linux + gcc
+  現在のところ以上5環境での動作確認を完了しています。
 
   (Windows + VisualC++)
   次のコマンドでRelease/内にmigemo.dllとcmigemo.exeが作成されます。
@@ -85,6 +86,15 @@ C/Migemoライブラリ説明書
   ることで行なえます。インストール場所についてはconfig.mkを参照してください。
     # make cyg-install
     # make cyg-uninstall
+
+  (Windows + Borland C++)
+  次のコマンドでmigemo.dllとcmigemo.exeが作成されます。
+    > make bc
+  必要な外部プログラム、ネットワーク接続が揃っていれば
+    > nmake bc-dict
+  で辞書ファイルをビルドできます。以上が終了すれば次のコマンドでテストプログラ
+  ムが動作します。
+    > .\cmigemo -d dict/migemo-dict
 
   (MacOS X + Developer Tools)
   必要な外部プログラム、ネットワーク接続を揃えて以下を実行することでテストプロ
@@ -136,7 +146,9 @@ C/Migemoライブラリ説明書
 
   (アルファベット順)
   - AIDA Shinra
-    各プラットホーム用Makefileの基礎
+    CygwinとLinux用Makefileの基礎
+  - MATSUMOTO Yasuhiro
+    Borland C++用Makefileの基礎
 
 
 辞書について
