@@ -61,8 +61,9 @@ C/Migemoライブラリ説明書
     2. Windows + Cygwin
     3. Windows + Borland C++
     4. MacOS X + Developer Tools
-    5. Linux + gcc
-  現在のところ以上5環境での動作確認を完了しています。
+    5. GNU/gcc:Linux他
+  現在のところ以上5環境での動作確認を完了しています。5.のGNU/gccについてはVine
+  Linux 2.1.5とFreeBSD 3.5.1-RELEASEで動作の確認をしました。
 
   (Windows + VisualC++)
   次のコマンドでRelease/内にmigemo.dllとcmigemo.exeが作成されます。
@@ -110,19 +111,19 @@ C/Migemoライブラリ説明書
     # make osx-install
     # make osx-uninstall
 
-  (Linux + gcc)
+  (GNU/gcc:Linux他)
   必要な外部プログラム、ネットワーク接続を揃えて以下を実行することでテストプロ
   グラムcmigemoと辞書ファイルがビルドされます:
-    $ make linux
-    $ make linux-dict
+    $ make gcc
+    $ make gcc-dict
   実行はcp932(Shift-JIS)で利用するならば:
     $ ./cmigemo -d dict/migemo-dict
   euc-jpで利用するならば:
     $ ./cmigemo -d dict/euc-jp.d/migemo-dict
   を実行します。インストールとアンインストールはroot権限で次のコマンドを実行す
   ることで行なえます。インストール場所についてはconfig.mkを参照してください。
-    # make linux-install
-    # make linux-uninstall
+    # make gcc-install
+    # make gcc-uninstall
 
 利用条件
   このC/Migemoライブラリは以下の条件に同意できる方のみ利用が許可されます。

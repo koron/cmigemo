@@ -41,13 +41,13 @@ euc-jp-files: $(EUCJP_DIR) $(EUCJP_DIR)/migemo-dict $(EUCJP_DIR)/han2zen.dat \
 $(EUCJP_DIR):
 	$(MKDIR) $(EUCJP_DIR)
 $(EUCJP_DIR)/migemo-dict: migemo-dict
-	$(FILTER_EUCJP) < $< > $@
+	$(FILTER_EUCJP) < migemo-dict > $@
 $(EUCJP_DIR)/han2zen.dat: han2zen.dat
-	$(FILTER_EUCJP) < $< > $@
+	$(FILTER_EUCJP) < han2zen.dat > $@
 $(EUCJP_DIR)/hira2kata.dat: hira2kata.dat
-	$(FILTER_EUCJP) < $< > $@
+	$(FILTER_EUCJP) < hira2kata.dat > $@
 $(EUCJP_DIR)/roma2hira.dat: roma2hira.dat
-	$(FILTER_EUCJP) < $< > $@
+	$(FILTER_EUCJP) < roma2hira.dat > $@
 
 ##############################################################################
 # for Microsoft Visual C
@@ -65,14 +65,14 @@ bc5:		cp932
 cyg:		euc-jp
 
 ##############################################################################
+# for GNU/gcc(Linux‘¼)
+#
+gcc:		euc-jp
+
+##############################################################################
 # for MacOS X
 #
 osx:		euc-jp
-
-##############################################################################
-# for Linux
-#
-linux:		euc-jp
 
 ##############################################################################
 # Cleaning

@@ -1,6 +1,6 @@
 # vim:set ts=8 sts=8 sw=8 tw=0:
 #
-# Cygwin—pMakefile
+# GNU/gcc(Linux‘¼)—pMakefile
 #
 # Last Change:	16-May-2002.
 # Base Idea:	AIDA Shinra
@@ -43,4 +43,4 @@ uninstall-lib:
 	$(RM) $(libdir)/$(libmigemo)
 
 dictionary:
-	cd dict && $(MAKE) linux
+	cd dict && $(MAKE) gcc

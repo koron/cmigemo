@@ -43,22 +43,23 @@ cyg-distclean:
 	$(MAKE) -f compile/Make_cyg.mak distclean
 
 ##############################################################################
-# for Linux (Tested on Vine Linux 2.1.5)
+# for GNU/gcc (Linux and others)
+#	(Tested on Vine Linux 2.1.5)
 #
-linux: linux-rel
-linux-all: linux-rel linux-dict
-linux-rel:
-	$(MAKE) -f compile/Make_linux.mak
-linux-dict:
-	$(MAKE) -f compile/Make_linux.mak dictionary
-linux-install: linux-all
-	$(MAKE) -f compile/Make_linux.mak install
-linux-uninstall:
-	$(MAKE) -f compile/Make_linux.mak uninstall
-linux-clean:
-	$(MAKE) -f compile/Make_linux.mak clean
-linux-distclean:
-	$(MAKE) -f compile/Make_linux.mak distclean
+gcc: gcc-rel
+gcc-all: gcc-rel gcc-dict
+gcc-rel:
+	$(MAKE) -f compile/Make_gcc.mak
+gcc-dict:
+	$(MAKE) -f compile/Make_gcc.mak dictionary
+gcc-install: gcc-all
+	$(MAKE) -f compile/Make_gcc.mak install
+gcc-uninstall:
+	$(MAKE) -f compile/Make_gcc.mak uninstall
+gcc-clean:
+	$(MAKE) -f compile/Make_gcc.mak clean
+gcc-distclean:
+	$(MAKE) -f compile/Make_gcc.mak distclean
 
 ##############################################################################
 # for Microsoft Visual C
