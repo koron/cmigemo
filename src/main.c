@@ -7,11 +7,13 @@
  */
 
 #include <stdio.h>
-#include <time.h>
+#include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "migemo.h"
 
+#define MIGEMO_ABOUT "cmigemo - C/Migemo Library " MIGEMO_VERSION " Driver"
 #define MIGEMODICT_NAME "migemo-dict"
 
 /*
@@ -46,6 +48,25 @@ query_loop(migemo* p, int quiet)
     return 0;
 }
 
+    static void
+help(char* prgname)
+{
+    printf( "\
+%s \n\
+\n\
+USAGE: %s [OPTIONS]\n\
+\n\
+OPTIONS:\n\
+  -d --dict <dict>	Use a file <dict> for dictionary.\n\
+  -q --quiet		Show no message except results.\n\
+  -v --vim		Use vim style regexp.\n\
+  -w --word <word>	Expand a <word> and soon exit.\n\
+  -h --help		Show this message.\n\
+"
+	  , MIGEMO_ABOUT, prgname);
+    exit(0);
+}
+
     int
 main(int argc, char** argv)
 {
@@ -55,6 +76,7 @@ main(int argc, char** argv)
     migemo *pmigemo;
     FILE *fplog = stdout;
     char *word = NULL;
+    char *prgname = argv[0];
 
     while (*++argv)
     {
@@ -68,6 +90,8 @@ main(int argc, char** argv)
 	    word = *++argv;
 	else if (!strcmp("--quiet", *argv) || !strcmp("-q", *argv))
 	    mode_quiet = 1;
+	else if (!strcmp("--help", *argv) || !strcmp("-h", *argv))
+	    help(prgname);
     }
 
 #ifdef _PROFILE

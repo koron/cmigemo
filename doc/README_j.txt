@@ -2,7 +2,7 @@ C/Migemoライブラリ説明書
                                                              since 15-Aug-2001
                                                                    Version 1.1
                                                   Author: MURAOKA Taro (KoRoN)
-                                                     Last Change: 15-May-2002.
+                                                     Last Change: 16-May-2002.
 
 説明
   C/MigemoはMigemo(Ruby/Migemo)をC言語で実装したものです。C/Migemoライブラリを
@@ -130,7 +130,13 @@ C/Migemoライブラリ説明書
 
 謝辞
   Migemoを発案されRuby/Migemoを作成され、C/Migemoについての相談にMLで親切に答
-  えていただいた高林 哲さんに。
+  えていただいた高林 哲さんに感謝いたします。また、この配布パッケージには以下
+  の方々によるドキュメントやアイデアが含まれています。皆様ありがとうございま
+  す。
+
+  (アルファベット順)
+  - AIDA Shinra
+    各プラットホーム用Makefileの基礎
 
 
 辞書について
@@ -264,7 +270,11 @@ C/Migemoライブラリ説明書
     いての詳細は「型リファレンス」セクションのMIGEMO_PROC_INT2CHARを参照。
 
 更新箇所
-  ● 15-May-2002 (1.1a-beta)
+  ● 16-May-2002 (1.1-beta2)
+    謝辞追加
+    パッケージ作成用スクリプトの追加
+    cmigemoをプログラムから使いやすく。
+  ● 15-May-2002 (1.1-beta1)
     migemo_set_operator()の戻り値の意味を変更
     ドキュメントブラッシュアップ
     Cygwin/MacOS X/Linux用にMakefileを作成

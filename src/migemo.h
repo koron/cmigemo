@@ -3,11 +3,13 @@
  * migemo.h -
  *
  * Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
- * Last Change: 15-May-2002.
+ * Last Change: 16-May-2002.
  */
 
 #ifndef MIGEMO_H
 #define MIGEMO_H
+
+#define MIGEMO_VERSION "1.1"
 
 /* for migemo_load() */
 #define MIGEMO_DICTID_INVALID	    0
