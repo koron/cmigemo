@@ -7,13 +7,15 @@
 # Written By:	MURAOKA Taro <koron@tka.att.ne.jp>
 
 ##############################################################################
-# ŠÂ‹«‚É‰‚¶‚Ä‚±‚Ì3•Ï”‚ğ•ÏX‚·‚é
+# ŠÂ‹«‚É‰‚¶‚Ä‚±‚Ì•Ï”‚ğ•ÏX‚·‚é
 #
-libmigemo_LIB = libmigemo.so.1.0
-libmigemo_DSO = libmigemo.so.1
-EXEEXT =
-CFLAGS_MIGEMO = -fPIC
-LDFLAGS_MIGEMO = -Wl,-rpath,.,-rpath,/usr/local/lib,-rpath,/usr/lib
+libmigemo_LIB	= libmigemo.so.1.1.0
+libmigemo_DSO	= libmigemo.so.1
+libmigemo	= libmigemo.so
+EXEEXT		=
+CFLAGS_MIGEMO	= -fPIC
+LDFLAGS_MIGEMO	= -Wl,-rpath,.,-rpath,/usr/local/lib,-rpath,/usr/lib
+CLEAN_TARGET	= $(libmigemo_LIB) $(libmigemo_DSO) $(libmigemo)
 
 include compile/unix.mak
 
@@ -23,17 +25,17 @@ include compile/unix.mak
 $(libmigemo_LIB): $(libmigemo_DSO)
 $(libmigemo_DSO): $(libmigemo_OBJ)
 	$(CC) -shared -o $(libmigemo_LIB) -Wl,-soname,$@ $(libmigemo_OBJ)
-	$(RM) $@ libmigemo.so
+	$(RM) $@ $(libmigemo)
 	ln -s $(libmigemo_LIB) $@
-	ln -s $(libmigemo_LIB) libmigemo.so
+	ln -s $(libmigemo_LIB) $(libmigemo)
 
-install-lib: $(libmigemo_DSO) $(libmigemo_LIB)
+install-lib: $(libmigemo_DSO)
 	$(INSTALL_PROGRAM) $(libmigemo_LIB) $(libdir)
-	$(RM) $(libdir)/$(libmigemo_DSO) $(libdir)/libmigemo.so
+	$(RM) $(libdir)/$(libmigemo_DSO) $(libdir)/$(libmigemo)
 	ln -s $(libmigemo_LIB) $(libdir)/$(libmigemo_DSO)
-	ln -s $(libmigemo_LIB) $(libdir)/libmigemo.so
+	ln -s $(libmigemo_LIB) $(libdir)/$(libmigemo)
 
 uninstall-lib:
 	$(RM) $(libdir)/$(libmigemo_DSO)
 	$(RM) $(libdir)/$(libmigemo_LIB)
-	$(RM) $(libdir)/libmigemo.so
+	$(RM) $(libdir)/$(libmigemo)

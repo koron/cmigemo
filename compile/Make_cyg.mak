@@ -14,6 +14,7 @@ libmigemo_DSO = cygmigemo1.dll
 EXEEXT = .exe
 CFLAGS_MIGEMO =
 LDFLAGS_MIGEMO =
+CLEAN_TARGET = $(libmigemo_LIB) $(libmigemo_DSO)
 
 include compile/unix.mak
 

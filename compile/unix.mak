@@ -76,5 +76,5 @@ uninstall: uninstall-lib
 
 clean:
 	$(RM) *.o
-	$(RM) $(libmigemo_LIB) $(libmigemo_DSO) libmigemo.so
 	$(RM) cmigemo$(EXEEXT)
+	$(RM) $(CLEAN_TARGET)
