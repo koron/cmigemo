@@ -1,9 +1,10 @@
  vim:set ts=8 sts=4 sw=4 tw=0 ft=memo:
- Last Change: 11-Oct-2003.
+ Last Change: 13-Oct-2003.
 
 TODO
     Windows用Makefileを修正
     ローマ字変換に「ステート残り」を導入
+    辞書ファイル毎にmtreeを作成し、ランタイムで切り離せるようにする
 
 ONICE 1.1
     ローマ字変換でマルチバイト文字を考慮(Vim掲示板:1281)

@@ -3,7 +3,7 @@
  * wordbuf.h -
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 15-May-2002.
+ * Last Change: 13-Oct-2003.
  */
 
 #include <stdio.h>
@@ -13,8 +13,8 @@
 
 #define WORDLEN_DEF 64
 
-int n_wordbuf_open = 0;
-int n_wordbuf_close = 0;
+int n_wordbuf_open = 0;		/* for DEBUG */
+int n_wordbuf_close = 0;	/* for DEBUG */
 
 /* function pre-declaration */
 static int wordbuf_extend(wordbuf_p p, int len);
@@ -26,11 +26,11 @@ wordbuf_open()
 
     if (p)
     {
-	++n_wordbuf_open;
+	++n_wordbuf_open;	/* for DEBUG */
 	p->len = WORDLEN_DEF;
 	p->buf = (unsigned char*)malloc(p->len);
-	p->buf[0] = '\0';
 	p->last = 0;
+	p->buf[0] = '\0';
     }
     return p;
 }
@@ -40,7 +40,7 @@ wordbuf_close(wordbuf_p p)
 {
     if (p)
     {
-	++n_wordbuf_close;
+	++n_wordbuf_close;	/* for DEBUG */
 	free(p->buf);
 	free(p);
     }
@@ -54,27 +54,29 @@ wordbuf_reset(wordbuf_p p)
 }
 
 /*
- * wordbuf_extend(wordbuf_p p, int len);
+ * wordbuf_extend(wordbuf_p p, int req_len);
  *	バッファの伸長。エラー時には0が帰る。
  *	高速化のために伸ばすべきかは呼出側で判断する。
  */
     static int
-wordbuf_extend(wordbuf_p p, int len)
+wordbuf_extend(wordbuf_p p, int req_len)
 {
     int newlen = p->len * 2;
     unsigned char *newbuf;
 
-    while (len > newlen)
+    while (req_len > newlen)
 	newlen *= 2;
     if (!(newbuf = (unsigned char*)realloc(p->buf, newlen)))
     {
 	/*fprintf(stderr, "wordbuf_add(): failed to extend buffer\n");*/
 	return 0;
     }
-    p->len = newlen;
-    p->buf = newbuf;
-
-    return len;
+    else
+    {
+	p->len = newlen;
+	p->buf = newbuf;
+	return req_len;
+    }
 }
 
     int
@@ -101,8 +103,8 @@ wordbuf_add(wordbuf_p p, unsigned char ch)
 	/* リトルエンディアンを仮定するなら使えるが… */
 	*(unsigned short*)&p->buf[p->last] = (unsigned short)ch;
 #endif
+	return ++p->last;
     }
-    return ++p->last;
 }
 
     int

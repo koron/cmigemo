@@ -3,7 +3,7 @@
  * wordbuf.h -
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 15-May-2002.
+ * Last Change: 13-Oct-2003.
  */
 #ifndef WORDBUF_H
 #define WORDBUF_H
@@ -11,9 +11,9 @@
 typedef struct _wordbuf_t wordbuf_t, *wordbuf_p;
 struct _wordbuf_t
 {
-    int len;
+    int len; /* buf‚ÉŠ„‚è“–‚Ä‚ç‚ê‚Ä‚¢‚éƒƒ‚ƒŠ—Ê */
     unsigned char* buf;
-    int last; /* Ši”[‚µ‚Ä‚¢‚é•¶š—ñ‚Ì’·‚³ */
+    int last; /* buf‚ÉÀÛ‚ÉŠi”[‚µ‚Ä‚¢‚é•¶š—ñ‚Ì’·‚³ */
 };
 
 extern int n_wordbuf_open;
