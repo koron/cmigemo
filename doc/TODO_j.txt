@@ -1,7 +1,8 @@
  vim:set ts=8 sts=4 sw=4 tw=0 ft=memo:
- Last Change: 22-Oct-2003.
+ Last Change: 25-Oct-2003.
 
 TODO
+    辞書ファイル作成作業をPerl非依存にする
     エスケープする文字をカスタマイズ可能にする
     もしくは各種言語用の出力を用意する
     ローマ字変換に「ステート残り」を導入
