@@ -3,7 +3,7 @@
  * wordlist.h -
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 24-Jan-2002.
+ * Last Change: 14-May-2002.
  */
 
 #include <stdlib.h>
@@ -21,7 +21,7 @@ wordlist_open_len(unsigned char* ptr, int len)
     {
 	wordlist_p p;
 
-	if (p = (wordlist_p)malloc(sizeof(*p) + len + 1))
+	if ((p = (wordlist_p)malloc(sizeof(*p) + len + 1)) != NULL)
 	{
 	    p->ptr  = (char*)(p + 1);
 	    p->next = NULL;

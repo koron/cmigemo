@@ -6,7 +6,7 @@
 # Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
 
 # ïKê{ÉvÉçÉOÉâÉÄ
-# 	Perl, cURL, qkc, cp, rm
+# 	Perl, cURL, qkc, (cp, rm, mv)
 
 DICT 		= migemo-dict
 CURL_FLAGS 	=
@@ -14,6 +14,7 @@ SKKDIC_BASEURL 	= http://openlab.ring.gr.jp/skk/dic
 
 RM = rm -f
 CP = cp
+MV = mv
 
 cp932:		cp932-large
 cp932-large:	SKK-JISYO.L $(DICT)
@@ -27,6 +28,18 @@ euc-jp: 	euc-jp-large
 euc-jp-large: 	SKK-JISYO.L $(DICT)
 euc-jp-middle: 	SKK-JISYO.M $(DICT)
 euc-jp-small: 	SKK-JISYO.S $(DICT)
+
+#
+# for Cygwin
+#
+cyg:		cp932-large $(DICT).cp932 $(DICT).euc-jp
+$(DICT).euc-jp:	$(DICT)
+	$(CP) $(DICT) $(DICT).euc-jp
+	qkc -q -e -u $(DICT).euc-jp
+$(DICT).cp932:	$(DICT)
+	$(CP) $(DICT) $(DICT).cp932
+	qkc -q -s -u $(DICT).cp932
+
 
 $(DICT): SKK-JISYO.LATEST
 	perl ../tools/skk2migemodict.pl < SKK-JISYO.LATEST \
@@ -46,4 +59,4 @@ SKK-JISYO.L:
 
 clean:
 	$(RM) SKK-JISYO*
-	$(RM) $(DICT)
+	$(RM) $(DICT) $(DICT).euc-jp $(DICT).cp932

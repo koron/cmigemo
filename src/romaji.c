@@ -3,7 +3,7 @@
  * romaji.c - ÉçÅ[É}éöïœä∑
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 21-Jan-2002.
+ * Last Change: 14-May-2002.
  */
 
 #include <stdio.h>
@@ -112,14 +112,6 @@ romanode_print_stub(romanode* node, unsigned char* p)
 	romanode_print_stub(node->child, p + 1);
     if (node->next)
 	romanode_print_stub(node->next, p);
-}
-
-    static void
-romanode_print(romanode* node)
-{
-    if (!node)
-	return;
-    romanode_print_stub(node, NULL);
 }
 
     static romanode*
@@ -428,6 +420,14 @@ romaji_release(romaji* object, unsigned char* string)
 /*
  * main
  */
+
+    static void
+romanode_print(romanode* node)
+{
+    if (!node)
+	return;
+    romanode_print_stub(node, NULL);
+}
 
     void
 query_loop(romaji* object, romaji* hira2kata)

@@ -3,7 +3,7 @@
  * mnode.c - mnode interfaces.
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 10-Feb-2002.
+ * Last Change: 14-May-2002.
  */
 
 #include <stdio.h>
@@ -122,13 +122,13 @@ search_or_new_mnode(mtree_p mtree, wordbuf_p buf)
     int ch;
     unsigned char *word;
     mnode **ppnext;
-    mnode **res;
+    mnode **res = NULL; /* To suppress warning for GCC */
     mnode *root;
 
     word = WORDBUF_GET(buf);
     root = mtree->used > 0 ? &mtree->nodes[0] : NULL;
     ppnext = &root;
-    while (ch = *word)
+    while ((ch = *word) != 0)
     {
 	res = ppnext;
 	if (! *res)
@@ -160,7 +160,7 @@ mnode_load(mtree_p mtree, FILE* fp)
     int ch;
     wordbuf_p buf;
     wordbuf_p prevlabel;
-    wordlist_p *ppword;
+    wordlist_p *ppword = NULL; /* To suppress warning for GCC */
     /* 読み込みバッファ用変数 */
     unsigned char cache[MNODE_BUFSIZE];
     unsigned char *cache_ptr = cache;

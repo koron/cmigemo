@@ -3,7 +3,7 @@
  * migemo.c -
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 10-Feb-2002.
+ * Last Change: 14-May-2002.
  */
 
 #include <stdio.h>
@@ -53,7 +53,7 @@ migemo_load(migemo* obj, int dict_id, char* dict_file)
     {
 	case MIGEMO_DICTID_MIGEMO:
 	    /* migemoŽ«‘“Ç‚Ýž‚Ý */
-	    if (fp = fopen(dict_file, "rt"))
+	    if ((fp = fopen(dict_file, "rt")) != NULL)
 	    {
 		mtree_p mtree = mnode_load(obj->mtree, fp);
 
@@ -186,7 +186,7 @@ add_mnode_query(migemo* object, unsigned char* query)
 {
     mnode *pnode;
 
-    if (pnode = mnode_query(object->mtree, query))
+    if ((pnode = mnode_query(object->mtree, query)) != NULL)
 	mnode_traverse(pnode, migemo_query_proc, object->rx);
 }
 
@@ -272,7 +272,7 @@ migemo_query(migemo* object, unsigned char* query)
 	rxgen_add(object->rx, query);
 
 	/* query‚ð‘SŠp‚É‚µ‚ÄŒó•â‚É‰Á‚¦‚é */
-	if (zen = romaji_convert(object->han2zen, query, NULL))
+	if ((zen = romaji_convert(object->han2zen, query, NULL)) != NULL)
 	{
 	    rxgen_add(object->rx, zen);
 	    romaji_release(object->han2zen, zen);

@@ -2,7 +2,7 @@
  * main.c - migemoライブラリテストドライバ
  *
  * Written By:  Muraoka Taro  <koron@tka.att.en.jp>
- * Last Change: 10-Feb-2002.
+ * Last Change: 14-May-2002.
  */
 
 #include <stdio.h>
@@ -34,7 +34,7 @@ query_loop(migemo* p)
 	if (!fgets(buf, sizeof(buf), stdin))
 	    break;
 	/* 改行はNUL文字に置き換える */
-	if (ans = strchr(buf, '\n'))
+	if ((ans = strchr(buf, '\n')) != NULL)
 	    *ans = '\0';
 
 	ans = migemo_query(p, buf);

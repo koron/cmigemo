@@ -11,7 +11,7 @@ tags: *.c *.h
 	ctags *.c *.h
 
 #
-# for Microsoft
+# for Microsoft Visual C
 #
 msvc: msvc-rel
 msvc-all: msvc-rel msvc-dict
@@ -23,7 +23,27 @@ msvc-dict:
 	cd dict
 	$(MAKE) /nologo cp932
 
-distclean:
+#
+# for Cygwin
+#
+cyg: cyg-rel
+cyg-all: cyg-rel cyg-dict
+cyg-rel:
+	$(MAKE) -f compile/Make_cyg.mak
+cyg-dict:
+	cd dict && $(MAKE) cyg
+cyg-install: cyg-all
+	$(MAKE) -f compile/Make_cyg.mak install
+cyg-uninstall:
+	$(MAKE) -f compile/Make_cyg.mak uninstall
+cyg-clean:
+	$(MAKE) -f compile/Make_cyg.mak clean
+
+dict-clean:
 	cd dict ; $(MAKE) clean
+
+distclean: dict-clean
 	$(RM) -fr Release Debug migemo.opt migemo.ncb
+	$(RM) *.o *.a
+	$(RM) *.dll *.exe
 	$(RM) tags
