@@ -1,0 +1,5 @@
+ vim:set ts=8 sts=4 sw=4 tw=0 ft=memo:
+ Last Change: 09-Jan-2002.
+
+TODO
+    ローマ字変換でマルチバイト文字を考慮(Vim掲示板:1281)
