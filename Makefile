@@ -39,11 +39,31 @@ cyg-uninstall:
 cyg-clean:
 	$(MAKE) -f compile/Make_cyg.mak clean
 
+#
+# for MacOS X
+#
+osx: osx-rel
+osx-all: osx-rel osx-dict
+osx-rel:
+	$(MAKE) -f compile/Make_osx.mak
+osx-dict:
+	cd dict && $(MAKE) osx
+osx-install: osx-all
+	$(MAKE) -f compile/Make_osx.mak install
+osx-uninstall:
+	$(MAKE) -f compile/Make_osx.mak uninstall
+osx-clean:
+	$(MAKE) -f compile/Make_osx.mak clean
+
+#
+# Cleaning
+#
+clean:
+	$(RM) *.o *.a
+	$(RM) *.dylib
+	$(RM) *.dll *.exe
 dict-clean:
 	cd dict ; $(MAKE) clean
-
-distclean: dict-clean
-	$(RM) -fr Release Debug migemo.opt migemo.ncb
-	$(RM) *.o *.a
-	$(RM) *.dll *.exe
+distclean: clean dict-clean
+	$(RM) -rf Release Debug migemo.opt migemo.ncb
 	$(RM) tags

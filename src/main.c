@@ -32,7 +32,10 @@ query_loop(migemo* p)
 	printf("QUERY: ");
 	/* gets()を使っていたがfgets()に変更 */
 	if (!fgets(buf, sizeof(buf), stdin))
+	{
+	    printf("\n");
 	    break;
+	}
 	/* 改行はNUL文字に置き換える */
 	if ((ans = strchr(buf, '\n')) != NULL)
 	    *ans = '\0';

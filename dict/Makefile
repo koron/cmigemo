@@ -33,6 +33,15 @@ euc-jp-small: 	SKK-JISYO.S $(DICT)
 # for Cygwin
 #
 cyg:		cp932-large $(DICT).cp932 $(DICT).euc-jp
+
+#
+# for MacOS X
+#
+osx:		cp932-large $(DICT).cp932 $(DICT).euc-jp
+
+$(DICT): SKK-JISYO.LATEST
+	perl ../tools/skk2migemodict.pl < SKK-JISYO.LATEST \
+		| perl ../tools/optimize-dict.pl > $@
 $(DICT).euc-jp:	$(DICT)
 	$(CP) $(DICT) $(DICT).euc-jp
 	qkc -q -e -u $(DICT).euc-jp
@@ -40,10 +49,6 @@ $(DICT).cp932:	$(DICT)
 	$(CP) $(DICT) $(DICT).cp932
 	qkc -q -s -u $(DICT).cp932
 
-
-$(DICT): SKK-JISYO.LATEST
-	perl ../tools/skk2migemodict.pl < SKK-JISYO.LATEST \
-		| perl ../tools/optimize-dict.pl > $@
 SKK-JISYO.S:
 	curl $(CURL_FLAGS) -O $(SKKDIC_BASEURL)/$@.bz2
 	bzip2 -d $@.bz2

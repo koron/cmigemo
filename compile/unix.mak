@@ -17,7 +17,7 @@ docdir	= $(prefix)/doc/migemo
 
 RM = rm -f
 MKDIR = mkdir -p
-INSTALL = /bin/install -c
+INSTALL = /usr/bin/install -c
 INSTALL_PROGRAM = $(INSTALL)
 INSTALL_DATA = $(INSTALL) -m 644
 
@@ -39,14 +39,14 @@ cmigemo$(EXEEXT): main.o $(libmigemo_LIB)
 main.o: main.c
 	$(CC) -c $< -o $@ -D_SPLITED_MIGEMO $(CFLAGS)
 
-install: cmigemo$(EXEEXT) $(libmigemo_DSO)
+install-mkdir:
 	$(MKDIR) $(bindir)
 	$(MKDIR) $(libdir)
 	$(MKDIR) $(incdir)
 	$(MKDIR) $(docdir)
 	$(MKDIR) $(dictdir)
-	$(INSTALL_PROGRAM) cmigemo$(EXEEXT) $(bindir)
-	$(INSTALL_PROGRAM) $(libmigemo_DSO) $(bindir)
+
+install-dict:
 	if [ -e dict/migemo-dict ]; then \
 		$(INSTALL_DATA) dict/migemo-dict $(dictdir); \
 	fi
@@ -56,18 +56,19 @@ install: cmigemo$(EXEEXT) $(libmigemo_DSO)
 	if [ -e dict/migemo-dict.euc-jp ]; then \
 		$(INSTALL_DATA) dict/migemo-dict.euc-jp $(dictdir); \
 	fi
-	$(INSTALL_DATA) doc/README_j.txt $(docdir)
-	$(INSTALL_DATA) $(libmigemo_LIB) $(libdir)
-	$(INSTALL_DATA) migemo.h $(incdir)
 
-uninstall:
-	$(RM) $(bindir)/cmigemo$(EXEEXT)
-	$(RM) $(bindir)/$(libmigemo_DSO)
+install: cmigemo$(EXEEXT) $(libmigemo_DSO) install-mkdir install-dict install-lib
+	$(INSTALL_DATA) migemo.h $(incdir)
+	$(INSTALL_DATA) doc/README_j.txt $(docdir)
+	$(INSTALL_PROGRAM) cmigemo$(EXEEXT) $(bindir)
+
+uninstall: uninstall-lib
 	$(RM) $(dictdir)/migemo-dict*
-	$(RM) $(docdir)/README_j.txt
-	$(RM) $(libdir)/$(libmigemo_LIB)
-	$(RM) -r $(incdir)/migemo.h
 	$(RM) -r $(dictdir) $(docdir)
+	$(RM) $(incdir)/migemo.h
+	$(RM) $(docdir)/README_j.txt
+	$(RM) -r $(docdir)
+	$(RM) $(bindir)/cmigemo$(EXEEXT)
 
 clean:
 	$(RM) *.o
