@@ -2,17 +2,20 @@
  * main.c - migemoライブラリテストドライバ
  *
  * Written By:  Muraoka Taro  <koron@tka.att.en.jp>
- * Last Change: 21-Aug-2001.
+ * Last Change: 19-Jan-2002.
  */
 #include <stdio.h>
 #include <time.h>
 #include <string.h>
+#include <crtdbg.h>
 
 #include "wordbuf.h"
 #include "wordlist.h"
 #include "mnode.h"
 #include "rxgen.h"
 #include "migemo.h"
+
+#define MIGEMODICT_NAME "migemo-dict"
 
 /*
  * main
@@ -69,11 +72,11 @@ main(int argc, char** argv)
     /* 辞書をカレントディレクトリと1つ上のディレクトリから捜す */
     if (!dict)
     {
-	pmigemo = migemo_open("./dict/migemo-dict");
+	pmigemo = migemo_open("./dict/" MIGEMODICT_NAME);
 	if (!pmigemo || !migemo_is_enable(pmigemo))
 	{
 	    migemo_close(pmigemo); /* NULLをcloseしても問題はない */
-	    pmigemo = migemo_open("../dict/migemo-dict");
+	    pmigemo = migemo_open("../dict/" MIGEMODICT_NAME);
 	}
     }
     else
@@ -131,6 +134,17 @@ main(int argc, char** argv)
     fprintf(stderr, "n_wordlist_new=   %8d\n", n_wordlist_new);
     fprintf(stderr, "n_wordlist_delete=%8d\n", n_wordlist_delete);
     fprintf(stderr, "n_wordlist_total= %8d\n", n_wordlist_total);
+#ifdef _DEBUG
+    _RPT1(_CRT_WARN, "n_mnode_new=      %8d\n", n_mnode_new);
+    _RPT1(_CRT_WARN, "n_mnode_delete=   %8d\n", n_mnode_delete);
+    _RPT1(_CRT_WARN, "n_rnode_new=      %8d\n", n_rnode_new);
+    _RPT1(_CRT_WARN, "n_rnode_delete=   %8d\n", n_rnode_delete);
+    _RPT1(_CRT_WARN, "n_wordbuf_open=   %8d\n", n_wordbuf_open);
+    _RPT1(_CRT_WARN, "n_wordbuf_close=  %8d\n", n_wordbuf_close);
+    _RPT1(_CRT_WARN, "n_wordlist_new=   %8d\n", n_wordlist_new);
+    _RPT1(_CRT_WARN, "n_wordlist_delete=%8d\n", n_wordlist_delete);
+    _RPT1(_CRT_WARN, "n_wordlist_total= %8d\n", n_wordlist_total);
+#endif
 #endif
 
     return 0;
