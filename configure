@@ -3,7 +3,7 @@
 #
 # configure - Easy configuration script
 #
-# Last Change: 29-Nov-2003.
+# Last Change: 07-Dec-2003.
 # Author & Maintainer: MURAOKA Taro <koron@tka.att.ne.jp>
 
 config_out=config.mk
@@ -11,7 +11,7 @@ config_in=compile/config.mk.in
 config_default=compile/config_default.mk
 
 CHECK_COMMAND() {
-  if test `which $1 2>/dev/null`"X" != "X" ; then
+  if test -e "`which $1 2>/dev/null`" ; then
     return 0
   else
     return 1
