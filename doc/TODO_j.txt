@@ -1,5 +1,5 @@
  vim:set ts=8 sts=4 sw=4 tw=0 ft=memo:
- Last Change: 28-Oct-2003.
+ Last Change: 29-Oct-2003.
 
 TODO
     辞書ファイル作成作業をPerl非依存にする
@@ -14,6 +14,7 @@ ONICE 1.1
     ローマ字変換でマルチバイト文字を考慮(Vim掲示板:1281)
 
 DONE 1.1
+    GCC用Makefile修正
     Doxygenを導入する
     Cygwinでbuild/cygmigemo1.dllに依存してしまうのを修正
     queryそのもので辞書を引くのを忘れていたのを修正

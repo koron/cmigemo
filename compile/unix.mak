@@ -2,7 +2,7 @@
 #
 # UNIXŒn‹¤’ÊMakefile
 #
-# Last Change:	19-Oct-2003.
+# Last Change:	29-Oct-2003.
 # Base Idea:	AIDA Shinra
 # Maintainer:	MURAOKA Taro <koron@tka.att.ne.jp>
 
@@ -56,10 +56,10 @@ install-dict:
 	  $(INSTALL_DATA) dict/euc-jp.d/roma2hira.dat $(dictdir)/euc-jp; \
 	fi
 
-install: cmigemo$(EXEEXT) $(libmigemo_DSO) install-mkdir install-dict install-lib
-	$(INSTALL_DATA) migemo.h $(incdir)
+install: $(outdir)cmigemo$(EXEEXT) $(libmigemo_DSO) install-mkdir install-dict install-lib
+	$(INSTALL_DATA) $(srcdir)migemo.h $(incdir)
 	$(INSTALL_DATA) doc/README_j.txt $(docdir)
-	$(INSTALL_PROGRAM) cmigemo$(EXEEXT) $(bindir)
+	$(INSTALL_PROGRAM) $(outdir)cmigemo$(EXEEXT) $(bindir)
 
 ##############################################################################
 # Uninstall
