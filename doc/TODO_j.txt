@@ -1,7 +1,9 @@
  vim:set ts=8 sts=4 sw=4 tw=0 ft=memo:
- Last Change: 22-Jun-2002.
+ Last Change: 11-Oct-2003.
 
 TODO
+    Windows用Makefileを修正
+    ローマ字変換に「ステート残り」を導入
     ライセンスをハッキリさせる
 
 ONICE 1.1
@@ -13,5 +15,5 @@ DONE 1.1
     UNIX用Makefile一式をインクルード
     wordbuf_add()とmnode_load()の高速化
     mnodeをまとめて確保するように変更(辞書読み込みの高速化)
-    辞書の効率よく読み込むためのソート方法判明→長い単語を先頭へ
+    辞書を効率よく読み込むためのソート方法判明→長い単語を先頭へ
     1割程度の高速化

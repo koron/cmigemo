@@ -3,7 +3,7 @@
  * main.c - migemoライブラリテストドライバ
  *
  * Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
- * Last Change: 25-Mar-2003.
+ * Last Change: 11-Oct-2003.
  */
 
 #include <stdio.h>
@@ -43,6 +43,7 @@ query_loop(migemo* p, int quiet)
 	ans = migemo_query(p, buf);
 	if (ans)
 	    printf(quiet ? "%s\n" : "PATTERN: %s\n", ans);
+	fflush(stdout);
 	migemo_release(p, ans);
     }
     return 0;
