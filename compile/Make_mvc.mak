@@ -2,7 +2,7 @@
 #
 # Visual C++—p Makefile
 #
-# Last Change:	19-Oct-2003.
+# Last Change:	28-Oct-2003.
 # Maintainer:	MURAOKA Taro <koron@tka.att.ne.jp>
 
 default: rel
@@ -39,7 +39,7 @@ RC = rc.exe
 rel: dirs $(outdir)cmigemo.exe
 
 dirs:
-	@for %i IN ($(outdir) $(objdir)) do if not exist %inul $(MKDIR) %i
+	@for %i IN ($(outdir) $(objdir)) do @if not exist %inul $(MKDIR) %i
 
 {$(srcdir)}.c{$(objdir)}.$(O):
 	$(CC) $(CFLAGS) -Fo$@ -c $<

@@ -8,11 +8,13 @@ TODO
     ローマ字変換に「ステート残り」を導入
     辞書ファイル毎にmtreeを作成し、ランタイムで切り離せるようにする
     テストsuiteを作成する
+    ドキュメント(Doxygen)を充実
 
 ONICE 1.1
     ローマ字変換でマルチバイト文字を考慮(Vim掲示板:1281)
 
 DONE 1.1
+    Doxygenを導入する
     Cygwinでbuild/cygmigemo1.dllに依存してしまうのを修正
     queryそのもので辞書を引くのを忘れていたのを修正
     Windows用Makefileを修正

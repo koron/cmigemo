@@ -3,7 +3,7 @@
  * migemo.h -
  *
  * Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
- * Last Change: 17-Oct-2003.
+ * Last Change: 28-Oct-2003.
  */
 
 #ifndef MIGEMO_H
@@ -30,6 +30,9 @@
 typedef int (*MIGEMO_PROC_CHAR2INT)(unsigned char*, unsigned int*);
 typedef int (*MIGEMO_PROC_INT2CHAR)(unsigned int, unsigned char*);
 
+/**
+ * Migemoオブジェクト。migemo_open()で作成され、migemo_closeで破棄される。
+ */
 typedef struct _migemo migemo;
 
 #ifdef __cplusplus

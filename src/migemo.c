@@ -61,8 +61,29 @@ load_mtree_dictionary(mtree_p mtree, char* dict_file)
     return mtree;
 }
 
-/*
- * 既存のmigemoオブジェクトに辞書ファイルを追加読込する。
+/**
+ * Migemoオブジェクトに辞書、またはデータファイルを追加読み込みする。
+ * dict_fileは読み込むファイル名を指定する。dict_idは読み込む辞書・データの
+ * 種類を指定するもので以下のうちどれか一つを指定する:
+ *
+ *  <dl>
+ *  <dt>MIGEMO_DICTID_MIGEMO</dt>
+ *	<dd>mikgemo-dict辞書</dd>
+ *  <dt>MIGEMO_DICTID_ROMA2HIRA</dt>
+ *	<dd>ローマ字→平仮名変換表</dd>
+ *  <dt>MIGEMO_DICTID_HIRA2KATA</dt>
+ *	<dd>平仮名→カタカナ変換表</dd>
+ *  <dt>MIGEMO_DICTID_HAN2ZEN</dt>
+ *	<dd>半角→全角変換表</dd>
+ *  </dl>
+ *
+ *  戻り値は実際に読み込んだ種類を示し、上記の他に読み込みに失敗したことを示す
+ *  次の価が返ることがある。
+ *
+ *  <dl><dt>MIGEMO_DICTID_INVALID</dt></dl>
+ * @param obj Migemoオブジェクト
+ * @param dict_id 辞書ファイルの種類
+ * @param dict_file 辞書ファイルのパス
  */
     EXPORTS
     int 
@@ -111,8 +132,26 @@ migemo_load(migemo* obj, int dict_id, char* dict_file)
     }
 }
 
-/*
- * (dict == NULL)として辞書を読み込ませないことも可能
+/**
+ * Migemoオブジェクトを作成する。作成に成功するとオブジェクトが戻り値として
+ * 返り、失敗するとNULLが返る。dictで指定したファイルがmigemo-dict辞書として
+ * オブジェクト作成時に読み込まれる。辞書と同じディレクトリに:
+ *
+ *  <dl>
+ *  <dt>roma2hira.dat</dt>
+ *	<dd>ローマ字→平仮名変換表 </dd>
+ *  <dt>hira2kata.dat</dt>
+ *	<dd>平仮名→カタカナ変換表 </dd>
+ *  <dt>han2zen.dat</dt>
+ *	<dd>半角→全角変換表 </dd>
+ *  </dl>
+ *
+ * という名前のファイルが存在すれば、存在したものだけが読み込まれる。dictに
+ * NULLを指定した場合には、辞書を含めていかなるファイルも読み込まれない。
+ * ファイルはオブジェクト作成後にもmigemo_load()関数を使用することで追加読み
+ * 込みができる。
+ * @param dict migemo-dict辞書のパス。NULLの時は辞書を読み込まない。
+ * @returns 作成されたMigemoオブジェクト
  */
     EXPORTS
     migemo*
@@ -168,6 +207,10 @@ migemo_open(char* dict)
     return obj;
 }
 
+/**
+ * Migemoオブジェクトを破棄し、使用していたリソースを解放する。
+ * @param obj 破棄するMigemoオブジェクト
+ */
     EXPORTS
     void
 migemo_close(migemo* obj)
@@ -352,6 +395,14 @@ addword_rxgen(migemo* object, unsigned char* word)
     return rxgen_add(object->rx, word);
 }
 
+/**
+ * queryで与えられた文字列(ローマ字)を日本語検索のための正規表現へ変換する。
+ * 戻り値は変換された結果の文字列(正規表現)で、使用後は#migemo_release()関数
+ * へ渡すことで解放しなければならない。
+ * @param object Migemoオブジェクト
+ * @param query 問い合わせ文字列
+ * @returns 正規表現文字列。#migemo_release() で解放する必要有り。
+ */
     EXPORTS
     unsigned char*
 migemo_query(migemo* object, unsigned char* query)
@@ -400,6 +451,11 @@ MIGEMO_QUERY_END:
     return retval;
 }
 
+/**
+ * 使い終わったmigemo_query()関数で得られた正規表現を解放する。
+ * @param p Migemoオブジェクト
+ * @param string 正規表現文字列
+ */
     EXPORTS
     void
 migemo_release(migemo* p, unsigned char* string)
@@ -407,6 +463,38 @@ migemo_release(migemo* p, unsigned char* string)
     free(string);
 }
 
+/**
+ * Migemoオブジェクトが生成する正規表現に使用するメタ文字(演算子)を指定す
+ * る。indexでどのメタ文字かを指定し、opで置き換える。indexには以下の値が指
+ * 定可能である:
+ *
+ *  <dl>
+ *  <dt>MIGEMO_OPINDEX_OR</dt>
+ *	<dd>論理和。デフォルトは "|" 。vimで利用する際は "\|" 。</dd>
+ *  <dt>MIGEMO_OPINDEX_NEST_IN</dt>
+ *	<dd>グルーピングに用いる開き括弧。デフォルトは "(" 。vimではレジスタ
+ *	\\1～\\9に記憶させないようにするために "\%(" を用いる。Perlでも同様の
+ *	ことを目論むならば "(?:" が使用可能。</dd>
+ *  <dt>MIGEMO_OPINDEX_NEST_OUT</dt>
+ *	<dd>グルーピングの終了を表す閉じ括弧。デフォルトでは ")" 。vimでは
+ *	"\)" 。</dd>
+ *  <dt>MIGEMO_OPINDEX_SELECT_IN</dt>
+ *	<dd>選択の開始を表す開き角括弧。デフォルトでは "[" 。</dd>
+ *  <dt>MIGEMO_OPINDEX_SELECT_OUT</dt>
+ *	<dd>選択の終了を表す閉じ角括弧。デフォルトでは "]" 。</dd>
+ *  <dt>MIGEMO_OPINDEX_NEWLINE</dt>
+ *	<dd>各文字の間に挿入される「0個以上の空白もしくは改行にマッチする」
+ *	パターン。デフォルトでは "" であり設定されない。vimでは "\_s*" を指
+ *	定する。</dd>
+ *  </dl>
+ *
+ * デフォルトのメタ文字は特に断りがない限りPerlのそれと同じ意味である。設定
+ * に成功すると戻り値は1(0以外)となり、失敗すると0になる。
+ * @param object Migemoオブジェクト
+ * @param index メタ文字識別子
+ * @param op メタ文字文字列
+ * @returns 成功時0以外、失敗時0。
+ */
     EXPORTS
     int
 migemo_set_operator(migemo* object, int index, unsigned char* op)
@@ -420,6 +508,15 @@ migemo_set_operator(migemo* object, int index, unsigned char* op)
 	return 0;
 }
 
+/**
+ * Migemoオブジェクトが生成する正規表現に使用しているメタ文字(演算子)を取得
+ * する。indexについてはmigemo_set_operator()関数を参照。戻り値にはindexの指
+ * 定が正しければメタ文字を格納した文字列へのポインタが、不正であればNULLが
+ * 返る。
+ * @param object Migemoオブジェクト
+ * @param index メタ文字識別子
+ * @returns 現在のメタ文字文字列
+ */
     EXPORTS
     const unsigned char*
 migemo_get_operator(migemo* object, int index)
@@ -427,6 +524,12 @@ migemo_get_operator(migemo* object, int index)
     return object ? rxgen_get_operator(object->rx, index) : NULL;
 }
 
+/**
+ * Migemoオブジェクトにコード変換用のプロシージャを設定する。プロシージャに
+ * ついての詳細は「型リファレンス」セクションのMIGEMO_PROC_CHAR2INTを参照。
+ * @param object Migemoオブジェクト
+ * @param proc コード変換用プロシージャ
+ */
     EXPORTS
     void
 migemo_setproc_char2int(migemo* object, MIGEMO_PROC_CHAR2INT proc)
@@ -435,6 +538,12 @@ migemo_setproc_char2int(migemo* object, MIGEMO_PROC_CHAR2INT proc)
 	rxgen_setproc_char2int(object->rx, (RXGEN_PROC_CHAR2INT)proc);
 }
 
+/**
+ * Migemoオブジェクトにコード変換用のプロシージャを設定する。プロシージャに
+ * ついての詳細は「型リファレンス」セクションのMIGEMO_PROC_INT2CHARを参照。
+ * @param object Migemoオブジェクト
+ * @param proc コード変換用プロシージャ
+ */
     EXPORTS
     void
 migemo_setproc_int2char(migemo* object, MIGEMO_PROC_INT2CHAR proc)
@@ -443,8 +552,12 @@ migemo_setproc_int2char(migemo* object, MIGEMO_PROC_INT2CHAR proc)
 	rxgen_setproc_int2char(object->rx, (RXGEN_PROC_INT2CHAR)proc);
 }
 
-/*
- * migemo辞書が読み込まれているかを調べる
+/**
+ * Migemoオブジェクトにmigemo_dictが読み込めているかをチェックする。有効な
+ * migemo_dictを読み込めて内部に変換テーブルが構築できていれば0以外(TRUE)
+ * を、構築できていないときには0(FALSE)を返す。
+ * @param obj Migemoオブジェクト
+ * @returns 成功時0以外、失敗時0。
  */
     EXPORTS
     int
