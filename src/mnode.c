@@ -3,15 +3,15 @@
  * mnode.c - mnode interfaces.
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 19-Jan-2002.
+ * Last Change: 21-Jan-2002.
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <crtdbg.h>
 
+#include "dbg.h"
 #include "wordlist.h"
 #include "wordbuf.h"
 #include "mnode.h"

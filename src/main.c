@@ -2,13 +2,14 @@
  * main.c - migemoライブラリテストドライバ
  *
  * Written By:  Muraoka Taro  <koron@tka.att.en.jp>
- * Last Change: 19-Jan-2002.
+ * Last Change: 21-Jan-2002.
  */
+
 #include <stdio.h>
 #include <time.h>
 #include <string.h>
-#include <crtdbg.h>
 
+#include "dbg.h"
 #include "wordbuf.h"
 #include "wordlist.h"
 #include "mnode.h"
@@ -99,7 +100,7 @@ main(int argc, char** argv)
 	    migemo_set_operator(pmigemo, MIGEMO_OPINDEX_NEWLINE, "\\_s*");
 	}
 #ifndef _PROFILE
-	printf("clock()=%d\n", clock());
+	printf("clock()=%f\n", (float)clock() / CLOCKS_PER_SEC);
 	query_loop(pmigemo);
 #else
 	/* プロファイル用 */
@@ -134,7 +135,7 @@ main(int argc, char** argv)
     fprintf(stderr, "n_wordlist_new=   %8d\n", n_wordlist_new);
     fprintf(stderr, "n_wordlist_delete=%8d\n", n_wordlist_delete);
     fprintf(stderr, "n_wordlist_total= %8d\n", n_wordlist_total);
-#ifdef _DEBUG
+#ifdef _MSC_VER
     _RPT1(_CRT_WARN, "n_mnode_new=      %8d\n", n_mnode_new);
     _RPT1(_CRT_WARN, "n_mnode_delete=   %8d\n", n_mnode_delete);
     _RPT1(_CRT_WARN, "n_rnode_new=      %8d\n", n_rnode_new);
