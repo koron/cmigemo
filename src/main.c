@@ -1,5 +1,12 @@
+/*
+ * main.c - migemoライブラリテストドライバ
+ *
+ * Written By:  Muraoka Taro  <koron@tka.att.en.jp>
+ * Last Change: 11-Aug-2001.
+ */
 #include <stdio.h>
 #include <time.h>
+#include <string.h>
 
 #include "wordbuf.h"
 #include "wordlist.h"
@@ -31,14 +38,18 @@ query_loop(migemo* p)
     int
 main(int argc, char** argv)
 {
+#ifndef _SPLITED_MIGEMO
     void migemo_print(migemo* object);
     int mode_print = 0;
+#endif
     migemo *pmigemo;
 
     while (*++argv)
     {
+#ifndef _SPLITED_MIGEMO
 	if (!strcmp("--print-node", *argv) || !strcmp("-p", *argv))
 	    mode_print = 1;
+#endif
     }
 
     if (1)
@@ -50,8 +61,10 @@ main(int argc, char** argv)
 	if (!pmigemo)
 	    return 1;
 
+#ifndef _SPLITED_MIGEMO
 	if (mode_print)
 	    migemo_print(pmigemo);
+#endif
 	else
 	{
 	    migemo_set_operator(pmigemo, MIGEMO_OPINDEX_OR, "\\|");
@@ -62,16 +75,23 @@ main(int argc, char** argv)
 	    printf("clock()=%d\n", clock());
 	    query_loop(pmigemo);
 #else
-	    unsigned char *ans;
-	    FILE* fp = fopen("exe.log", "wt");
+	    /* プロファイル用 */
+	    {
+		unsigned char *ans;
+		FILE* fp = fopen("exe.log", "wt");
 
-	    ans = migemo_query(pmigemo, "a");
-	    if (ans)
-		fprintf(fp, "  [%s]\n", ans);
-	    ans = migemo_query(pmigemo, "k");
-	    if (ans)
-		fprintf(fp, "  [%s]\n", ans);
-	    fclose(fp);
+		ans = migemo_query(pmigemo, "a");
+		if (ans)
+		    fprintf(fp, "  [%s]\n", ans);
+		migemo_release(pmigemo, ans);
+
+		ans = migemo_query(pmigemo, "k");
+		if (ans)
+		    fprintf(fp, "  [%s]\n", ans);
+		migemo_release(pmigemo, ans);
+
+		fclose(fp);
+	    }
 #endif
 	    migemo_close(pmigemo);
 	}

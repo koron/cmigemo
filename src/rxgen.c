@@ -3,7 +3,7 @@
  * rxgen.c - regular expression generator
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 08-Aug-2001.
+ * Last Change: 11-Aug-2001.
  */
 
 #include <stdio.h>
@@ -208,18 +208,16 @@ rxgen_add(rxgen* object, unsigned char* word)
 
 	while (*ppnode && (*ppnode)->code != code)
 	    ppnode = &(*ppnode)->next;
-	if (*ppnode)
-	{
-	    /* 既存パターンより長い入力パターンは破棄する */
-	    if (!(*ppnode)->child)
-		break;
-	}
-	else
+
+	if (!*ppnode)
 	{
 	    /* 未知の長いパターンを辿って記憶する。 */
 	    *ppnode = rnode_new();
 	    (*ppnode)->code = code;
 	}
+	else if (!(*ppnode)->child)
+	    break; /* 既存パターンより長い入力パターンは破棄する */
+
 	ppnode = &(*ppnode)->child;
 	word += len;
     }

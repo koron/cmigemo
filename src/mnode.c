@@ -3,7 +3,7 @@
  * mnode.c - mnode interfaces.
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 09-Aug-2001.
+ * Last Change: 11-Aug-2001.
  */
 
 #include <stdio.h>
@@ -14,14 +14,27 @@
 #include "wordbuf.h"
 #include "mnode.h"
 
+#ifdef _MSC_VER
+# define INLINE __inline
+#endif
+
 int n_mnode_new = 0;
 int n_mnode_delete = 0;
 
-    static mnode*
+    INLINE static mnode*
 mnode_new()
 {
+#if 0
     ++n_mnode_new;
     return (mnode*)calloc(1, sizeof(mnode));
+#else
+    /* Windows‚Ì‘ª‚é‚Æ‚±‚Ì‚Ù‚¤‚ª‘¬‚¢‚Ì‚Å‚·B */
+    mnode *obj = (mnode*)malloc(sizeof(mnode));
+    obj->next = obj->child = NULL;
+    obj->list = NULL;
+    ++n_mnode_new;
+    return obj;
+#endif
 }
 
     static void

@@ -2,7 +2,7 @@
 #
 # Makefile -
 #
-# Last Change: 07-Aug-2001.
+# Last Change: 11-Aug-2001.
 # Written By:  Muraoka Taro  <koron@tka.att.ne.jp>
 
 RELEASE=yes
@@ -60,7 +60,7 @@ tags: *.c *.h
 
 .PHONY: clean distclean allclean
 clean:
-	$(RM) *.obj Release/*.obj Debug/*.obj Profile/*.obj
+	$(RM) *.obj
 distclean: clean
 	$(RM) tags
 	$(RM) *.exe *.lib *.dll *.exp

@@ -3,7 +3,7 @@
  * romaji.c - ÉçÅ[É}éöïœä∑
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 07-Aug-2001.
+ * Last Change: 11-Aug-2001.
  */
 
 #include <stdio.h>
@@ -12,6 +12,10 @@
 #include <ctype.h>
 #include "wordbuf.h"
 #include "romaji.h"
+
+#ifdef _MSC_VER
+# define INLINE __inline
+#endif
 
 #define ROMANODE_VALUE_MAXLEN 7
 #define ROMAJI_KEY_MAXLEN 8
@@ -36,7 +40,7 @@ struct _romanode
 int n_romanode_new = 0;
 int n_romanode_delete = 0;
 
-    static romanode*
+    INLINE static romanode*
 romanode_new()
 {
     ++n_romanode_new;

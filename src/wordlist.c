@@ -3,7 +3,7 @@
  * wordlist.h -
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 07-Aug-2001.
+ * Last Change: 11-Aug-2001.
  */
 
 #include <stdlib.h>
@@ -20,15 +20,23 @@ wordlist_new(unsigned char* ptr)
     wordlist *p;
 
     ++n_wordlist_new;
-    if ((p = (wordlist*)calloc(1, sizeof(wordlist))) && ptr)
+    if (ptr && (p = (wordlist*)malloc(sizeof(wordlist))))
     {
-	/* ほぼstrdup()と等価な実装。単語の保存に必要な総メモリを知りたいの
-	 * で。*/
+#if 1
+	/*
+	 * ほぼstrdup()と等価な実装。単語の保存に必要な総メモリを知りたいの
+	 * で。
+	 */
 	int len = strlen(ptr) + 1;
 
 	n_wordlist_total += len;
 	if (p->ptr = malloc(len))
-	    strcpy(p->ptr, ptr);
+	    memcpy(p->ptr, ptr, len);
+	p->next = NULL;
+#else
+	p->ptr = strdup(ptr);
+	p->next = NULL;
+#endif
     }
     return p;
 }
@@ -36,13 +44,13 @@ wordlist_new(unsigned char* ptr)
     void
 wordlist_delete(wordlist* p)
 {
-    if (p)
+    while (p)
     {
+	wordlist *next = p->next;
+
 	++n_wordlist_delete;
 	free(p->ptr);
-	if (p->next)
-	    wordlist_delete(p->next);
 	free(p);
+	p = next;
     }
 }
-
