@@ -1,7 +1,6 @@
 # Microsoft Developer Studio Generated Dependency File, included by migemo.mak
 
 .\main.c : \
-	".\cdecl.h"\
 	".\dbg.h"\
 	".\migemo.h"\
 	".\mnode.h"\
