@@ -3,7 +3,7 @@
  * mnode.h -
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 11-Aug-2001.
+ * Last Change: 21-Jan-2002.
  */
 /*
  * Need to include <stdio.h>
@@ -21,7 +21,7 @@ struct _mnode
     unsigned int attr;
     mnode* next;
     mnode* child;
-    wordlist *list;
+    wordlist_p list;
 };
 #define MNODE_MASK_CH		0x000000FF
 #define MNODE_GET_CH(p)		((unsigned char)(p)->attr)

@@ -10,70 +10,49 @@
 #include <string.h>
 #include "wordlist.h"
 
-int n_wordlist_new	= 0;
-int n_wordlist_delete	= 0;
+int n_wordlist_open	= 0;
+int n_wordlist_close	= 0;
 int n_wordlist_total	= 0;
 
-    wordlist*
-wordlist_new_len(unsigned char* ptr, int len)
+    wordlist_p
+wordlist_open_len(unsigned char* ptr, int len)
 {
-#if 1
-    wordlist *p;
-
-    ++n_wordlist_new;
-    if (ptr && (p = (wordlist*)malloc(sizeof(wordlist))))
-    {
-#if 1
-	/*
-	 * ほぼstrdup()と等価な実装。単語の保存に必要な総メモリを知りたいの
-	 * で。
-	 */
-	int len = strlen(ptr) + 1;
-
-	n_wordlist_total += len;
-	if (p->ptr = malloc(len))
-	    memcpy(p->ptr, ptr, len);
-	p->next = NULL;
-#else
-	p->ptr = strdup(ptr);
-	p->next = NULL;
-#endif
-    }
-    return p;
-#else
     if (ptr && len > 1)
     {
-	wordlist *p;
+	wordlist_p p;
 
-	if (p = (wordlist*)malloc(sizeof(*p) + len))
+	if (p = (wordlist_p)malloc(sizeof(*p) + len))
 	{
-	    ++n_wordlist_new;
-	    n_wordlist_total += len;
 	    p->ptr  = (char*)(p + 1);
 	    p->next = NULL;
+	    /*
+	     * ほぼstrdup()と等価な実装。単語の保存に必要な総メモリを知りた
+	     * いので独自に再実装。
+	     */
 	    memcpy(p->ptr, ptr, len);
+
+	    ++n_wordlist_open;
+	    n_wordlist_total += len;
 	}
 	return p;
     }
     return NULL;
-#endif
 }
 
-    wordlist*
-wordlist_new(unsigned char* ptr)
+    wordlist_p
+wordlist_open(unsigned char* ptr)
 {
-    return ptr ? wordlist_new_len(ptr, strlen(ptr) + 1) : NULL;
+    return ptr ? wordlist_open_len(ptr, strlen(ptr) + 1) : NULL;
 }
 
     void
-wordlist_delete(wordlist* p)
+wordlist_close(wordlist_p p)
 {
     while (p)
     {
-	wordlist *next = p->next;
+	wordlist_p next = p->next;
 
-	++n_wordlist_delete;
-	//free(p->ptr);
+	++n_wordlist_close;
 	free(p);
 	p = next;
     }

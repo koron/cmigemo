@@ -132,8 +132,8 @@ main(int argc, char** argv)
     fprintf(stderr, "n_rnode_delete=   %8d\n", n_rnode_delete);
     fprintf(stderr, "n_wordbuf_open=   %8d\n", n_wordbuf_open);
     fprintf(stderr, "n_wordbuf_close=  %8d\n", n_wordbuf_close);
-    fprintf(stderr, "n_wordlist_new=   %8d\n", n_wordlist_new);
-    fprintf(stderr, "n_wordlist_delete=%8d\n", n_wordlist_delete);
+    fprintf(stderr, "n_wordlist_open=  %8d\n", n_wordlist_open);
+    fprintf(stderr, "n_wordlist_close= %8d\n", n_wordlist_close);
     fprintf(stderr, "n_wordlist_total= %8d\n", n_wordlist_total);
 #ifdef _MSC_VER
     _RPT1(_CRT_WARN, "n_mnode_new=      %8d\n", n_mnode_new);
@@ -142,8 +142,8 @@ main(int argc, char** argv)
     _RPT1(_CRT_WARN, "n_rnode_delete=   %8d\n", n_rnode_delete);
     _RPT1(_CRT_WARN, "n_wordbuf_open=   %8d\n", n_wordbuf_open);
     _RPT1(_CRT_WARN, "n_wordbuf_close=  %8d\n", n_wordbuf_close);
-    _RPT1(_CRT_WARN, "n_wordlist_new=   %8d\n", n_wordlist_new);
-    _RPT1(_CRT_WARN, "n_wordlist_delete=%8d\n", n_wordlist_delete);
+    _RPT1(_CRT_WARN, "n_wordlist_open=   %8d\n", n_wordlist_open);
+    _RPT1(_CRT_WARN, "n_wordlist_close=%8d\n", n_wordlist_close);
     _RPT1(_CRT_WARN, "n_wordlist_total= %8d\n", n_wordlist_total);
 #endif
 #endif

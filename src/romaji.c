@@ -3,7 +3,7 @@
  * romaji.c - ƒ[ƒ}š•ÏŠ·
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 11-Aug-2001.
+ * Last Change: 21-Jan-2002.
  */
 
 #include <stdio.h>
@@ -248,7 +248,8 @@ romaji_add_table(romaji* object, unsigned char* key, unsigned char* value)
 romaji_load_stub(romaji* object, FILE* fp)
 {
     int mode, ch;
-    wordbuf *buf_key, *buf_value;
+    wordbuf_p buf_key;
+    wordbuf_p buf_value;
     
     buf_key = wordbuf_open();
     buf_value = wordbuf_open();
@@ -307,8 +308,8 @@ romaji_load_stub(romaji* object, FILE* fp)
 		    wordbuf_add(buf_value, (unsigned char)ch);
 		else
 		{
-		    unsigned char *key = wordbuf_get(buf_key);
-		    unsigned char *value = wordbuf_get(buf_value);
+		    unsigned char *key = WORDBUF_GET(buf_key);
+		    unsigned char *value = WORDBUF_GET(buf_value);
 		    romaji_add_table(object, key, value);
 		    mode = 0;
 		}
@@ -339,7 +340,7 @@ romaji_load(romaji* object, unsigned char* filename)
     unsigned char*
 romaji_convert(romaji* object, unsigned char* string, unsigned char** ppstop)
 {
-    wordbuf *buf = NULL;
+    wordbuf_p buf = NULL;
     unsigned char *lower = NULL;
     unsigned char *answer = NULL;
     int stop = -1;
@@ -381,7 +382,7 @@ romaji_convert(romaji* object, unsigned char* string, unsigned char** ppstop)
 #endif
 		if (string[i])
 		{
-		    stop = wordbuf_last(buf);
+		    stop = WORDBUF_LEN(buf);
 		    wordbuf_cat(buf, &string[i]);
 		}
 		break;
@@ -405,7 +406,7 @@ romaji_convert(romaji* object, unsigned char* string, unsigned char** ppstop)
 		wordbuf_cat(buf, node->value);
 	    }
 	}
-	answer = strdup(wordbuf_get(buf));
+	answer = strdup(WORDBUF_GET(buf));
     }
     if (ppstop)
 	*ppstop = (stop >= 0) ? answer + stop : NULL;

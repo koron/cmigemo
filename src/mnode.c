@@ -51,7 +51,7 @@ mnode_delete(mnode* p)
 	mnode* child = p->child;
 
 	if (p->list)
-	    wordlist_delete(p->list);
+	    wordlist_close(p->list);
 	if (p->next)
 	    mnode_delete(p->next);
 	free(p);
@@ -86,7 +86,7 @@ mnode_close(mnode* p)
 }
 
     INLINE static mnode**
-search_or_new_mnode(mnode** root, wordbuf* buf)
+search_or_new_mnode(mnode** root, wordbuf_p buf)
 {
     /* ラベル単語が決定したら検索木に追加 */
     int ch;
@@ -94,7 +94,7 @@ search_or_new_mnode(mnode** root, wordbuf* buf)
     mnode **ppnext;
     mnode **res;
 
-    word = wordbuf_get(buf);
+    word = WORDBUF_GET(buf);
     ppnext = root;
     while (ch = *word)
     {
@@ -126,8 +126,9 @@ mnode_load(mnode* root, FILE* fp)
     mnode **pp = NULL;
     int mode = 0;
     int ch;
-    wordbuf *buf, *prevlabel;
-    wordlist **ppword;
+    wordbuf_p buf;
+    wordbuf_p prevlabel;
+    wordlist_p *ppword;
     /* 読み込みバッファ用変数 */
     unsigned char cache[MNODE_BUFSIZE];
     int remain = 0, point = 0;
@@ -179,17 +180,6 @@ mnode_load(mnode* root, FILE* fp)
 
 	    case 1: /* ラベル単語の読込モード */
 		/* ラベルの終了を検出 */
-#if 0
-		if (ch != '\t')
-		    wordbuf_add(buf, (unsigned char)ch);
-		else
-		{
-		    pp = search_or_new_mnode(&root, buf);
-		    wordbuf_reset(buf);
-		    mode = 3; /* 単語前空白読飛ばしモード へ移行 */
-		    continue;
-		}
-#else
 		switch (ch)
 		{
 		    default:
@@ -201,7 +191,6 @@ mnode_load(mnode* root, FILE* fp)
 			mode = 3; /* 単語前空白読飛ばしモード へ移行 */
 			break;
 		}
-#endif
 		break;
 
 	    case 2: /* 行末まで食い潰すモード */
@@ -232,33 +221,13 @@ mnode_load(mnode* root, FILE* fp)
 		break;
 
 	    case 4: /* 単語の読み込みモード */
-#if 0
-		if (ch == '\t' || ch == '\n')
-		{
-		    /* 単語を記憶 */
-		    *ppword = wordlist_new(wordbuf_get(buf));
-		    wordbuf_reset(buf);
-
-		    if (ch == '\t')
-		    {
-			ppword = &(*ppword)->next;
-			mode = 3; /* 単語前空白読み飛ばしモード へ戻る */
-		    }
-		    else
-		    {
-			ppword = NULL;
-			mode = 0; /* ラベル単語検索モード へ戻る */
-		    }
-		}
-		else
-		    wordbuf_add(buf, (unsigned char)ch);
-#else
 		switch (ch)
 		{
 		    case '\t':
 		    case '\n':
 			/* 単語を記憶 */
-			*ppword = wordlist_new(wordbuf_get(buf));
+			*ppword = wordlist_open_len(WORDBUF_GET(buf),
+				WORDBUF_LEN(buf));
 			wordbuf_reset(buf);
 
 			if (ch == '\t')
@@ -276,7 +245,6 @@ mnode_load(mnode* root, FILE* fp)
 			wordbuf_add(buf, (unsigned char)ch);
 			break;
 		}
-#endif
 		break;
 	}
     }

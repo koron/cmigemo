@@ -3,7 +3,7 @@
  * wordbuf.h -
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 19-Jan-2002.
+ * Last Change: 21-Jan-2002.
  */
 
 #include <stdio.h>
@@ -16,20 +16,13 @@
 int n_wordbuf_open = 0;
 int n_wordbuf_close = 0;
 
-struct _wordbuf
-{
-    int len;
-    unsigned char* buf;
-    int last; /* 格納している文字列の長さ */
-};
-
 /* function pre-declaration */
-static int wordbuf_extend(wordbuf* p, int len);
+static int wordbuf_extend(wordbuf_p p, int len);
 
-    wordbuf*
+    wordbuf_p
 wordbuf_open()
 {
-    wordbuf *p = (wordbuf*)malloc(sizeof(wordbuf));
+    wordbuf_p p = (wordbuf_p)malloc(sizeof(wordbuf_t));
 
     if (p)
     {
@@ -43,7 +36,7 @@ wordbuf_open()
 }
 
     void
-wordbuf_close(wordbuf* p)
+wordbuf_close(wordbuf_p p)
 {
     if (p)
     {
@@ -54,19 +47,19 @@ wordbuf_close(wordbuf* p)
 }
 
     void
-wordbuf_reset(wordbuf* p)
+wordbuf_reset(wordbuf_p p)
 {
     p->last = 0;
     p->buf[0] = '\0';
 }
 
 /*
- * wordbuf_extend(wordbuf* p, int len);
+ * wordbuf_extend(wordbuf_p p, int len);
  *	バッファの伸長。エラー時には0が帰る。
  *	高速化のために伸ばすべきかは呼出側で判断する。
  */
     static int
-wordbuf_extend(wordbuf* p, int len)
+wordbuf_extend(wordbuf_p p, int len)
 {
     int newlen = p->len * 2;
     unsigned char *newbuf;
@@ -85,13 +78,13 @@ wordbuf_extend(wordbuf* p, int len)
 }
 
     int
-wordbuf_last(wordbuf* p)
+wordbuf_last(wordbuf_p p)
 {
     return p->last;
 }
 
     int
-wordbuf_add(wordbuf* p, unsigned char ch)
+wordbuf_add(wordbuf_p p, unsigned char ch)
 {
     int newlen = p->last + 2;
 
@@ -103,7 +96,7 @@ wordbuf_add(wordbuf* p, unsigned char ch)
 }
 
     int
-wordbuf_cat(wordbuf* p, unsigned char* sz)
+wordbuf_cat(wordbuf_p p, unsigned char* sz)
 {
     int len;
 
@@ -120,7 +113,7 @@ wordbuf_cat(wordbuf* p, unsigned char* sz)
 }
 
     unsigned char*
-wordbuf_get(wordbuf* p)
+wordbuf_get(wordbuf_p p)
 {
     return p->buf;
 }

@@ -3,7 +3,7 @@
  * wordlist.h -
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 07-Aug-2001.
+ * Last Change: 21-Jan-2002.
  */
 
 #ifndef WORDLIST_H
@@ -11,20 +11,21 @@
 
 #include "cdecl.h"
 
-typedef struct _wordlist wordlist;
-struct _wordlist
+typedef struct _wordlist_t wordlist_t, *wordlist_p;
+struct _wordlist_t
 {
     unsigned char* ptr;
-    wordlist* next;
+    wordlist_p next;
 };
 
-extern int n_wordlist_new;
-extern int n_wordlist_delete;
+extern int n_wordlist_open;
+extern int n_wordlist_close;
 extern int n_wordlist_total;
 
 C_DECL_BEGIN();
-wordlist* wordlist_new(unsigned char* ptr);
-void wordlist_delete(wordlist* p);
+wordlist_p wordlist_open(unsigned char* ptr);
+wordlist_p wordlist_open_len(unsigned char* ptr, int len);
+void wordlist_close(wordlist_p p);
 C_DECL_END();
 
 #endif /* WORDLIST_H */

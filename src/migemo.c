@@ -3,7 +3,7 @@
  * migemo.c -
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 19-Jan-2002.
+ * Last Change: 21-Jan-2002.
  */
 
 #include <stdio.h>
@@ -164,7 +164,7 @@ migemo_close(migemo* obj)
 migemo_query_proc(mnode* p, void* data)
 {
     rxgen *rx = (rxgen*)data;
-    wordlist *list = p->list;
+    wordlist_p list = p->list;
 
     for (; list; list = list->next)
 	rxgen_add(rx, list->ptr);

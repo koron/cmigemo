@@ -3,7 +3,7 @@
  * rxgen.c - regular expression generator
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 16-Aug-2001.
+ * Last Change: 21-Jan-2002.
  */
 
 #include <stdio.h>
@@ -241,7 +241,7 @@ rxgen_add(rxgen* object, unsigned char* word)
 }
 
     static void
-rxgen_generate_stub(rxgen* object, wordbuf* buf, rnode* node)
+rxgen_generate_stub(rxgen* object, wordbuf_t* buf, rnode* node)
 {
     unsigned char ch[16];
     int chlen, nochild, haschild = 0, brother = 1;
@@ -316,13 +316,13 @@ rxgen_generate_stub(rxgen* object, wordbuf* buf, rnode* node)
 rxgen_generate(rxgen* object)
 {
     unsigned char* answer = NULL;
-    wordbuf *buf;
+    wordbuf_t *buf;
 
     if (object && (buf = wordbuf_open()))
     {
 	if (object->node)
 	    rxgen_generate_stub(object, buf, object->node);
-	answer = strdup(wordbuf_get(buf));
+	answer = strdup(WORDBUF_GET(buf));
 	wordbuf_close(buf);
     }
     return answer;
