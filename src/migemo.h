@@ -3,7 +3,7 @@
  * migemo.h -
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 11-Aug-2001.
+ * Last Change: 14-Aug-2001.
  */
 
 #ifndef MIGEMO_H
@@ -18,6 +18,13 @@
 #  define C_DECL_END()
 # endif
 #endif
+
+/* for migemo_load() */
+#define MIGEMO_DICTID_INVALID	    0
+#define MIGEMO_DICTID_MIGEMO	    1
+#define MIGEMO_DICTID_ROMA2HIRA	    2
+#define MIGEMO_DICTID_HIRA2KATA	    3
+#define MIGEMO_DICTID_HAN2ZEN	    4
 
 /* for migemo_set_operator()/migemo_get_operator().  see: rxgen.h */
 #define MIGEMO_OPINDEX_OR 0
@@ -44,7 +51,7 @@ const unsigned char* migemo_get_operator(migemo* object, int index);
 void migemo_setproc_char2int(migemo* object, MIGEMO_PROC_CHAR2INT proc);
 void migemo_setproc_int2char(migemo* object, MIGEMO_PROC_INT2CHAR proc);
 
-int migemo_load(migemo* obj, char* dict, char* roma_dict, char* kata_dict);
+int migemo_load(migemo* obj, int dict_id, char* dict_file);
 int migemo_is_enable(migemo* obj);
 C_DECL_END();
 

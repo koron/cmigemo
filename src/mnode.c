@@ -14,8 +14,10 @@
 #include "wordbuf.h"
 #include "mnode.h"
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__GNUC__)
 # define INLINE __inline
+#else
+# define INLINE 
 #endif
 
 int n_mnode_new = 0;

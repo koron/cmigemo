@@ -13,8 +13,10 @@
 #include "wordbuf.h"
 #include "romaji.h"
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__GNUC__)
 # define INLINE __inline
+#else
+# define INLINE 
 #endif
 
 #define ROMANODE_VALUE_MAXLEN 7

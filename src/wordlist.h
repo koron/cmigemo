@@ -27,4 +27,4 @@ wordlist* wordlist_new(unsigned char* ptr);
 void wordlist_delete(wordlist* p);
 C_DECL_END();
 
-#endif WORDLIST_H
+#endif /* WORDLIST_H */
