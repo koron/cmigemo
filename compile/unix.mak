@@ -6,7 +6,6 @@
 # Base Idea:	AIDA Shinra
 # Written By:	MURAOKA Taro <koron@tka.att.ne.jp>
 
-#prefix	= ./local
 prefix	= /usr/local
 bindir	= $(prefix)/bin
 libdir	= $(prefix)/lib
@@ -28,14 +27,14 @@ libmigemo_SRC = \
 libmigemo_OBJ = $(libmigemo_SRC:.c=.o)
 
 DEFINES	=
-CFLAGS	= -O2 -Wall $(DEFINES)
-LDFLAGS = 
+CFLAGS	= -O2 -Wall $(DEFINES) $(CFLAGS_MIGEMO)
+LDFLAGS = $(LDFLAGS_MIGEMO)
 LIBS	= 
 
 default: cmigemo$(EXEEXT)
 
 cmigemo$(EXEEXT): main.o $(libmigemo_LIB)
-	$(CC) -o $@ main.o $(libmigemo_LIB)
+	$(CC) -o $@ main.o -L. -lmigemo $(LDFLAGS)
 
 main.o: main.c
 	$(CC) -c $< -o $@ -D_SPLITED_MIGEMO $(CFLAGS)
@@ -77,5 +76,5 @@ uninstall: uninstall-lib
 
 clean:
 	$(RM) *.o
-	$(RM) $(libmigemo_LIB) $(libmigemo_DSO)
+	$(RM) $(libmigemo_LIB) $(libmigemo_DSO) libmigemo.so
 	$(RM) cmigemo$(EXEEXT)

@@ -2,7 +2,7 @@
 #
 # 辞書ファイルのメンテナンス
 # 
-# Last Change: 14-May-2002.
+# Last Change: 15-May-2002.
 # Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
 
 # 必須プログラム
@@ -46,6 +46,11 @@ cyg:		euc-jp
 # for MacOS X
 #
 osx:		euc-jp
+
+#
+# for Linux
+#
+linux:		euc-jp
 
 $(DICT): SKK-JISYO.LATEST
 	perl ../tools/skk2migemodict.pl < SKK-JISYO.LATEST \

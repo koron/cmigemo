@@ -2,7 +2,7 @@
 #
 # C/Migemo Makefile
 #
-# Last Change: 14-May-2002.
+# Last Change: 15-May-2002.
 # Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
 
 RM = rm -f 
@@ -54,6 +54,22 @@ osx-uninstall:
 	$(MAKE) -f compile/Make_osx.mak uninstall
 osx-clean:
 	$(MAKE) -f compile/Make_osx.mak clean
+
+#
+# for Linux (Tested on Vine Linux 2.1.5)
+#
+linux: linux-rel
+linux-all: linux-rel linux-dict
+linux-rel:
+	$(MAKE) -f compile/Make_linux.mak
+linux-dict:
+	cd dict && $(MAKE) linux
+linux-install: linux-all
+	$(MAKE) -f compile/Make_linux.mak install
+linux-uninstall:
+	$(MAKE) -f compile/Make_linux.mak uninstall
+linux-clean:
+	$(MAKE) -f compile/Make_linux.mak clean
 
 #
 # Cleaning

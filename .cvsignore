@@ -1,5 +1,4 @@
 Profile
-migemo-0.3
-migemo-*-dll
 cmigemo
-*dylib
+libmigemo*dylib
+libmigemo.so*

@@ -2,7 +2,7 @@
 #
 # Cygwin—pMakefile
 #
-# Last Change:	14-May-2002.
+# Last Change:	15-May-2002.
 # Base Idea:	AIDA Shinra
 # Written By:	MURAOKA Taro <koron@tka.att.ne.jp>
 
@@ -12,6 +12,8 @@
 libmigemo_LIB = libmigemo.dll.a
 libmigemo_DSO = cygmigemo1.dll
 EXEEXT = .exe
+CFLAGS_MIGEMO =
+LDFLAGS_MIGEMO =
 
 include compile/unix.mak
 

@@ -9,11 +9,11 @@
 ##############################################################################
 # ä¬ã´Ç…âûÇ∂ÇƒÇ±ÇÃ3ïœêîÇïœçXÇ∑ÇÈ
 #
-libmigemo_LIB = libmigemo.1.dylib
-libmigemo_DSO = libmigemo.dylib
+libmigemo_LIB = libmigemo.so.1.0
+libmigemo_DSO = libmigemo.so.1
 EXEEXT =
-CFLAGS_MIGEMO =
-LDFLAGS_MIGEMO =
+CFLAGS_MIGEMO = -fPIC
+LDFLAGS_MIGEMO = -Wl,-rpath,.,-rpath,/usr/local/lib,-rpath,/usr/lib
 
 include compile/unix.mak
 
@@ -22,15 +22,18 @@ include compile/unix.mak
 #
 $(libmigemo_LIB): $(libmigemo_DSO)
 $(libmigemo_DSO): $(libmigemo_OBJ)
-	$(CC) -dynamiclib -install_name $@ -o $(libmigemo_LIB) $(libmigemo_OBJ)
-	$(RM) $@
+	$(CC) -shared -o $(libmigemo_LIB) -Wl,-soname,$@ $(libmigemo_OBJ)
+	$(RM) $@ libmigemo.so
 	ln -s $(libmigemo_LIB) $@
+	ln -s $(libmigemo_LIB) libmigemo.so
 
-install-lib: $(libmigemo_DSO)
+install-lib: $(libmigemo_DSO) $(libmigemo_LIB)
 	$(INSTALL_PROGRAM) $(libmigemo_LIB) $(libdir)
-	rm $(libdir)/$(libmigemo_DSO)
-	ln -s $(libdir)/$(libmigemo_LIB) $(libdir)/$(libmigemo_DSO)
+	$(RM) $(libdir)/$(libmigemo_DSO) $(libdir)/libmigemo.so
+	ln -s $(libmigemo_LIB) $(libdir)/$(libmigemo_DSO)
+	ln -s $(libmigemo_LIB) $(libdir)/libmigemo.so
 
 uninstall-lib:
 	$(RM) $(libdir)/$(libmigemo_DSO)
 	$(RM) $(libdir)/$(libmigemo_LIB)
+	$(RM) $(libdir)/libmigemo.so
