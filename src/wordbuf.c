@@ -3,7 +3,7 @@
  * wordbuf.h -
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 11-Aug-2001.
+ * Last Change: 19-Jan-2002.
  */
 
 #include <stdio.h>
@@ -20,7 +20,7 @@ struct _wordbuf
 {
     int len;
     unsigned char* buf;
-    int last;
+    int last; /* Ši”[‚µ‚Ä‚¢‚é•¶Žš—ñ‚Ì’·‚³ */
 };
 
 /* function pre-declaration */
