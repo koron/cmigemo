@@ -2,7 +2,7 @@ C/Migemoライブラリ説明書
                                                             Since: 15-Aug-2001
                                                                 Version: 1.1.1
                                                   Author: MURAOKA Taro (KoRoN)
-                                                     Last Change: 17-Oct-2003.
+                                                     Last Change: 18-Oct-2003.
 
 説明
   C/MigemoはMigemo(Ruby/Migemo)をC言語で実装したものです。C/Migemoライブラリを
@@ -357,7 +357,8 @@ C/Migemoライブラリ説明書
     }
 
 更新箇所 {{{1
-  ● (1.1.019)
+  ● (1.1.020)
+    (1.1.020)romaji.cのテストコードを分離
     (1.1.019)辞書読み込み時のエラーを不完全ながら厳密化
     (1.1.018)roma2hira.datにヘボン式のm[bmp]及びtch[aiueo]を追加
     (1.1.017)利用許諾条件を整理

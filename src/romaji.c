@@ -3,7 +3,7 @@
  * romaji.c - ローマ字変換
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 17-Oct-2003.
+ * Last Change: 18-Oct-2003.
  */
 
 #include <stdio.h>
@@ -97,23 +97,6 @@ romanode_dig(romanode** ref_node, unsigned char* key)
     return ref_node;
 }
 
-    static void
-romanode_print_stub(romanode* node, unsigned char* p)
-{
-    static unsigned char buf[256];
-
-    if (!p)
-	p = &buf[0];
-    p[0] = node->key;
-    p[1] = '\0';
-    if (node->value[0])
-	printf("%s=%s\n", buf, node->value);
-    if (node->child)
-	romanode_print_stub(node->child, p + 1);
-    if (node->next)
-	romanode_print_stub(node->next, p);
-}
-
     static romanode*
 romanode_query(romanode* node, unsigned char* key, int* skip)
 {
@@ -149,6 +132,31 @@ romanode_query(romanode* node, unsigned char* key, int* skip)
     if (skip)
 	*skip = nskip;
     return node;
+}
+
+    static void
+romanode_print_stub(romanode* node, unsigned char* p)
+{
+    static unsigned char buf[256];
+
+    if (!p)
+	p = &buf[0];
+    p[0] = node->key;
+    p[1] = '\0';
+    if (node->value[0])
+	printf("%s=%s\n", buf, node->value);
+    if (node->child)
+	romanode_print_stub(node->child, p + 1);
+    if (node->next)
+	romanode_print_stub(node->next, p);
+}
+
+    static void
+romanode_print(romanode* node)
+{
+    if (!node)
+	return;
+    romanode_print_stub(node, NULL);
 }
 
 /*
@@ -334,6 +342,7 @@ romaji_load(romaji* object, unsigned char* filename)
     unsigned char*
 romaji_convert(romaji* object, unsigned char* string, unsigned char** ppstop)
 {
+    /* Argument "ppstop" receive conversion stoped position. */
     wordbuf_p buf = NULL;
     unsigned char *lower = NULL;
     unsigned char *answer = NULL;
@@ -417,103 +426,3 @@ romaji_release(romaji* object, unsigned char* string)
 {
     free(string);
 }
-
-#if 0
-/*
- * main
- */
-
-    static void
-romanode_print(romanode* node)
-{
-    if (!node)
-	return;
-    romanode_print_stub(node, NULL);
-}
-
-    void
-query_loop(romaji* object, romaji* hira2kata)
-{
-    char buf[256];
-
-    while (1)
-    {
-	printf("QUERY: ");
-	if (!gets(buf))
-	    break;
-#if 0
-	{
-	    int skip;
-	    romanode* node;
-
-	    node = romanode_query(object->node, buf, &skip);
-	    printf("node=%p, skip=%d\n", node, skip);
-	    if (node)
-		printf("  value=%s\n", node->value);
-	}
-#else
-	{
-	    unsigned char *stop;
-	    unsigned char *hira;
-	    if (hira = romaji_convert(object, buf, &stop))
-	    {
-		unsigned char* kata;
-
-		printf("  hira=%s, stop=%s\n", hira, stop);
-		if (kata = romaji_convert(hira2kata, hira, &stop))
-		{
-		    printf("  kata=%s, stop=%s\n", kata, stop);
-		    romaji_release(hira2kata, kata);
-		}
-		romaji_release(object, hira);
-	    }
-
-	}
-#endif
-    }
-}
-
-    int
-main(int argc, char** argv)
-{
-    romaji *object, *hira2kata;
-
-    object = romaji_open();
-    hira2kata = romaji_open();
-
-    if (object && hira2kata)
-    {
-#if 0
-	romaji_add_table(object, "a", "あ");
-	romaji_add_table(object, "i", "い");
-	romaji_add_table(object, "u", "う");
-	romaji_add_table(object, "e", "え");
-	romaji_add_table(object, "o", "お");
-#else
-	romaji_load(object, "romaji.dat");
-	romaji_load(hira2kata, "hira2kata.dat");
-#if 0
-	romanode_print(object->node);
-	romanode_print(hira2kata->node);
-#else
-	query_loop(object, hira2kata);
-#endif
-#endif
-    }
-
-    if (hira2kata)
-	romaji_close(hira2kata);
-    if (object)
-	romaji_close(object);
-
-    /* 実行時情報表示 */
-    fprintf(stderr, "sizeof(romanode)=%d\n", sizeof(romanode));
-    fprintf(stderr, "sizeof(romaji)=%d\n", sizeof(romaji));
-    fprintf(stderr, "n_romanode_new=%d\n", n_romanode_new);
-    fprintf(stderr, "n_romanode_delete=%d\n", n_romanode_delete);
-    fprintf(stderr, "n_wordbuf_open=%d\n", n_wordbuf_open);
-    fprintf(stderr, "n_wordbuf_close=%d\n", n_wordbuf_close);
-
-    return 0;
-}
-#endif
