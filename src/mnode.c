@@ -3,7 +3,7 @@
  * mnode.c - mnode interfaces.
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 21-Jan-2002.
+ * Last Change: 22-Jan-2002.
  */
 
 #include <stdio.h>
@@ -249,7 +249,6 @@ mnode_load(mnode* root, FILE* fp)
 	}
     }
     while (ch != EOF);
-    /*fprintf(stderr, "mode=%d\n", mode);*/
 
 END_MNODE_LOAD:
     wordbuf_close(buf);
