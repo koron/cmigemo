@@ -2,10 +2,10 @@
 #
 # Makefile -
 #
-# Last Change: 09-Jan-2002.
+# Last Change: 19-Jan-2002.
 # Written By:  Muraoka Taro  <koron@tka.att.ne.jp>
 
-#RELEASE=yes
+RELEASE=yes
 SRC = migemo.c wordbuf.c wordlist.c mnode.c rxgen.c romaji.c filename.c main.c
 OBJ = $(SRC:.c=.obj)
 
