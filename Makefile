@@ -76,7 +76,7 @@ linux-clean:
 #
 clean:
 	$(RM) *.o *.a
-	$(RM) *.dylib
+	$(RM) *.dylib libmigemo.so* cmigemo
 	$(RM) *.dll *.exe
 dict-clean:
 	cd dict ; $(MAKE) clean
