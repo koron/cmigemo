@@ -154,6 +154,8 @@ C/Migemoライブラリ説明書
   (アルファベット順)
   - AIDA Shinra
     CygwinとLinux用Makefileの基礎
+  - FUJISHIMA Hiroshi <pooh@nature.tsukuba.ac.jp>
+    Solaris用Makefileの提供
   - MATSUMOTO Yasuhiro
     Borland C++用Makefileの基礎
 
@@ -314,7 +316,8 @@ C/Migemoライブラリ説明書
     }
 
 更新箇所 {{{1
-  ● (1.1.2)
+  ● (1.1.3)
+    (1.1.003)Solaris用メイクファイルMake_sun.makを追加、未動作チェック
     (1.1.002)辞書の1行に複数エントリを出力できなくなっていた問題を修正
     (1.1.001)migemo.vimをUNIX系に対応
   ● 27-May-2002 (1.1 正式版)

@@ -2,7 +2,7 @@
 #
 # C/Migemo Makefile
 #
-# Last Change: 16-May-2002.
+# Last Change: 22-Jun-2002.
 # Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
 
 default: tags
@@ -92,3 +92,22 @@ osx-clean:
 	$(MAKE) -f compile/Make_osx.mak clean
 osx-distclean:
 	$(MAKE) -f compile/Make_osx.mak distclean
+
+##############################################################################
+# for Sun's Solaris/gcc
+#	(Tested on Solaris 8)
+#
+sun: sun-rel
+sun-all: sun-rel sun-dict
+sun-rel:
+	$(MAKE) -f compile/Make_sun.mak
+sun-dict:
+	$(MAKE) -f compile/Make_sun.mak dictionary
+sun-install: sun-all
+	$(MAKE) -f compile/Make_sun.mak install
+sun-uninstall:
+	$(MAKE) -f compile/Make_sun.mak uninstall
+sun-clean:
+	$(MAKE) -f compile/Make_sun.mak clean
+sun-distclean:
+	$(MAKE) -f compile/Make_sun.mak distclean
