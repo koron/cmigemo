@@ -6,27 +6,27 @@ namespace KaoriYa.Migemo
 {
     public class Migemo : IDisposable
     {
-#region Enumerations
+#region Enumerations (from migemo.h)
 #region enum OperatorIndex
 	public enum DictionaryId
 	{
-	    Invalid = 0,
-	    Migemo = 1,
-	    RomaToHira = 2,
-	    HiraToKata = 3,
-	    HanToZen = 4,
+	    Invalid		= 0,
+	    Migemo		= 1,
+	    RomaToHira	= 2,
+	    HiraToKata	= 3,
+	    HanToZen	= 4,
 	}
 #endregion
 
 #region enum OperatorIndex
 	public enum OperatorIndex
 	{
-	    Or = 0,
-	    NestIn = 1,
-	    NestOut = 2,
-	    SelectIn = 3,
-	    SelectOut = 4,
-	    NewLine = 5,
+	    Or			= 0,
+	    NestIn		= 1,
+	    NestOut		= 2,
+	    SelectIn	= 3,
+	    SelectOut	= 4,
+	    NewLine		= 5,
 	}
 #endregion
 #endregion
@@ -73,6 +73,7 @@ namespace KaoriYa.Migemo
 	    else
 		return "";
 	}
+
 #region Operator properties
 	public string OperatorOr {
 	    get { return GetOperator(OperatorIndex.Or); }
@@ -144,6 +145,7 @@ namespace KaoriYa.Migemo
 	    this.OperatorNestIn = "(?:";
 	    //this.OperatorNewLine = "\\s*";
 	}
+
 	public Migemo() : this(null) {
 	}
 
@@ -180,5 +182,6 @@ namespace KaoriYa.Migemo
 	    return 0;
 	}
 #endregion
+
     }
 }

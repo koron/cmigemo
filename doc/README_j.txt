@@ -358,6 +358,7 @@ C/Migemoライブラリ説明書
 
 更新箇所 {{{1
   ● (1.1.023)
+    tools/Migemo.cs:体裁修正
     ビルドディレクトリを変更(動作確認済:mvc,cyg,gcc,bc5)
     (1.1.023)migemo.c:EXPORTSの削除他
     (1.1.022)dict/roma2hira.datに~→～の変換を追加
