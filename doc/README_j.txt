@@ -28,22 +28,23 @@ C/Migemoライブラリ説明書
 ファイル構成
   C/Migemoのパッケージは現在のところ次のようなファイル・ディレクトリから構成さ
   れています。
-    Makefile            :cygwin make + VC6によるテスト用メイクファイル
-    Make_*.mak          :各プラットホーム用のメイクファイル
+    Makefile            :統合メイクファイル
     migemo.dsw          :VC6のワークスペース
     *.dsp               :VC6用プロジェクト(migemo.dswから参照される)
     migemo.h            :ライブラリを利用するのためのインクルードファイル
     main.c              :ライブラリを利用するサンプルプログラム
     *.c                 :ライブラリのソース
     *.h                 :ライブラリのソース用インクルードファイル
+    compile/            :各プラットホーム用のメイクファイル置き場
     dict/               :辞書置き場
     tool/               :各種ツール
     testdata/           :開発テストに利用したデータの置き場
 
 コンパイル方法
-  現在はWindows上でVC++6を用いてDLLをコンパイルするためのファイルしか用意され
-  ていません。DLLを作成するにはmigemo.dswをVisual Studioで開き、dll_migemoプロ
-  ジェクトをビルドすれば完了です。
+  Windowsの場合:
+    次のコマンドでRelease/内にmigemo.dllとmigemo.exeが作成されます。
+      > nmake msvc
+    migemo.dswをVC++6.0で開き、ビルドする方法もあります。
 
   コンパイル自体がcygwinやLinux上で可能なことは確認してあります。ソースのある
   ディレクトリで:
@@ -212,6 +213,8 @@ C/Migemoライブラリ説明書
 
 更新箇所
   ● 14-May-2002 (1.1a-beta)
+    strip.plとlensort.plをtool/optimize-dict.plに統合
+    tool/conv.plをtool/skk2migemodict.plに名称変更
     ドキュメント修正
     cacheを最適化して高速化 (mnode_load())
     wordbuf_add()を最適化して高速化 (wordbuf.c)
