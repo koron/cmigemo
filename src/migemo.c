@@ -3,7 +3,7 @@
  * migemo.c -
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 11-Aug-2001.
+ * Last Change: 12-Aug-2001.
  */
 
 #include <stdio.h>
@@ -17,6 +17,10 @@
 #include "romaji.h"
 #include "filename.h"
 #include "migemo.h"
+
+#define DICT_MIGEMO "migemo-dict"
+#define DICT_ROMA2HIRA "roma2hira.dat"
+#define DICT_HIRA2KATA "hira2kata.dat"
 
 /* migemoオブジェクト */
 struct _migemo
@@ -100,8 +104,8 @@ migemo_open(char* dict)
 	filename_directory(dir, dict);
 	strcpy(roma_dict, strlen(dir) ? dir : ".");
 	strcpy(kata_dict, strlen(dir) ? dir : ".");
-	strcat(roma_dict, "/romaji.dat");
-	strcat(kata_dict, "/hira2kata.dat");
+	strcat(roma_dict, "/" DICT_ROMA2HIRA);
+	strcat(kata_dict, "/" DICT_HIRA2KATA);
 
 	migemo_load(obj, dict, roma_dict, kata_dict);
     }

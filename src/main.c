@@ -2,7 +2,7 @@
  * main.c - migemoライブラリテストドライバ
  *
  * Written By:  Muraoka Taro  <koron@tka.att.en.jp>
- * Last Change: 11-Aug-2001.
+ * Last Change: 12-Aug-2001.
  */
 #include <stdio.h>
 #include <time.h>
@@ -43,6 +43,7 @@ main(int argc, char** argv)
     int mode_print = 0;
 #endif
     int mode_vim = 0;
+    char* dict = NULL;
     migemo *pmigemo;
 
     while (*++argv)
@@ -51,6 +52,8 @@ main(int argc, char** argv)
 	    ;
 	else if (!strcmp("--vim", *argv) || !strcmp("-v", *argv))
 	    mode_vim = 1;
+	else if (argv[1] && (!strcmp("--dict", *argv) || !strcmp("-d", *argv)))
+	    dict = *++argv;
 #ifndef _SPLITED_MIGEMO
 	else if (!strcmp("--print-node", *argv) || !strcmp("-p", *argv))
 	    mode_print = 1;
@@ -58,9 +61,15 @@ main(int argc, char** argv)
     }
 
     /* 辞書をカレントディレクトリと1つ上のディレクトリから捜す */
-    pmigemo = migemo_open("migemo-dict");
-    if (!migemo_is_enable(pmigemo))
-	pmigemo = migemo_open("../migemo-dict");
+    if (!dict)
+    {
+	pmigemo = migemo_open("./dict/migemo-dict");
+	if (!migemo_is_enable(pmigemo))
+	    pmigemo = migemo_open("../dict/migemo-dict");
+    }
+    else
+	pmigemo = migemo_open(dict);
+
     if (!pmigemo)
 	return 1;
 
