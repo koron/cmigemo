@@ -1,9 +1,9 @@
-/* vim:set ts=8 sts=8 sw=8 tw=0: */
+/* vim:set ts=8 sts=4 sw=4 tw=0: */
 /*
  * main.c - migemoライブラリテストドライバ
  *
  * Written By:  Muraoka Taro  <koron@tka.att.en.jp>
- * Last Change: 15-May-2002.
+ * Last Change: 16-May-2002.
  */
 
 #include <stdio.h>
@@ -19,17 +19,19 @@
  */
 
     int
-query_loop(migemo* p)
+query_loop(migemo* p, int quiet)
 {
     while (!feof(stdin))
     {
 	unsigned char buf[256], *ans;
 
-	printf("QUERY: ");
+	if (!quiet)
+	    printf("QUERY: ");
 	/* gets()を使っていたがfgets()に変更 */
 	if (!fgets(buf, sizeof(buf), stdin))
 	{
-	    printf("\n");
+	    if (!quiet)
+		printf("\n");
 	    break;
 	}
 	/* 改行はNUL文字に置き換える */
@@ -38,7 +40,7 @@ query_loop(migemo* p)
 
 	ans = migemo_query(p, buf);
 	if (ans)
-	    printf("PATTERN: %s\n", ans);
+	    printf(quiet ? "%s\n" : "PATTERN: %s\n", ans);
 	migemo_release(p, ans);
     }
     return 0;
@@ -48,6 +50,7 @@ query_loop(migemo* p)
 main(int argc, char** argv)
 {
     int mode_vim = 0;
+    int mode_quiet = 0;
     char* dict = NULL;
     migemo *pmigemo;
     FILE *fplog = stdout;
@@ -63,6 +66,8 @@ main(int argc, char** argv)
 	    dict = *++argv;
 	else if (argv[1] && (!strcmp("--word", *argv) || !strcmp("-w", *argv)))
 	    word = *++argv;
+	else if (!strcmp("--quiet", *argv) || !strcmp("-q", *argv))
+	    mode_quiet = 1;
     }
 
 #ifdef _PROFILE
@@ -73,7 +78,7 @@ main(int argc, char** argv)
     if (!dict)
     {
 	pmigemo = migemo_open("./dict/" MIGEMODICT_NAME);
-	if (!word)
+	if (!word && !mode_quiet)
 	{
 	    fprintf(fplog, "migemo_open(%s)=%p\n",
 		    "./dict/" MIGEMODICT_NAME, pmigemo);
@@ -82,7 +87,7 @@ main(int argc, char** argv)
 	{
 	    migemo_close(pmigemo); /* NULLをcloseしても問題はない */
 	    pmigemo = migemo_open("../dict/" MIGEMODICT_NAME);
-	    if (!word)
+	    if (!word && !mode_quiet)
 	    {
 		fprintf(fplog, "migemo_open(%s)=%p\n",
 			"../dict/" MIGEMODICT_NAME, pmigemo);
@@ -115,8 +120,9 @@ main(int argc, char** argv)
 	}
 	else
 	{
-	    printf("clock()=%f\n", (float)clock() / CLOCKS_PER_SEC);
-	    query_loop(pmigemo);
+	    if (!mode_quiet)
+		printf("clock()=%f\n", (float)clock() / CLOCKS_PER_SEC);
+	    query_loop(pmigemo, mode_quiet);
 	}
 #else
 	/* プロファイル用 */
