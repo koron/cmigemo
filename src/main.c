@@ -15,6 +15,7 @@
 
 #define MIGEMO_ABOUT "cmigemo - C/Migemo Library " MIGEMO_VERSION " Driver"
 #define MIGEMODICT_NAME "migemo-dict"
+#define MIGEMO_SUBDICT_MAX 8
 
 /*
  * main
@@ -36,7 +37,7 @@ query_loop(migemo* p, int quiet)
 		printf("\n");
 	    break;
 	}
-	/* 改行はNUL文字に置き換える */
+	/* 改行をNUL文字に置き換える */
 	if ((ans = strchr(buf, '\n')) != NULL)
 	    *ans = '\0';
 
@@ -59,6 +60,7 @@ USAGE: %s [OPTIONS]\n\
 \n\
 OPTIONS:\n\
   -d --dict <dict>	Use a file <dict> for dictionary.\n\
+  -s --subdict <dict>	Sub dictionary files. (MAX %d times)\n \
   -q --quiet		Show no message except results.\n\
   -v --vim		Use vim style regexp.\n\
   -e --emacs		Use emacs style regexp.\n\
@@ -66,7 +68,7 @@ OPTIONS:\n\
   -w --word <word>	Expand a <word> and soon exit.\n\
   -h --help		Show this message.\n\
 "
-	  , MIGEMO_ABOUT, prgname);
+	  , MIGEMO_ABOUT, prgname, MIGEMO_SUBDICT_MAX);
     exit(0);
 }
 
@@ -78,11 +80,14 @@ main(int argc, char** argv)
     int mode_nonewline = 0;
     int mode_quiet = 0;
     char* dict = NULL;
+    char* subdict[MIGEMO_SUBDICT_MAX];
+    int subdict_count = 0;
     migemo *pmigemo;
     FILE *fplog = stdout;
     char *word = NULL;
     char *prgname = argv[0];
 
+    memset(subdict, 0, sizeof(subdict));
     while (*++argv)
     {
 	if (0)
@@ -95,6 +100,10 @@ main(int argc, char** argv)
 	    mode_nonewline = 1;
 	else if (argv[1] && (!strcmp("--dict", *argv) || !strcmp("-d", *argv)))
 	    dict = *++argv;
+	else if (argv[1]
+		&& (!strcmp("--subdict", *argv) || !strcmp("-s", *argv))
+		&& subdict_count < MIGEMO_SUBDICT_MAX)
+	    subdict[subdict_count++] = *++argv;
 	else if (argv[1] && (!strcmp("--word", *argv) || !strcmp("-w", *argv)))
 	    word = *++argv;
 	else if (!strcmp("--quiet", *argv) || !strcmp("-q", *argv))
@@ -113,7 +122,7 @@ main(int argc, char** argv)
 	pmigemo = migemo_open("./dict/" MIGEMODICT_NAME);
 	if (!word && !mode_quiet)
 	{
-	    fprintf(fplog, "migemo_open(%s)=%p\n",
+	    fprintf(fplog, "migemo_open(\"%s\")=%p\n",
 		    "./dict/" MIGEMODICT_NAME, pmigemo);
 	}
 	if (!pmigemo || !migemo_is_enable(pmigemo))
@@ -122,13 +131,34 @@ main(int argc, char** argv)
 	    pmigemo = migemo_open("../dict/" MIGEMODICT_NAME);
 	    if (!word && !mode_quiet)
 	    {
-		fprintf(fplog, "migemo_open(%s)=%p\n",
+		fprintf(fplog, "migemo_open(\"%s\")=%p\n",
 			"../dict/" MIGEMODICT_NAME, pmigemo);
 	    }
 	}
     }
     else
+    {
 	pmigemo = migemo_open(dict);
+	if (!word && !mode_quiet)
+	    fprintf(fplog, "migemo_open(\"%s\")=%p\n", dict, pmigemo);
+    }
+    /* サブ辞書を読み込む */
+    if (subdict_count > 0)
+    {
+	int i;
+
+	for (i = 0; i < subdict_count; ++i)
+	{
+	    int result;
+
+	    if (subdict[i] == NULL || subdict[i][0] == '\0')
+		continue;
+	    result = migemo_load(pmigemo, MIGEMO_DICTID_MIGEMO, subdict[i]);
+	    if (!word && !mode_quiet)
+		fprintf(fplog, "migemo_load(%p, %d, \"%s\")=%d\n",
+			pmigemo, MIGEMO_DICTID_MIGEMO, subdict[i], result);
+	}
+    }
 
     if (!pmigemo)
 	return 1;
