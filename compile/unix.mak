@@ -6,20 +6,7 @@
 # Base Idea:	AIDA Shinra
 # Written By:	MURAOKA Taro <koron@tka.att.ne.jp>
 
-prefix	= /usr/local
-bindir	= $(prefix)/bin
-libdir	= $(prefix)/lib
-incdir	= $(prefix)/include
-dictdir	= $(prefix)/share/migemo
-docdir	= $(prefix)/doc/migemo
-# WARNING:
-#	Directory $(dictdir) and $(docdir) will be deleted when uninstall.
-
-RM = rm -f
-MKDIR = mkdir -p
-INSTALL = /usr/bin/install -c
-INSTALL_PROGRAM = $(INSTALL)
-INSTALL_DATA = $(INSTALL) -m 644
+!include config.mk
 
 libmigemo_SRC = \
 		filename.c migemo.c mnode.c romaji.c \
@@ -39,6 +26,9 @@ cmigemo$(EXEEXT): main.o $(libmigemo_LIB)
 main.o: main.c
 	$(CC) -c $< -o $@ -D_SPLITED_MIGEMO $(CFLAGS)
 
+##############################################################################
+# Install
+#
 install-mkdir:
 	$(MKDIR) $(bindir)
 	$(MKDIR) $(libdir)
@@ -65,15 +55,20 @@ install: cmigemo$(EXEEXT) $(libmigemo_DSO) install-mkdir install-dict install-li
 	$(INSTALL_DATA) doc/README_j.txt $(docdir)
 	$(INSTALL_PROGRAM) cmigemo$(EXEEXT) $(bindir)
 
+##############################################################################
+# Uninstall
+#
 uninstall: uninstall-lib
 	$(RM) $(dictdir)/migemo-dict*
-	$(RM) -r $(dictdir)
-	$(RM) -r $(docdir)
 	$(RM) $(incdir)/migemo.h
 	$(RM) $(docdir)/README_j.txt
-	$(RM) -r $(docdir)
 	$(RM) $(bindir)/cmigemo$(EXEEXT)
+	$(RMDIR) $(dictdir)
+	$(RMDIR) $(docdir)
 
+##############################################################################
+# Cleaning
+#
 clean:
 	$(RM) *.o
 	$(RM) cmigemo$(EXEEXT)

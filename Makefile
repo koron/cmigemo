@@ -5,12 +5,12 @@
 # Last Change: 15-May-2002.
 # Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
 
-RM = rm -f 
+include config.mk
 
 tags: *.c *.h
-	ctags *.c *.h
+	$(CTAGS) *.c *.h
 
-#
+##############################################################################
 # for Microsoft Visual C
 #
 msvc: msvc-rel
@@ -23,7 +23,7 @@ msvc-dict:
 	cd dict
 	$(MAKE) /nologo cp932
 
-#
+##############################################################################
 # for Cygwin
 #
 cyg: cyg-rel
@@ -39,7 +39,7 @@ cyg-uninstall:
 cyg-clean:
 	$(MAKE) -f compile/Make_cyg.mak clean
 
-#
+##############################################################################
 # for MacOS X
 #
 osx: osx-rel
@@ -55,7 +55,7 @@ osx-uninstall:
 osx-clean:
 	$(MAKE) -f compile/Make_osx.mak clean
 
-#
+##############################################################################
 # for Linux (Tested on Vine Linux 2.1.5)
 #
 linux: linux-rel
@@ -71,15 +71,22 @@ linux-uninstall:
 linux-clean:
 	$(MAKE) -f compile/Make_linux.mak clean
 
-#
+##############################################################################
 # Cleaning
 #
 clean:
-	$(RM) *.o *.a
-	$(RM) *.dylib libmigemo.so* cmigemo
-	$(RM) *.dll *.exe
+	$(RM) *.o
+	$(RM) *.a
+	$(RM) *.dylib
+	$(RM) libmigemo.so*
+	$(RM) cmigemo
+	$(RM) *.dll
+	$(RM) *.exe
+	$(RMDIR) Release
+	$(RMDIR) Debug
 dict-clean:
-	cd dict ; $(MAKE) clean
+	cd dict && $(MAKE) clean
 distclean: clean dict-clean
-	$(RM) -rf Release Debug migemo.opt migemo.ncb
+	$(RM) migemo.opt
+	$(RM) migemo.ncb
 	$(RM) tags

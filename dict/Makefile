@@ -6,22 +6,43 @@
 # Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
 
 # ïKê{ÉvÉçÉOÉâÉÄ
-# 	Perl, cURL, qkc, (cp, rm, mv, mkdir)
+# 	Perl, cURL, qkc, (cp, rm, mkdir)
 
 DICT 		= migemo-dict
-CURL_FLAGS 	=
 SKKDIC_BASEURL 	= http://openlab.ring.gr.jp/skk/dic
 
-RM = rm -f
-CP = cp
-MV = mv
-MKDIR = mkdir -p
+include ../config.mk
 
+##############################################################################
+# Dictionary
+#
+$(DICT): SKK-JISYO.LATEST
+	$(PERL) ../tools/skk2migemodict.pl < SKK-JISYO.LATEST \
+		| perl ../tools/optimize-dict.pl | $(FILTER_CP932) > $@
+SKK-JISYO.S:
+	$(HTTP) $(SKKDIC_BASEURL)/$@.bz2
+	$(BUNZIP2) $@.bz2
+	$(CP) $@ SKK-JISYO.LATEST
+SKK-JISYO.M:
+	$(HTTP) $(SKKDIC_BASEURL)/$@.bz2
+	$(BUNZIP2) $@.bz2
+	$(CP) $@ SKK-JISYO.LATEST
+SKK-JISYO.L:
+	$(HTTP) $(SKKDIC_BASEURL)/$@.bz2
+	$(BUNZIP2) $@.bz2
+	$(CP) $@ SKK-JISYO.LATEST
+
+##############################################################################
+# Dictionary in cp932
+#
 cp932:		cp932-large
 cp932-large:	SKK-JISYO.L $(DICT)
 cp932-middle:	SKK-JISYO.M $(DICT)
 cp932-small:	SKK-JISYO.S $(DICT)
 
+##############################################################################
+# Dictionary in euc-jp
+#
 EUCJP_DIR = euc-jp.d
 euc-jp: 	cp932-large euc-jp-files
 $(EUCJP_DIR):
@@ -29,51 +50,34 @@ $(EUCJP_DIR):
 euc-jp-files: $(EUCJP_DIR) $(EUCJP_DIR)/migemo-dict $(EUCJP_DIR)/han2zen.dat \
 		$(EUCJP_DIR)/hira2kata.dat $(EUCJP_DIR)/roma2hira.dat
 $(EUCJP_DIR)/migemo-dict: migemo-dict
-	qkc -q -e -u < $< > $@
+	$(FILTER_EUCJP) < $< > $@
 $(EUCJP_DIR)/han2zen.dat: han2zen.dat
-	qkc -q -e -u < $< > $@
+	$(FILTER_EUCJP) < $< > $@
 $(EUCJP_DIR)/hira2kata.dat: hira2kata.dat
-	qkc -q -e -u < $< > $@
+	$(FILTER_EUCJP) < $< > $@
 $(EUCJP_DIR)/roma2hira.dat: roma2hira.dat
-	qkc -q -e -u < $< > $@
+	$(FILTER_EUCJP) < $< > $@
 
-#
+##############################################################################
 # for Cygwin
 #
 cyg:		euc-jp
 
-#
+##############################################################################
 # for MacOS X
 #
 osx:		euc-jp
 
-#
+##############################################################################
 # for Linux
 #
 linux:		euc-jp
 
-$(DICT): SKK-JISYO.LATEST
-	perl ../tools/skk2migemodict.pl < SKK-JISYO.LATEST \
-		| perl ../tools/optimize-dict.pl > $@
-	qkc -q -s -u $@
-SKK-JISYO.S:
-	curl $(CURL_FLAGS) -O $(SKKDIC_BASEURL)/$@.bz2
-	bzip2 -d $@.bz2
-	$(CP) $@ SKK-JISYO.LATEST
-SKK-JISYO.M:
-	curl $(CURL_FLAGS) -O $(SKKDIC_BASEURL)/$@.bz2
-	bzip2 -d $@.bz2
-	$(CP) $@ SKK-JISYO.LATEST
-SKK-JISYO.L:
-	curl $(CURL_FLAGS) -O $(SKKDIC_BASEURL)/$@.bz2
-	bzip2 -d $@.bz2
-	$(CP) $@ SKK-JISYO.LATEST
-
-#
+##############################################################################
 # Cleaning
 #
 clean:
-	$(RM) -r euc-jp.d
+	$(RMDIR) euc-jp.d
 distclean: clean
 	$(RM) $(DICT)
 	$(RM) SKK-JISYO*
