@@ -2,7 +2,7 @@
 #
 # C/Migemo Makefile
 #
-# Last Change: 15-May-2002.
+# Last Change: 16-May-2002.
 # Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
 
 include config.mk
@@ -21,7 +21,7 @@ msvc-dbg:
 	$(MAKE) /nologo /f compile\migemo.mak CFG="migemo - Win32 Debug"
 msvc-dict:
 	cd dict
-	$(MAKE) /nologo cp932
+	$(MAKE) /nologo msvc
 
 ##############################################################################
 # for Cygwin
