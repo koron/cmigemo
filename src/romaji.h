@@ -20,7 +20,8 @@ void romaji_close(romaji* object);
 int romaji_add_table(romaji* object, unsigned char* key, unsigned char* value);
 int romaji_load(romaji* object, unsigned char* filename);
 unsigned char* romaji_convert(romaji* object, unsigned char* string, unsigned char** ppstop);
-unsigned char* romaji_convert2(romaji* object, unsigned char* string, int ignorecase, unsigned char** ppstop);
+unsigned char* romaji_convert2(romaji* object, unsigned char* string,
+	unsigned char** ppstop, int ignorecase);
 void romaji_release(romaji* object, unsigned char* string);
 
 #ifdef __cplusplus

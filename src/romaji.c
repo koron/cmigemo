@@ -335,8 +335,8 @@ romaji_load(romaji* object, unsigned char* filename)
 }
 
     unsigned char*
-romaji_convert2(romaji* object, unsigned char* string, int ignorecase,
-	unsigned char** ppstop)
+romaji_convert2(romaji* object, unsigned char* string,
+	unsigned char** ppstop, int ignorecase)
 {
     /* Argument "ppstop" receive conversion stoped position. */
     wordbuf_p buf = NULL;
@@ -426,7 +426,7 @@ romaji_convert2(romaji* object, unsigned char* string, int ignorecase,
     unsigned char*
 romaji_convert(romaji* object, unsigned char* string, unsigned char** ppstop)
 {
-    return romaji_convert2(object, string, 1, ppstop);
+    return romaji_convert2(object, string, ppstop, 1);
 }
 
     void

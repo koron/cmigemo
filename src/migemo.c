@@ -375,7 +375,7 @@ query_a_word(migemo* object, unsigned char* query)
     add_mnode_query(object, query);
 
     /* query‚ð‘SŠp‚É‚µ‚ÄŒó•â‚É‰Á‚¦‚é */
-    zen = romaji_convert2(object->han2zen, query, 0, NULL);
+    zen = romaji_convert2(object->han2zen, query, NULL, 0);
     if (zen != NULL)
     {
 	object->addword(object, zen);
