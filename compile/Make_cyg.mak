@@ -7,7 +7,7 @@
 # Written By:	MURAOKA Taro <koron@tka.att.ne.jp>
 
 ##############################################################################
-# ŠÂ‹«‚É‰‚¶‚Ä‚±‚Ì3•Ï”‚ğ•ÏX‚·‚é
+# ŠÂ‹«‚É‰‚¶‚Ä‚±‚Ì•Ï”‚ğ•ÏX‚·‚é
 #
 libmigemo_LIB = libmigemo.dll.a
 libmigemo_DSO = cygmigemo1.dll

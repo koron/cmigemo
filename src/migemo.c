@@ -3,7 +3,7 @@
  * migemo.c -
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 15-May-2002.
+ * Last Change: 16-May-2002.
  */
 
 #include <stdio.h>
@@ -23,6 +23,12 @@
 #define DICT_HIRA2KATA "hira2kata.dat"
 #define DICT_HAN2ZEN "han2zen.dat"
 
+#ifdef __BORLANDC__
+# define EXPORTS __declspec(dllexport)
+#else
+# define EXPORTS
+#endif
+
 /* migemoオブジェクト */
 struct _migemo
 {
@@ -41,6 +47,7 @@ struct _migemo
 /*
  * 既存のmigemoオブジェクトに辞書ファイルを追加読込する。
  */
+    EXPORTS
     int 
 migemo_load(migemo* obj, int dict_id, char* dict_file)
 {
@@ -95,6 +102,7 @@ migemo_load(migemo* obj, int dict_id, char* dict_file)
 /*
  * (dict == NULL)として辞書を読み込ませないことも可能
  */
+    EXPORTS
     migemo*
 migemo_open(char* dict)
 {
@@ -145,6 +153,7 @@ migemo_open(char* dict)
     return obj;
 }
 
+    EXPORTS
     void
 migemo_close(migemo* obj)
 {
@@ -168,6 +177,7 @@ migemo_close(migemo* obj)
  * query version 2
  */
 
+    EXPORTS
     static void
 migemo_query_proc(mnode* p, void* data)
 {
@@ -181,6 +191,7 @@ migemo_query_proc(mnode* p, void* data)
 /*
  * バッファを用意してmnodeに再帰で書き込ませる
  */
+    EXPORTS
     static void
 add_mnode_query(migemo* object, unsigned char* query)
 {
@@ -190,6 +201,7 @@ add_mnode_query(migemo* object, unsigned char* query)
 	mnode_traverse(pnode, migemo_query_proc, object->rx);
 }
 
+    EXPORTS
     static int
 add_roma(migemo* object, unsigned char* query)
 {
@@ -217,6 +229,7 @@ add_roma(migemo* object, unsigned char* query)
  * ローマ字変換が不完全だった時に、[aiueo]および"xn"と"xtu"を補って変換して
  * みる。
  */
+    EXPORTS
     static void
 add_dubious_roma(migemo* object, rxgen* rx, unsigned char* query)
 {
@@ -260,6 +273,7 @@ add_dubious_roma(migemo* object, rxgen* rx, unsigned char* query)
     free(buf);
 }
 
+    EXPORTS
     unsigned char*
 migemo_query(migemo* object, unsigned char* query)
 {
@@ -293,12 +307,14 @@ migemo_query(migemo* object, unsigned char* query)
     return answer;
 }
 
+    EXPORTS
     void
 migemo_release(migemo* p, unsigned char* string)
 {
     rxgen_release(NULL, string);
 }
 
+    EXPORTS
     int
 migemo_set_operator(migemo* object, int index, unsigned char* op)
 {
@@ -311,12 +327,14 @@ migemo_set_operator(migemo* object, int index, unsigned char* op)
 	return 0;
 }
 
+    EXPORTS
     const unsigned char*
 migemo_get_operator(migemo* object, int index)
 {
     return object ? rxgen_get_operator(object->rx, index) : NULL;
 }
 
+    EXPORTS
     void
 migemo_setproc_char2int(migemo* object, MIGEMO_PROC_CHAR2INT proc)
 {
@@ -324,6 +342,7 @@ migemo_setproc_char2int(migemo* object, MIGEMO_PROC_CHAR2INT proc)
 	rxgen_setproc_char2int(object->rx, (RXGEN_PROC_CHAR2INT)proc);
 }
 
+    EXPORTS
     void
 migemo_setproc_int2char(migemo* object, MIGEMO_PROC_INT2CHAR proc)
 {
@@ -334,6 +353,7 @@ migemo_setproc_int2char(migemo* object, MIGEMO_PROC_INT2CHAR proc)
 /*
  * migemo辞書が読み込まれているかを調べる
  */
+    EXPORTS
     int
 migemo_is_enable(migemo* obj)
 {
@@ -344,7 +364,7 @@ migemo_is_enable(migemo* obj)
 /*
  * 主にデバッグ用の隠し関数
  */
-
+    EXPORTS
     void
 migemo_print(migemo* object)
 {

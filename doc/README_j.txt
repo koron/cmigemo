@@ -81,10 +81,10 @@ C/Migemoライブラリ説明書
     $ ./cmigemo -d dict/migemo-dict
   euc-jpで利用するならば:
     $ ./cmigemo -d dict/euc-jp.d/migemo-dict
-  を実行します。インストールとアンインストールは次のコマンドで行なえます。イン
-  ストール場所についてはconfig.mkを参照してください。
-    $ make cyg-install
-    $ make cyg-uninstall
+  を実行します。インストールとアンインストールはroot権限で次のコマンドを実行す
+  ることで行なえます。インストール場所についてはconfig.mkを参照してください。
+    # make cyg-install
+    # make cyg-uninstall
 
   (MacOS X + Developer Tools)
   必要な外部プログラム、ネットワーク接続を揃えて以下を実行することでテストプロ
@@ -95,10 +95,10 @@ C/Migemoライブラリ説明書
     % ./cmigemo -d dict/migemo-dict
   euc-jpで利用するならば:
     % ./cmigemo -d dict/euc-jp.d/migemo-dict
-  を実行します。インストールとアンインストールは次のコマンドで行なえます。イン
-  ストール場所についてはconfig.mkを参照してください。
-    % make osx-install
-    % make osx-uninstall
+  を実行します。インストールとアンインストールはroot権限で次のコマンドを実行す
+  ることで行なえます。インストール場所についてはconfig.mkを参照してください。
+    # make osx-install
+    # make osx-uninstall
 
   (Linux + gcc)
   必要な外部プログラム、ネットワーク接続を揃えて以下を実行することでテストプロ
@@ -106,13 +106,13 @@ C/Migemoライブラリ説明書
     $ make linux
     $ make linux-dict
   実行はcp932(Shift-JIS)で利用するならば:
-    % ./cmigemo -d dict/migemo-dict
+    $ ./cmigemo -d dict/migemo-dict
   euc-jpで利用するならば:
-    % ./cmigemo -d dict/euc-jp.d/migemo-dict
-  を実行します。インストールとアンインストールは次のコマンドで行なえます。イン
-  ストール場所についてはconfig.mkを参照してください。
-    $ make linux-install
-    $ make linux-uninstall
+    $ ./cmigemo -d dict/euc-jp.d/migemo-dict
+  を実行します。インストールとアンインストールはroot権限で次のコマンドを実行す
+  ることで行なえます。インストール場所についてはconfig.mkを参照してください。
+    # make linux-install
+    # make linux-uninstall
 
 利用条件
   このC/Migemoライブラリは以下の条件に同意できる方のみ利用が許可されます。
@@ -271,6 +271,7 @@ C/Migemoライブラリ説明書
 
 更新箇所
   ● 16-May-2002 (1.1-beta2)
+    BC5対応のためブチ切れ寸前…(_ _;;;
     Makefileの構造変更(BC5対応のため)
     謝辞追加
     パッケージ作成用スクリプトの追加

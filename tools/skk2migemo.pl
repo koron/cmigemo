@@ -1,10 +1,10 @@
 #!/usr/bin/perl
-# vi:set ts=8 sts=4 sw=4 tw=0:
+# vim:set ts=8 sts=4 sw=4 tw=0:
 #
 # conv.pl - Convert SKK-JISYO to migemo-dict
 #
-# Last Change: 12-Aug-2001.
-# Written by:  Muraoka Taro  <koron@tka.att.ne.jp>
+# Last Change: 16-May-2002.
+# Written by:  MURAOKA Taro <koron@tka.att.ne.jp>
 
 binmode STDOUT;
 while (<>)

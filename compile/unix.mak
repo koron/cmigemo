@@ -22,7 +22,7 @@ cmigemo$(EXEEXT): main.o $(libmigemo_LIB)
 	$(CC) -o $@ main.o -L. -lmigemo $(LDFLAGS)
 
 main.o: main.c
-	$(CC) -c $< -o $@ -D_SPLITED_MIGEMO $(CFLAGS)
+	$(CC) -c $< -o $@ $(CFLAGS)
 
 ##############################################################################
 # Install

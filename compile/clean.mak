@@ -8,6 +8,7 @@
 clean: clean-arch
 	-$(RM) *.o
 	-$(RM) *.obj
+	-$(RM) $(DICT_DIR)migemo-dict
 	-$(RMDIR) Release
 	-$(RMDIR) Debug
 
@@ -16,9 +17,14 @@ distclean: clean distclean-arch
 	-$(RM) *.dll
 	-$(RM) *.dylib
 	-$(RM) *.exe
+	-$(RM) *.lib
+	-$(RM) *.tds
 	-$(RM) cmigemo
 	-$(RM) libmigemo.*.dylib
 	-$(RM) libmigemo.so*
 	-$(RM) migemo.opt
 	-$(RM) migemo.ncb
 	-$(RM) tags
+	-$(RM) $(DICT_DIR)SKK-JISYO*
+	-$(RM) $(DICT_DIR)base-dict
+	-$(RMDIR) $(DICT_DIR)euc-jp.d

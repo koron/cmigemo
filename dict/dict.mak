@@ -19,9 +19,10 @@ EUCJP_DIR	= euc-jp.d
 #
 $(DICT): $(DICT_BASE)
 	$(FILTER_CP932) < $(DICT_BASE) > $@
-$(DICT_BASE):$(SKKDIC_FILE)
-	$(PERL) ../tools/skk2migemodict.pl < $(SKKDIC_FILE) \
-		| perl ../tools/optimize-dict.pl > $@
+$(DICT_BASE): $(SKKDIC_FILE)
+	$(PERL) ../tools/skk2migemo.pl < $(SKKDIC_FILE) > dict.tmp
+	$(PERL) ../tools/optimize-dict.pl < dict.tmp > $@
+	-$(RM) dict.tmp
 $(SKKDIC_FILE):
 	$(HTTP) $(SKKDIC_BASEURL)/$@.bz2
 	$(BUNZIP2) $@.bz2
