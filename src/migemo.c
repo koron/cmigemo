@@ -3,7 +3,7 @@
  * migemo.c -
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 21-Jan-2002.
+ * Last Change: 24-Jan-2002.
  */
 
 #include <stdio.h>
@@ -26,7 +26,7 @@
 /* migemoオブジェクト */
 struct _migemo
 {
-    mnode* node;
+    mtree_p mtree;
     romaji* roma2hira;
     romaji* hira2kata;
     romaji* han2zen;
@@ -54,11 +54,11 @@ migemo_load(migemo* obj, int dict_id, char* dict_file)
 	    /* migemo辞書読み込み */
 	    if (fp = fopen(dict_file, "rt"))
 	    {
-		mnode* node = mnode_load(obj->node, fp);
+		mtree_p mtree = mnode_load(obj->mtree, fp);
 
 		fclose(fp);
-		if (node)
-		    obj->node = node;
+		if (mtree)
+		    obj->mtree = mtree;
 		else
 		    return MIGEMO_DICTID_INVALID; /* Exhausted memory */
 	    }
@@ -99,7 +99,7 @@ migemo_open(char* dict)
     /* migemoオブジェクトと各メンバを構築 */
     if (!(obj = (migemo*)malloc(sizeof(migemo))))
 	return obj;
-    obj->node = mnode_open(NULL);
+    obj->mtree = mnode_open(NULL);
     obj->rx = rxgen_open();
     obj->roma2hira =	romaji_open();
     obj->hira2kata =	romaji_open();
@@ -150,8 +150,8 @@ migemo_close(migemo* obj)
 	    romaji_close(obj->roma2hira);
 	if (obj->rx)
 	    rxgen_close(obj->rx);
-	if (obj->node)
-	    mnode_close(obj->node);
+	if (obj->mtree)
+	    mnode_close(obj->mtree);
 	free(obj);
     }
 }
@@ -178,7 +178,7 @@ add_mnode_query(migemo* object, unsigned char* query)
 {
     mnode *pnode;
 
-    if (pnode = mnode_query(object->node, query))
+    if (pnode = mnode_query(object->mtree, query))
 	mnode_traverse(pnode, migemo_query_proc, object->rx);
 }
 
@@ -320,7 +320,7 @@ migemo_setproc_int2char(migemo* object, MIGEMO_PROC_INT2CHAR proc)
     int
 migemo_is_enable(migemo* obj)
 {
-    return (obj && obj->node) ? 1 : 0;
+    return (obj && obj->mtree) ? 1 : 0;
 }
 
 #if 1
@@ -332,6 +332,6 @@ migemo_is_enable(migemo* obj)
 migemo_print(migemo* object)
 {
     if (object)
-	mnode_print(object->node, NULL);
+	mnode_print(object->mtree, NULL);
 }
 #endif

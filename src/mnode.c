@@ -3,7 +3,7 @@
  * mnode.c - mnode interfaces.
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 22-Jan-2002.
+ * Last Change: 24-Jan-2002.
  */
 
 #include <stdio.h>
@@ -15,6 +15,15 @@
 #include "wordlist.h"
 #include "wordbuf.h"
 #include "mnode.h"
+
+#define MTREE_MNODE_N 1024
+struct _mtree_t
+{
+    mtree_p	active;
+    int		used;
+    mnode	nodes[MTREE_MNODE_N];
+    mtree_p	next;
+};
 
 #define MNODE_BUFSIZE 16384
 
@@ -28,19 +37,19 @@ int n_mnode_new = 0;
 int n_mnode_delete = 0;
 
     INLINE static mnode*
-mnode_new()
+mnode_new(mtree_p mtree)
 {
-#if 0
+    mtree_p active = mtree->active;
+
+    if (active->used >= MTREE_MNODE_N)
+    {
+	active->next = (mtree_p)calloc(1, sizeof(*active->next));
+	/* TODO: エラー処理 */
+	mtree->active = active->next;
+	active = active->next;
+    }
     ++n_mnode_new;
-    return (mnode*)calloc(1, sizeof(mnode));
-#else
-    /* Windowsで測るとこのほうが速いのです。 */
-    mnode *obj = (mnode*)malloc(sizeof(mnode));
-    obj->next = obj->child = NULL;
-    obj->list = NULL;
-    ++n_mnode_new;
-    return obj;
-#endif
+    return &active->nodes[active->used++];
 }
 
     static void
@@ -54,14 +63,15 @@ mnode_delete(mnode* p)
 	    wordlist_close(p->list);
 	if (p->next)
 	    mnode_delete(p->next);
-	free(p);
+	/*free(p);*/
 	p = child;
 	++n_mnode_delete;
     }
 }
 
+
     void
-mnode_print(mnode* vp, unsigned char* p)
+mnode_print_stub(mnode* vp, unsigned char* p)
 {
     static unsigned char buf [256];
 
@@ -74,34 +84,56 @@ mnode_print(mnode* vp, unsigned char* p)
     if (vp->list)
 	printf("%s (list=%p)\n", buf, vp->list);
     if (vp->child)
-	mnode_print(vp->child, p + 1);
+	mnode_print_stub(vp->child, p + 1);
     if (vp->next)
-	mnode_print(vp->next, p);
+	mnode_print_stub(vp->next, p);
 }
 
     void
-mnode_close(mnode* p)
+mnode_print(mtree_p mtree, unsigned char* p)
 {
-    mnode_delete(p);
+    if (mtree && mtree->used > 0)
+	mnode_print_stub(&mtree->nodes[0], p);
 }
 
-    INLINE static mnode**
-search_or_new_mnode(mnode** root, wordbuf_p buf)
+    void
+mnode_close(mtree_p mtree)
+{
+    if (mtree)
+    {
+	mtree_p next;
+
+	if (mtree->used > 0)
+	    mnode_delete(&mtree->nodes[0]);
+
+	while (mtree)
+	{
+	    next = mtree->next;
+	    free(mtree);
+	    mtree = next;
+	}
+    }
+}
+
+    INLINE static mnode*
+search_or_new_mnode(mtree_p mtree, wordbuf_p buf)
 {
     /* ラベル単語が決定したら検索木に追加 */
     int ch;
     unsigned char *word;
     mnode **ppnext;
     mnode **res;
+    mnode *root;
 
     word = WORDBUF_GET(buf);
-    ppnext = root;
+    root = mtree->used > 0 ? &mtree->nodes[0] : NULL;
+    ppnext = &root;
     while (ch = *word)
     {
 	res = ppnext;
 	if (! *res)
 	{
-	    *res = mnode_new();
+	    *res = mnode_new(mtree);
 	    MNODE_SET_CH(*res, ch);
 	}
 	else if (MNODE_GET_CH(*res) != ch)
@@ -114,16 +146,16 @@ search_or_new_mnode(mnode** root, wordbuf_p buf)
     }
 
     _ASSERT(*res != NULL);
-    return res;
+    return *res;
 }
 
 /*
  * 既存のノードにファイルからデータをまとめて追加する。
  */
-    mnode*
-mnode_load(mnode* root, FILE* fp)
+    mtree_p
+mnode_load(mtree_p mtree, FILE* fp)
 {
-    mnode **pp = NULL;
+    mnode *pp = NULL;
     int mode = 0;
     int ch;
     wordbuf_p buf;
@@ -137,7 +169,6 @@ mnode_load(mnode* root, FILE* fp)
     prevlabel = wordbuf_open();
     if (!fp || !buf || !prevlabel)
     {
-	root = NULL;
 	goto END_MNODE_LOAD;
     }
 
@@ -186,7 +217,7 @@ mnode_load(mnode* root, FILE* fp)
 			wordbuf_add(buf, (unsigned char)ch);
 			break;
 		    case '\t':
-			pp = search_or_new_mnode(&root, buf);
+			pp = search_or_new_mnode(mtree, buf);
 			wordbuf_reset(buf);
 			mode = 3; /* 単語前空白読飛ばしモード へ移行 */
 			break;
@@ -213,7 +244,7 @@ mnode_load(mnode* root, FILE* fp)
 		    wordbuf_reset(buf);
 		    wordbuf_add(buf, (unsigned char)ch);
 		    /* 単語リストの最後を検索(同一ラベルが複数時) */
-		    ppword = &(*pp)->list;
+		    ppword = &pp->list;
 		    while (*ppword)
 			ppword = &(*ppword)->next;
 		    mode = 4; /* 単語の読み込みモード へ移行 */
@@ -253,13 +284,20 @@ mnode_load(mnode* root, FILE* fp)
 END_MNODE_LOAD:
     wordbuf_close(buf);
     wordbuf_close(prevlabel);
-    return root;
+    return mtree;
 }
 
-    mnode*
+    mtree_p
 mnode_open(FILE* fp)
 {
-    return mnode_load(NULL, fp);
+    mtree_p mtree;
+
+    mtree = (mtree_p)calloc(1, sizeof(*mtree));
+    mtree->active = mtree;
+    if (mtree && fp)
+	mnode_load(mtree, fp);
+
+    return mtree;
 }
 
 #if 0
@@ -285,10 +323,10 @@ mnode_query_stub(mnode* node, unsigned char* query)
 }
 
     mnode*
-mnode_query(mnode* node, unsigned char* query)
+mnode_query(mtree_p mtree, unsigned char* query)
 {
-    return (query && *query != '\0' && node)
-	? mnode_query_stub(node, query) : 0;
+    return (query && *query != '\0' && mtree)
+	? mnode_query_stub(&mtree->nodes[0], query) : 0;
 }
 
     static void
@@ -305,7 +343,7 @@ mnode_traverse_stub(mnode* node, MNODE_TRAVERSE_PROC proc, void* data)
 }
 
     void
-mnode_traverse(mnode* node, MNODE_TRAVERSE_PROC proc, void* data)
+mnode_traverse(mnode *node, MNODE_TRAVERSE_PROC proc, void* data)
 {
     if (node && proc)
     {

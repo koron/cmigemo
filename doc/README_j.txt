@@ -2,7 +2,7 @@ C/Migemoライブラリ説明書
                                                              since 15-Aug-2001
                                                                    Version 1.0
                                                           Muraoka Taro (KoRoN)
-                                                     Last Change: 19-Jan-2002.
+                                                     Last Change: 24-Jan-2002.
 
 説明
   C/MigemoはMigemo(もしくはRuby/Migemo)をC言語で実装したものです。C/Migemoライ
@@ -211,7 +211,8 @@ C/Migemoライブラリ説明書
     いての詳細は「型リファレンス」セクションのMIGEMO_PROC_INT2CHARを参照。
 
 更新箇所
-  ● 19-Jan-2002
+  ● 24-Jan-2002
+    mnodeをまとめて確保することで高速化 (mnode.c他)
     辞書を長さ降順にソート (tools/lensort.pl)
     起動を1割から2割高速化 (mnode.c)
   ● 21-Aug-2001

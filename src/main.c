@@ -2,7 +2,7 @@
  * main.c - migemoライブラリテストドライバ
  *
  * Written By:  Muraoka Taro  <koron@tka.att.en.jp>
- * Last Change: 21-Jan-2002.
+ * Last Change: 24-Jan-2002.
  */
 
 #include <stdio.h>

@@ -1,5 +1,5 @@
  vim:set ts=8 sts=4 sw=4 tw=0 ft=memo:
- Last Change: 19-Jan-2002.
+ Last Change: 24-Jan-2002.
 
 TODO
     ドキュメントにContributorの記述を追加
@@ -7,5 +7,6 @@ TODO
     ローマ字変換でマルチバイト文字を考慮(Vim掲示板:1281)
 
 DONE
+    mnodeをまとめて確保するように変更(辞書読み込みの高速化)
     辞書の効率よく読み込むためのソート方法判明→長い単語を先頭へ
     1割程度の高速化

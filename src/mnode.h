@@ -3,7 +3,7 @@
  * mnode.h -
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 21-Jan-2002.
+ * Last Change: 24-Jan-2002.
  */
 /*
  * Need to include <stdio.h>
@@ -27,6 +27,8 @@ struct _mnode
 #define MNODE_GET_CH(p)		((unsigned char)(p)->attr)
 #define MNODE_SET_CH(p,c)	((p)->attr = (c))
 
+typedef struct _mtree_t mtree_t, *mtree_p;
+
 /* for mnode_traverse() */
 typedef void (*mnode_traverse_proc)(mnode* node, void* data);
 #define MNODE_TRAVERSE_PROC mnode_traverse_proc
@@ -35,14 +37,14 @@ extern int n_mnode_new;
 extern int n_mnode_delete;
 
 C_DECL_BEGIN();
-mnode* mnode_open(FILE* fp);
-mnode* mnode_load(mnode* root, FILE* fp);
-void mnode_close(mnode* p);
-mnode* mnode_query(mnode* node, unsigned char* query);
-void mnode_traverse(mnode* node, MNODE_TRAVERSE_PROC proc, void* data);
+mtree_p mnode_open(FILE* fp);
+mtree_p mnode_load(mtree_p root, FILE* fp);
+void mnode_close(mtree_p p);
+mnode* mnode_query(mtree_p node, unsigned char* query);
+void mnode_traverse(mnode *node, MNODE_TRAVERSE_PROC proc, void* data);
 
 /* 主にデバッグ用途 */
-void mnode_print(mnode* vp, unsigned char* p);
+void mnode_print(mtree_p mtree, unsigned char* p);
 C_DECL_END();
 
 #endif /* MNODE_H */
