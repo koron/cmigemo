@@ -73,7 +73,6 @@ migemo_load(migemo* obj, int dict_id, char* dict_file)
 
 	case MIGEMO_DICTID_HAN2ZEN:
 	    /* ”¼Šp¨‘SŠp«‘“Ç‚İ‚İ */
-	    printf("h2z dict_file=%s\n", dict_file);
 	    romaji_load(obj->han2zen, dict_file);
 	    break;
 
@@ -262,7 +261,6 @@ migemo_query(migemo* object, unsigned char* query)
 	/* query‚ğ‘SŠp‚É‚µ‚ÄŒó•â‚É‰Á‚¦‚é */
 	if (zen = romaji_convert(object->han2zen, query, NULL))
 	{
-	    printf("zen=%s\n", zen);
 	    rxgen_add(object->rx, zen);
 	    romaji_release(object->han2zen, zen);
 	}
