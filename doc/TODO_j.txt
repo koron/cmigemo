@@ -2,7 +2,6 @@
  Last Change: 28-Oct-2003.
 
 TODO
-    Cygwinでbuild/cygmigemo1.dllに依存してしまうのを修正
     辞書ファイル作成作業をPerl非依存にする
     エスケープする文字をカスタマイズ可能にする
     もしくは各種言語用の出力を用意する
@@ -14,6 +13,7 @@ ONICE 1.1
     ローマ字変換でマルチバイト文字を考慮(Vim掲示板:1281)
 
 DONE 1.1
+    Cygwinでbuild/cygmigemo1.dllに依存してしまうのを修正
     queryそのもので辞書を引くのを忘れていたのを修正
     Windows用Makefileを修正
     romaji.cのテストコードを分離(testdir/romaji_main.c)

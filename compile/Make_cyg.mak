@@ -2,15 +2,16 @@
 #
 # Cygwin—pMakefile
 #
-# Last Change:	19-Oct-2003.
+# Last Change:	28-Oct-2003.
 # Base Idea:	AIDA Shinra
 # Maintainer:	MURAOKA Taro <koron@tka.att.ne.jp>
 
 ##############################################################################
 # ŠÂ‹«‚É‰‚¶‚Ä‚±‚Ì•Ï”‚ğ•ÏX‚·‚é
 #
+DLLNAME	= cygmigemo1.dll
 libmigemo_LIB = $(outdir)libmigemo.dll.a
-libmigemo_DSO = $(outdir)cygmigemo1.dll
+libmigemo_DSO = $(outdir)$(DLLNAME)
 EXEEXT = .exe
 CFLAGS_MIGEMO =
 LDFLAGS_MIGEMO =
@@ -26,7 +27,7 @@ include compile/clean.mak
 #
 $(libmigemo_LIB): $(libmigemo_DSO)
 $(libmigemo_DSO): $(libmigemo_OBJ) $(srcdir)migemo.def
-	dllwrap --dllname $(libmigemo_DSO) --implib $(libmigemo_LIB) --def $(srcdir)migemo.def $(libmigemo_OBJ)
+	dllwrap -o $(libmigemo_DSO) --dllname $(DLLNAME) --implib $(libmigemo_LIB) --def $(srcdir)migemo.def $(libmigemo_OBJ)
 
 install-lib: $(libmigemo_DSO) $(libmigemo_LIB)
 	$(INSTALL_DATA)		$(libmigemo_LIB) $(libdir)
