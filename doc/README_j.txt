@@ -2,9 +2,9 @@ C/Migemoライブラリ説明書
                                                              since 15-Aug-2001
                                                                    Version 1.0
                                                           Muraoka Taro (KoRoN)
-                                                     Last Change: 21-Aug-2001.
+                                                     Last Change: 19-Jan-2002.
 
-説明 {{{1
+説明
   C/MigemoはMigemo(もしくはRuby/Migemo)をC言語で実装したものです。C/Migemoライ
   ブラリを利用するソフトウェアは「ローマ字のまま日本語を(インクリメンタルに)検
   索する」機能を持つことが可能になります。C言語で実装したことにより、本家
@@ -25,7 +25,7 @@ C/Migemoライブラリ説明書
   - C/Migemo作者のサイト (C/Migemoの情報)
       http://ixeris.bios.ics.saitama-u.ac.jp/~koron/
 
-ファイル構成 {{{1
+ファイル構成
   C/Migemoのパッケージは現在のところ次のようなファイル・ディレクトリから構成さ
   れています。
     Makefile            :cygwin make + VC6によるテスト用メイクファイル
@@ -39,7 +39,7 @@ C/Migemoライブラリ説明書
     tool                :各種ツール
     testdata            :開発テストに利用したデータの置き場
 
-コンパイル方法 {{{1
+コンパイル方法
   現在はWindows上でVC++6を用いてDLLをコンパイルするためのファイルしか用意され
   ていません。DLLを作成するにはmigemo.dswをVisual Studioで開き、dll_migemoプロ
   ジェクトをビルドすれば完了です。
@@ -55,7 +55,7 @@ C/Migemoライブラリ説明書
     $ ./configure && make && make install
   は準備していません。どなたかやっていただけませんか?。
 
-利用条件 {{{1
+利用条件
   このC/Migemoライブラリは以下の条件に同意できる方のみ利用が許可されます。
 
   1. ソースコードの著作権は放棄しません。
@@ -66,16 +66,16 @@ C/Migemoライブラリ説明書
 
   特に辞書のライセンスが非常にグレーなので確定できていないのです。
 
-質問・連絡先 {{{1
+質問・連絡先
   C/Migemoに関する質問・要望等は村岡(下記アドレス参照)まで連絡してください。ソ
   フトウェアからC/Migemoを使用したい場合の問い合わせも受け付けます。
 
-謝辞 {{{1
+謝辞
   Migemoを発案されRuby/Migemoを作成され、C/Migemoについての相談にMLで親切に答
   えていただいた高林 哲さんに。
 
 
-辞書について {{{1
+辞書について
   C/Migemoではローマ字を日本語へ変換するのに辞書ファイルdict/migemo-dictを必要
   とします。ファイルdict/migemo-dictはこのアーカイブに含まれていませんが、
     1. vim向けにコンパイル済みのMigemo DLLから持ってくるか
@@ -106,31 +106,31 @@ C/Migemoライブラリ説明書
   - SKK Openlab (最新のオリジナルのSKK-JISYO.Lが入手可能)
       http://openlab.ring.gr.jp/skk/index-j.html
 
-型リファレンス {{{1
+型リファレンス
   C/Migemoで利用される型について述べる。
 
-  migemo*; {{{2
+  migemo*;
     Migemoオブジェクト。migemo_open()で作成され、migemo_close()で破棄される。
 
-  int (*MIGEMO_PROC_CHAR2INT)(unsigned char*, unsigned int*); {{{2
+  int (*MIGEMO_PROC_CHAR2INT)(unsigned char*, unsigned int*);
     文字列(unsigned char*)をコード(unsigned int)に変換するプロシージャ型。
     Shift-JISやEUC-JP以外のエンコードの文字列を扱うとき、もしくは特殊文字の処
     理を行いたいときに定義する。戻り値は文字列のうち処理したバイト数で、0を返
     せばデフォルトのプロシージャが実行される。この仕組みで必要な文字だけに処
     理を施すことが出来る。
 
-  int (*MIGEMO_PROC_INT2CHAR)(unsigned int, unsigned char*); {{{2
+  int (*MIGEMO_PROC_INT2CHAR)(unsigned int, unsigned char*);
     コード(unsigned int)を文字列(unsigned char*)に変換するプロシージャ型。
     Shift-JISやEUC-JP以外のエンコード文字列を扱うとき、もしくは特殊文字の処理
     を行いたいときに定義する。戻り値は出力された文字列のバイト数で、0を返せば
     デフォルトのプロシージャが実行される。この仕組みで必要な文字だけに処理を施
     すことが出来る。
 
-関数リファレンス {{{1
+関数リファレンス
   C/Migemoライブラリで提供されるAPIを以下で解説する。実際の使用例はアーカイブ
   に含まれるmain.cを参照のこと。
 
-  migemo* migemo_open(char* dict); {{{2
+  migemo* migemo_open(char* dict);
     Migemoオブジェクトを作成する。作成に成功するとオブジェクトが戻り値として返
     り、失敗するとNULLが返る。dictで指定したファイルがmigemo-dict辞書としてオ
     ブジェクト作成時に読み込まれる。辞書と同じディレクトリに:
@@ -142,18 +142,18 @@ C/Migemoライブラリ説明書
     イルはオブジェクト作成後にもmigemo_load()関数を使用することで追加読み込み
     ができる。
 
-  void migemo_close(migemo* object); {{{2
+  void migemo_close(migemo* object);
     Migemoオブジェクトを破棄し、使用していたリソースを解放する。
 
-  unsigned char* migemo_query(migemo* object, unsigned char* query); {{{2
+  unsigned char* migemo_query(migemo* object, unsigned char* query);
     queryで与えられた文字列(ローマ字)を日本語検索のための正規表現へ変換する。
     戻り値は変換された結果の文字列(正規表現)で、使用後はmigemo_release()関数へ
     渡すことで解放しなければならない。
 
-  void migemo_release(migemo* object, unsigned char* string); {{{2
+  void migemo_release(migemo* object, unsigned char* string);
     使い終わったmigemo_query()関数で得られた正規表現を解放する。
 
-  int migemo_load(migemo* obj, int dict_id, char* dict_file); {{{2
+  int migemo_load(migemo* obj, int dict_id, char* dict_file);
     Migemoオブジェクトに辞書、またはデータファイルを追加読み込みする。
     dict_fileは読み込むファイル名を指定する。dict_idは読み込む辞書・データの種
     類を指定するもので以下のうちどれか一つを指定する:
@@ -167,12 +167,12 @@ C/Migemoライブラリ説明書
     次の価が返ることがある。
       MIGEMO_DICTID_INVALID     
 
-  int migemo_is_enable(migemo* obj); {{{2
+  int migemo_is_enable(migemo* obj);
     Migemoオブジェクトにmigemo_dictが読み込めているかをチェックする。有効な
     migemo_dictを読み込めて内部に変換テーブルが構築できていれば0以外(TRUE)を、
     構築できていないときには0(FALSE)を返す。
 
-  int migemo_set_operator(migemo* object, int index, unsigned char* op); {{{2
+  int migemo_set_operator(migemo* object, int index, unsigned char* op);
     Migemoオブジェクトが生成する正規表現に使用するメタ文字(演算子)を指定する。
     indexでどのメタ文字かを指定し、opで置き換える。indexには以下の値が指定可能
     である:
@@ -196,26 +196,29 @@ C/Migemoライブラリ説明書
     デフォルトのメタ文字は特に断りがない限りPerlのそれと同じ意味である。設定に
     成功すると戻り値は0となり、失敗すると0以外になる。
 
-  const unsigned char* migemo_get_operator(migemo* object, int index); {{{2
+  const unsigned char* migemo_get_operator(migemo* object, int index);
     Migemoオブジェクトが生成する正規表現に使用しているメタ文字(演算子)を取得す
     る。indexについてはmigemo_set_operator()関数を参照。戻り値にはindexの指定
     が正しければメタ文字を格納した文字列へのポインタが、不正であればNULLが返
     る。
 
-  void migemo_setproc_char2int(migemo* object, MIGEMO_PROC_CHAR2INT proc); {{{2
+  void migemo_setproc_char2int(migemo* object, MIGEMO_PROC_CHAR2INT proc);
     Migemoオブジェクトにコード変換用のプロシージャを設定する。プロシージャにつ
     いての詳細は「型リファレンス」セクションのMIGEMO_PROC_CHAR2INTを参照。
 
-  void migemo_setproc_int2char(migemo* object, MIGEMO_PROC_INT2CHAR proc); {{{2
+  void migemo_setproc_int2char(migemo* object, MIGEMO_PROC_INT2CHAR proc);
     Migemoオブジェクトにコード変換用のプロシージャを設定する。プロシージャにつ
     いての詳細は「型リファレンス」セクションのMIGEMO_PROC_INT2CHARを参照。
 
-更新箇所 {{{1
-  ● 21-Aug-2001 {{{2
+更新箇所
+  ● 19-Jan-2002
+    辞書を長さ降順にソート (tools/lensort.pl)
+    起動を1割から2割高速化 (mnode.c)
+  ● 21-Aug-2001
     main.cのgets()をfgets()に変更
-    
- {{{1
+
 -------------------------------------------------------------------------------
                   生きる事への強い意志が同時に自分と異なる生命をも尊ぶ心となる
                                     Muraoka Taro/村岡太郎<koron@tka.att.ne.jp>
+
  vi:set ts=8 sts=2 sw=2 tw=78 et fdm=marker:

@@ -8,11 +8,15 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <ctype.h>
+#include <crtdbg.h>
 
 #include "wordlist.h"
 #include "wordbuf.h"
 #include "mnode.h"
+
+#define MNODE_BUFSIZE 16384
 
 #if defined(_MSC_VER) || defined(__GNUC__)
 # define INLINE __inline
@@ -30,7 +34,7 @@ mnode_new()
     ++n_mnode_new;
     return (mnode*)calloc(1, sizeof(mnode));
 #else
-    /* Windowsの測るとこのほうが速いのです。 */
+    /* Windowsで測るとこのほうが速いのです。 */
     mnode *obj = (mnode*)malloc(sizeof(mnode));
     obj->next = obj->child = NULL;
     obj->list = NULL;
@@ -75,14 +79,42 @@ mnode_print(mnode* vp, unsigned char* p)
 	mnode_print(vp->next, p);
 }
 
-/* 読み込みバッファを設定。Profileで10%弱速くなった */
-#define MNODE_BUFENABLE 1
-#define MNODE_BUFSIZE 16384
-
     void
 mnode_close(mnode* p)
 {
     mnode_delete(p);
+}
+
+    INLINE static mnode**
+search_or_new_mnode(mnode** root, wordbuf* buf)
+{
+    /* ラベル単語が決定したら検索木に追加 */
+    int ch;
+    unsigned char *word;
+    mnode **ppnext;
+    mnode **res;
+
+    word = wordbuf_get(buf);
+    ppnext = root;
+    while (ch = *word)
+    {
+	res = ppnext;
+	if (! *res)
+	{
+	    *res = mnode_new();
+	    MNODE_SET_CH(*res, ch);
+	}
+	else if (MNODE_GET_CH(*res) != ch)
+	{
+	    ppnext = &(*res)->next;
+	    continue;
+	}
+	ppnext = &(*res)->child;
+	++word;
+    }
+
+    _ASSERT(*res != NULL);
+    return res;
 }
 
 /*
@@ -91,23 +123,22 @@ mnode_close(mnode* p)
     mnode*
 mnode_load(mnode* root, FILE* fp)
 {
-    mnode **pp = &root;
+    mnode **pp = NULL;
     int mode = 0;
     int ch;
-    wordbuf *buf;
+    wordbuf *buf, *prevlabel;
     wordlist **ppword;
-#ifdef _DEBUG
-    int depth = 0, maxdepth = -1;
-#endif
-
-
-#if MNODE_BUFENABLE
+    /* 読み込みバッファ用変数 */
     unsigned char cache[MNODE_BUFSIZE];
     int remain = 0, point = 0;
-#endif
 
-    if (!fp || !(buf = wordbuf_open()))
-	return root; /* ERROR! */
+    buf = wordbuf_open();
+    prevlabel = wordbuf_open();
+    if (!fp || !buf || !prevlabel)
+    {
+	root = NULL;
+	goto END_MNODE_LOAD;
+    }
 
     /*
      * EOFの処理が曖昧。不正な形式のファイルが入った場合を考慮していない。各
@@ -116,18 +147,14 @@ mnode_load(mnode* root, FILE* fp)
      */
     do
     {
-#if MNODE_BUFENABLE
-	if (point < remain)
-	    ch = cache[point++];
-	else
+	if (point >= remain)
 	{
 	    remain = fread(cache, 1, MNODE_BUFSIZE, fp);
 	    point = 0;
 	    ch = (remain <= 0 && feof(fp)) ? EOF : cache[point++];
 	}
-#else
-	ch = fgetc(fp);
-#endif
+	else
+	    ch = cache[point++];
 
 	/* 状態:modeのオートマトン */
 	switch (mode)
@@ -136,53 +163,44 @@ mnode_load(mnode* root, FILE* fp)
 		/* 空白はラベル単語になりえません */
 		if (isspace(ch) || ch == EOF)
 		    continue;
-
 		/* コメントラインチェック */
-		if (ch == ';')
+		else if (ch == ';')
 		{
 		    mode = 2; /* 行末まで食い潰すモード へ移行 */
 		    continue;
 		}
-
-		mode = 1; /* ラベル単語の読込モード へ移行*/
-		pp = &root;
-#ifdef _DEBUG
-		depth = 0;
-#endif
-		goto SEARCH_OR_NEW;
+		else
+		{
+		    mode = 1; /* ラベル単語の読込モード へ移行*/
+		    wordbuf_reset(buf);
+		    wordbuf_add(buf, (unsigned char)ch);
+		}
+		break;
 
 	    case 1: /* ラベル単語の読込モード */
 		/* ラベルの終了を検出 */
-		if (ch == '\t')
+#if 0
+		if (ch != '\t')
+		    wordbuf_add(buf, (unsigned char)ch);
+		else
 		{
+		    pp = search_or_new_mnode(&root, buf);
 		    wordbuf_reset(buf);
 		    mode = 3; /* 単語前空白読飛ばしモード へ移行 */
 		    continue;
 		}
-
-		pp = &(*pp)->child;
-SEARCH_OR_NEW:
-		/* 同じchを持つ兄弟ノードを検索。無ければ作る。 */
-		/*
-		 * 最初は別関数となっていてソースの別箇所からも参照されてい
-		 * たが、呼び出し回数が非常に多いため展開した。Profileビルド
-		 * で1000msec程度の差がある。
-		 */
-		while (1)
+#else
+		switch (ch)
 		{
-		    if (!(*pp))
-		    {
-			*pp = mnode_new();
-			MNODE_SET_CH(*pp, ch);
+		    default:
+			wordbuf_add(buf, (unsigned char)ch);
 			break;
-		    }
-		    else if (MNODE_GET_CH(*pp) == ch)
+		    case '\t':
+			pp = search_or_new_mnode(&root, buf);
+			wordbuf_reset(buf);
+			mode = 3; /* 単語前空白読飛ばしモード へ移行 */
 			break;
-		    pp = &(*pp)->next;
 		}
-#ifdef _DEBUG
-		if (++depth > maxdepth)
-		    maxdepth = depth;
 #endif
 		break;
 
@@ -214,6 +232,7 @@ SEARCH_OR_NEW:
 		break;
 
 	    case 4: /* 単語の読み込みモード */
+#if 0
 		if (ch == '\t' || ch == '\n')
 		{
 		    /* 単語を記憶 */
@@ -233,13 +252,40 @@ SEARCH_OR_NEW:
 		}
 		else
 		    wordbuf_add(buf, (unsigned char)ch);
+#else
+		switch (ch)
+		{
+		    case '\t':
+		    case '\n':
+			/* 単語を記憶 */
+			*ppword = wordlist_new(wordbuf_get(buf));
+			wordbuf_reset(buf);
+
+			if (ch == '\t')
+			{
+			    ppword = &(*ppword)->next;
+			    mode = 3; /* 単語前空白読み飛ばしモード へ戻る */
+			}
+			else
+			{
+			    ppword = NULL;
+			    mode = 0; /* ラベル単語検索モード へ戻る */
+			}
+			break;
+		    default:
+			wordbuf_add(buf, (unsigned char)ch);
+			break;
+		}
+#endif
 		break;
 	}
     }
     while (ch != EOF);
     /*fprintf(stderr, "mode=%d\n", mode);*/
 
+END_MNODE_LOAD:
     wordbuf_close(buf);
+    wordbuf_close(prevlabel);
     return root;
 }
 
