@@ -2,8 +2,8 @@
 /*
  * main.c - migemoライブラリテストドライバ
  *
- * Written By:  Muraoka Taro  <koron@tka.att.en.jp>
- * Last Change: 16-May-2002.
+ * Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
+ * Last Change: 25-Mar-2003.
  */
 
 #include <stdio.h>
@@ -60,6 +60,8 @@ OPTIONS:\n\
   -d --dict <dict>	Use a file <dict> for dictionary.\n\
   -q --quiet		Show no message except results.\n\
   -v --vim		Use vim style regexp.\n\
+  -e --emacs		Use emacs style regexp.\n\
+  -n --nonewline	Don't use newline match.\n\
   -w --word <word>	Expand a <word> and soon exit.\n\
   -h --help		Show this message.\n\
 "
@@ -71,6 +73,8 @@ OPTIONS:\n\
 main(int argc, char** argv)
 {
     int mode_vim = 0;
+    int mode_emacs = 0;
+    int mode_nonewline = 0;
     int mode_quiet = 0;
     char* dict = NULL;
     migemo *pmigemo;
@@ -84,6 +88,10 @@ main(int argc, char** argv)
 	    ;
 	else if (!strcmp("--vim", *argv) || !strcmp("-v", *argv))
 	    mode_vim = 1;
+	else if (!strcmp("--emacs", *argv) || !strcmp("-e", *argv))
+	    mode_emacs = 1;
+	else if (!strcmp("--nonewline", *argv) || !strcmp("-n", *argv))
+	    mode_nonewline = 1;
 	else if (argv[1] && (!strcmp("--dict", *argv) || !strcmp("-d", *argv)))
 	    dict = *++argv;
 	else if (argv[1] && (!strcmp("--word", *argv) || !strcmp("-w", *argv)))
@@ -130,7 +138,16 @@ main(int argc, char** argv)
 	    migemo_set_operator(pmigemo, MIGEMO_OPINDEX_OR, "\\|");
 	    migemo_set_operator(pmigemo, MIGEMO_OPINDEX_NEST_IN, "\\%(");
 	    migemo_set_operator(pmigemo, MIGEMO_OPINDEX_NEST_OUT, "\\)");
-	    migemo_set_operator(pmigemo, MIGEMO_OPINDEX_NEWLINE, "\\_s*");
+	    if (!mode_nonewline)
+		migemo_set_operator(pmigemo, MIGEMO_OPINDEX_NEWLINE, "\\_s*");
+	}
+	else if (mode_emacs)
+	{
+	    migemo_set_operator(pmigemo, MIGEMO_OPINDEX_OR, "\\|");
+	    migemo_set_operator(pmigemo, MIGEMO_OPINDEX_NEST_IN, "\\(");
+	    migemo_set_operator(pmigemo, MIGEMO_OPINDEX_NEST_OUT, "\\)");
+	    if (!mode_nonewline)
+		migemo_set_operator(pmigemo, MIGEMO_OPINDEX_NEWLINE, "\\s-*");
 	}
 #ifndef _PROFILE
 	if (word)
