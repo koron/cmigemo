@@ -3,7 +3,7 @@
 # 
 # optimize-dict.pl
 #
-# Last Change: 16-May-2002.
+# Last Change: 22-Jun-2002.
 # Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
 
 binmode STDOUT;
@@ -27,13 +27,13 @@ for ($i = 0; $i < @migemo; ++$i)
     my $label = $migemo[$i];
     if (exists $migemo{$label})
     {
-	print "$label\t" . join("\t", &uniq_array(@{$migemo{$label}})) . "\n";
+	print "$label\t" . join("\t", &uniq_array($migemo{$label})) . "\n";
 	delete $migemo{$label};
     }
 }
 
-sub uniq_array(\@)
+sub uniq_array
 {
-    my %array = map {$_, 1} $_[0];
+    my %array = map {$_, 1} @{$_[0]};
     return keys %array
 }

@@ -2,7 +2,7 @@
 #
 # 辞書ファイルのメンテナンス
 # 
-# Last Change: 16-May-2002.
+# Last Change: 22-Jun-2002.
 # Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
 
 # 必須プログラム
@@ -19,7 +19,7 @@ EUCJP_DIR	= euc-jp.d
 #
 $(DICT): $(DICT_BASE)
 	$(FILTER_CP932) < $(DICT_BASE) > $@
-$(DICT_BASE): $(SKKDIC_FILE)
+$(DICT_BASE): $(SKKDIC_FILE) ../tools/skk2migemo.pl ../tools/optimize-dict.pl
 	$(PERL) ../tools/skk2migemo.pl < $(SKKDIC_FILE) > dict.tmp
 	$(PERL) ../tools/optimize-dict.pl < dict.tmp > $@
 	-$(RM) dict.tmp

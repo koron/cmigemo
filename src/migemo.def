@@ -1,8 +1,8 @@
 ; Written By:  Muraoka Taro <koron@tka.att.ne.jp>
-; Last Change: 16-May-2002.
+; Last Change: 22-Jun-2002.
 
 LIBRARY MIGEMO
-DESCRIPTION "Migemo DLL"
+;DESCRIPTION "Migemo DLL"
 EXPORTS
 	migemo_open
 	migemo_close

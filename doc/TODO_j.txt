@@ -1,12 +1,13 @@
  vim:set ts=8 sts=4 sw=4 tw=0 ft=memo:
- Last Change: 16-May-2002.
+ Last Change: 22-Jun-2002.
 
 TODO
+    ライセンスをハッキリさせる
 
-ONICE
+ONICE 1.1
     ローマ字変換でマルチバイト文字を考慮(Vim掲示板:1281)
 
-DONE
+DONE 1.1
     サンプルプログラムのヘルプもしくはドキュメント追加作成
     ドキュメントにContributorの記述を追加
     UNIX用Makefile一式をインクルード
