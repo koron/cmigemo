@@ -2,29 +2,33 @@
 #
 # Clean up アーキテクチャ非依存
 #
-# Last Change:	16-May-2002.
+# Last Change:	17-May-2002.
 # Written By:	MURAOKA Taro <koron@tka.att.ne.jp>
 
-clean: clean-arch
-	-$(RM) *.o
-	-$(RM) *.obj
+clean-migemo:
 	-$(RM) $(DICT_DIR)migemo-dict
-	-$(RMDIR) Release
-	-$(RMDIR) Debug
 
-distclean: clean distclean-arch
-	-$(RM) *.a
-	-$(RM) *.dll
-	-$(RM) *.dylib
-	-$(RM) *.exe
-	-$(RM) *.lib
-	-$(RM) *.tds
+distclean-migemo:
 	-$(RM) cmigemo
+	-$(RM) cmigemo.exe
 	-$(RM) libmigemo.*.dylib
 	-$(RM) libmigemo.so*
 	-$(RM) migemo.opt
 	-$(RM) migemo.ncb
-	-$(RM) tags
 	-$(RM) $(DICT_DIR)SKK-JISYO*
 	-$(RM) $(DICT_DIR)base-dict
 	-$(RMDIR) $(DICT_DIR)euc-jp.d
+
+clean: clean-arch clean-migemo
+	-$(RM) *.a
+	-$(RM) *.o
+	-$(RM) *.obj
+	-$(RM) *.lib
+	-$(RM) *.tds
+	-$(RMDIR) Release
+	-$(RMDIR) Debug
+
+distclean: clean distclean-arch distclean-migemo
+	-$(RM) *.dll
+	-$(RM) *.dylib
+	-$(RM) tags
