@@ -3,13 +3,11 @@
  * rxgen.h - regular expression generator
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 08-Aug-2001.
+ * Last Change: 15-May-2002.
  */
 
 #ifndef RXGEN_H
 #define RXGEN_H
-
-#include "cdecl.h"
 
 typedef struct _rxgen rxgen;
 typedef int (*rxgen_proc_char2int)(unsigned char*, unsigned int*);
@@ -28,7 +26,10 @@ typedef int (*rxgen_proc_int2char)(unsigned int, unsigned char*);
 extern int n_rnode_new;
 extern int n_rnode_delete;
 
-C_DECL_BEGIN();
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 rxgen* rxgen_open();
 void rxgen_close(rxgen* object);
 int rxgen_add(rxgen* object, unsigned char* word);
@@ -40,6 +41,9 @@ void rxgen_setproc_char2int(rxgen* object, RXGEN_PROC_CHAR2INT proc);
 void rxgen_setproc_int2char(rxgen* object, RXGEN_PROC_INT2CHAR proc);
 int rxgen_set_operator(rxgen* object, int index, unsigned char* op);
 const unsigned char* rxgen_get_operator(rxgen* object, int index);
-C_DECL_END();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* RXGEN_H */

@@ -3,7 +3,7 @@
  * mnode.h -
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 24-Jan-2002.
+ * Last Change: 15-May-2002.
  */
 /*
  * Need to include <stdio.h>
@@ -11,8 +11,6 @@
 
 #ifndef MNODE_H
 #define MNODE_H
-
-#include "cdecl.h"
 
 /* ツリーオブジェクト */
 typedef struct _mnode mnode;
@@ -36,7 +34,10 @@ typedef void (*mnode_traverse_proc)(mnode* node, void* data);
 extern int n_mnode_new;
 extern int n_mnode_delete;
 
-C_DECL_BEGIN();
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 mtree_p mnode_open(FILE* fp);
 mtree_p mnode_load(mtree_p root, FILE* fp);
 void mnode_close(mtree_p p);
@@ -45,6 +46,10 @@ void mnode_traverse(mnode *node, MNODE_TRAVERSE_PROC proc, void* data);
 
 /* 主にデバッグ用途 */
 void mnode_print(mtree_p mtree, unsigned char* p);
-C_DECL_END();
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif /* MNODE_H */

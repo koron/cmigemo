@@ -52,7 +52,7 @@ BEGIN
             VALUE "LegalCopyright", "2002 (C) MURAOKA Taro (KoRoN)/KaoriYa\0"
             VALUE "LegalTrademarks", "C/Migemo library\0"
             VALUE "OriginalFilename", "migemo.dll\0"
-            VALUE "PrivateBuild", "\0"
+            VALUE "PrivateBuild", "Beta 1\0"
             VALUE "ProductName", "Migemo DLL\0"
             VALUE "ProductVersion", "1, 1, 0, 7\0"
             VALUE "SpecialBuild", "\0"
