@@ -2,7 +2,7 @@ C/Migemoライブラリ説明書
                                                             Since: 15-Aug-2001
                                                                 Version: 1.1.1
                                                   Author: MURAOKA Taro (KoRoN)
-                                                     Last Change: 19-Oct-2003.
+                                                     Last Change: 28-Oct-2003.
 
 説明
   C/MigemoはMigemo(Ruby/Migemo)をC言語で実装したものです。C/Migemoライブラリを
@@ -358,6 +358,7 @@ C/Migemoライブラリ説明書
 
 更新箇所 {{{1
   ● (1.1.023)
+    queryそのもので辞書を引くのを忘れていたのを修正
     tools/Migemo.cs:体裁修正
     ビルドディレクトリを変更(動作確認済:mvc,cyg,gcc,bc5)
     (1.1.023)migemo.c:EXPORTSの削除他
