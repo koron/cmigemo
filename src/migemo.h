@@ -3,7 +3,7 @@
  * migemo.h -
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 08-Aug-2001.
+ * Last Change: 11-Aug-2001.
  */
 
 #ifndef MIGEMO_H
@@ -43,6 +43,9 @@ int migemo_set_operator(migemo* object, int index, unsigned char* op);
 const unsigned char* migemo_get_operator(migemo* object, int index);
 void migemo_setproc_char2int(migemo* object, MIGEMO_PROC_CHAR2INT proc);
 void migemo_setproc_int2char(migemo* object, MIGEMO_PROC_INT2CHAR proc);
+
+int migemo_load(migemo* obj, char* dict, char* roma_dict, char* kata_dict);
+int migemo_is_enable(migemo* obj);
 C_DECL_END();
 
 #endif /* MIGEMO_H */

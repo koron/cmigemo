@@ -3,7 +3,7 @@
  * mnode.h -
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 09-Aug-2001.
+ * Last Change: 11-Aug-2001.
  */
 /*
  * Need to include <stdio.h>
@@ -36,6 +36,7 @@ extern int n_mnode_delete;
 
 C_DECL_BEGIN();
 mnode* mnode_open(FILE* fp);
+mnode* mnode_load(mnode* root, FILE* fp);
 void mnode_close(mnode* p);
 mnode* mnode_query(mnode* node, unsigned char* query);
 void mnode_traverse(mnode* node, MNODE_TRAVERSE_PROC proc, void* data);

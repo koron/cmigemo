@@ -82,10 +82,13 @@ mnode_close(mnode* p)
     mnode_delete(p);
 }
 
+/*
+ * 既存のノードにファイルからデータをまとめて追加する。
+ */
     mnode*
-mnode_open(FILE* fp)
+mnode_load(mnode* root, FILE* fp)
 {
-    mnode *root = NULL, **pp = &root;
+    mnode **pp = &root;
     int mode = 0, cnt = 0;
     int depth = 0, maxdepth = -1;
     int ch;
@@ -97,15 +100,10 @@ mnode_open(FILE* fp)
     int remain = 0, point = 0;
 #endif
 
-    if (!(buf = wordbuf_open()))
-	return NULL; /* ERROR! */
+    if (!fp || !(buf = wordbuf_open()))
+	return root; /* ERROR! */
 
     /*
-     * ファイルの読込が非常に遅くなっている。原因はfgetc()が律儀に1バイトず
-     * つ読み込んでいるため。キャッシュバッファにまとまった量をfread()で読み
-     * 込んでおいて、そこから取り出すようにしたほうが利口。
-     * ←ウソでした。実測してみたら0.02秒しか変わらなかった。
-     *
      * EOFの処理が曖昧。不正な形式のファイルが入った場合を考慮していない。各
      * モードからEOFの道を用意しないと正しくないが…面倒なのでやらない。デー
      * タファイルは絶対に間違っていないという前提を置く。
@@ -232,6 +230,12 @@ SEARCH_OR_NEW:
 
     wordbuf_close(buf);
     return root;
+}
+
+    mnode*
+mnode_open(FILE* fp)
+{
+    return mnode_load(NULL, fp);
 }
 
 #if 0

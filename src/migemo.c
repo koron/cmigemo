@@ -3,7 +3,7 @@
  * migemo.c -
  *
  * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 09-Aug-2001.
+ * Last Change: 11-Aug-2001.
  */
 
 #include <stdio.h>
@@ -31,43 +31,80 @@ struct _migemo
  * migemo interfaces
  */
 
+/*
+ * 既存のmigemoオブジェクトに辞書ファイルを追加読込する。
+ */
+    int
+migemo_load(migemo* obj, char* dict, char* roma_dict, char* kata_dict)
+{
+    int result = 0;
+    FILE *fp;
+
+    if (!obj)
+	return result;
+
+    /* migemo辞書読み込み */
+    if (dict && (fp = fopen(dict, "rt")))
+    {
+	obj->node = mnode_load(obj->node, fp);
+	fclose(fp);
+	result |= 1;
+    }
+
+    /* ローマ字辞書読み込み */
+    if (roma_dict)
+    {
+	romaji_load(obj->roma2hira, roma_dict);
+	result |= 2;
+    }
+
+    /* カタカナ辞書読み込み */
+    if (kata_dict)
+    {
+	romaji_load(obj->hira2kata, kata_dict);
+	result |= 4;
+    }
+
+    return result;
+}
+
+/*
+ * (dict == NULL)として辞書を読み込ませないことも可能
+ */
     migemo*
 migemo_open(char* dict)
 {
-    migemo *obj = NULL;
-    FILE *fp = NULL;
+    migemo *obj;
 
-    if (dict
-	    && (fp = fopen(dict, "rt")) /* 辞書ファイルの存在確認 */
-	    && (obj = (migemo*)malloc(sizeof(migemo))))
+    /* migemoオブジェクトと各メンバを構築 */
+    if (!(obj = (migemo*)malloc(sizeof(migemo))))
+	return obj;
+    obj->node = mnode_open(NULL);
+    obj->rx = rxgen_open();
+    obj->roma2hira = romaji_open();
+    obj->hira2kata = romaji_open();
+    if (!obj->rx || !obj->roma2hira || !obj->hira2kata)
+    {
+	migemo_close(obj);
+	return obj = NULL;
+    }
+
+    /* デフォルトmigemo辞書が指定されていたらローマ字とカタカナ辞書も探す */
+    if (dict)
     {
 #ifndef _MAX_PATH
 # define _MAX_PATH 1024 /* いい加減な数値 */
 #endif
 	char dir[_MAX_PATH], roma_dict[_MAX_PATH], kata_dict[_MAX_PATH];
 
-	obj->node = mnode_open(fp);
-	obj->rx = rxgen_open();
-	obj->roma2hira = romaji_open();
-	obj->hira2kata = romaji_open();
-	if (!obj->node || !obj->rx || !obj->roma2hira || !obj->hira2kata)
-	{
-	    migemo_close(obj);
-	    obj = NULL;
-	}
-
 	filename_directory(dir, dict);
-	/*printf("dir=\"%s\"\n", dir);*/
 	strcpy(roma_dict, strlen(dir) ? dir : ".");
 	strcpy(kata_dict, strlen(dir) ? dir : ".");
 	strcat(roma_dict, "/romaji.dat");
 	strcat(kata_dict, "/hira2kata.dat");
-	romaji_load(obj->roma2hira, roma_dict);
-	romaji_load(obj->hira2kata, kata_dict);
-    }
 
-    if (fp)
-	fclose(fp); /*  辞書ファイルクローズ */
+	migemo_load(obj, dict, roma_dict, kata_dict);
+    }
     return obj;
 }
 
@@ -103,71 +140,104 @@ migemo_query_proc(mnode* p, void* data)
 }
 
 /*
- * ローマ字変換が不完全だった時に、[aiueon]を補って変換してみる。
+ * バッファを用意してmnodeに再帰で書き込ませる
  */
     static void
-migemo_query_stub(migemo* object, rxgen* rx, unsigned char* query)
+add_mnode_query(migemo* object, unsigned char* query)
+{
+    mnode *pnode;
+
+    if (pnode = mnode_query(object->node, query))
+	mnode_traverse(pnode, migemo_query_proc, object->rx);
+}
+
+    static int
+add_roma(migemo* object, unsigned char* query)
+{
+    unsigned char *stop, *hira, *kata;
+
+    hira = romaji_convert(object->roma2hira, query, &stop);
+    if (!stop)
+    {
+	rxgen_add(object->rx, hira);
+	/* 平仮名による辞書引き */
+	add_mnode_query(object, hira);
+	/* 片仮名文字列を生成し候補に加える */
+	kata = romaji_convert(object->hira2kata, hira, NULL);
+	rxgen_add(object->rx, kata);
+	/* カタカナによる辞書引き */
+	add_mnode_query(object, kata);
+	romaji_release(object->hira2kata, kata); /* カタカナ解放 */
+    }
+    romaji_release(object->roma2hira, hira); /* 平仮名解放 */
+
+    return stop ? 1 : 0;
+}
+
+/*
+ * ローマ字変換が不完全だった時に、[aiueo]および"xn"と"xtu"を補って変換して
+ * みる。
+ */
+    static void
+add_dubious_roma(migemo* object, rxgen* rx, unsigned char* query)
 {
     int len;
     char *buf;
-    unsigned char candidate[] = "aiueon", *ptr;
+    unsigned char candidate[] = "aiueo", *ptr;
 
     if (!(len = strlen(query)))
 	return;
-    if (!(buf = malloc(len + 2))) /* NULと拡張文字用 */
+    if (!(buf = malloc(len + 1 + 3))) /* NULと拡張文字用(最長:xtu) */
 	return;
     strcpy(buf, query);
     buf[len + 1] = '\0';
 
-    for (ptr = candidate; *ptr; ++ptr)
+    if (!strchr(candidate, buf[len - 1]))
     {
-	unsigned char *stop, *hira, *kata;
-
-	buf[len] = *ptr;
-	hira = romaji_convert(object->roma2hira, buf, &stop);
-
-	if (!stop)
+	/* [aiueo]を順番に補う */
+	for (ptr = candidate; *ptr; ++ptr)
 	{
-	    rxgen_add(rx, hira);
-	    /* 片仮名文字列を生成し候補に加える */
-	    kata = romaji_convert(object->hira2kata, hira, NULL);
-	    rxgen_add(rx, kata);
-	    romaji_release(object->hira2kata, kata);
+	    buf[len] = *ptr;
+	    add_roma(object, buf);
 	}
-	romaji_release(object->roma2hira, hira);
+	/* 未確定単語の長さが2未満か、未確定文字の直前が拇印ならば… */
+	if (len < 2 || strchr(candidate, buf[len - 2]))
+	{
+	    if (buf[len - 1] == 'n')
+	    {
+		/* 「ん」を補ってみる */
+		strcpy(&buf[len - 1], "xn");
+		add_roma(object, buf);
+	    }
+	    else
+	    {
+		/* 「っ」を補ってみる */
+		strcpy(&buf[len - 1], "xtu");
+		add_roma(object, buf);
+	    }
+	}
     }
+
+    free(buf);
 }
 
     unsigned char*
 migemo_query(migemo* object, unsigned char* query)
 {
     unsigned char* answer = NULL;
-    mnode *pnode;
 
-    if (object->rx)
+    if (object && object->rx && query)
     {
-	unsigned char *stop, *hira, *kata;
+	/* 平仮名、カタカナ、及びそれによる辞書引き追加 */
+	if (add_roma(object, query))
+	    add_dubious_roma(object, object->rx, query);
 
+	/* query自信はもちろん候補に加える */
 	rxgen_add(object->rx, query);
+	/* queryそのものによる辞書引き */
+	add_mnode_query(object, query);
 
-	/* 平仮名文字列を生成し候補に加える */
-	hira = romaji_convert(object->roma2hira, query, &stop);
-	if (!stop)
-	{
-	    rxgen_add(object->rx, hira);
-	    /* 片仮名文字列を生成し候補に加える */
-	    kata = romaji_convert(object->hira2kata, hira, NULL);
-	    rxgen_add(object->rx, kata);
-	    romaji_release(object->hira2kata, kata);
-	}
-	else
-	    migemo_query_stub(object, object->rx, query);
-	romaji_release(object->roma2hira, hira);
-
-	/* バッファを用意して再帰でバッファに書き込ませる */
-	if (pnode = mnode_query(object->node, query))
-	    mnode_traverse(pnode, migemo_query_proc, object->rx);
-
+	/* 検索パターン(正規表現)生成 */
 	answer = rxgen_generate(object->rx);
 	rxgen_reset(object->rx);
     }
@@ -205,6 +275,12 @@ migemo_setproc_int2char(migemo* object, MIGEMO_PROC_INT2CHAR proc)
 {
     if (object)
 	rxgen_setproc_int2char(object->rx, (RXGEN_PROC_INT2CHAR)proc);
+}
+
+    int
+migemo_is_enable(migemo* obj)
+{
+    return (obj && obj->node) ? 1 : 0;
 }
 
 #if 1

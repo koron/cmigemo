@@ -10,7 +10,7 @@ SRC = migemo.c wordbuf.c wordlist.c mnode.c rxgen.c romaji.c filename.c main.c
 OBJ = $(SRC:.c=.obj)
 
 CFLAGS = -W3
-DEFINES = -DWIN32 -D_CONSOLE
+DEFINES = -DWIN32 -D_CONSOLE -DFULL_LINK_TEST
 INCDIRS = -I.
 #LDFLAGS = -LIBPATH:./lib
 LDFLAGS =
