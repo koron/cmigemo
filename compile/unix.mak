@@ -2,11 +2,9 @@
 #
 # UNIXŒn‹¤’ÊMakefile
 #
-# Last Change:	15-May-2002.
+# Last Change:	16-May-2002.
 # Base Idea:	AIDA Shinra
 # Written By:	MURAOKA Taro <koron@tka.att.ne.jp>
-
-include config.mk
 
 libmigemo_SRC = \
 		filename.c migemo.c mnode.c romaji.c \
@@ -65,11 +63,3 @@ uninstall: uninstall-lib
 	$(RM) $(bindir)/cmigemo$(EXEEXT)
 	$(RMDIR) $(dictdir)
 	$(RMDIR) $(docdir)
-
-##############################################################################
-# Cleaning
-#
-clean:
-	$(RM) *.o
-	$(RM) cmigemo$(EXEEXT)
-	$(RM) $(CLEAN_TARGET)

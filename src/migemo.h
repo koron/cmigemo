@@ -48,7 +48,6 @@ void migemo_setproc_int2char(migemo* object, MIGEMO_PROC_INT2CHAR proc);
 
 int migemo_load(migemo* obj, int dict_id, char* dict_file);
 int migemo_is_enable(migemo* obj);
-C_DECL_END();
 
 #ifdef __cplusplus
 }

@@ -2,7 +2,7 @@
 #
 # Cygwin用Makefile
 #
-# Last Change:	15-May-2002.
+# Last Change:	16-May-2002.
 # Base Idea:	AIDA Shinra
 # Written By:	MURAOKA Taro <koron@tka.att.ne.jp>
 
@@ -15,9 +15,11 @@ libmigemo	= libmigemo.so
 EXEEXT		=
 CFLAGS_MIGEMO	= -fPIC
 LDFLAGS_MIGEMO	= -Wl,-rpath,.,-rpath,/usr/local/lib,-rpath,/usr/lib
-CLEAN_TARGET	= $(libmigemo_LIB) $(libmigemo_DSO) $(libmigemo)
 
+include config.mk
 include compile/unix.mak
+include compile/clean_unix.mak
+include compile/clean.mak
 
 ##############################################################################
 # 環境に応じてライブラリ構築法を変更する
@@ -39,3 +41,6 @@ uninstall-lib:
 	$(RM) $(libdir)/$(libmigemo_DSO)
 	$(RM) $(libdir)/$(libmigemo_LIB)
 	$(RM) $(libdir)/$(libmigemo)
+
+dictionary:
+	cd dict && $(MAKE) linux

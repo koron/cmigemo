@@ -5,23 +5,24 @@
 # Last Change: 16-May-2002.
 # Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
 
-include config.mk
+default: tags
 
 tags: *.c *.h
-	$(CTAGS) *.c *.h
+	ctags *.c *.h
 
 ##############################################################################
-# for Microsoft Visual C
+# for Borland C 5
 #
-msvc: msvc-rel
-msvc-all: msvc-rel msvc-dict
-msvc-rel:
-	$(MAKE) /nologo /f compile\migemo.mak CFG="migemo - Win32 Release"
-msvc-dbg:
-	$(MAKE) /nologo /f compile\migemo.mak CFG="migemo - Win32 Debug"
-msvc-dict:
-	cd dict
-	$(MAKE) /nologo msvc
+bc: bc-rel
+bc-all: bc-rel bc-dict
+bc-rel:
+	$(MAKE) -f compile\Make_bc5.mak
+bc-dict:
+	$(MAKE) -f compile\Make_bc5.mak dictionary
+bc-clean:
+	$(MAKE) -f compile\Make_bc5.mak clean
+bc-distclean:
+	$(MAKE) -f compile\Make_bc5.mak distclean
 
 ##############################################################################
 # for Cygwin
@@ -31,29 +32,15 @@ cyg-all: cyg-rel cyg-dict
 cyg-rel:
 	$(MAKE) -f compile/Make_cyg.mak
 cyg-dict:
-	cd dict && $(MAKE) cyg
+	$(MAKE) -f compile/Make_cyg.mak dictionary
 cyg-install: cyg-all
 	$(MAKE) -f compile/Make_cyg.mak install
 cyg-uninstall:
 	$(MAKE) -f compile/Make_cyg.mak uninstall
 cyg-clean:
 	$(MAKE) -f compile/Make_cyg.mak clean
-
-##############################################################################
-# for MacOS X
-#
-osx: osx-rel
-osx-all: osx-rel osx-dict
-osx-rel:
-	$(MAKE) -f compile/Make_osx.mak
-osx-dict:
-	cd dict && $(MAKE) osx
-osx-install: osx-all
-	$(MAKE) -f compile/Make_osx.mak install
-osx-uninstall:
-	$(MAKE) -f compile/Make_osx.mak uninstall
-osx-clean:
-	$(MAKE) -f compile/Make_osx.mak clean
+cyg-distclean:
+	$(MAKE) -f compile/Make_cyg.mak distclean
 
 ##############################################################################
 # for Linux (Tested on Vine Linux 2.1.5)
@@ -63,30 +50,44 @@ linux-all: linux-rel linux-dict
 linux-rel:
 	$(MAKE) -f compile/Make_linux.mak
 linux-dict:
-	cd dict && $(MAKE) linux
+	$(MAKE) -f compile/Make_linux.mak dictionary
 linux-install: linux-all
 	$(MAKE) -f compile/Make_linux.mak install
 linux-uninstall:
 	$(MAKE) -f compile/Make_linux.mak uninstall
 linux-clean:
 	$(MAKE) -f compile/Make_linux.mak clean
+linux-distclean:
+	$(MAKE) -f compile/Make_linux.mak distclean
 
 ##############################################################################
-# Cleaning
+# for Microsoft Visual C
 #
-clean:
-	$(RM) *.o
-	$(RM) *.a
-	$(RM) *.dylib
-	$(RM) libmigemo.so*
-	$(RM) cmigemo
-	$(RM) *.dll
-	$(RM) *.exe
-	$(RMDIR) Release
-	$(RMDIR) Debug
-dict-clean:
-	cd dict && $(MAKE) clean
-distclean: clean dict-clean
-	$(RM) migemo.opt
-	$(RM) migemo.ncb
-	$(RM) tags
+msvc: msvc-rel
+msvc-all: msvc-rel msvc-dict
+msvc-rel:
+	$(MAKE) /nologo /f compile\Make_mvc.mak
+msvc-dict:
+	$(MAKE) /nologo /f compile\Make_mvc.mak dictionary
+msvc-clean:
+	$(MAKE) /nologo /f compile\Make_mvc.mak clean
+msvc-distclean:
+	$(MAKE) /nologo /f compile\Make_mvc.mak distclean
+
+##############################################################################
+# for MacOS X
+#
+osx: osx-rel
+osx-all: osx-rel osx-dict
+osx-rel:
+	$(MAKE) -f compile/Make_osx.mak
+osx-dict:
+	$(MAKE) -f compile/Make_osx.mak dictionary
+osx-install: osx-all
+	$(MAKE) -f compile/Make_osx.mak install
+osx-uninstall:
+	$(MAKE) -f compile/Make_osx.mak uninstall
+osx-clean:
+	$(MAKE) -f compile/Make_osx.mak clean
+osx-distclean:
+	$(MAKE) -f compile/Make_osx.mak distclean
