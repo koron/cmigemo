@@ -1,4 +1,6 @@
+*.exp
 *.lib
+*.map
 *.tds
 Profile
 cmigemo

@@ -2,7 +2,7 @@
 #
 # Borland C 5—p Makefile
 #
-# Last Change:	27-May-2002.
+# Last Change:	18-Oct-2003.
 # Written By:	MURAOKA Taro <koron@tka.att.ne.jp>
 
 # Ql‘—¿:
@@ -12,6 +12,7 @@
 default: rel
 
 !include config.mk
+!include compile\dos.mak
 !include compile\clean_dos.mak
 !include compile\clean.mak
 !include dict\dict.mak

@@ -2,9 +2,13 @@
 #
 # デフォルトコンフィギュレーションファイル
 #
-# Last Change:	21-Dec-2002.
+# Last Change:	18-Oct-2003.
 # Base Idea:	AIDA Shinra
 # Written By:	MURAOKA Taro <koron@tka.att.ne.jp>
+
+srcdir = ./src/
+objdir = ./src/
+outdir = ./
 
 ##############################################################################
 # インストールディレクトリの設定

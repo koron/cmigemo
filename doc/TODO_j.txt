@@ -2,7 +2,6 @@
  Last Change: 18-Oct-2003.
 
 TODO
-    Windows用Makefileを修正
     ローマ字変換に「ステート残り」を導入
     辞書ファイル毎にmtreeを作成し、ランタイムで切り離せるようにする
     テストsuiteを作成する
@@ -11,6 +10,7 @@ ONICE 1.1
     ローマ字変換でマルチバイト文字を考慮(Vim掲示板:1281)
 
 DONE 1.1
+    Windows用Makefileを修正
     romaji.cのテストコードを分離(testdir/romaji_main.c)
     roma2hira.datにヘボン式のm[bmp]及びtch[aiueo]を追加
     ライセンスをハッキリさせる
