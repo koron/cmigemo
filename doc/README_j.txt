@@ -2,7 +2,7 @@ C/Migemoライブラリ説明書
                                                              since 15-Aug-2001
                                                                    Version 1.0
                                                           Muraoka Taro (KoRoN)
-                                                     Last Change: 16-Aug-2001.
+                                                     Last Change: 21-Aug-2001.
 
 説明 {{{1
   C/MigemoはMigemo(もしくはRuby/Migemo)をC言語で実装したものです。C/Migemoライ
@@ -210,7 +210,11 @@ C/Migemoライブラリ説明書
     Migemoオブジェクトにコード変換用のプロシージャを設定する。プロシージャにつ
     いての詳細は「型リファレンス」セクションのMIGEMO_PROC_INT2CHARを参照。
 
-{{{1
+更新箇所 {{{1
+  ● 21-Aug-2001 {{{2
+    main.cのgets()をfgets()に変更
+    
+ {{{1
 -------------------------------------------------------------------------------
                   生きる事への強い意志が同時に自分と異なる生命をも尊ぶ心となる
                                     Muraoka Taro/村岡太郎<koron@tka.att.ne.jp>

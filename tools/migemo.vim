@@ -4,11 +4,11 @@
 "		--- Migemo support script.
 "
 " Maintainer:  Muraoka Taro  <koron@tka.att.ne.jp>
-" Last Change: 13-Aug-2001.
+" Last Change: 08-Sep-2001.
 "
 " Japanese Description:
 
-if exists('plugin_migemo_disable')
+if !has('migemo') || exists('plugin_migemo_disable')
   finish
 endif
 

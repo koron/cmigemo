@@ -2,7 +2,7 @@
  * main.c - migemoライブラリテストドライバ
  *
  * Written By:  Muraoka Taro  <koron@tka.att.en.jp>
- * Last Change: 16-Aug-2001.
+ * Last Change: 21-Aug-2001.
  */
 #include <stdio.h>
 #include <time.h>
@@ -24,9 +24,15 @@ query_loop(migemo* p)
     while (!feof(stdin))
     {
 	unsigned char buf[256], *ans;
+
 	printf("QUERY: ");
-	if (!gets(buf))
+	/* gets()を使っていたがfgets()に変更 */
+	if (!fgets(buf, sizeof(buf), stdin))
 	    break;
+	/* 改行はNUL文字に置き換える */
+	if (ans = strchr(buf, '\n'))
+	    *ans = '\0';
+
 	ans = migemo_query(p, buf);
 	if (ans)
 	    printf("PATTERN: %s\n", ans);
