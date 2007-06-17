@@ -2,8 +2,8 @@
 /*
  * mnode.c - mnode interfaces.
  *
- * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 15-May-2002.
+ * Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
+ * Last Change: 04-May-2004.
  */
 
 #include <stdio.h>
@@ -311,7 +311,7 @@ mnode_size(mnode* p)
 #endif
 
     static mnode*
-mnode_query_stub(mnode* node, unsigned char* query)
+mnode_query_stub(mnode* node, const unsigned char* query)
 {
     while (1)
     {
@@ -325,7 +325,7 @@ mnode_query_stub(mnode* node, unsigned char* query)
 }
 
     mnode*
-mnode_query(mtree_p mtree, unsigned char* query)
+mnode_query(mtree_p mtree, const unsigned char* query)
 {
     return (query && *query != '\0' && mtree)
 	? mnode_query_stub(&mtree->nodes[0], query) : 0;

@@ -2,7 +2,7 @@
 #
 # roma2hira.dat - ローマ字→平仮名変換表
 # 
-# Last Change: 18-Oct-2003.
+# Last Change: 13-Oct-2004.
 # Written By:  Muraoka Taro  <koron@tka.att.ne.jp>
 
 # こいつをカスタマイズすることでローマ字の入力方式が変わります。
@@ -10,7 +10,6 @@
 # 漢字コードの違いを吸収する役割も果たします。
 # xnとxtuには「ん」と「っ」を指定する役割があります。
 # {from} {to}の形式です。
-# 現在は{from}は最大7バイトまで{to}は6バイトまでとなっています。
 # {from}と{to}の間は空白文字(isspace())で区切ります。
 
 a	あ
@@ -188,6 +187,13 @@ tyi	ちぃ
 tyu	ちゅ
 tye	ちぇ
 tyo	ちょ
+
+
+dha	でゃ
+dhi	でぃ
+dhu	でゅ
+dhe	でぇ
+dho	でょ
 
 
 nya	にゃ

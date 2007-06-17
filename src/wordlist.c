@@ -2,8 +2,8 @@
 /*
  * wordlist.h -
  *
- * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 15-May-2002.
+ * Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
+ * Last Change: 04-May-2004.
  */
 
 #include <stdlib.h>
@@ -15,7 +15,7 @@ int n_wordlist_close	= 0;
 int n_wordlist_total	= 0;
 
     wordlist_p
-wordlist_open_len(unsigned char* ptr, int len)
+wordlist_open_len(const unsigned char* ptr, int len)
 {
     if (ptr && len >= 0)
     {
@@ -41,7 +41,7 @@ wordlist_open_len(unsigned char* ptr, int len)
 }
 
     wordlist_p
-wordlist_open(unsigned char* ptr)
+wordlist_open(const unsigned char* ptr)
 {
     return ptr ? wordlist_open_len(ptr, strlen(ptr)) : NULL;
 }

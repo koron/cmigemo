@@ -2,8 +2,8 @@
 /*
  * wordbuf.h -
  *
- * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 13-Oct-2003.
+ * Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
+ * Last Change: 04-May-2004.
  */
 
 #include <stdio.h>
@@ -108,7 +108,7 @@ wordbuf_add(wordbuf_p p, unsigned char ch)
 }
 
     int
-wordbuf_cat(wordbuf_p p, unsigned char* sz)
+wordbuf_cat(wordbuf_p p, const unsigned char* sz)
 {
     int len;
 

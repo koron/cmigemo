@@ -89,7 +89,7 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=..\main.c
+SOURCE=..\..\src\main.c
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -97,11 +97,11 @@ SOURCE=..\main.c
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=..\dbg.h
+SOURCE=..\..\src\dbg.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\migemo.h
+SOURCE=..\..\src\migemo.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

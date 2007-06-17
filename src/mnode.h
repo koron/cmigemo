@@ -2,8 +2,8 @@
 /*
  * mnode.h -
  *
- * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 15-May-2002.
+ * Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
+ * Last Change: 04-May-2004.
  */
 /*
  * Need to include <stdio.h>
@@ -41,7 +41,7 @@ extern "C" {
 mtree_p mnode_open(FILE* fp);
 mtree_p mnode_load(mtree_p root, FILE* fp);
 void mnode_close(mtree_p p);
-mnode* mnode_query(mtree_p node, unsigned char* query);
+mnode* mnode_query(mtree_p node, const unsigned char* query);
 void mnode_traverse(mnode *node, MNODE_TRAVERSE_PROC proc, void* data);
 
 /* 主にデバッグ用途 */

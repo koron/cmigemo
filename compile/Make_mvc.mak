@@ -2,7 +2,6 @@
 #
 # Visual C++—p Makefile
 #
-# Last Change:	28-Oct-2003.
 # Maintainer:	MURAOKA Taro <koron@tka.att.ne.jp>
 
 default: rel

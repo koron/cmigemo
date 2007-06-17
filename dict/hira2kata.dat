@@ -2,10 +2,10 @@
 #
 # hira2kata.dat - 平仮名→カタカナ変換表
 #
-# Last Change: 11-Aug-2001.
-# Written By:  Muraoka Taro  <koron@tka.att.ne.jp>
+# Last Change: 19-Jun-2004.
+# Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
 
-# 漢字コードの違いもこの変換表で吸収する。
+# 文字コードの違いもこの変換表で吸収する。
 
 あ	ア
 い	イ

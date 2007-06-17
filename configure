@@ -3,7 +3,7 @@
 #
 # configure - Easy configuration script
 #
-# Last Change: 07-Dec-2003.
+# Last Change: 01-Oct-2005.
 # Author & Maintainer: MURAOKA Taro <koron@tka.att.ne.jp>
 
 config_out=config.mk
@@ -17,6 +17,16 @@ CHECK_COMMAND() {
     return 1
   fi
 }
+
+PATH_PREFIX=/usr/local
+# Check arguments
+for i in $*
+do
+  arg_value=`echo "$i" | sed 's/[-_a-zA-Z0-9]*=//'`
+  case $i in
+    --prefix=*) PATH_PREFIX=$arg_value;;
+  esac
+done
 
 # Check HTTP access tool
 if CHECK_COMMAND curl ; then
@@ -34,7 +44,7 @@ fi
 if CHECK_COMMAND qkc ; then
   PROGRAM_ENCODEFILTER="qkc -q -u"
 elif CHECK_COMMAND nkf ; then
-  PROGRAM_ENCODEFILTER="nkf"
+  PROGRAM_ENCODEFILTER="nkf -x"
 else
   echo "ERROR: Require qkc or nkf installed for encode filter."
   exit 1
@@ -53,6 +63,7 @@ fi
 
 # for Debug
 if test 0 != 0 ; then
+  echo "PATH_PREFIX=${PATH_PREFIX}" 1>&2
   echo "PROGRAM_HTTP=${PROGRAM_HTTP}" 1>&2
   echo "PROGRAM_ENCODEFILTER=${PROGRAM_ENCODEFILTER}" 1>&2
   echo "PROGRAM_INSTALL=${PROGRAM_INSTALL}" 1>&2

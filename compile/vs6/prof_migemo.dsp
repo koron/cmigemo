@@ -56,35 +56,39 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=..\filename.c
+SOURCE=..\..\src\charset.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\main.c
+SOURCE=..\..\src\filename.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\migemo.c
+SOURCE=..\..\src\main.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\mnode.c
+SOURCE=..\..\src\migemo.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\romaji.c
+SOURCE=..\..\src\mnode.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\rxgen.c
+SOURCE=..\..\src\romaji.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\wordbuf.c
+SOURCE=..\..\src\rxgen.c
 # End Source File
 # Begin Source File
 
-SOURCE=..\wordlist.c
+SOURCE=..\..\src\wordbuf.c
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\wordlist.c
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -92,39 +96,43 @@ SOURCE=..\wordlist.c
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=..\dbg.h
+SOURCE=..\..\src\charset.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\filename.h
+SOURCE=..\..\src\dbg.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\migemo.h
+SOURCE=..\..\src\filename.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\mnode.h
+SOURCE=..\..\src\migemo.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\resource.h
+SOURCE=..\..\src\mnode.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\romaji.h
+SOURCE=..\..\src\resource.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\rxgen.h
+SOURCE=..\..\src\romaji.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\wordbuf.h
+SOURCE=..\..\src\rxgen.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\wordlist.h
+SOURCE=..\..\src\wordbuf.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\src\wordlist.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

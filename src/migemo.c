@@ -2,8 +2,8 @@
 /*
  * migemo.c -
  *
- * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 29-Dec-2003.
+ * Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
+ * Last Change: 21-Jan-2005.
  */
 
 #include <stdio.h>
@@ -17,13 +17,16 @@
 #include "rxgen.h"
 #include "romaji.h"
 #include "filename.h"
+#include "charset.h"
 #include "migemo.h"
 
 #define DICT_MIGEMO "migemo-dict"
 #define DICT_ROMA2HIRA "roma2hira.dat"
 #define DICT_HIRA2KATA "hira2kata.dat"
 #define DICT_HAN2ZEN "han2zen.dat"
+#define DICT_ZEN2HAN "zen2han.dat"
 #define VOWELS_STRING "aiueo"
+#define BUFLEN_DETECT_CHARSET 4096
 
 #ifdef __BORLANDC__
 # define EXPORTS __declspec(dllexport)
@@ -38,19 +41,18 @@ struct _migemo
 {
     int enable;
     mtree_p mtree;
+    int charset;
     romaji* roma2hira;
     romaji* hira2kata;
     romaji* han2zen;
+    romaji* zen2han;
     rxgen* rx;
     MIGEMO_PROC_ADDWORD addword;
+    CHARSET_PROC_CHAR2INT char2int;
 };
 
-/*
- * migemo interfaces
- */
-
     static mtree_p
-load_mtree_dictionary(mtree_p mtree, char* dict_file)
+load_mtree_dictionary(mtree_p mtree, const char* dict_file)
 {
     FILE *fp;
 
@@ -60,6 +62,39 @@ load_mtree_dictionary(mtree_p mtree, char* dict_file)
     fclose(fp);
     return mtree;
 }
+
+    static mtree_p
+load_mtree_dictionary2(migemo* obj, const char* dict_file)
+{
+    if (obj->charset == CHARSET_NONE)
+    {
+	/* 辞書の文字セットにあわせて正規表現生成時の関数を変更する */
+	CHARSET_PROC_CHAR2INT char2int = NULL;
+	CHARSET_PROC_INT2CHAR int2char = NULL;
+	obj->charset = charset_detect_file(dict_file);
+	charset_getproc(obj->charset, &char2int, &int2char);
+	if (char2int)
+	{
+	    migemo_setproc_char2int(obj, (MIGEMO_PROC_CHAR2INT)char2int);
+	    obj->char2int = char2int;
+	}
+	if (int2char)
+	    migemo_setproc_int2char(obj, (MIGEMO_PROC_INT2CHAR)int2char);
+    }
+    return load_mtree_dictionary(obj->mtree, dict_file);
+}
+
+    static void
+dircat(char* buf, const char* dir, const char* file)
+{
+    strcpy(buf, dir);
+    strcat(buf, "/");
+    strcat(buf, file);
+}
+
+/*
+ * migemo interfaces
+ */
 
 /**
  * Migemoオブジェクトに辞書、またはデータファイルを追加読み込みする。
@@ -75,6 +110,8 @@ load_mtree_dictionary(mtree_p mtree, char* dict_file)
  *	<dd>平仮名→カタカナ変換表</dd>
  *  <dt>MIGEMO_DICTID_HAN2ZEN</dt>
  *	<dd>半角→全角変換表</dd>
+ *  <dt>MIGEMO_DICTID_ZEN2HAN</dt>
+ *	<dd>全角→半角変換表</dd>
  *  </dl>
  *
  *  戻り値は実際に読み込んだ種類を示し、上記の他に読み込みに失敗したことを示す
@@ -85,9 +122,8 @@ load_mtree_dictionary(mtree_p mtree, char* dict_file)
  * @param dict_id 辞書ファイルの種類
  * @param dict_file 辞書ファイルのパス
  */
-    EXPORTS
-    int 
-migemo_load(migemo* obj, int dict_id, char* dict_file)
+    EXPORTS int MIGEMO_CALLTYPE
+migemo_load(migemo* obj, int dict_id, const char* dict_file)
 {
     if (!obj && dict_file)
 	return MIGEMO_DICTID_INVALID;
@@ -97,7 +133,7 @@ migemo_load(migemo* obj, int dict_id, char* dict_file)
 	/* migemo辞書読み込み */
 	mtree_p mtree;
 
-	if ((mtree = load_mtree_dictionary(obj->mtree, dict_file)) == NULL)
+	if ((mtree = load_mtree_dictionary2(obj, dict_file)) == NULL)
 	    return MIGEMO_DICTID_INVALID;
 	obj->mtree = mtree;
 	obj->enable = 1;
@@ -120,6 +156,10 @@ migemo_load(migemo* obj, int dict_id, char* dict_file)
 	    case MIGEMO_DICTID_HAN2ZEN:
 		/* 半角→全角辞書読み込み */
 		dict = obj->han2zen;
+		break;
+	    case MIGEMO_DICTID_ZEN2HAN:
+		/* 半角→全角辞書読み込み */
+		dict = obj->zen2han;
 		break;
 	    default:
 		dict = NULL;
@@ -153,22 +193,24 @@ migemo_load(migemo* obj, int dict_id, char* dict_file)
  * @param dict migemo-dict辞書のパス。NULLの時は辞書を読み込まない。
  * @returns 作成されたMigemoオブジェクト
  */
-    EXPORTS
-    migemo*
-migemo_open(char* dict)
+    EXPORTS migemo* MIGEMO_CALLTYPE
+migemo_open(const char* dict)
 {
     migemo *obj;
 
     /* migemoオブジェクトと各メンバを構築 */
-    if (!(obj = (migemo*)malloc(sizeof(migemo))))
+    if (!(obj = (migemo*)calloc(1, sizeof(migemo))))
 	return obj;
     obj->enable = 0;
     obj->mtree = mnode_open(NULL);
+    obj->charset = CHARSET_NONE;
     obj->rx = rxgen_open();
     obj->roma2hira =	romaji_open();
     obj->hira2kata =	romaji_open();
     obj->han2zen =	romaji_open();
-    if (!obj->rx || !obj->roma2hira || !obj->hira2kata || !obj->han2zen)
+    obj->zen2han =	romaji_open();
+    if (!obj->rx || !obj->roma2hira || !obj->hira2kata || !obj->han2zen
+	    || !obj->zen2han)
     {
 	migemo_close(obj);
 	return obj = NULL;
@@ -181,20 +223,21 @@ migemo_open(char* dict)
 # define _MAX_PATH 1024 /* いい加減な数値 */
 #endif
 	char dir[_MAX_PATH];
-	char roma_dict[_MAX_PATH], kata_dict[_MAX_PATH], h2z_dict[_MAX_PATH];
-	char *tmp;
+	char roma_dict[_MAX_PATH];
+	char kata_dict[_MAX_PATH];
+	char h2z_dict[_MAX_PATH];
+	char z2h_dict[_MAX_PATH];
+	const char *tmp;
 	mtree_p mtree;
 
 	filename_directory(dir, dict);
 	tmp = strlen(dir) ? dir : ".";
-	strcpy(roma_dict, tmp);
-	strcpy(kata_dict, tmp);
-	strcpy(h2z_dict, tmp);
-	strcat(roma_dict, "/" DICT_ROMA2HIRA);
-	strcat(kata_dict, "/" DICT_HIRA2KATA);
-	strcat(h2z_dict, "/" DICT_HAN2ZEN);
+	dircat(roma_dict, tmp, DICT_ROMA2HIRA);
+	dircat(kata_dict, tmp, DICT_HIRA2KATA);
+	dircat(h2z_dict,  tmp, DICT_HAN2ZEN);
+	dircat(z2h_dict,  tmp, DICT_ZEN2HAN);
 
-	mtree = load_mtree_dictionary(obj->mtree, dict);
+	mtree = load_mtree_dictionary2(obj, dict);
 	if (mtree)
 	{
 	    obj->mtree = mtree;
@@ -202,6 +245,7 @@ migemo_open(char* dict)
 	    romaji_load(obj->roma2hira, roma_dict);
 	    romaji_load(obj->hira2kata, kata_dict);
 	    romaji_load(obj->han2zen, h2z_dict);
+	    romaji_load(obj->zen2han, z2h_dict);
 	}
     }
     return obj;
@@ -211,12 +255,13 @@ migemo_open(char* dict)
  * Migemoオブジェクトを破棄し、使用していたリソースを解放する。
  * @param obj 破棄するMigemoオブジェクト
  */
-    EXPORTS
-    void
+    EXPORTS void MIGEMO_CALLTYPE
 migemo_close(migemo* obj)
 {
     if (obj)
     {
+	if (obj->zen2han)
+	    romaji_close(obj->zen2han);
 	if (obj->han2zen)
 	    romaji_close(obj->han2zen);
 	if (obj->hira2kata)
@@ -263,7 +308,7 @@ add_mnode_query(migemo* object, unsigned char* query)
     static int
 add_roma(migemo* object, unsigned char* query)
 {
-    unsigned char *stop, *hira, *kata;
+    unsigned char *stop, *hira, *kata, *han;
 
     hira = romaji_convert(object->roma2hira, query, &stop);
     if (!stop)
@@ -272,8 +317,15 @@ add_roma(migemo* object, unsigned char* query)
 	/* 平仮名による辞書引き */
 	add_mnode_query(object, hira);
 	/* 片仮名文字列を生成し候補に加える */
-	kata = romaji_convert(object->hira2kata, hira, NULL);
+	kata = romaji_convert2(object->hira2kata, hira, NULL, 0);
 	object->addword(object, kata);
+	/* TODO: 半角カナを生成し候補に加える */
+#if 1
+	han = romaji_convert2(object->zen2han, kata, NULL, 0);
+	object->addword(object, han);
+	/*printf("kata=%s\nhan=%s\n", kata, han);*/
+	romaji_release(object->zen2han, han);
+#endif
 	/* カタカナによる辞書引き */
 	add_mnode_query(object, kata);
 	romaji_release(object->hira2kata, kata); /* カタカナ解放 */
@@ -337,26 +389,37 @@ add_dubious_roma(migemo* object, rxgen* rx, unsigned char* query)
  * 数文字の大文字で始まった文節は非大文字を区切りとする。
  */
     static wordlist_p
-parse_query(unsigned char* query)
+parse_query(migemo* object, const unsigned char* query)
 {
-    unsigned char *buf = query;
+    const unsigned char *curr = query;
+    const unsigned char *start = NULL;
     wordlist_p querylist = NULL, *pp = &querylist;
 
-    while (*buf != '\0')
+    while (1)
     {
-	unsigned char *start = buf++;
+	int len, upper;
 
-	if (isupper(start[0]) && isupper(buf[0]))
+	if (!object->char2int || (len = object->char2int(curr, NULL)) < 1)
+	    len = 1;
+	start = curr;
+	upper = (len == 1 && isupper(*curr) && isupper(curr[1]));
+	curr += len;
+	while (1)
 	{
-	    ++buf;
-	    while (buf[0] != '\0' && isupper(buf[0]))
-		++buf;
+	    if (!object->char2int || (len = object->char2int(curr, NULL)) < 1)
+		len = 1;
+	    if (*curr == '\0' || (len == 1 && (isupper(*curr) != 0) != upper))
+		break;
+	    curr += len;
 	}
-	else
-	    while (buf[0] != '\0' && !isupper(buf[0]))
-		++buf;
-	*pp = wordlist_open_len(start, buf - start);
-	pp = &(*pp)->next;
+	/* 文節を登録する */
+	if (start && start < curr)
+	{
+	    *pp = wordlist_open_len(start, curr - start);
+	    pp = &(*pp)->next;
+	}
+	if (*curr == '\0')
+	    break;
     }
     return querylist;
 }
@@ -368,11 +431,35 @@ parse_query(unsigned char* query)
 query_a_word(migemo* object, unsigned char* query)
 {
     unsigned char* zen;
+    unsigned char* han;
+    unsigned char* lower;
+    int len = strlen(query);
 
     /* query自信はもちろん候補に加える */
     object->addword(object, query);
     /* queryそのものでの辞書引き */
-    add_mnode_query(object, query);
+    lower = malloc(len + 1);
+    if (!lower)
+	add_mnode_query(object, query);
+    else
+    {
+	int i = 0, step;
+
+	// MBを考慮した大文字→小文字変換
+	while (i <= len)
+	{
+	    if (!object->char2int
+		    || (step = object->char2int(&query[i], NULL)) < 1)
+		step = 1;
+	    if (step == 1 && isupper(query[i]))
+		lower[i] = tolower(query[i]);
+	    else
+		memcpy(&lower[i], &query[i], step);
+	    i += step;
+	}
+	add_mnode_query(object, lower);
+	free(lower);
+    }
 
     /* queryを全角にして候補に加える */
     zen = romaji_convert2(object->han2zen, query, NULL, 0);
@@ -380,6 +467,14 @@ query_a_word(migemo* object, unsigned char* query)
     {
 	object->addword(object, zen);
 	romaji_release(object->han2zen, zen);
+    }
+
+    /* queryを半角にして候補に加える */
+    han = romaji_convert2(object->zen2han, query, NULL, 0);
+    if (han != NULL)
+    {
+	object->addword(object, han);
+	romaji_release(object->zen2han, han);
     }
 
     /* 平仮名、カタカナ、及びそれによる辞書引き追加 */
@@ -392,6 +487,8 @@ query_a_word(migemo* object, unsigned char* query)
     static int
 addword_rxgen(migemo* object, unsigned char* word)
 {
+    /* 正規表現生成エンジンに追加された単語を表示する */
+    /*printf("addword_rxgen: %s\n", word);*/
     return rxgen_add(object->rx, word);
 }
 
@@ -403,9 +500,8 @@ addword_rxgen(migemo* object, unsigned char* word)
  * @param query 問い合わせ文字列
  * @returns 正規表現文字列。#migemo_release() で解放する必要有り。
  */
-    EXPORTS
-    unsigned char*
-migemo_query(migemo* object, unsigned char* query)
+    EXPORTS unsigned char* MIGEMO_CALLTYPE
+migemo_query(migemo* object, const unsigned char* query)
 {
     unsigned char *retval = NULL;
     wordlist_p querylist = NULL;
@@ -415,7 +511,7 @@ migemo_query(migemo* object, unsigned char* query)
     {
 	wordlist_p p;
 
-	querylist = parse_query(query);
+	querylist = parse_query(object, query);
 	if (querylist == NULL)
 	    goto MIGEMO_QUERY_END; /* 空queryのためエラー */
 	outbuf = wordbuf_open();
@@ -429,6 +525,7 @@ migemo_query(migemo* object, unsigned char* query)
 	{
 	    unsigned char* answer;
 
+	    /*printf("query=%s\n", p->ptr);*/
 	    query_a_word(object, p->ptr);
 	    /* 検索パターン(正規表現)生成 */
 	    answer = rxgen_generate(object->rx);
@@ -456,8 +553,7 @@ MIGEMO_QUERY_END:
  * @param p Migemoオブジェクト
  * @param string 正規表現文字列
  */
-    EXPORTS
-    void
+    EXPORTS void MIGEMO_CALLTYPE
 migemo_release(migemo* p, unsigned char* string)
 {
     free(string);
@@ -495,9 +591,8 @@ migemo_release(migemo* p, unsigned char* string)
  * @param op メタ文字文字列
  * @returns 成功時0以外、失敗時0。
  */
-    EXPORTS
-    int
-migemo_set_operator(migemo* object, int index, unsigned char* op)
+    EXPORTS int MIGEMO_CALLTYPE
+migemo_set_operator(migemo* object, int index, const unsigned char* op)
 {
     if (object)
     {
@@ -517,8 +612,7 @@ migemo_set_operator(migemo* object, int index, unsigned char* op)
  * @param index メタ文字識別子
  * @returns 現在のメタ文字文字列
  */
-    EXPORTS
-    const unsigned char*
+    EXPORTS const unsigned char* MIGEMO_CALLTYPE
 migemo_get_operator(migemo* object, int index)
 {
     return object ? rxgen_get_operator(object->rx, index) : NULL;
@@ -530,8 +624,7 @@ migemo_get_operator(migemo* object, int index)
  * @param object Migemoオブジェクト
  * @param proc コード変換用プロシージャ
  */
-    EXPORTS
-    void
+    EXPORTS void MIGEMO_CALLTYPE
 migemo_setproc_char2int(migemo* object, MIGEMO_PROC_CHAR2INT proc)
 {
     if (object)
@@ -544,8 +637,7 @@ migemo_setproc_char2int(migemo* object, MIGEMO_PROC_CHAR2INT proc)
  * @param object Migemoオブジェクト
  * @param proc コード変換用プロシージャ
  */
-    EXPORTS
-    void
+    EXPORTS void MIGEMO_CALLTYPE
 migemo_setproc_int2char(migemo* object, MIGEMO_PROC_INT2CHAR proc)
 {
     if (object)
@@ -559,8 +651,7 @@ migemo_setproc_int2char(migemo* object, MIGEMO_PROC_INT2CHAR proc)
  * @param obj Migemoオブジェクト
  * @returns 成功時0以外、失敗時0。
  */
-    EXPORTS
-    int
+    EXPORTS int MIGEMO_CALLTYPE
 migemo_is_enable(migemo* obj)
 {
     return obj ? obj->enable : 0;
@@ -570,8 +661,7 @@ migemo_is_enable(migemo* obj)
 /*
  * 主にデバッグ用の隠し関数
  */
-    EXPORTS
-    void
+    EXPORTS void MIGEMO_CALLTYPE
 migemo_print(migemo* object)
 {
     if (object)

@@ -2,8 +2,8 @@
 /*
  * wordbuf.h -
  *
- * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 13-Oct-2003.
+ * Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
+ * Last Change: 04-May-2004.
  */
 #ifndef WORDBUF_H
 #define WORDBUF_H
@@ -32,7 +32,7 @@ void wordbuf_close(wordbuf_p p);
 void wordbuf_reset(wordbuf_p p);
 int wordbuf_last(wordbuf_p p);
 int wordbuf_add(wordbuf_p p, unsigned char ch);
-int wordbuf_cat(wordbuf_p p, unsigned char* sz);
+int wordbuf_cat(wordbuf_p p, const unsigned char* sz);
 unsigned char* wordbuf_get(wordbuf_p p);
 
 #ifdef __cplusplus

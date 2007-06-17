@@ -2,7 +2,7 @@ C/Migemoライブラリ説明書
                                                             Since: 15-Aug-2001
                                                                 Version: 1.2.0
                                                   Author: MURAOKA Taro (KoRoN)
-                                                     Last Change: 29-Dec-2003.
+                                                     Last Change: 17-Jun-2007.
 
 説明
   C/MigemoはMigemo(Ruby/Migemo)をC言語で実装したものです。C/Migemoライブラリを
@@ -30,9 +30,10 @@ C/Migemoライブラリ説明書
   れています。
   (ディレクトリ)
     compile/            :各プラットホーム用のメイクファイル置き場
+    compile/vs6         :VS6用プロジェクト
+    compile/vs2003      :VS2003用プロジェクト
     doc/                :ドキュメント置き場
     dict/               :辞書置き場
-    msvc/               :VC6用プロジェクトファイル群
     tools/              :各種ツール
     src/                :ソースファイル
   (ファイル)
@@ -142,7 +143,12 @@ C/Migemoライブラリ説明書
   に置かれます。
 
 利用許諾条件
-  doc/LICENSE_j.txtを参照してください。
+  C/MigemoはMITライセンスと独自ライセンスのデュアルライセンスとして配布されて
+  います。利用者は都合に応じて、より適合するライセンスを選択して利用してくださ
+  い。
+
+  MITライセンスについてはdoc/LICENSE_MIT.txtを参照してください。
+  独自ラインセンスについてはdoc/LICENSE_j.txtを参照してください。
 
 辞書の著作権・利用許諾条件
   C/Migemoで利用する辞書の諸権利、利用許諾条件及び著作権等はその辞書の定めると
@@ -166,8 +172,11 @@ C/Migemoライブラリ説明書
   - MATSUMOTO Yasuhiro
     Borland C++用Makefileの基礎
     migemo.vimをcmigemoに対応
+    VB用サンプル
   - SUNAOKA Norifumi
     Solaris用Makefileの不具合報告
+  - TASAKA Mamoru
+    MITライセンス版のリリースに協力
 
 
 付録
@@ -185,6 +194,7 @@ C/Migemoライブラリ説明書
     2. ローマ字を平仮名に変換するためのファイル(dict/roma2hira.dat)や、
     3. 平仮名を片仮名に変換するためのファイル(dict/hira2kata.dat)や、
     4. 半角文字を全角文字に変換するためのファイル(dict/han2zen.dat)
+    5. 全角文字を半角文字に変換するためのファイル(dict/zen2han.dat)
   を使用しています。これらの全てのファイルは単にデータテーブルとして機能してい
   るだけでなく、システムのエンコード(漢字コード)の違いを吸収する役割も担ってい
   ます。つまり先に挙げた4ファイルをWindowsで使う場合にはcp932に、UNIXやLinuxで
@@ -204,7 +214,7 @@ C/Migemoライブラリ説明書
 - migemo*;
     Migemoオブジェクト。migemo_open()で作成され、migemo_close()で破棄される。
 
-- int (*MIGEMO_PROC_CHAR2INT)(unsigned char*, unsigned int*);
+- int (*MIGEMO_PROC_CHAR2INT)(const unsigned char*, unsigned int*);
     バイト列(unsigned char*)を文字コード(unsigned int)に変換するプロシージャ
     型。Shift-JISやEUC-JP以外のエンコードの文字列を扱うとき、もしくは特殊文字
     の処理を行いたいときに定義する。戻り値は文字列のうち処理したバイト数で、0
@@ -222,13 +232,14 @@ C/Migemoライブラリ説明書
   C/Migemoライブラリで提供されるAPIを以下で解説する。実際の使用例はアーカイブ
   に含まれるmain.cを参照のこと。
 
-- migemo* migemo_open(char* dict);
+- migemo* migemo_open(const char* dict);
     Migemoオブジェクトを作成する。作成に成功するとオブジェクトが戻り値として返
     り、失敗するとNULLが返る。dictで指定したファイルがmigemo-dict辞書としてオ
     ブジェクト作成時に読み込まれる。辞書と同じディレクトリに:
       1. roma2hira.dat  (ローマ字→平仮名変換表)
       2. hira2kata.dat  (平仮名→カタカナ変換表)
       3. han2zen.dat    (半角→全角変換表)
+      3. zen2han.dat    (全角→半角変換表)
     という名前のファイルが存在すれば、存在したものだけが読み込まれる。dictに
     NULLを指定した場合には、辞書を含めていかなるファイルも読み込まれない。ファ
     イルはオブジェクト作成後にもmigemo_load()関数を使用することで追加読み込み
@@ -237,7 +248,7 @@ C/Migemoライブラリ説明書
 - void migemo_close(migemo* object);
     Migemoオブジェクトを破棄し、使用していたリソースを解放する。
 
-- unsigned char* migemo_query(migemo* object, unsigned char* query);
+- unsigned char* migemo_query(migemo* object, const unsigned char* query);
     queryで与えられた文字列(ローマ字)を日本語検索のための正規表現へ変換する。
     戻り値は変換された結果の文字列(正規表現)で、使用後はmigemo_release()関数へ
     渡すことで解放しなければならない。
@@ -245,7 +256,7 @@ C/Migemoライブラリ説明書
 - void migemo_release(migemo* object, unsigned char* string);
     使い終わったmigemo_query()関数で得られた正規表現を解放する。
 
-- int migemo_load(migemo* obj, int dict_id, char* dict_file);
+- int migemo_load(migemo* obj, int dict_id, const char* dict_file);
     Migemoオブジェクトに辞書、またはデータファイルを追加読み込みする。
     dict_fileは読み込むファイル名を指定する。dict_idは読み込む辞書・データの種
     類を指定するもので以下のうちどれか一つを指定する:
@@ -254,6 +265,7 @@ C/Migemoライブラリ説明書
       MIGEMO_DICTID_ROMA2HIRA   ローマ字→平仮名変換表
       MIGEMO_DICTID_HIRA2KATA   平仮名→カタカナ変換表
       MIGEMO_DICTID_HAN2ZEN     半角→全角変換表
+      MIGEMO_DICTID_ZEN2HAN     全角→半角変換表
 
     戻り値は実際に読み込んだ種類を示し、上記の他に読み込みに失敗したことを示す
     次の価が返ることがある。
@@ -264,7 +276,7 @@ C/Migemoライブラリ説明書
     migemo_dictを読み込めて内部に変換テーブルが構築できていれば0以外(TRUE)を、
     構築できていないときには0(FALSE)を返す。
 
-- int migemo_set_operator(migemo* object, int index, unsigned char* op);
+- int migemo_set_operator(migemo* object, int index, const unsigned char* op);
     Migemoオブジェクトが生成する正規表現に使用するメタ文字(演算子)を指定する。
     indexでどのメタ文字かを指定し、opで置き換える。indexには以下の値が指定可能
     である:
@@ -306,7 +318,7 @@ C/Migemoライブラリ説明書
   C/Migemoを利用したコーディング例を示す。以下のサンプルは一切のエラー処理を行
   なっていないので、実際の利用時には注意が必要。
     #include <stdio.h>
-    #inlcude "migemo.h"
+    #include "migemo.h"
     int main(int argc, char** argv)
     {
         migemo *m;
@@ -326,7 +338,20 @@ C/Migemoライブラリ説明書
     }
 
 更新箇所 {{{1
-  ● (1.2 正式版)
+  ● (1.3 開発版)
+    configureの--prefixが機能していなかった問題の修正
+    生queryでの辞書検索をignore caseに
+    英単語のエントリを小文字で正規化
+    VB用サンプル(tools/clsMigemo.cls)を追加
+    パターンの生成を高速化(rxget.c:rxgen_add)
+    VS2003用プロジェクトファイル追加
+    全角→半角変換を追加
+    全角→半角辞書を追加
+    ローマ字変換でマルチバイト文字を考慮(Vim掲示板:1281)
+    CP932/EUCJP/UTF8のエンコード自動判別機能を追加
+    migemo.vimをcmigemo.exe対応の改良版に差し替え
+    ヘルプメッセージ内の余分な空白を削除
+  ● 29-Dec-2003 (1.2 正式版)
     半角大文字を全角大文字に変換できないバグを修正
     リリース用にドキュメントを修正
     configureスクリプトを導入

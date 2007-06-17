@@ -2,7 +2,7 @@
 #
 # Configuration file.
 #
-# Last Change:	29-Nov-2003.
+# Last Change:	08-Dec-2004.
 # Maintainer:	MURAOKA Taro <koron@tka.att.ne.jp>
 
 srcdir = ./src/
@@ -12,7 +12,7 @@ outdir = ./build/
 ##############################################################################
 # Install directories
 #
-prefix		= /usr/local
+prefix		= ${PATH_PREFIX}
 bindir		= $(prefix)/bin
 libdir		= $(prefix)/lib
 incdir		= $(prefix)/include
@@ -35,6 +35,7 @@ BUNZIP2		= bzip2 -d
 GUNZIP		= gzip -d
 FILTER_CP932	= ${PROGRAM_ENCODEFILTER} -s
 FILTER_EUCJP	= ${PROGRAM_ENCODEFILTER} -e
+FILTER_UTF8	= iconv -t utf-8 -f cp932
 INSTALL		= ${PROGRAM_INSTALL} -c
 INSTALL_PROGRAM	= $(INSTALL) -m 755
 INSTALL_DATA	= $(INSTALL) -m 644

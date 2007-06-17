@@ -5,7 +5,7 @@
 "
 " Maintainer:  MURAOKA Taro <koron@tka.att.ne.jp>
 " Modified:    Yasuhiro Matsumoto <mattn_jp@hotmail.com>
-" Last Change: 07-Jun-2003.
+" Last Change: 03-Mar-2006.
 
 " Japanese Description:
 
@@ -13,19 +13,34 @@ if exists('plugin_migemo_disable')
   finish
 endif
 
-function! s:SearchDict()
+function! s:SearchDict2(name)
   let path = $VIM . ',' . &runtimepath
-  let dict = globpath(path, "dict/migemo-dict")
+  let dict = globpath(path, "dict/".a:name)
   if dict == ''
-    let dict = globpath(path, "migemo-dict")
+    let dict = globpath(path, a:name)
   endif
   if dict == ''
-    let dict = '/usr/local/share/migemo/'.&encoding.'/migemo-dict'
+    let dict = '/usr/local/share/migemo/'.a:name
     if !filereadable(dict)
       let dict = ''
     endif
   endif
-  return matchstr(dict, "^[^\<NL>]*")
+  let dict = matchstr(dict, "^[^\<NL>]*")
+  return dict
+endfunction
+
+function! s:SearchDict()
+  let dict = ''
+  if dict == ''
+    let dict = s:SearchDict2('migemo/'.&encoding.'/migemo-dict')
+  endif
+  if dict == ''
+    let dict = s:SearchDict2(&encoding.'/migemo-dict')
+  endif
+  if dict == ''
+    let dict = s:SearchDict2('migemo-dict')
+  endif
+  return dict
 endfunction
 
 if has('migemo')
@@ -63,6 +78,7 @@ else
     if retval == ''
       return
     endif
+  
     let @/ = retval
     let v:errmsg = ''
     silent! normal n

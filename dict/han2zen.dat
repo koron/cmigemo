@@ -2,18 +2,18 @@
 #
 # han2zen.dat - 半角→全角変換表
 # 
-# Last Change: 14-Aug-2001.
-# Written By:  Muraoka Taro  <koron@tka.att.ne.jp>
+# Last Change: 19-Jun-2004.
+# Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
 
-# 漢字コードの違いもこの変換表で吸収する。
+# 文字コードの違いもこの変換表で吸収する。
 
-# 半角→全角スペース変換はデリミタをisspace()で定義してしまったのでできてい
-# ない。
+# 半角→全角スペース変換は設定不可。
+# デリミタをisspace()で定義してしまったため。
 # 	　
 !	！
 "	”
-# シャープの変換はコメントとみなされるのでできていない。
-#	＃
+# 下の書き方は特例としてコメントではなく '#' の定義となる
+##	＃
 $	＄
 %	％
 &	＆

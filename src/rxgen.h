@@ -2,15 +2,15 @@
 /*
  * rxgen.h - regular expression generator
  *
- * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 17-Oct-2003.
+ * Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
+ * Last Change: 04-May-2004.
  */
 
 #ifndef RXGEN_H
 #define RXGEN_H
 
 typedef struct _rxgen rxgen;
-typedef int (*rxgen_proc_char2int)(unsigned char*, unsigned int*);
+typedef int (*rxgen_proc_char2int)(const unsigned char*, unsigned int*);
 typedef int (*rxgen_proc_int2char)(unsigned int, unsigned char*);
 #define RXGEN_PROC_CHAR2INT rxgen_proc_char2int
 #define RXGEN_PROC_INT2CHAR rxgen_proc_int2char
@@ -32,14 +32,14 @@ extern "C" {
 
 rxgen* rxgen_open();
 void rxgen_close(rxgen* object);
-int rxgen_add(rxgen* object, unsigned char* word);
+int rxgen_add(rxgen* object, const unsigned char* word);
 unsigned char* rxgen_generate(rxgen* object);
 void rxgen_release(rxgen* object, unsigned char* string);
 void rxgen_reset(rxgen* object);
 
 void rxgen_setproc_char2int(rxgen* object, RXGEN_PROC_CHAR2INT proc);
 void rxgen_setproc_int2char(rxgen* object, RXGEN_PROC_INT2CHAR proc);
-int rxgen_set_operator(rxgen* object, int index, unsigned char* op);
+int rxgen_set_operator(rxgen* object, int index, const unsigned char* op);
 const unsigned char* rxgen_get_operator(rxgen* object, int index);
 
 #ifdef __cplusplus

@@ -3,7 +3,7 @@
  * main.c - migemoライブラリテストドライバ
  *
  * Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
- * Last Change: 11-Oct-2003.
+ * Last Change: 23-Feb-2004.
  */
 
 #include <stdio.h>
@@ -60,7 +60,7 @@ USAGE: %s [OPTIONS]\n\
 \n\
 OPTIONS:\n\
   -d --dict <dict>	Use a file <dict> for dictionary.\n\
-  -s --subdict <dict>	Sub dictionary files. (MAX %d times)\n \
+  -s --subdict <dict>	Sub dictionary files. (MAX %d times)\n\
   -q --quiet		Show no message except results.\n\
   -v --vim		Use vim style regexp.\n\
   -e --emacs		Use emacs style regexp.\n\

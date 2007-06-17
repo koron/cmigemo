@@ -2,8 +2,8 @@
 /*
  * rxgen.c - regular expression generator
  *
- * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 15-May-2002.
+ * Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
+ * Last Change: 20-Jun-2004.
  */
 
 #include <stdio.h>
@@ -79,65 +79,35 @@ rnode_delete(rnode* node)
  */
 
     static int
-default_char2int(unsigned char* in, unsigned int* out)
+default_char2int(const unsigned char* in, unsigned int* out)
 {
-#if defined(RXGEN_ENC_SJISTINY)
-    if (*in >= 0x80)
-    {
-	*out = (unsigned int)in[0] << 8 | (unsigned int)in[1];
-	return 2;
-    }
-    else
-    {
+    if (out)
 	*out = *in;
-	return 1;
-    }
-#else
-    *out = *in;
     return 1;
-#endif
 }
 
     static int
 default_int2char(unsigned int in, unsigned char* out)
 {
+    int len = 0;
     /* outは最低でも16バイトはある、という仮定を置く */
-#if defined(RXGEN_ENC_SJISTINY)
-    if (in >= 0x100)
+    switch (in)
     {
-	if (out)
-	{
-	    out[0] = (unsigned char)((in >> 8) & 0xFF);
-	    out[1] = (unsigned char)(in & 0xFF);
-	}
-	return 2;
-    }
-    else
-    {
-	int len = 0;
-	switch (in)
-	{
-	    case '\\':
-	    case '.': case '*': case '^': case '$': case '/':
+	case '\\':
+	case '.': case '*': case '^': case '$': case '/':
 #ifdef RXGEN_OP_VIM
-	    case '[': case ']': case '~':
+	case '[': case ']': case '~':
 #endif
-		if (out)
-		    out[len] = '\\';
-		++len;
-	    default:
-		if (out)
-		    out[len] = (unsigned char)(in & 0xFF);
-		++len;
-		break;
-	}
-	return len;
+	    if (out)
+		out[len] = '\\';
+	    ++len;
+	default:
+	    if (out)
+		out[len] = (unsigned char)(in & 0xFF);
+	    ++len;
+	    break;
     }
-#else
-    if (out)
-	out[0] = (unsigned char)(in & 0xFF);
-    return 1;
-#endif
+    return len;
 }
 
     void
@@ -155,7 +125,8 @@ rxgen_setproc_int2char(rxgen* object, RXGEN_PROC_INT2CHAR proc)
 }
 
     static int
-rxgen_call_char2int(rxgen* object, unsigned char* pch, unsigned int* code)
+rxgen_call_char2int(rxgen* object, const unsigned char* pch,
+	unsigned int* code)
 {
     int len = object->char2int(pch, code);
     return len ? len : default_char2int(pch, code);
@@ -196,10 +167,19 @@ rxgen_close(rxgen* object)
     }
 }
 
+    static rnode*
+search_rnode(rnode* node, unsigned int code)
+{
+    while (node && node->code != code)
+	node = node->next;
+    return node;
+}
+
     int
-rxgen_add(rxgen* object, unsigned char* word)
+rxgen_add(rxgen* object, const unsigned char* word)
 {
     rnode **ppnode;
+    rnode *pnode;
 
     if (!object || !word)
 	return 0;
@@ -209,9 +189,10 @@ rxgen_add(rxgen* object, unsigned char* word)
     {
 	unsigned int code;
 	int len = rxgen_call_char2int(object, word, &code);
+	/*printf("rxgen_call_char2int: code=%08x\n", code);*/
 
-	/* 終了条件 */
-	if (!code)
+	/* 入力パターンが尽きたら終了 */
+	if (code == 0)
 	{
 	    /* 入力パターンよりも長い既存パターンは破棄する */
 	    if (*ppnode)
@@ -221,20 +202,27 @@ rxgen_add(rxgen* object, unsigned char* word)
 	    }
 	    break;
 	}
-
-	while (*ppnode && (*ppnode)->code != code)
-	    ppnode = &(*ppnode)->next;
-
-	if (!*ppnode)
+	pnode = search_rnode(*ppnode, code);
+	if (pnode == NULL)
 	{
-	    /* 未知の長いパターンを辿って記憶する。 */
-	    *ppnode = rnode_new();
-	    (*ppnode)->code = code;
+	    /* codeを持つノードが無い場合、作成追加する */
+	    pnode = rnode_new();
+	    pnode->code = code;
+	    pnode->next = *ppnode;
+	    *ppnode = pnode;
 	}
-	else if (!(*ppnode)->child)
-	    break; /* 既存パターンより長い入力パターンは破棄する */
-
-	ppnode = &(*ppnode)->child;
+	else if (pnode->child == NULL)
+	{
+	    /*
+	     * codeを持つノードは有るが、その子供が無い場合、それ以降の入力
+	     * パターンは破棄する。例:
+	     *     あかい + あかるい -> あか
+	     *	   たのしい + たのしみ -> たのし
+	     */
+	    break;
+	}
+	/* 子ノードを辿って深い方へ注視点を移動 */
+	ppnode = &pnode->child;
 	word += len;
     }
     return 1;
@@ -256,7 +244,10 @@ rxgen_generate_stub(rxgen* object, wordbuf_t* buf, rnode* node)
 	    ++haschild;
     }
     nochild = brother - haschild;
-
+#if 0 /* For debug */
+    printf("node=%p code=%04X\n  nochild=%d haschild=%d brother=%d\n",
+	    node, node->code, nochild, haschild, brother);
+#endif
     /* 必要ならば()によるグルーピング */
     if (brother > 1 && haschild > 0)
 	wordbuf_cat(buf, object->op_nest_in);
@@ -290,10 +281,10 @@ rxgen_generate_stub(rxgen* object, wordbuf_t* buf, rnode* node)
 	    ;
 	while (1)
 	{
-	    chlen = object->int2char(tmp->code, ch);
+	    chlen = rxgen_call_int2char(object, tmp->code, ch);
+	    /*printf("code=%04X len=%d\n", tmp->code, chlen);*/
 	    ch[chlen] = '\0';
 	    wordbuf_cat(buf, ch);
-	    /*printf("haschild: %s(brother=%d, haschild=%d)\n", ch, brother, haschild);*/
 	    /* 空白・改行飛ばしのパターンを挿入 */
 	    if (object->op_newline[0])
 		wordbuf_cat(buf, object->op_newline);
@@ -377,7 +368,7 @@ rxgen_get_operator(rxgen* object, int index)
 }
 
     int
-rxgen_set_operator(rxgen* object, int index, unsigned char* op)
+rxgen_set_operator(rxgen* object, int index, const unsigned char* op)
 {
     unsigned char* dest;
 

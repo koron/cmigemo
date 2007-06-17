@@ -2,8 +2,8 @@
 /*
  * wordlist.h -
  *
- * Written By:  Muraoka Taro <koron@tka.att.ne.jp>
- * Last Change: 15-May-2002.
+ * Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
+ * Last Change: 04-May-2004.
  */
 
 #ifndef WORDLIST_H
@@ -24,8 +24,8 @@ extern int n_wordlist_total;
 extern "C" {
 #endif
 
-wordlist_p wordlist_open(unsigned char* ptr);
-wordlist_p wordlist_open_len(unsigned char* ptr, int len);
+wordlist_p wordlist_open(const unsigned char* ptr);
+wordlist_p wordlist_open_len(const unsigned char* ptr, int len);
 void wordlist_close(wordlist_p p);
 
 #ifdef __cplusplus

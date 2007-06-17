@@ -2,17 +2,14 @@
 #
 # 辞書ファイルのメンテナンス
 # 
-# Last Change: 21-Dec-2002.
 # Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
-
-# 必須プログラム
-# 	Perl, cURL, qkc, (cp, rm, mkdir)
 
 DICT 		= migemo-dict
 DICT_BASE	= base-dict
 SKKDIC_BASEURL 	= http://openlab.ring.gr.jp/skk/dic
 SKKDIC_FILE	= SKK-JISYO.L
 EUCJP_DIR	= euc-jp.d
+UTF8_DIR	= utf-8.d
 
 ##############################################################################
 # Dictionary
@@ -36,12 +33,15 @@ cp932:		$(DICT)
 # Dictionary in euc-jp
 #
 euc-jp: 	cp932 euc-jp-files
-euc-jp-files: $(EUCJP_DIR) $(EUCJP_DIR)/migemo-dict $(EUCJP_DIR)/han2zen.dat \
-		$(EUCJP_DIR)/hira2kata.dat $(EUCJP_DIR)/roma2hira.dat
+euc-jp-files: $(EUCJP_DIR) $(EUCJP_DIR)/migemo-dict \
+	$(EUCJP_DIR)/zen2han.dat $(EUCJP_DIR)/han2zen.dat \
+	$(EUCJP_DIR)/hira2kata.dat $(EUCJP_DIR)/roma2hira.dat
 $(EUCJP_DIR):
 	$(MKDIR) $(EUCJP_DIR)
 $(EUCJP_DIR)/migemo-dict: migemo-dict
 	$(FILTER_EUCJP) < migemo-dict > $@
+$(EUCJP_DIR)/zen2han.dat: zen2han.dat
+	$(FILTER_EUCJP) < zen2han.dat > $@
 $(EUCJP_DIR)/han2zen.dat: han2zen.dat
 	$(FILTER_EUCJP) < han2zen.dat > $@
 $(EUCJP_DIR)/hira2kata.dat: hira2kata.dat
@@ -50,9 +50,29 @@ $(EUCJP_DIR)/roma2hira.dat: roma2hira.dat
 	$(FILTER_EUCJP) < roma2hira.dat > $@
 
 ##############################################################################
+# Dictionary in utf-8
+#
+utf-8: 	cp932 utf-8-files
+utf-8-files: $(UTF8_DIR) $(UTF8_DIR)/migemo-dict \
+	$(UTF8_DIR)/zen2han.dat $(UTF8_DIR)/han2zen.dat \
+	$(UTF8_DIR)/hira2kata.dat $(UTF8_DIR)/roma2hira.dat
+$(UTF8_DIR):
+	$(MKDIR) $(UTF8_DIR)
+$(UTF8_DIR)/migemo-dict: migemo-dict
+	$(FILTER_UTF8) < migemo-dict > $@
+$(UTF8_DIR)/zen2han.dat: zen2han.dat
+	$(FILTER_UTF8) < zen2han.dat > $@
+$(UTF8_DIR)/han2zen.dat: han2zen.dat
+	$(FILTER_UTF8) < han2zen.dat > $@
+$(UTF8_DIR)/hira2kata.dat: hira2kata.dat
+	$(FILTER_UTF8) < hira2kata.dat > $@
+$(UTF8_DIR)/roma2hira.dat: roma2hira.dat
+	$(FILTER_UTF8) < roma2hira.dat > $@
+
+##############################################################################
 # for Microsoft Visual C
 #
-msvc:		cp932
+msvc:		cp932 utf-8
 
 ##############################################################################
 # for Borland C 5
@@ -80,6 +100,7 @@ osx:		euc-jp
 dict-clean:
 	-$(RM) $(DICT)
 	-$(RMDIR) $(EUCJP_DIR)
+	-$(RMDIR) $(UTF8_DIR)
 dict-distclean: dict-clean
 	-$(RM) $(DICT_BASE)
 	-$(RM) SKK-JISYO*
