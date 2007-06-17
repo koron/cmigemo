@@ -3,7 +3,6 @@
  * migemo.c -
  *
  * Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
- * Last Change: 21-Jan-2005.
  */
 
 #include <stdio.h>
@@ -25,7 +24,6 @@
 #define DICT_HIRA2KATA "hira2kata.dat"
 #define DICT_HAN2ZEN "han2zen.dat"
 #define DICT_ZEN2HAN "zen2han.dat"
-#define VOWELS_STRING "aiueo"
 #define BUFLEN_DETECT_CHARSET 4096
 
 #ifdef __BORLANDC__
@@ -50,6 +48,8 @@ struct _migemo
     MIGEMO_PROC_ADDWORD addword;
     CHARSET_PROC_CHAR2INT char2int;
 };
+
+static const unsigned char VOWEL_CHARS[] = "aiueo";
 
     static mtree_p
 load_mtree_dictionary(mtree_p mtree, const char* dict_file)
@@ -305,11 +305,15 @@ add_mnode_query(migemo* object, unsigned char* query)
 	mnode_traverse(pnode, migemo_query_proc, object);
 }
 
+/**
+ * 入力をローマから仮名に変換して検索キーに加える。
+ */
     static int
 add_roma(migemo* object, unsigned char* query)
 {
     unsigned char *stop, *hira, *kata, *han;
 
+    printf("add_roma: query=%s\n", query);
     hira = romaji_convert(object->roma2hira, query, &stop);
     if (!stop)
     {
@@ -335,6 +339,20 @@ add_roma(migemo* object, unsigned char* query)
     return stop ? 1 : 0;
 }
 
+/**
+ * ローマ字の末尾に母音を付け加えて、各々を検索キーに加える。
+ */
+    static void
+add_dubious_vowels(migemo* object, unsigned char* buf, int index)
+{
+    const unsigned char* ptr;
+    for (ptr = VOWEL_CHARS; *ptr; ++ptr)
+    {
+	buf[index] = *ptr;
+	add_roma(object, buf);
+    }
+}
+
 /*
  * ローマ字変換が不完全だった時に、[aiueo]および"xn"と"xtu"を補って変換して
  * みる。
@@ -342,41 +360,41 @@ add_roma(migemo* object, unsigned char* query)
     static void
 add_dubious_roma(migemo* object, rxgen* rx, unsigned char* query)
 {
-    static unsigned char candidate[] = VOWELS_STRING;
+    int max;
     int len;
     char *buf;
 
     if (!(len = strlen(query)))
 	return;
-    if (!(buf = malloc(len + 1 + 3))) /* NULと拡張文字用(最長:xtu) */
+    /*
+     * ローマ字の末尾のアレンジのためのバッファを確保する。
+     *	    内訳: オリジナルの長さ、NUL、吃音(xtu)、補足母音([aieuo])
+     */
+    max = len + 1 + 3 + 1;
+    buf = malloc(max);
+    if (buf == NULL)
 	return;
-    memcpy(buf, query, len + 1);
-    buf[len + 1] = '\0';
+    memcpy(buf, query, len);
+    memset(&buf[len], 0, max - len);
 
-    if (!strchr(candidate, buf[len - 1]))
+    if (!strchr(VOWEL_CHARS, buf[len - 1]))
     {
-	unsigned char *ptr;
-
-	/* [aiueo]を順番に補う */
-	for (ptr = candidate; *ptr; ++ptr)
-	{
-	    buf[len] = *ptr;
-	    add_roma(object, buf);
-	}
+	add_dubious_vowels(object, buf, len);
 	/* 未確定単語の長さが2未満か、未確定文字の直前が母音ならば… */
-	if (len < 2 || strchr(candidate, buf[len - 2]))
+	if (len < 2 || strchr(VOWEL_CHARS, buf[len - 2]))
 	{
 	    if (buf[len - 1] == 'n')
 	    {
 		/* 「ん」を補ってみる */
-		strcpy(&buf[len - 1], "xn");
+		memcpy(&buf[len - 1], "xn", 2);
 		add_roma(object, buf);
 	    }
 	    else
 	    {
-		/* 「っ」を補ってみる */
-		strcpy(&buf[len - 1], "xtu");
-		add_roma(object, buf);
+		/* 「っ{元の子音}{母音}」を補ってみる */
+		buf[len + 2] = buf[len - 1];
+		memcpy(&buf[len - 1], "xtu", 3);
+		add_dubious_vowels(object, buf, len + 3);
 	    }
 	}
     }

@@ -3,7 +3,6 @@
  * romaji.c - ƒ[ƒ}š•ÏŠ·
  *
  * Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
- * Last Change: 21-Sep-2004.
  */
 
 #include <stdio.h>
