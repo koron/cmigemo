@@ -313,7 +313,6 @@ add_roma(migemo* object, unsigned char* query)
 {
     unsigned char *stop, *hira, *kata, *han;
 
-    printf("add_roma: query=%s\n", query);
     hira = romaji_convert(object->roma2hira, query, &stop);
     if (!stop)
     {
