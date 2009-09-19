@@ -18,12 +18,29 @@ libmigemo_DSO = $(outdir)migemo.dll
 libmigemo_SRC = $(SRC)
 libmigemo_OBJ = $(OBJ)
 
+!if "$(_NMAKE_VER)" == "9.00.20706.01"
+MSVC_VER = 9.0
+!endif
+!if "$(_NMAKE_VER)" == "9.00.21022.08"
+MSVC_VER = 9.0
+!endif
+!if "$(_NMAKE_VER)" == "9.00.30729.01"
+MSVC_VER = 9.0
+!endif
+
+!if "$(MSVC_VER)" == "9.0"
+DEFINES = $(DEFINES) -D_CRT_SECURE_NO_WARNINGS
+CFLAGS_OPTIMIZE =
+!else
+CFLAGS_OPTIMIZE = -G6
+!endif
+
 !ifndef DEBUG
-DEFINES = -DNDEBUG
-CFLAGS	= -G6 -W3 -O2 -MT
+DEFINES = $(DEFINES) -DNDEBUG
+CFLAGS	= $(CFLAGS_OPTIMIZE) -W3 -O2 -MT
 LDFLAGS =
 !else
-DEFINES = -D_DEBUG
+DEFINES = $(DEFINES) -D_DEBUG
 CFLAGS	= -Zi -W3 -Od -MTd
 LDFLAGS = -DEBUG
 !endif

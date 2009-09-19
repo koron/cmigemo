@@ -25,6 +25,12 @@
 # define VERBOSE(o,l,b)
 #endif
 
+#if defined(_MSC_VER)
+# define STRDUP _strdup
+#else
+# define STRDUP strdup
+#endif
+
 #define ROMAJI_FIXKEY_N 'n'
 #define ROMAJI_FIXKEY_XN "xn"
 #define ROMAJI_FIXKEY_XTU "xtu"
@@ -199,7 +205,7 @@ struct _romaji
     static unsigned char*
 strdup_lower(const unsigned char* string)
 {
-    unsigned char *out = strdup(string), *tmp;
+    unsigned char *out = STRDUP(string), *tmp;
 
     if (out)
 	for (tmp = out; *tmp; ++tmp)
@@ -246,20 +252,20 @@ romaji_add_table(romaji* object, const unsigned char* key,
     }
     VERBOSE(object, 10,
 	    printf("romaji_add_table(\"%s\", \"%s\")\n", key, value););
-    (*ref_node)->value = strdup(value);
+    (*ref_node)->value = STRDUP(value);
 
     /* 「ん」と「っ」は保存しておく */
     if (object->fixvalue_xn == NULL && value_length > 0
 	    && !strcmp(key, ROMAJI_FIXKEY_XN))
     {
 	/*fprintf(stderr, "XN: key=%s, value=%s\n", key, value);*/
-	object->fixvalue_xn = strdup(value);
+	object->fixvalue_xn = STRDUP(value);
     }
     if (object->fixvalue_xtu == NULL && value_length > 0
 	    && !strcmp(key, ROMAJI_FIXKEY_XTU))
     {
 	/*fprintf(stderr, "XTU: key=%s, value=%s\n", key, value);*/
-	object->fixvalue_xtu = strdup(value);
+	object->fixvalue_xtu = STRDUP(value);
     }
 
     return 0;
@@ -445,7 +451,7 @@ romaji_convert2(romaji* object, const unsigned char* string,
 		wordbuf_cat(buf, node->value);
 	    }
 	}
-	answer = strdup(WORDBUF_GET(buf));
+	answer = STRDUP(WORDBUF_GET(buf));
     }
     if (ppstop)
 	*ppstop = (stop >= 0) ? answer + stop : NULL;

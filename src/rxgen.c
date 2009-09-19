@@ -3,7 +3,7 @@
  * rxgen.c - regular expression generator
  *
  * Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
- * Last Change: 20-Jun-2004.
+ * Last Change: 19-Sep-2009.
  */
 
 #include <stdio.h>
@@ -12,6 +12,12 @@
 
 #include "wordbuf.h"
 #include "rxgen.h"
+
+#if defined(_MSC_VER)
+# define STRDUP _strdup
+#else
+# define STRDUP strdup
+#endif
 
 #define RXGEN_ENC_SJISTINY
 //#define RXGEN_OP_VIM
@@ -313,7 +319,7 @@ rxgen_generate(rxgen* object)
     {
 	if (object->node)
 	    rxgen_generate_stub(object, buf, object->node);
-	answer = strdup(WORDBUF_GET(buf));
+	answer = STRDUP(WORDBUF_GET(buf));
 	wordbuf_close(buf);
     }
     return answer;
