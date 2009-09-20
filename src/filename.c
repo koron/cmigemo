@@ -2,11 +2,21 @@
 /*
  * filename.c - Operate filename.
  *
- * Last change: 15-May-2002.
+ * Last change: 20-Sep-2009.
  * Written by:  Muraoka Taro  <koron@tka.att.ne.jp>
  */
 
 #include <string.h>
+#include <limits.h>
+
+    static int
+my_strlen(const char* s)
+{
+    size_t len;
+
+    len = strlen(s);
+    return len <= INT_MAX ? (int)len : INT_MAX;
+}
 
 /*
  * Cut out base string of filename from filepath.  If base is NULL, then
@@ -16,7 +26,7 @@
 filename_base(char *base, const char *path)
 {
     int i;
-    int len = strlen(path) - 1;
+    int len = my_strlen(path) - 1;
     int end;
 
     for (i = len; i >= 0; --i)
@@ -52,7 +62,7 @@ filename_directory(char *dir, const char *path)
 {
     int i;
 
-    for (i = strlen(path) - 1; i >= 0; --i)
+    for (i = my_strlen(path) - 1; i >= 0; --i)
 	if (path[i] == '\\' || path[i] == '/')
 	    break;
     if (i <= 0)
@@ -77,7 +87,7 @@ filename_directory(char *dir, const char *path)
 filename_extension(char *ext, const char *path)
 {
     int i;
-    int len = strlen(path);
+    int len = my_strlen(path);
 
     for (i = len - 1; i >= 0; --i)
 	if (path[i] == '.')
@@ -101,7 +111,7 @@ filename_extension(char *ext, const char *path)
 filename_filename(char *name, const char *path)
 {
     int i;
-    int len = strlen(path);
+    int len = my_strlen(path);
 
     for (i = len - 1; i >= 0; --i)
 	if (path[i] == '\\' || path[i] == '/')
@@ -134,13 +144,13 @@ filename_generate(char *filepath, const char *dir, const char *base,
 	    strcat(filepath, dir);
 	    strcat(filepath, "/");
 	}
-	len += strlen(dir) + 1;
+	len += my_strlen(dir) + 1;
     }
     if (base)
     {
 	if (filepath)
 	    strcat(filepath, base);
-	len += strlen(base);
+	len += my_strlen(base);
     }
     if (ext)
     {
@@ -149,7 +159,7 @@ filename_generate(char *filepath, const char *dir, const char *base,
 	    strcat(filepath, ".");
 	    strcat(filepath, ext);
 	}
-	len += 1 + strlen(ext);
+	len += 1 + my_strlen(ext);
     }
     return len;
 }

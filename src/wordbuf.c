@@ -3,7 +3,7 @@
  * wordbuf.h -
  *
  * Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
- * Last Change: 04-May-2004.
+ * Last Change: 20-Sep-2009.
  */
 
 #include <stdio.h>
@@ -110,9 +110,15 @@ wordbuf_add(wordbuf_p p, unsigned char ch)
     int
 wordbuf_cat(wordbuf_p p, const unsigned char* sz)
 {
-    int len;
+    int len = 0;
 
-    if (sz && (len = strlen(sz)) > 0)
+    if (sz != NULL)
+    {
+        size_t l = strlen(sz);
+        len = l < INT_MAX ? (int)l : INT_MAX;
+    }
+
+    if (len > 0)
     {
 	int newlen = p->last + len + 1;
 

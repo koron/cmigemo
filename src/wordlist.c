@@ -3,11 +3,12 @@
  * wordlist.h -
  *
  * Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
- * Last Change: 04-May-2004.
+ * Last Change: 20-Sep-2009.
  */
 
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 #include "wordlist.h"
 
 int n_wordlist_open	= 0;
@@ -43,7 +44,14 @@ wordlist_open_len(const unsigned char* ptr, int len)
     wordlist_p
 wordlist_open(const unsigned char* ptr)
 {
-    return ptr ? wordlist_open_len(ptr, strlen(ptr)) : NULL;
+    wordlist_p p = NULL;
+    if (ptr != NULL)
+    {
+        size_t len;
+        len = strlen(ptr);
+        p = wordlist_open_len(ptr, (len < INT_MAX ? (int)len : INT_MAX));
+    }
+    return p;
 }
 
     void

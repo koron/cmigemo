@@ -3,12 +3,13 @@
  * charset.c -
  *
  * Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
- * Last Change: 19-Jun-2004.
+ * Last Change: 20-Sep-2009.
  */
 
 #define BUFLEN_DETECT 4096
 
 #include <stdio.h>
+#include <limits.h>
 #include "charset.h"
 
     int
@@ -305,10 +306,10 @@ charset_detect_file(const char* path)
     if ((fp = fopen(path, "rt")) != NULL)
     {
 	unsigned char buf[BUFLEN_DETECT];
-	int len = fread(buf, sizeof(buf[0]), sizeof(buf), fp);
+	size_t len = fread(buf, sizeof(buf[0]), sizeof(buf), fp);
 	fclose(fp);
-	if (len > 0)
-	    charset = charset_detect_buf(buf, len);
+	if (len > 0 && len <= INT_MAX)
+	    charset = charset_detect_buf(buf, (int)len);
     }
     return charset;
 }

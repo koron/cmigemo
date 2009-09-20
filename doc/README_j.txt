@@ -2,7 +2,7 @@ C/Migemoライブラリ説明書
                                                             Since: 15-Aug-2001
                                                                 Version: 1.2.0
                                                   Author: MURAOKA Taro (KoRoN)
-                                                     Last Change: 19-Sep-2009.
+                                                     Last Change: 20-Sep-2009.
 
 説明
   C/MigemoはMigemo(Ruby/Migemo)をC言語で実装したものです。C/Migemoライブラリを
@@ -339,7 +339,8 @@ C/Migemoライブラリ説明書
 
 更新箇所 {{{1
   ● (1.3 開発版)
-    VS2009でのコンパイルに対応
+    VC9(VisualStudio2008)での64bit版のコンパイルに対応
+    VC9(VisualStudio2008)でのコンパイルに対応
     ローマ字が子音で終わる際に「xtu{子音}{母音}」を加えるように変更
     configureの--prefixが機能していなかった問題の修正
     生queryでの辞書検索をignore caseに

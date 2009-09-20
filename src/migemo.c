@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <limits.h>
 
 #include "wordbuf.h"
 #include "wordlist.h"
@@ -50,6 +51,15 @@ struct _migemo
 };
 
 static const unsigned char VOWEL_CHARS[] = "aiueo";
+
+    static int
+my_strlen(const char* s)
+{
+    size_t len;
+
+    len = strlen(s);
+    return len <= INT_MAX ? (int)len : INT_MAX;
+}
 
     static mtree_p
 load_mtree_dictionary(mtree_p mtree, const char* dict_file)
@@ -363,7 +373,7 @@ add_dubious_roma(migemo* object, rxgen* rx, unsigned char* query)
     int len;
     char *buf;
 
-    if (!(len = strlen(query)))
+    if (!(len = my_strlen(query)))
 	return;
     /*
      * ローマ字の末尾のアレンジのためのバッファを確保する。
@@ -415,12 +425,14 @@ parse_query(migemo* object, const unsigned char* query)
     while (1)
     {
 	int len, upper;
+        int sum = 0;
 
 	if (!object->char2int || (len = object->char2int(curr, NULL)) < 1)
 	    len = 1;
 	start = curr;
 	upper = (len == 1 && isupper(*curr) && isupper(curr[1]));
 	curr += len;
+        sum += len;
 	while (1)
 	{
 	    if (!object->char2int || (len = object->char2int(curr, NULL)) < 1)
@@ -428,11 +440,12 @@ parse_query(migemo* object, const unsigned char* query)
 	    if (*curr == '\0' || (len == 1 && (isupper(*curr) != 0) != upper))
 		break;
 	    curr += len;
+            sum += len;
 	}
 	/* 文節を登録する */
 	if (start && start < curr)
 	{
-	    *pp = wordlist_open_len(start, curr - start);
+	    *pp = wordlist_open_len(start, sum);
 	    pp = &(*pp)->next;
 	}
 	if (*curr == '\0')
@@ -450,7 +463,7 @@ query_a_word(migemo* object, unsigned char* query)
     unsigned char* zen;
     unsigned char* han;
     unsigned char* lower;
-    int len = strlen(query);
+    int len = my_strlen(query);
 
     /* query自信はもちろん候補に加える */
     object->addword(object, query);
