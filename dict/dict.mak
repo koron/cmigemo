@@ -2,7 +2,7 @@
 #
 # 辞書ファイルのメンテナンス
 # 
-# Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
+# Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
 
 DICT 		= migemo-dict
 DICT_BASE	= base-dict
@@ -77,22 +77,22 @@ msvc:		cp932 utf-8
 ##############################################################################
 # for Borland C 5
 #
-bc5:		cp932
+bc5:		cp932 utf-8
 
 ##############################################################################
 # for Cygwin
 #
-cyg:		euc-jp
+cyg:		euc-jp utf-8
 
 ##############################################################################
 # for GNU/gcc(Linux他)
 #
-gcc:		euc-jp
+gcc:		euc-jp utf-8
 
 ##############################################################################
 # for MacOS X
 #
-osx:		euc-jp
+osx:		euc-jp utf-8
 
 ##############################################################################
 # Cleaning
