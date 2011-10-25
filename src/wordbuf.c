@@ -2,13 +2,14 @@
 /*
  * wordbuf.h -
  *
- * Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
- * Last Change: 20-Sep-2009.
+ * Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
+ * Last Change: 25-Oct-2011.
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 #include "wordbuf.h"
 
 #define WORDLEN_DEF 64
