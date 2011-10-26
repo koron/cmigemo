@@ -2,14 +2,13 @@
 /*
  * migemo.h -
  *
- * Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
- * Last Change: 21-Jun-2004.
+ * Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
  */
 
 #ifndef MIGEMO_H
 #define MIGEMO_H
 
-#if defined(_WIN32)
+#if defined(_WIN32) && !defined(__MINGW32__) && !defined(__CYGWIN32__)
 # define MIGEMO_CALLTYPE __stdcall
 #else
 # define MIGEMO_CALLTYPE

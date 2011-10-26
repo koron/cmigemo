@@ -2,8 +2,7 @@
 #
 # C/Migemo Makefile
 #
-# Last Change: 19-Oct-2003.
-# Maintainer:	MURAOKA Taro <koron@tka.att.ne.jp>
+# Maintainer:	MURAOKA Taro <koron.kaoriya@gmail.com>
 
 default: tags
 
@@ -41,6 +40,24 @@ cyg-clean:
 	$(MAKE) -f compile/Make_cyg.mak clean
 cyg-distclean:
 	$(MAKE) -f compile/Make_cyg.mak distclean
+
+##############################################################################
+# for MinGW
+#
+mingw: mingw-rel
+mingw-all: mingw-rel mingw-dict
+mingw-rel:
+	$(MAKE) -f compile/Make_mingw.mak
+mingw-dict:
+	$(MAKE) -f compile/Make_mingw.mak dictionary
+mingw-install: mingw-all
+	$(MAKE) -f compile/Make_mingw.mak install
+mingw-uninstall:
+	$(MAKE) -f compile/Make_mingw.mak uninstall
+mingw-clean:
+	$(MAKE) -f compile/Make_mingw.mak clean
+mingw-distclean:
+	$(MAKE) -f compile/Make_mingw.mak distclean
 
 ##############################################################################
 # for GNU/gcc (Linux and others)
