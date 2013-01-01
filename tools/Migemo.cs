@@ -9,7 +9,7 @@ namespace KaoriYa.Migemo
 	public class Migemo : IDisposable
 	{
 #region Enumerations (from migemo.h)
-#region enum OperatorIndex
+#region enum DictionaryIndex
 		public enum DictionaryId
 		{
 			Invalid		= 0,
