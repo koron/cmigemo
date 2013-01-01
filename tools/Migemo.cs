@@ -145,6 +145,7 @@ namespace KaoriYa.Migemo
 				migemo_close(this.migemoObject);
 				this.migemoObject = IntPtr.Zero;
 			}
+			GC.SuppressFinalize(this);
 		}
 
 		public Migemo(string dictpath)
@@ -156,6 +157,11 @@ namespace KaoriYa.Migemo
 
 		public Migemo() : this(null)
 		{
+		}
+
+		~Migemo()
+		{
+			this.Dispose();
 		}
 
 #region Test entrypoint
