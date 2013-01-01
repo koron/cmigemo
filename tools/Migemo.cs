@@ -34,26 +34,26 @@ namespace KaoriYa.Migemo
 #endregion
 
 #region Link to migemo.dll
-		[DllImport("migemo.dll")]
+		[DllImport("migemo.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
 		private static extern IntPtr migemo_open(string dict);
-		[DllImport("migemo.dll")]
+		[DllImport("migemo.dll", CallingConvention = CallingConvention.Cdecl)]
 		private static extern void migemo_close(IntPtr obj);
-		[DllImport("migemo.dll")]
+		[DllImport("migemo.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
 		private static extern IntPtr migemo_query(IntPtr obj, string query);
-		[DllImport("migemo.dll")]
+		[DllImport("migemo.dll", CallingConvention = CallingConvention.Cdecl)]
 		private static extern void migemo_release(IntPtr obj, IntPtr result);
 
-		[DllImport("migemo.dll")]
+		[DllImport("migemo.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
 		private static extern int migemo_set_operator(IntPtr obj,
 				OperatorIndex index, string op);
-		[DllImport("migemo.dll")]
+		[DllImport("migemo.dll", CallingConvention = CallingConvention.Cdecl)]
 		private static extern IntPtr migemo_get_operator(IntPtr obj,
 				OperatorIndex index);
 
-		[DllImport("migemo.dll")]
+		[DllImport("migemo.dll", CallingConvention = CallingConvention.Cdecl, CharSet = CharSet.Ansi)]
 		private static extern DictionaryId migemo_load(IntPtr obj,
 				DictionaryId id, string file);
-		[DllImport("migemo.dll")]
+		[DllImport("migemo.dll", CallingConvention = CallingConvention.Cdecl)]
 		private static extern int migemo_is_enable(IntPtr obj);
 #endregion
 
