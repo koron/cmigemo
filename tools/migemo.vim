@@ -5,7 +5,7 @@
 "
 " Maintainer:  MURAOKA Taro <koron@tka.att.ne.jp>
 " Modified:    Yasuhiro Matsumoto <mattn_jp@hotmail.com>
-" Last Change: 03-Mar-2006.
+" Last Change: 11-Dec-2013.
 
 " Japanese Description:
 
@@ -20,10 +20,19 @@ function! s:SearchDict2(name)
     let dict = globpath(path, a:name)
   endif
   if dict == ''
-    let dict = '/usr/local/share/migemo/'.a:name
-    if !filereadable(dict)
-      let dict = ''
-    endif
+    for path in [
+          \ '/usr/local/share/migemo/',
+          \ '/usr/local/share/cmigemo/',
+          \ '/usr/local/share/',
+          \ '/usr/share/cmigemo/',
+          \ '/usr/share/',
+          \ ]
+      let path = path . a:name
+      if filereadable(path)
+        let dict = path
+        break
+      endif
+    endfor
   endif
   let dict = matchstr(dict, "^[^\<NL>]*")
   return dict
