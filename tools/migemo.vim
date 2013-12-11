@@ -21,11 +21,13 @@ function! s:SearchDict2(name)
   endif
   if dict == ''
     for path in [
-          \ '/usr/local/share/'.a:name,
-          \ '/usr/share/'.a:name,
-          \ '/usr/local/share/migemo'.a:name,
-          \ '/usr/share/cmigemo'.a:name,
+          \ '/usr/local/share/migemo/',
+          \ '/usr/local/share/cmigemo/',
+          \ '/usr/local/share/',
+          \ '/usr/share/cmigemo/',
+          \ '/usr/share/',
           \ ]
+      let path = path . a:name
       if filereadable(path)
         let dict = path
         break
@@ -38,9 +40,6 @@ endfunction
 
 function! s:SearchDict()
   let dict = ''
-  if dict == ''
-    let dict = s:SearchDict2('cmigemo/'.&encoding.'/migemo-dict')
-  endif
   if dict == ''
     let dict = s:SearchDict2('migemo/'.&encoding.'/migemo-dict')
   endif
