@@ -5,7 +5,7 @@
 "
 " Maintainer:  MURAOKA Taro <koron@tka.att.ne.jp>
 " Modified:    Yasuhiro Matsumoto <mattn_jp@hotmail.com>
-" Last Change: 09-Dec-2013.
+" Last Change: 11-Dec-2013.
 
 " Japanese Description:
 
@@ -23,9 +23,12 @@ function! s:SearchDict2(name)
     for path in [
           \ '/usr/local/share/'.a:name,
           \ '/usr/share/'.a:name,
+          \ '/usr/local/share/migemo'.a:name,
+          \ '/usr/share/cmigemo'.a:name,
           \ ]
       if filereadable(path)
         let dict = path
+        break
       endif
     endfor
   endif
