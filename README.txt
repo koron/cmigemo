@@ -9,3 +9,5 @@ LICENSE
 TODO
   See doc/TODO_j.txt (Japanese).
 
+For Vim Plugin Use
+  If you want to use this repository only as a vim plugin, use https://github.com/haya14busa/vim-migemo
