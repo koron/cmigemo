@@ -5,13 +5,16 @@
 "
 " Maintainer:  MURAOKA Taro <koron@tka.att.ne.jp>
 " Modified:    Yasuhiro Matsumoto <mattn_jp@hotmail.com>
-" Last Change: 11-Dec-2013.
+" Last Change: 15-Dec-2013.
 
 " Japanese Description:
 
 if exists('plugin_migemo_disable')
   finish
 endif
+
+let s:save_cpo = &cpo
+set cpo&vim
 
 function! s:SearchDict2(name)
   let path = $VIM . ',' . &runtimepath
@@ -98,3 +101,6 @@ else
     endif
   endfunction
 endif
+
+let &cpo = s:save_cpo
+unlet s:save_cpo
