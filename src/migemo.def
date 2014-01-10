@@ -12,6 +12,7 @@ EXPORTS
 	migemo_get_operator
 	migemo_setproc_char2int
 	migemo_setproc_int2char
+	migemo_setproc_int2char_escape_meta_characters
 
 	migemo_load
 	migemo_is_enable

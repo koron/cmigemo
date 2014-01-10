@@ -60,6 +60,8 @@ void MIGEMO_CALLTYPE	migemo_setproc_char2int(migemo* object,
 	MIGEMO_PROC_CHAR2INT proc);
 void MIGEMO_CALLTYPE	migemo_setproc_int2char(migemo* object,
 	MIGEMO_PROC_INT2CHAR proc);
+void MIGEMO_CALLTYPE	migemo_setproc_int2char_escape_meta_characters(migemo* object,
+	MIGEMO_PROC_INT2CHAR proc);
 
 int MIGEMO_CALLTYPE	migemo_load(migemo* obj, int dict_id,
 	const char* dict_file);
