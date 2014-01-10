@@ -675,6 +675,21 @@ migemo_setproc_int2char(migemo* object, MIGEMO_PROC_INT2CHAR proc)
 }
 
 /**
+ * Migemoオブジェクトにコード変換用のプロシージャを設定する。プロシージャに
+ * ついての詳細は「型リファレンス」セクションのMIGEMO_PROC_INT2CHARを参照。
+ * このプロシージャでは正規表現のメタキャラクタをエスケープする。
+ * @param object Migemoオブジェクト
+ * @param proc コード変換用プロシージャ
+ */
+    EXPORTS void MIGEMO_CALLTYPE
+migemo_setproc_int2char_escape_meta_characters(migemo* object, MIGEMO_PROC_INT2CHAR proc)
+{
+    if (object)
+        rxgen_setproc_int2char_escape_meta_characters(object->rx, (RXGEN_PROC_INT2CHAR)proc);
+}
+
+
+/**
  * Migemoオブジェクトにmigemo_dictが読み込めているかをチェックする。有効な
  * migemo_dictを読み込めて内部に変換テーブルが構築できていれば0以外(TRUE)
  * を、構築できていないときには0(FALSE)を返す。

@@ -316,6 +316,11 @@ C/Migemoライブラリ説明書
     Migemoオブジェクトにコード変換用のプロシージャを設定する。プロシージャにつ
     いての詳細は「型リファレンス」セクションのMIGEMO_PROC_INT2CHARを参照。
 
+- void migemo_setproc_int2char_escape_meta_characters(migemo* object, MIGEMO_PROC_INT2CHAR proc);
+    Migemoオブジェクトにコード変換用のプロシージャを設定する。プロシージャに
+    ついての詳細は「型リファレンス」セクションのMIGEMO_PROC_INT2CHARを参照。
+    このプロシージャでは正規表現のメタキャラクタをエスケープする。
+
 コーディングサンプル {{{1
   C/Migemoを利用したコーディング例を示す。以下のサンプルは一切のエラー処理を行
   なっていないので、実際の利用時には注意が必要。
