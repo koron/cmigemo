@@ -46,6 +46,7 @@ struct _rxgen
     unsigned char op_select_in[RXGEN_OP_MAXLEN];
     unsigned char op_select_out[RXGEN_OP_MAXLEN];
     unsigned char op_newline[RXGEN_OP_MAXLEN];
+    unsigned char *op_regexmeta;
 };
 
 /*
@@ -116,6 +117,23 @@ default_int2char(unsigned int in, unsigned char* out)
     return len;
 }
 
+    static int
+regexmeta_int2char(unsigned char* op_regexmeta, unsigned int in, unsigned char* out)
+{
+    int len = 0;
+    if (strchr(op_regexmeta, in))
+    {
+        if (out)
+            out[len] = '\\';
+        ++len;
+    }
+    if (out)
+        out[len] = (unsigned char)(in & 0xFF);
+    ++len;
+
+    return len;
+}
+
     void
 rxgen_setproc_char2int(rxgen* object, RXGEN_PROC_CHAR2INT proc)
 {
@@ -127,7 +145,7 @@ rxgen_setproc_char2int(rxgen* object, RXGEN_PROC_CHAR2INT proc)
 rxgen_setproc_int2char(rxgen* object, RXGEN_PROC_INT2CHAR proc)
 {
     if (object)
-	object->int2char = proc ? proc : default_int2char;
+	object->int2char = proc;
 }
 
     static int
@@ -141,8 +159,16 @@ rxgen_call_char2int(rxgen* object, const unsigned char* pch,
     static int
 rxgen_call_int2char(rxgen* object, unsigned int code, unsigned char* buf)
 {
-    int len = object->int2char(code, buf);
-    return len ? len : default_int2char(code, buf);
+    int len = 0;
+    if (object->op_regexmeta)
+        len = regexmeta_int2char(object->op_regexmeta, code, buf);
+    else if (object->int2char)
+        len = object->int2char(code, buf);
+
+    if (!len)
+        len = default_int2char(code, buf);
+
+    return len;
 }
 
     rxgen*
@@ -159,6 +185,7 @@ rxgen_open()
 	strcpy(object->op_select_in,	RXGEN_OP_SELECT_IN);
 	strcpy(object->op_select_out,	RXGEN_OP_SELECT_OUT);
 	strcpy(object->op_newline,	RXGEN_OP_NEWLINE);
+	object->op_regexmeta = NULL;
     }
     return object;
 }
@@ -169,6 +196,7 @@ rxgen_close(rxgen* object)
     if (object)
     {
 	rnode_delete(object->node);
+	free(object->op_regexmeta);
 	free(object);
     }
 }
@@ -361,6 +389,8 @@ rxgen_get_operator_stub(rxgen* object, int index)
 	    return object->op_select_out;
 	case RXGEN_OPINDEX_NEWLINE:
 	    return object->op_newline;
+	case RXGEN_OPINDEX_REGEXMETA:
+	    return object->op_regexmeta;
 	default:
 	    return NULL;
     }
@@ -380,8 +410,13 @@ rxgen_set_operator(rxgen* object, int index, const unsigned char* op)
 
     if (!object)
 	return 1; /* Invalid object */
-    if (strlen(op) >= RXGEN_OP_MAXLEN)
+    if (index <= RXGEN_OPINDEX_NEWLINE && strlen(op) >= RXGEN_OP_MAXLEN)
 	return 2; /* Too long operator */
+    if (index == RXGEN_OPINDEX_REGEXMETA)
+    {
+        free(object->op_regexmeta);
+        object->op_regexmeta = (unsigned char*)malloc(strlen(op) + 1);
+    }
     if (!(dest = rxgen_get_operator_stub(object, index)))
 	return 3; /* No such an operator */
     strcpy(dest, op);
