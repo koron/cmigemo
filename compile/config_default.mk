@@ -2,7 +2,7 @@
 #
 # デフォルトコンフィギュレーションファイル
 #
-# Last Change:	19-Jun-2004.
+# Last Change:	07-Mar-2014.
 # Base Idea:	AIDA Shinra
 # Maintainer:	MURAOKA Taro <koron@tka.att.ne.jp>
 
@@ -35,11 +35,9 @@ HTTP		= curl -O
 PERL		= perl
 BUNZIP2		= bzip2 -d
 GUNZIP		= gzip -d
-FILTER_CP932	= qkc -q -u -s
-FILTER_EUCJP	= qkc -q -u -e
-FILTER_UTF8	= iconv -t utf-8 -f cp932
-#FILTER_CP932	= nkf -s
-#FILTER_EUCJP	= nkf -e
+ICONV_EUCJP_TO_CP932 = iconv -f euc-jp-ms -t cp932
+ICONV_CP932_TO_EUCJP = iconv -f cp932 -t euc-jp-ms
+ICONV_CP932_TO_UTF8  = iconv -f cp932 -t utf-8
 INSTALL		= /usr/bin/install -c
 #INSTALL	= /usr/ucb/install -c
 INSTALL_PROGRAM	= $(INSTALL) -m 755
