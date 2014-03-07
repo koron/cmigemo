@@ -1,7 +1,6 @@
 # vim:set ts=8 sts=8 sw=8 tw=0:
-# Last Change: 21-Sep-2004.
 
-DICTDIR = ../../dict
+DICTDIR = ../../dict/utf-8.d
 
 OUTPUT = qspeed romaji
 
@@ -24,6 +23,16 @@ romaji: $(ROMAJI_SRC)
 	$(CC) $(CCFLAGS) -o $@ $(ROMAJI_SRC)
 
 clean:
-	rm -f *.obj *.o *.exe
 	rm -f gmon.out *.log
+
+distclean: clean
+	rm -f *.obj *.o *.exe
 	rm -f $(OUTPUT)
+
+test: report.log
+
+report.log: qspeed gmon.out
+	gprof ./qspeed gmon.out > report.log
+
+gmon.out: qspeed
+	./qspeed

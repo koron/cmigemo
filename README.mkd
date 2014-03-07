@@ -1,0 +1,18 @@
+# C/Migemo library
+
+C/Migemo is regexp pattern generator/expander.
+
+## For developer
+
+### Profiling
+
+Check performance by profiling, before and after your modification. 
+To get profiling report:
+
+    $ make gcc-dict
+    $ cd src/testdir
+    $ make test
+
+### Unit Tests
+
+TODO: write unit tests and its usage.
