@@ -1,0 +1,11 @@
+/dict/SKK-JISYO.L
+/dict/base-dict
+/dict/euc-jp.d/*.dat
+/dict/euc-jp.d/migemo-dict
+/dict/migemo-dict
+/dict/utf-8.d/*.dat
+/dict/utf-8.d/migemo-dict
+/src/testdir/qspeed
+/src/testdir/romaji
+/tags
+/tmp/
