@@ -16,6 +16,9 @@
 /src/testdir/romaji
 /src/testdir/romaji.exe
 
+/test/test_migemo
+/test/test_migemo.exe
+
 /tags
 /tmp/
 
