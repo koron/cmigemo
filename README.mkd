@@ -11,7 +11,7 @@ To get profiling report:
 
     $ make gcc-dict
     $ cd src/testdir
-    $ make test
+    $ make profile
 
 ### Unit Tests
 

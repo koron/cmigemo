@@ -17,7 +17,7 @@ default: romaji
 all: romaji qspeed
 
 qspeed: $(QSPEED_SRC)
-	$(CC) $(CCFLAGS) -o $@ $(CCFLAGS_PROF) $(QSPEED_SRC)
+	$(CC) $(CCFLAGS) $(CCFLAGS_PROF) -o $@ $(QSPEED_SRC)
 
 romaji: $(ROMAJI_SRC)
 	$(CC) $(CCFLAGS) -o $@ $(ROMAJI_SRC)
@@ -29,10 +29,10 @@ distclean: clean
 	rm -f *.obj *.o *.exe
 	rm -f $(OUTPUT)
 
-test: report.log
+profile: profile.log
 
-report.log: qspeed gmon.out
-	gprof ./qspeed gmon.out > report.log
+profile.log: qspeed gmon.out
+	gprof ./qspeed gmon.out > $@
 
 gmon.out: qspeed
 	./qspeed

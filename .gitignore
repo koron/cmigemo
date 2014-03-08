@@ -5,8 +5,8 @@
 /dict/migemo-dict
 /dict/utf-8.d/*.dat
 /dict/utf-8.d/migemo-dict
+/src/testdir/profile.log
 /src/testdir/qspeed
-/src/testdir/report.log
 /src/testdir/romaji
 /tags
 /tmp/
