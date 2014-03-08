@@ -2,6 +2,21 @@
 
 C/Migemo is regexp pattern generator/expander.
 
+See doc/README\_j.txt (Japanese) for details.
+
+## License
+
+Distributed under MIT license.
+
+See LICENSE also.
+
+## Vim plugin
+
+If you want to use this repository only as a vim plugin,
+use https://github.com/haya14busa/vim-migemo
+
+----
+
 ## For developer
 
 ### Profiling
