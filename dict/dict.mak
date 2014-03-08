@@ -17,9 +17,9 @@ UTF8_DIR	= utf-8.d
 $(DICT): $(DICT_BASE)
 	$(ICONV_EUCJP_TO_CP932) < $(DICT_BASE) > $@
 
-$(DICT_BASE): $(SKKDIC_FILE) ../tools/skk2migemo.pl ../tools/optimize-dict.pl
-	$(PERL) ../tools/skk2migemo.pl < $(SKKDIC_FILE) > dict.tmp
-	$(PERL) ../tools/optimize-dict.pl < dict.tmp > $@
+$(DICT_BASE): $(SKKDIC_FILE) ../dict2/skk2migemo.pl ../dict2/optimize-dict.pl
+	$(PERL) ../dict2/skk2migemo.pl < $(SKKDIC_FILE) > dict.tmp
+	$(PERL) ../dict2/optimize-dict.pl < dict.tmp > $@
 	-$(RM) dict.tmp
 
 $(SKKDIC_FILE):

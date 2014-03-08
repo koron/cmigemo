@@ -22,10 +22,10 @@ $(SKKDICT_FILE):
 	iconv -f EUC-JISX0213 -t UTF-8 $(SKKDICT_FILE) > $(SKKDICT_FILE).utf-8
 	rm $(SKKDICT_FILE) && mv $(SKKDICT_FILE).utf-8 $(SKKDICT_FILE)
 
-$(DICT_FILE): $(SKKDICT_FILE) ../tools/skk2migemo.pl ../tools/optimize-dict.pl
+$(DICT_FILE): $(SKKDICT_FILE) ./skk2migemo.pl ./optimize-dict.pl
 	cat $(SKKDICT_FILE) \
-	  | perl ../tools/skk2migemo.pl \
-	  | perl ../tools/optimize-dict.pl \
+	  | perl ./skk2migemo.pl \
+	  | perl ./optimize-dict.pl \
 	  > $@
 
 utf-8.d/$(DICT_FILE): $(DICT_FILE) $(DAT_FILES)
