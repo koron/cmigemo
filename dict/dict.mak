@@ -106,8 +106,8 @@ osx:		euc-jp utf-8
 #
 dict-clean:
 	-$(RM) $(DICT)
+	-$(RM) $(DICT_BASE)
 	-$(RMDIR) $(EUCJP_DIR)
 	-$(RMDIR) $(UTF8_DIR)
 dict-distclean: dict-clean
-	-$(RM) $(DICT_BASE)
-	-$(RM) SKK-JISYO*
+	-$(RM) $(SKKDIC_FILE)

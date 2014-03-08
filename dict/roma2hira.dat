@@ -1,9 +1,8 @@
-# vi:set ts=8 sts=8 sw=8 tw=0:
+# vi:set ts=8 sts=8 sw=8 tw=0 noet:
 #
 # roma2hira.dat - ローマ字→平仮名変換表
 # 
-# Last Change: 13-Oct-2004.
-# Written By:  Muraoka Taro  <koron.kaoriya@gmail.com>
+# Author:  Muraoka Taro  <koron.kaoriya@gmail.com>
 
 # こいつをカスタマイズすることでローマ字の入力方式が変わります。
 # 現在はMS-IME2000を参考に決定しています。
