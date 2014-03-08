@@ -1,4 +1,4 @@
-# vim:set ts=8 sts=8 sw=8 tw=0:
+# vim:set ts=8 sts=8 sw=8 tw=0 noet:
 
 DICTDIR = ../../dict/utf-8.d
 
@@ -12,7 +12,7 @@ QSPEED_SRC = profile_speed.c $(MIGEMO_SRC)
 CCFLAGS = -I. -I.. -DDICTDIR=\"$(DICTDIR)\" -D_DEBUG
 CCFLAGS_PROF = -pg
 
-default: romaji
+default: all
 
 all: romaji qspeed
 

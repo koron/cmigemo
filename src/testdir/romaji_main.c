@@ -1,9 +1,8 @@
-/* vim:set ts=8 sts=4 sw=4 tw=0: */
+/* vim:set ts=8 sts=4 sw=4 tw=0 et: */
 /*
- * romaji_main.c -
+ * romaji_main.c - Romaji convert console.
  *
- * Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
- * Last Change: 21-Sep-2004.
+ * Author:  MURAOKA Taro <koron.kaoriya@gmail.com>
  */
 /*
  * gcc -o romaji romaji_main.c ../romaji.c ../wordbuf.c
@@ -17,16 +16,16 @@
 # define DICTDIR "../dict"
 #endif
 #ifndef DICT_ROMA2HIRA
-# define DICT_ROMA2HIRA	(DICTDIR "/roma2hira.dat")
+# define DICT_ROMA2HIRA (DICTDIR "/roma2hira.dat")
 #endif
 #ifndef DICT_HIRA2KATA
-# define DICT_HIRA2KATA	(DICTDIR "/hira2kata.dat")
+# define DICT_HIRA2KATA (DICTDIR "/hira2kata.dat")
 #endif
 #ifndef DICT_HAN2ZEN
-# define DICT_HAN2ZEN	(DICTDIR "/han2zen.dat")
+# define DICT_HAN2ZEN   (DICTDIR "/han2zen.dat")
 #endif
 #ifndef DICT_ZEN2HAN
-# define DICT_ZEN2HAN	(DICTDIR "/zen2han.dat")
+# define DICT_ZEN2HAN   (DICTDIR "/zen2han.dat")
 #endif
 
     void
@@ -36,31 +35,31 @@ query_one(romaji* object, romaji* hira2kata, romaji* han2zen, romaji* zen2han, c
     unsigned char *hira;
     unsigned char *zen;
     unsigned char *han;
-    /* ÉçÅ[É}éöÅ®ïΩâºñº(ï\é¶)Å®ï–âºñº(ï\é¶) */
+    /* „É≠„Éº„ÉûÂ≠ó‚ÜíÂπ≥‰ªÆÂêç(Ë°®Á§∫)‚ÜíÁâá‰ªÆÂêç(Ë°®Á§∫) */
     if (hira = romaji_convert(object, buf, &stop))
     {
-	unsigned char* kata;
+        unsigned char* kata;
 
-	printf("  hira=%s, stop=%s\n", hira, stop);
+        printf("  hira=%s, stop=%s\n", hira, stop);
 #if 1
-	if (kata = romaji_convert2(hira2kata, hira, &stop, 0))
-	{
-	    printf("  kata=%s, stop=%s\n", kata, stop);
-	    if (han = romaji_convert2(zen2han, kata, &stop, 0))
-	    {
-		printf("  han=%s, stop=%s\n", han, stop);
-		romaji_release(zen2han, han);
-	    }
-	    romaji_release(hira2kata, kata);
-	}
+        if (kata = romaji_convert2(hira2kata, hira, &stop, 0))
+        {
+            printf("  kata=%s, stop=%s\n", kata, stop);
+            if (han = romaji_convert2(zen2han, kata, &stop, 0))
+            {
+                printf("  han=%s, stop=%s\n", han, stop);
+                romaji_release(zen2han, han);
+            }
+            romaji_release(hira2kata, kata);
+        }
 #endif
-	romaji_release(object, hira);
+        romaji_release(object, hira);
     }
 #if 1
     if (zen = romaji_convert2(han2zen, buf, &stop, 0))
     {
-	printf("  zen=%s, stop=%s\n", zen, stop);
-	romaji_release(han2zen, zen);
+        printf("  zen=%s, stop=%s\n", zen, stop);
+        romaji_release(han2zen, zen);
     }
 #endif
     fflush(stdout);
@@ -73,16 +72,16 @@ query_loop(romaji* object, romaji* hira2kata, romaji* han2zen, romaji* zen2han)
 
     while (1)
     {
-	printf("QUERY: ");
-	if (!fgets(buf, sizeof(buf), stdin))
-	{
-	    printf("\n");
-	    break;
-	}
-	/* â¸çsÇNULï∂éöÇ…íuÇ´ä∑Ç¶ÇÈ */
-	if ((ans = strchr(buf, '\n')) != NULL)
-	    *ans = '\0';
-	query_one(object, hira2kata, han2zen, zen2han, buf);
+        printf("QUERY: ");
+        if (!fgets(buf, sizeof(buf), stdin))
+        {
+            printf("\n");
+            break;
+        }
+        /* ÊîπË°å„ÇíNULÊñáÂ≠ó„Å´ÁΩÆ„ÅçÊèõ„Åà„Çã */
+        if ((ans = strchr(buf, '\n')) != NULL)
+            *ans = '\0';
+        query_one(object, hira2kata, han2zen, zen2han, buf);
     }
 }
 
@@ -100,36 +99,36 @@ main(int argc, char** argv)
 
     while (*++argv)
     {
-	if (0)
-	    ;
-	else if (argv[1] && (!strcmp("--word", *argv) || !strcmp("-w", *argv)))
-	    word = *++argv;
+        if (0)
+            ;
+        else if (argv[1] && (!strcmp("--word", *argv) || !strcmp("-w", *argv)))
+            word = *++argv;
     }
 
     if (object && hira2kata && han2zen && zen2han)
     {
-	int retval = 0;
+        int retval = 0;
 
-	retval = romaji_load(object, DICT_ROMA2HIRA);
-	printf("romaji_load(%s)=%d\n", DICT_ROMA2HIRA, retval);
-	retval = romaji_load(hira2kata, DICT_HIRA2KATA);
-	printf("romaji_load(%s)=%d\n", DICT_HIRA2KATA, retval);
-	retval = romaji_load(han2zen, DICT_HAN2ZEN);
-	printf("romaji_load(%s)=%d\n", DICT_HAN2ZEN, retval);
-	retval = romaji_load(zen2han, DICT_ZEN2HAN);
-	printf("romaji_load(%s)=%d\n", DICT_HAN2ZEN, retval);
-	if (word)
-	    query_one(object, hira2kata, han2zen, zen2han, word);
-	else
-	    query_loop(object, hira2kata, han2zen, zen2han);
+        retval = romaji_load(object, DICT_ROMA2HIRA);
+        printf("romaji_load(%s)=%d\n", DICT_ROMA2HIRA, retval);
+        retval = romaji_load(hira2kata, DICT_HIRA2KATA);
+        printf("romaji_load(%s)=%d\n", DICT_HIRA2KATA, retval);
+        retval = romaji_load(han2zen, DICT_HAN2ZEN);
+        printf("romaji_load(%s)=%d\n", DICT_HAN2ZEN, retval);
+        retval = romaji_load(zen2han, DICT_ZEN2HAN);
+        printf("romaji_load(%s)=%d\n", DICT_HAN2ZEN, retval);
+        if (word)
+            query_one(object, hira2kata, han2zen, zen2han, word);
+        else
+            query_loop(object, hira2kata, han2zen, zen2han);
     }
 
     if (han2zen)
-	romaji_close(han2zen);
+        romaji_close(han2zen);
     if (hira2kata)
-	romaji_close(hira2kata);
+        romaji_close(hira2kata);
     if (object)
-	romaji_close(object);
+        romaji_close(object);
 
     return 0;
 }
