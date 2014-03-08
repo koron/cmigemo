@@ -19,7 +19,7 @@ distclean: clean
 $(SKKDICT_FILE):
 	$(HTTP_GET) $(SKKDICT_BASEURL)/$@.gz
 	gzip -d $@.gz
-	iconv -f euc-jp -t utf-8 $(SKKDICT_FILE) > $(SKKDICT_FILE).utf-8
+	iconv -f EUC-JISX0213 -t UTF-8 $(SKKDICT_FILE) > $(SKKDICT_FILE).utf-8
 	rm $(SKKDICT_FILE) && mv $(SKKDICT_FILE).utf-8 $(SKKDICT_FILE)
 
 $(DICT_FILE): $(SKKDICT_FILE) ../tools/skk2migemo.pl ../tools/optimize-dict.pl
@@ -35,11 +35,11 @@ utf-8.d/$(DICT_FILE): $(DICT_FILE) $(DAT_FILES)
 euc-jp.d/$(DICT_FILE): $(DICT_FILE) $(DAT_FILES)
 	if [ ! -d euc-jp.d ] ; then mkdir euc-jp.d ; fi
 	for i in $(DICT_FILE) $(DAT_FILES) ; do \
-	  iconv -f utf-8 -t euc-jisx0213 $$i > euc-jp.d/$$i ; \
+	  iconv -f UTF-8 -t EUC-JISX0213 $$i > euc-jp.d/$$i ; \
 	done
 
 cp932.d/$(DICT_FILE): $(DICT_FILE) $(DAT_FILES)
 	if [ ! -d cp932.d ] ; then mkdir cp932.d ; fi
 	for i in $(DICT_FILE) $(DAT_FILES) ; do \
-	  iconv -f utf-8 -t cp932 $$i > cp932.d/$$i ; \
+	  iconv -f UTF-8 -t CP932 $$i > cp932.d/$$i ; \
 	done
