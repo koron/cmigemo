@@ -1,6 +1,6 @@
 # vim:set ts=8 sts=8 sw=8 tw=0 noet:
 
-DICTDIR = ../../dict/utf-8.d
+DICTDIR = ../../dict2/utf-8.d
 
 OUTPUT = qspeed romaji
 
@@ -36,3 +36,4 @@ profile.log: qspeed gmon.out
 
 gmon.out: qspeed
 	./qspeed
+	if [ -f qspeed.gmon ] ; then mv qspeed.gmon gmon.out ; fi
