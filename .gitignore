@@ -5,12 +5,17 @@
 /dict/migemo-dict
 /dict/utf-8.d/*.dat
 /dict/utf-8.d/migemo-dict
+
 /dict2/SKK-JISYO.L
 /dict2/migemo-dict
 /dict2/*.d/
+
 /src/testdir/profile.log
 /src/testdir/qspeed
+/src/testdir/qspeed.exe
 /src/testdir/romaji
+/src/testdir/romaji.exe
+
 /tags
 /tmp/
 

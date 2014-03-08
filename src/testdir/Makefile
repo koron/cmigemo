@@ -32,7 +32,11 @@ distclean: clean
 profile: profile.log
 
 profile.log: qspeed gmon.out
-	gprof ./qspeed gmon.out > $@
+	if [ -f qspeed.exe ] ; then \
+	  gprof qspeed.exe gmon.out > $@ ; \
+	else \
+	  gprof qspeed gmon.out > $@ ; \
+	fi
 
 gmon.out: qspeed
 	./qspeed
