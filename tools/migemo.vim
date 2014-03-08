@@ -3,7 +3,7 @@
 " migemo.vim
 "   Direct search for Japanese with Romaji --- Migemo support script.
 "
-" Maintainer:  MURAOKA Taro <koron@tka.att.ne.jp>
+" Maintainer:  MURAOKA Taro <koron.kaoriya@gmail.com>
 " Modified:    Yasuhiro Matsumoto <mattn_jp@hotmail.com>
 " Last Change: 15-Dec-2013.
 

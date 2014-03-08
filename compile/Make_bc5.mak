@@ -4,7 +4,7 @@
 #
 # Last Change:	19-Oct-2003.
 # Adviced By:	MATSUMOTO Yasuhiro
-# Maintainer:	MURAOKA Taro <koron@tka.att.ne.jp>
+# Maintainer:	MURAOKA Taro <koron.kaoriya@gmail.com>
 
 # Ql‘—¿:
 #	http://www2.justnet.ne.jp/~tyche/bcbbugs/bcc32-option.html

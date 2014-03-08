@@ -4,7 +4,7 @@
 # optimize-dict.pl
 #
 # Last Change: 21-Jan-2005.
-# Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
+# Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
 
 binmode STDOUT;
 my %migemo;

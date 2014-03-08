@@ -4,7 +4,7 @@
 # configure - Easy configuration script
 #
 # Last Change: 01-Oct-2005.
-# Author & Maintainer: MURAOKA Taro <koron@tka.att.ne.jp>
+# Author & Maintainer: MURAOKA Taro <koron.kaoriya@gmail.com>
 
 config_out=config.mk
 config_in=compile/config.mk.in

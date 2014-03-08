@@ -3,7 +3,7 @@
 # Clean up アーキテクチャ依存 (DOS/Windows)
 #
 # Last Change:	18-Oct-2003.
-# Written By:	MURAOKA Taro <koron@tka.att.ne.jp>
+# Written By:	MURAOKA Taro <koron.kaoriya@gmail.com>
 
 # 次行の\のあとには半角スペースが必要→"\ "
 DICT_DIR = dict\ 

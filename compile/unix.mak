@@ -4,7 +4,7 @@
 #
 # Last Change:	08-Dec-2004.
 # Base Idea:	AIDA Shinra
-# Maintainer:	MURAOKA Taro <koron@tka.att.ne.jp>
+# Maintainer:	MURAOKA Taro <koron.kaoriya@gmail.com>
 
 libmigemo_SRC = $(SRC)
 libmigemo_OBJ = $(OBJ)

@@ -2,7 +2,7 @@
 /*
  * profile_speed.c - スピード計測
  *
- * Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
+ * Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
  * Last Change: 20-Jun-2004.
  */
 

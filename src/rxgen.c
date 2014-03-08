@@ -2,7 +2,7 @@
 /*
  * rxgen.c - regular expression generator
  *
- * Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
+ * Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
  * Last Change: 19-Sep-2009.
  */
 

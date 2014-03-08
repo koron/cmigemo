@@ -3,7 +3,7 @@
 # 構成ファイルと依存関係
 #
 # Last Change:	19-Jun-2004.
-# Written By:	MURAOKA Taro <koron@tka.att.ne.jp>
+# Written By:	MURAOKA Taro <koron.kaoriya@gmail.com>
 
 ##############################################################################
 # 構成ファイル

@@ -4,7 +4,7 @@
 #
 # Last Change:	07-Mar-2014.
 # Base Idea:	AIDA Shinra
-# Maintainer:	MURAOKA Taro <koron@tka.att.ne.jp>
+# Maintainer:	MURAOKA Taro <koron.kaoriya@gmail.com>
 
 srcdir = ./src/
 objdir = ./build/object/

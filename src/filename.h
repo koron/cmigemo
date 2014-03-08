@@ -3,7 +3,7 @@
  * filename.h - Operate filename.
  *
  * Last change: 15-May-2002.
- * Written by:  Muraoka Taro  <koron@tka.att.ne.jp>
+ * Written by:  Muraoka Taro  <koron.kaoriya@gmail.com>
  */
 
 #ifndef FILENAME_H

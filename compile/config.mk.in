@@ -3,7 +3,7 @@
 # Configuration file.
 #
 # Last Change:	08-Dec-2004.
-# Maintainer:	MURAOKA Taro <koron@tka.att.ne.jp>
+# Maintainer:	MURAOKA Taro <koron.kaoriya@gmail.com>
 
 srcdir = ./src/
 objdir = ./build/object/

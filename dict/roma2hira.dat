@@ -3,7 +3,7 @@
 # roma2hira.dat - ローマ字→平仮名変換表
 # 
 # Last Change: 13-Oct-2004.
-# Written By:  Muraoka Taro  <koron@tka.att.ne.jp>
+# Written By:  Muraoka Taro  <koron.kaoriya@gmail.com>
 
 # こいつをカスタマイズすることでローマ字の入力方式が変わります。
 # 現在はMS-IME2000を参考に決定しています。

@@ -4,7 +4,7 @@
 # conv.pl - Convert SKK-JISYO to migemo-dict
 #
 # Last Change: 16-May-2002.
-# Written by:  MURAOKA Taro <koron@tka.att.ne.jp>
+# Written by:  MURAOKA Taro <koron.kaoriya@gmail.com>
 
 binmode STDOUT;
 while (<>)
