@@ -1,10 +1,9 @@
 #!/usr/bin/perl
-# vim:set ts=8 sts=4 sw=4 tw=0:
+# vim:set ts=8 sts=4 sw=4 tw=0 et:
 #
 # conv.pl - Convert SKK-JISYO to migemo-dict
 #
-# Last Change: 16-May-2002.
-# Written by:  MURAOKA Taro <koron.kaoriya@gmail.com>
+# Author:  MURAOKA Taro <koron.kaoriya@gmail.com>
 
 binmode STDOUT;
 while (<>)
@@ -12,8 +11,8 @@ while (<>)
     chomp;
     if (m/^;/)
     {
-	print "$_\n";
-	next;
+        print "$_\n";
+        next;
     }
     m/^([^ ]+) +(.*)$/;
     my ($key, $value) = ($1, $2);
@@ -25,25 +24,25 @@ while (<>)
     # Remove "okuri"
     if ($key =~ m/[a-z]$/ and $key !~ m/^[ -~]+$/)
     {
-	$key =~ s/.$//;
+        $key =~ s/.$//;
     }
 
     $value =~ s{^/}{};
     $value =~ s{/$}{};
     @values = grep {
-	# Remove lisp expressions.
-	$_ !~ m/^\([a-zA-Z].*\)$/;
+        # Remove lisp expressions.
+        $_ !~ m/^\([a-zA-Z].*\)$/;
     } grep {
-	# Remove values have number expression
-	!$have_number || $_ !~ m/#/;
+        # Remove values have number expression
+        !$have_number || $_ !~ m/#/;
     } map {
-	# Remove annotation
-	s/;.*$//; $_;
+        # Remove annotation
+        s/;.*$//; $_;
     } split(/\//, $value);
 
     # Output
     if ($key ne '' and $#values >= 0)
     {
-	print "$key\t" . join("\t", @values) . "\n";
+        print "$key\t" . join("\t", @values) . "\n";
     }
 }

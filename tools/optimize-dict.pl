@@ -1,10 +1,9 @@
 #!/usr/bin/perl -w
-# vim:set ts=8 sts=4 sw=4 tw=0:
+# vim:set ts=8 sts=4 sw=4 tw=0 et:
 # 
-# optimize-dict.pl
+# optimize-dict.pl - Optimize migemo-dict to load by C/Migemo.
 #
-# Last Change: 21-Jan-2005.
-# Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
+# Author:  MURAOKA Taro <koron.kaoriya@gmail.com>
 
 binmode STDOUT;
 my %migemo;
@@ -30,8 +29,8 @@ for ($i = 0; $i < @migemo; ++$i)
     my $label = $migemo[$i];
     if (exists $migemo{$label})
     {
-	print "$label\t" . join("\t", &uniq_array($migemo{$label})) . "\n";
-	delete $migemo{$label};
+        print "$label\t" . join("\t", &uniq_array($migemo{$label})) . "\n";
+        delete $migemo{$label};
     }
 }
 
