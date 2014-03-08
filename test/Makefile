@@ -3,6 +3,7 @@
 MIGEMO_DIR = ../src
 
 TEST_SRC = \
+	test1.c \
 	main.c
 
 MIGEMO_SRC = \
