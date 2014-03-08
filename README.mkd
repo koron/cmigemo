@@ -9,7 +9,11 @@ C/Migemo is regexp pattern generator/expander.
 Check performance by profiling, before and after your modification. 
 To get profiling report:
 
-    $ make gcc-dict
+    # prepare dictionaries
+    $ cd dict2
+    $ make
+
+    # profile: result is in profile.log
     $ cd src/testdir
     $ make profile
 
