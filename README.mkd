@@ -19,6 +19,13 @@ use https://github.com/haya14busa/vim-migemo
 
 ## For developer
 
+### Unit Tests
+
+To execute unit tests.
+
+    $ cd test
+    $ make
+
 ### Profiling
 
 Check performance by profiling, before and after your modification. 
