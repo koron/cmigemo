@@ -26,7 +26,7 @@ include compile/clean.mak
 #
 $(libmigemo_LIB): $(libmigemo_DSO)
 $(libmigemo_DSO): $(libmigemo_OBJ)
-	$(CC) -dynamiclib -install_name $@ -o $(libmigemo_LIB) $(libmigemo_OBJ)
+	$(CC) -dynamiclib -install_name $(libdir)/$@ -o $(libmigemo_LIB) $(libmigemo_OBJ)
 	$(RM) $@ $(libmigemo)
 	ln -s $(libmigemo_LIB) $@
 	ln -s $(libmigemo_LIB) $(libmigemo)
