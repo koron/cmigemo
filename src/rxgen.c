@@ -22,7 +22,7 @@
 #define RXGEN_ENC_SJISTINY
 //#define RXGEN_OP_VIM
 
-#define RXGEN_OP_MAXLEN 16
+#define RXGEN_OP_MAXLEN 8
 #define RXGEN_OP_OR "|"
 #define RXGEN_OP_NEST_IN "("
 #define RXGEN_OP_NEST_OUT ")"
