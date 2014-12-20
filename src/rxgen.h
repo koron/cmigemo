@@ -22,6 +22,7 @@ typedef int (*rxgen_proc_int2char)(unsigned int, unsigned char*);
 #define RXGEN_OPINDEX_SELECT_IN		3
 #define RXGEN_OPINDEX_SELECT_OUT	4
 #define RXGEN_OPINDEX_NEWLINE		5
+#define RXGEN_OPINDEX_REGEXMETA		6
 
 extern int n_rnode_new;
 extern int n_rnode_delete;
