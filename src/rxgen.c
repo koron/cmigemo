@@ -160,15 +160,12 @@ rxgen_call_char2int(rxgen* object, const unsigned char* pch,
 rxgen_call_int2char(rxgen* object, unsigned int code, unsigned char* buf)
 {
     int len = 0;
-    if (object->op_regexmeta)
-        len = regexmeta_int2char(object->op_regexmeta, code, buf);
-    else if (object->int2char)
-        len = object->int2char(code, buf);
-
-    if (!len)
-        len = default_int2char(code, buf);
-
-    return len;
+    if (object->int2char)
+	len = object->int2char(code, buf);
+    return len ? len :
+	(object->op_regexmeta ?
+		regexmeta_int2char(object->op_regexmeta, code, buf) :
+		default_int2char(code, buf));
 }
 
     rxgen*
