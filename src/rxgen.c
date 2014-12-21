@@ -145,7 +145,7 @@ rxgen_setproc_char2int(rxgen* object, RXGEN_PROC_CHAR2INT proc)
 rxgen_setproc_int2char(rxgen* object, RXGEN_PROC_INT2CHAR proc)
 {
     if (object)
-	object->int2char = proc;
+	object->int2char = proc ? proc : default_int2char;
 }
 
     static int
@@ -159,9 +159,7 @@ rxgen_call_char2int(rxgen* object, const unsigned char* pch,
     static int
 rxgen_call_int2char(rxgen* object, unsigned int code, unsigned char* buf)
 {
-    int len = 0;
-    if (object->int2char)
-	len = object->int2char(code, buf);
+    int len = object->int2char(code, buf);
     return len ? len :
 	(object->op_regexmeta ?
 		regexmeta_int2char(object->op_regexmeta, code, buf) :
