@@ -118,10 +118,11 @@ default_int2char(unsigned int in, unsigned char* out)
 }
 
     static int
-regexmeta_int2char(unsigned char* op_regexmeta, unsigned int in, unsigned char* out)
+regexmeta_int2char(unsigned int in, unsigned char* out,
+		   unsigned char* op_regexmeta, int bracket)
 {
     int len = 0;
-    if (strchr(op_regexmeta, in))
+    if (strchr(op_regexmeta, in) && !bracket)
     {
         if (out)
             out[len] = '\\';
@@ -157,12 +158,13 @@ rxgen_call_char2int(rxgen* object, const unsigned char* pch,
 }
 
     static int
-rxgen_call_int2char(rxgen* object, unsigned int code, unsigned char* buf)
+rxgen_call_int2char(rxgen* object, unsigned int code, unsigned char* buf,
+		    int bracket)
 {
     int len = object->int2char(code, buf);
     return len ? len :
 	(object->op_regexmeta ?
-		regexmeta_int2char(object->op_regexmeta, code, buf) :
+		regexmeta_int2char(code, buf, object->op_regexmeta, bracket) :
 		default_int2char(code, buf));
 }
 
@@ -290,7 +292,7 @@ rxgen_generate_stub(rxgen* object, wordbuf_t* buf, rnode* node)
 	{
 	    if (tmp->child)
 		continue;
-	    chlen = rxgen_call_int2char(object, tmp->code, ch);
+	    chlen = rxgen_call_int2char(object, tmp->code, ch, nochild > 1);
 	    ch[chlen] = '\0';
 	    /*printf("nochild: %s\n", ch);*/
 	    wordbuf_cat(buf, ch);
@@ -310,7 +312,7 @@ rxgen_generate_stub(rxgen* object, wordbuf_t* buf, rnode* node)
 	    ;
 	while (1)
 	{
-	    chlen = rxgen_call_int2char(object, tmp->code, ch);
+	    chlen = rxgen_call_int2char(object, tmp->code, ch, 0);
 	    /*printf("code=%04X len=%d\n", tmp->code, chlen);*/
 	    ch[chlen] = '\0';
 	    wordbuf_cat(buf, ch);
