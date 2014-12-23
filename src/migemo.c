@@ -466,7 +466,8 @@ query_a_word(migemo* object, unsigned char* query)
     int len = my_strlen(query);
 
     /* query自信はもちろん候補に加える */
-    object->addword(object, query);
+    if (strcmp("]", query))
+	object->addword(object, query);
     /* queryそのものでの辞書引き */
     lower = malloc(len + 1);
     if (!lower)
@@ -510,6 +511,9 @@ query_a_word(migemo* object, unsigned char* query)
     /* 平仮名、カタカナ、及びそれによる辞書引き追加 */
     if (add_roma(object, query))
 	add_dubious_roma(object, object->rx, query);
+
+    if (!strcmp("]", query))
+	object->addword(object, query);
 
     return 1;
 }
