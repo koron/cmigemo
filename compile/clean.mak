@@ -18,6 +18,7 @@ distclean-migemo:
 	-$(RM) $(DICT_DIR)SKK-JISYO*
 	-$(RM) $(DICT_DIR)base-dict
 	-$(RMDIR) $(DICT_DIR)euc-jp.d
+	-$(RMDIR) $(DICT_DIR)utf-8.d
 
 clean: clean-arch clean-migemo
 	-$(RM) *.a
