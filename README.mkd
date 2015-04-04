@@ -28,7 +28,7 @@ To execute unit tests.
 
 ### Profiling
 
-Check performance by profiling, before and after your modification. 
+Check performance by profiling, before and after your modification.
 To get profiling report:
 
     # prepare dictionaries

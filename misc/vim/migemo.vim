@@ -81,7 +81,7 @@ else
       echohl None
       return
     endif
-  
+
     let retval = a:word != '' ? a:word : input('MIGEMO:')
     if retval == ''
       return
@@ -90,7 +90,7 @@ else
     if retval == ''
       return
     endif
-  
+
     let @/ = retval
     let v:errmsg = ''
     silent! normal n

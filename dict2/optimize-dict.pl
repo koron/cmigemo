@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 # vim:set ts=8 sts=4 sw=4 tw=0 et:
-# 
+#
 # optimize-dict.pl - Optimize migemo-dict to load by C/Migemo.
 #
 # Author:  MURAOKA Taro <koron.kaoriya@gmail.com>

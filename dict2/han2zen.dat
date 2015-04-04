@@ -1,7 +1,7 @@
 # vi:set ts=8 sts=8 sw=8 tw=0 noet:
 #
 # han2zen.dat - 半角→全角変換表
-# 
+#
 # Author:  MURAOKA Taro <koron.kaoriya@gmail.com>
 
 # 半角→全角スペース変換は設定不可。

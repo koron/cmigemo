@@ -5,7 +5,7 @@
 
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsMigemo);
 
-static nsModuleComponentInfo components[] = 
+static nsModuleComponentInfo components[] =
 {
     {
 	NS_MIGEMO_CLASSNAME,
