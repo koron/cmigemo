@@ -14,7 +14,7 @@ libmigemo_DSO	= libmigemo.so.1
 libmigemo	= libmigemo.so
 EXEEXT		=
 CFLAGS_MIGEMO	= -fPIC
-LDFLAGS_MIGEMO	= -Wl,-rpath,.,-rpath,/usr/lib
+LDFLAGS_MIGEMO	= -Wl,-rpath,.,-rpath,/usr/local/lib,-rpath,/usr/lib
 
 include config.mk
 include compile/unix.mak

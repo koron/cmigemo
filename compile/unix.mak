@@ -11,7 +11,7 @@ libmigemo_OBJ = $(OBJ)
 
 DEFINES	=
 CFLAGS	= -O2 -Wall $(DEFINES) $(CFLAGS_MIGEMO)
-LDFLAGS = -Wl,-rpath,$(prefix)/lib $(LDFLAGS_MIGEMO)
+LDFLAGS = $(LDFLAGS_MIGEMO)
 LIBS	= 
 
 default: dirs $(outdir)cmigemo$(EXEEXT)
