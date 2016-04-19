@@ -57,7 +57,8 @@ $(EUCJP_DIR)/roma2hira.dat: roma2hira.dat
 utf-8: 	cp932 utf-8-files
 utf-8-files: $(UTF8_DIR) $(UTF8_DIR)/migemo-dict \
 	$(UTF8_DIR)/zen2han.dat $(UTF8_DIR)/han2zen.dat \
-	$(UTF8_DIR)/hira2kata.dat $(UTF8_DIR)/roma2hira.dat
+	$(UTF8_DIR)/hira2kata.dat $(UTF8_DIR)/roma2hira.dat \
+	$(UTF8_DIR)/migemo-dict-zh
 $(UTF8_DIR):
 	$(MKDIR) $(UTF8_DIR)
 $(UTF8_DIR)/migemo-dict: migemo-dict
@@ -70,6 +71,8 @@ $(UTF8_DIR)/hira2kata.dat: hira2kata.dat
 	$(ICONV_CP932_TO_UTF8) < hira2kata.dat > $@
 $(UTF8_DIR)/roma2hira.dat: roma2hira.dat
 	$(ICONV_CP932_TO_UTF8) < roma2hira.dat > $@
+$(UTF8_DIR)/migemo-dict-zh: migemo-dict-zh
+	cp $< $@
 
 ##############################################################################
 # for Microsoft Visual C
