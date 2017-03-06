@@ -3,7 +3,7 @@
 " migemo.vim
 "   Direct search for Japanese with Romaji --- Migemo support script.
 "
-" Maintainer:  MURAOKA Taro <koron@tka.att.ne.jp>
+" Maintainer:  MURAOKA Taro <koron.kaoriya@gmail.com>
 " Modified:    Yasuhiro Matsumoto <mattn_jp@hotmail.com>
 " Last Change: 15-Dec-2013.
 
@@ -81,7 +81,7 @@ else
       echohl None
       return
     endif
-  
+
     let retval = a:word != '' ? a:word : input('MIGEMO:')
     if retval == ''
       return
@@ -90,7 +90,7 @@ else
     if retval == ''
       return
     endif
-  
+
     let @/ = retval
     let v:errmsg = ''
     silent! normal n

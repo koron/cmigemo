@@ -91,5 +91,5 @@ Migemo DLL説明書/Vimにおける使用方法
 
 -------------------------------------------------------------------------------
                   生きる事への強い意志が同時に自分と異なる生命をも尊ぶ心となる
-                                    Muraoka Taro/村岡太郎<koron@tka.att.ne.jp>
+                                Muraoka Taro/村岡太郎<koron.kaoriya@gmail.com>
  vim:set ts=8 sts=2 sw=2 tw=78 et ft=memo:

@@ -2,7 +2,7 @@
 /*
  * migemo.c -
  *
- * Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
+ * Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
  */
 
 #include <stdio.h>

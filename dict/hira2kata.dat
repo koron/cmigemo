@@ -1,9 +1,8 @@
-# vi:set ts=8 sts=8 sw=8 tw=0:
+# vi:set ts=8 sts=8 sw=8 tw=0 noet:
 #
 # hira2kata.dat - 平仮名→カタカナ変換表
 #
-# Last Change: 19-Jun-2004.
-# Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
+# Author:  MURAOKA Taro <koron.kaoriya@gmail.com>
 
 # 文字コードの違いもこの変換表で吸収する。
 

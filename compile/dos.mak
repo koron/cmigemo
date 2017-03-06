@@ -3,8 +3,8 @@
 # アーキテクチャ依存 (DOS/Windows)
 #
 # Last Change:	29-Nov-2003.
-# Written By:	MURAOKA Taro <koron@tka.att.ne.jp>
-# Maintainer:	MURAOKA Taro <koron@tka.att.ne.jp>
+# Written By:	MURAOKA Taro <koron.kaoriya@gmail.com>
+# Maintainer:	MURAOKA Taro <koron.kaoriya@gmail.com>
 
 srcdir = .\src\				#
 objdir = .\build\object\		#

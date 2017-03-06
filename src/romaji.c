@@ -2,7 +2,7 @@
 /*
  * romaji.c - ƒ[ƒ}š•ÏŠ·
  *
- * Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
+ * Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
  */
 
 #include <stdio.h>

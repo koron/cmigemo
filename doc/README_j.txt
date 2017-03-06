@@ -1,8 +1,8 @@
 C/Migemoライブラリ説明書
                                                             Since: 15-Aug-2001
-                                                                Version: 1.2.0
+                                                                Version: 1.4.0
                                                   Author: MURAOKA Taro (KoRoN)
-                                                     Last Change: 02-Jan-2013.
+                                                     Last Change: 06-Mar-2017.
 
 説明
   C/MigemoはMigemo(Ruby/Migemo)をC言語で実装したものです。C/Migemoライブラリを
@@ -416,6 +416,6 @@ C/Migemoライブラリ説明書
 
 -------------------------------------------------------------------------------
                   生きる事への強い意志が同時に自分と異なる生命をも尊ぶ心となる
-                                    MURAOKA Taro/村岡太郎<koron@tka.att.ne.jp>
+                                MURAOKA Taro/村岡太郎<koron.kaoriya@gmail.com>
 
  vi:set ts=8 sts=2 sw=2 tw=78 et fdm=marker ft=memo:

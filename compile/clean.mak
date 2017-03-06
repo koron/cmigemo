@@ -3,7 +3,7 @@
 # Clean up アーキテクチャ非依存
 #
 # Last Change:	29-Nov-2003.
-# Written By:	MURAOKA Taro <koron@tka.att.ne.jp>
+# Written By:	MURAOKA Taro <koron.kaoriya@gmail.com>
 
 clean-migemo:
 	-$(RM) $(DICT_DIR)migemo-dict

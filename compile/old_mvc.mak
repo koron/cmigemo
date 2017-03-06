@@ -3,7 +3,7 @@
 # Visual C++—p Makefile
 #
 # Last Change:	27-May-2002.
-# Written By:	MURAOKA Taro <koron@tka.att.ne.jp>
+# Written By:	MURAOKA Taro <koron.kaoriya@gmail.com>
 
 default: rel
 

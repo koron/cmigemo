@@ -55,7 +55,7 @@ Private m_hMigemo As Long
 Private Function PtrStr(lpString As Long) As String
   Dim buff() As Byte
   Dim nSize As Long
-  
+
   If lpString Then
     nSize = StrLen(lpString)
     If nSize Then
@@ -145,12 +145,12 @@ Public Function LoadDictionaryAll(strFile As String) As Boolean
     Dim strBase As String
     Dim lngLoaded As Long
     LoadDictionaryAll = False
-    
+
     strBase = Left(strFile, InStrRev(strFile, "/"))
     If Len(strBase) = 0 Then
         strBase = Left(strFile, InStrRev(strFile, "\"))
     End If
-    
+
     lngLoaded = 0
     lngLoaded = lngLoaded + IIf(LoadDictionary(enmMigemo, strFile), 1, 0)
     lngLoaded = lngLoaded + IIf(LoadDictionary(enmRomaToHira, strBase & enmDictRoma2Hira), 1, 0)

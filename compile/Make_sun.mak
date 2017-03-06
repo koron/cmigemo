@@ -5,7 +5,7 @@
 # Last Change:	19-Oct-2003.
 # Base Idea:	AIDA Shinra
 # Modified By:	Hiroshi Fujishima <pooh@nature.tsukuba.ac.jp>
-# Maintainer:	MURAOKA Taro <koron@tka.att.ne.jp>
+# Maintainer:	MURAOKA Taro <koron.kaoriya@gmail.com>
 
 ##############################################################################
 # 環境に応じてこの変数を変更する
