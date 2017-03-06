@@ -72,6 +72,25 @@ OPTIONS:\n\
     exit(0);
 }
 
+
+    int
+rxgen_int2char_escape_meta_characters_for_emacs(unsigned int in, unsigned char* out)
+{
+    int len = 0;
+    /* outは最低でも16バイトはある、という仮定を置く */
+    switch (in)
+    {
+        case '\\': case '.': case '*': case '+': case '?': case '^': case '$': case '[':
+            if (out)
+            {
+                out[len] = '\\';
+                out[len+1] = (unsigned char)(in & 0xFF);
+            }
+            len += 2;
+    }
+    return len;
+}
+
     int
 main(int argc, char** argv)
 {
@@ -179,6 +198,7 @@ main(int argc, char** argv)
 	    migemo_set_operator(pmigemo, MIGEMO_OPINDEX_NEST_OUT, "\\)");
 	    if (!mode_nonewline)
 		migemo_set_operator(pmigemo, MIGEMO_OPINDEX_NEWLINE, "\\s-*");
+            migemo_setproc_int2char_escape_meta_characters(pmigemo, rxgen_int2char_escape_meta_characters_for_emacs);
 	}
 #ifndef _PROFILE
 	if (word)

@@ -40,6 +40,7 @@ struct _rxgen
     rnode *node;
     RXGEN_PROC_CHAR2INT char2int;
     RXGEN_PROC_INT2CHAR int2char;
+    RXGEN_PROC_INT2CHAR int2char_escape_meta_characters;
     unsigned char op_or[RXGEN_OP_MAXLEN];
     unsigned char op_nest_in[RXGEN_OP_MAXLEN];
     unsigned char op_nest_out[RXGEN_OP_MAXLEN];
@@ -97,6 +98,17 @@ default_int2char(unsigned int in, unsigned char* out)
 {
     int len = 0;
     /* outは最低でも16バイトはある、という仮定を置く */
+    if (out)
+        out[len] = (unsigned char)(in & 0xFF);
+    ++len;
+    return len;
+}
+
+static int
+default_int2char_escape_meta_characters(unsigned int in, unsigned char* out)
+{
+    int len = 0;
+    /* outは最低でも16バイトはある、という仮定を置く */
     switch (in)
     {
 	case '\\':
@@ -105,13 +117,11 @@ default_int2char(unsigned int in, unsigned char* out)
 	case '[': case ']': case '~':
 #endif
 	    if (out)
+            {
 		out[len] = '\\';
-	    ++len;
-	default:
-	    if (out)
-		out[len] = (unsigned char)(in & 0xFF);
-	    ++len;
-	    break;
+                out[len+1] = (unsigned char)(in & 0xFF);
+            }
+            len += 2;
     }
     return len;
 }
@@ -130,6 +140,13 @@ rxgen_setproc_int2char(rxgen* object, RXGEN_PROC_INT2CHAR proc)
 	object->int2char = proc ? proc : default_int2char;
 }
 
+    void
+rxgen_setproc_int2char_escape_meta_characters(rxgen* object, RXGEN_PROC_INT2CHAR proc)
+{
+    if (object)
+	object->int2char_escape_meta_characters = proc ? proc : default_int2char_escape_meta_characters;
+}
+
     static int
 rxgen_call_char2int(rxgen* object, const unsigned char* pch,
 	unsigned int* code)
@@ -142,6 +159,11 @@ rxgen_call_char2int(rxgen* object, const unsigned char* pch,
 rxgen_call_int2char(rxgen* object, unsigned int code, unsigned char* buf)
 {
     int len = object->int2char(code, buf);
+    if (len)
+        return len;
+
+    len = object->int2char_escape_meta_characters(code, buf);
+
     return len ? len : default_int2char(code, buf);
 }
 
@@ -153,6 +175,7 @@ rxgen_open()
     {
 	rxgen_setproc_char2int(object, NULL);
 	rxgen_setproc_int2char(object, NULL);
+	rxgen_setproc_int2char_escape_meta_characters(object, NULL);
 	strcpy(object->op_or,		RXGEN_OP_OR);
 	strcpy(object->op_nest_in,	RXGEN_OP_NEST_IN);
 	strcpy(object->op_nest_out,	RXGEN_OP_NEST_OUT);
