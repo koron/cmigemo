@@ -179,6 +179,8 @@ main(int argc, char** argv)
 	    migemo_set_operator(pmigemo, MIGEMO_OPINDEX_NEST_OUT, "\\)");
 	    if (!mode_nonewline)
 		migemo_set_operator(pmigemo, MIGEMO_OPINDEX_NEWLINE, "\\s-*");
+	    migemo_set_operator(pmigemo, MIGEMO_OPINDEX_REGEXMETA,
+				"\\.*+?^$[]");
 	}
 #ifndef _PROFILE
 	if (word)

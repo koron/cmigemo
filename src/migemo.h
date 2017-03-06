@@ -31,6 +31,7 @@
 #define MIGEMO_OPINDEX_SELECT_IN	3
 #define MIGEMO_OPINDEX_SELECT_OUT	4
 #define MIGEMO_OPINDEX_NEWLINE		5
+#define MIGEMO_OPINDEX_REGEXMETA	6
 
 /* see: rxgen.h */
 typedef int (*MIGEMO_PROC_CHAR2INT)(const unsigned char*, unsigned int*);
