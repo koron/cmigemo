@@ -2,7 +2,7 @@ Migemo DLL説明書/Vimにおける使用方法
                                                             Since: 14-Aug-2001
                                                                   Version: 1.0
                                                   Author: MURAOKA Taro (KoRoN)
-                                                     Last Change: 16-Dec-2003.
+                                                     Last Change: 26-Apr-2019.
 
 説明
   Migemo DLLはローマ字入力を日本語検索の正規表現に変換するライブラリです。これ
@@ -36,14 +36,14 @@ Migemo DLL説明書/Vimにおける使用方法
     のruntimeディレクトリを$VIMへ上書きコピーすれば完了できます。関係の無い
     ファイルはまったく触らず上書きできますので安心して上書きコピーしてくださ
     い。その他、個人ディレクトリvimfiles/pluginに置くこともできます。
+    ※ $VIM/runtime/plugin/ はVimのバージョンにより、$VIM/vimfiles/plugin/に変
+    更されてる可能性があります。set runtimepath?で読み込み先を確認して下さい。
   3. 辞書ファイルをインストールする
     $VIM/dictというディレクトリを作り、migemo-dict、roma2hira.dat、han2zen.dat
     そしてhira2kata.datを置きます。この作業は同梱のdictディレクトリを$VIMへ上
     書きコピーすれば完了できます。関係の無いファイルはまったく触らず上書きでき
-    ますので安心して上書きコピーしてください。
-
-  つまりのアーカイブに含まれる全てのファイルとディレクトリを$VIMへコピーすれば
-  インストールは完了します。
+    ますので安心して上書きコピーしてください。その他、個人ディレクトリ
+    vimfiles/dictに置く事もできます。
 
 使用方法
   ライブラリ(DLL)と辞書それにスクリプトをインストールすれば(この時'incsearch'
@@ -79,6 +79,8 @@ Migemo DLL説明書/Vimにおける使用方法
     migemo.vimをcmigemoに対応
 
 更新箇所
+  ● 26-Apr-2019
+    ドキュメント修正
   ● 16-Dec-2003
     C/Migemo 1.2
     ドキュメント修正
