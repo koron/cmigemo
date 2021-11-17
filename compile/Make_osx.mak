@@ -3,7 +3,7 @@
 # MacOSX—pMakefile
 #
 # Last Change:	19-Oct-2003.
-# Maintainer:	MURAOKA Taro <koron@tka.att.ne.jp>
+# Maintainer:	MURAOKA Taro <koron.kaoriya@gmail.com>
 
 ##############################################################################
 # ŠÂ‹«‚É‰‚¶‚Ä‚±‚Ì•Ï”‚ğ•ÏX‚·‚é

@@ -2,7 +2,7 @@
 /*
  * charset.c -
  *
- * Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
+ * Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
  * Last Change: 20-Sep-2009.
  */
 

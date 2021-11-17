@@ -4,7 +4,7 @@
 #
 # Last Change:	08-Dec-2004.
 # Base Idea:	AIDA Shinra
-# Maintainer:	MURAOKA Taro <koron@tka.att.ne.jp>
+# Maintainer:	MURAOKA Taro <koron.kaoriya@gmail.com>
 
 libmigemo_SRC = $(SRC)
 libmigemo_OBJ = $(OBJ)
@@ -64,6 +64,7 @@ install-dict:
 	  $(INSTALL_DATA) dict/utf-8.d/hira2kata.dat $(dictdir)/utf-8; \
 	  $(INSTALL_DATA) dict/utf-8.d/roma2hira.dat $(dictdir)/utf-8; \
 	  $(INSTALL_DATA) dict/utf-8.d/zen2han.dat $(dictdir)/utf-8; \
+	  $(INSTALL_DATA) dict/utf-8.d/migemo-dict-zh $(dictdir)/utf-8; \
 	fi
 
 install: $(outdir)cmigemo$(EXEEXT) $(libmigemo_DSO) install-mkdir install-dict install-lib

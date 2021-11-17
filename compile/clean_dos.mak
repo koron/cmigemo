@@ -1,9 +1,9 @@
 # vim:set ts=8 sts=8 sw=8 tw=0:
 #
-# Clean up アーキテクチャ依存 (DOS/Windows)
+# Clean up - dependent on DOS/Windows
 #
-# Last Change:	18-Oct-2003.
-# Written By:	MURAOKA Taro <koron@tka.att.ne.jp>
+# Last Change:	17-Nov-2021.
+# Written By:	MURAOKA Taro <koron.kaoriya@gmail.com>
 
 # 次行の\のあとには半角スペースが必要→"\ "
 DICT_DIR = dict\ 

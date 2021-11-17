@@ -1,15 +1,16 @@
 # vim:set ts=8 sts=8 sw=8 tw=0:
 #
-# アーキテクチャ依存 (DOS/Windows)
+# Dependent on DOS/Windows
 #
-# Last Change:	29-Nov-2003.
-# Written By:	MURAOKA Taro <koron@tka.att.ne.jp>
-# Maintainer:	MURAOKA Taro <koron@tka.att.ne.jp>
+# Last Change:	17-Nov-2021.
+# Written By:	MURAOKA Taro <koron.kaoriya@gmail.com>
+# Maintainer:	MURAOKA Taro <koron.kaoriya@gmail.com>
 
 srcdir = .\src\				#
 objdir = .\build\object\		#
 outdir = .\build\			#
-# Borlandのmakeでは後ろにコメントを付けることで行末に\を含めることができる
+# Borland's make command accepts last directory separator (\) in value if
+# comment at EOL.
 
 CP = copy
 MKDIR = mkdir

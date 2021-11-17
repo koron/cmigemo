@@ -1,29 +1,29 @@
 # vim:set ts=8 sts=8 sw=8 tw=0:
 #
-# デフォルトコンフィギュレーションファイル
+# Default configuration file.
 #
-# Last Change:	19-Jun-2004.
+# Last Change:	17-Nov-2021.
 # Base Idea:	AIDA Shinra
-# Maintainer:	MURAOKA Taro <koron@tka.att.ne.jp>
+# Maintainer:	MURAOKA Taro <koron.kaoriya@gmail.com>
 
 srcdir = ./src/
 objdir = ./build/object/
 outdir = ./build/
 
 ##############################################################################
-# インストールディレクトリの設定
+# for install directories
 #
 prefix		= /usr/local
 bindir		= $(prefix)/bin
 libdir		= $(prefix)/lib
 incdir		= $(prefix)/include
-# 警告: $(dictdir)と$(docdir)はアンインストール実行時にディレクトリごと消去
-# されます。
+# WARNING: $(dictdir) and $(docdir) will be removed with its contents when
+# uninstall.
 dictdir		= $(prefix)/share/migemo
 docdir		= $(prefix)/doc/migemo
 
 ##############################################################################
-# コマンド設定
+# for commands
 #
 RM		= rm -f
 CP		= cp
@@ -35,18 +35,16 @@ HTTP		= curl -O
 PERL		= perl
 BUNZIP2		= bzip2 -d
 GUNZIP		= gzip -d
-FILTER_CP932	= qkc -q -u -s
-FILTER_EUCJP	= qkc -q -u -e
-FILTER_UTF8	= iconv -t utf-8 -f cp932
-#FILTER_CP932	= nkf -s
-#FILTER_EUCJP	= nkf -e
+ICONV_EUCJP_TO_CP932 = iconv -f euc-jp-ms -t cp932
+ICONV_CP932_TO_EUCJP = iconv -f cp932 -t euc-jp-ms
+ICONV_CP932_TO_UTF8  = iconv -f cp932 -t utf-8
 INSTALL		= /usr/bin/install -c
 #INSTALL	= /usr/ucb/install -c
 INSTALL_PROGRAM	= $(INSTALL) -m 755
 INSTALL_DATA	= $(INSTALL) -m 644
 
 ##############################################################################
-# 定数
+# Constants
 #
 O		= o
 EXE		=

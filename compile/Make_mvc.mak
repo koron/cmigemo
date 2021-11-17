@@ -2,7 +2,7 @@
 #
 # Visual C++—p Makefile
 #
-# Maintainer:	MURAOKA Taro <koron@tka.att.ne.jp>
+# Maintainer:	MURAOKA Taro <koron.kaoriya@gmail.com>
 
 default: rel
 
