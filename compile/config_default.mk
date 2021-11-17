@@ -1,8 +1,8 @@
 # vim:set ts=8 sts=8 sw=8 tw=0:
 #
-# デフォルトコンフィギュレーションファイル
+# Default configuration file.
 #
-# Last Change:	07-Mar-2014.
+# Last Change:	17-Nov-2021.
 # Base Idea:	AIDA Shinra
 # Maintainer:	MURAOKA Taro <koron.kaoriya@gmail.com>
 
@@ -11,19 +11,19 @@ objdir = ./build/object/
 outdir = ./build/
 
 ##############################################################################
-# インストールディレクトリの設定
+# for install directories
 #
 prefix		= /usr/local
 bindir		= $(prefix)/bin
 libdir		= $(prefix)/lib
 incdir		= $(prefix)/include
-# 警告: $(dictdir)と$(docdir)はアンインストール実行時にディレクトリごと消去
-# されます。
+# WARNING: $(dictdir) and $(docdir) will be removed with its contents when
+# uninstall.
 dictdir		= $(prefix)/share/migemo
 docdir		= $(prefix)/doc/migemo
 
 ##############################################################################
-# コマンド設定
+# for commands
 #
 RM		= rm -f
 CP		= cp
@@ -44,7 +44,7 @@ INSTALL_PROGRAM	= $(INSTALL) -m 755
 INSTALL_DATA	= $(INSTALL) -m 644
 
 ##############################################################################
-# 定数
+# Constants
 #
 O		= o
 EXE		=

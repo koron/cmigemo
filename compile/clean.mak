@@ -1,8 +1,8 @@
 # vim:set ts=8 sts=8 sw=8 tw=0:
 #
-# Clean up アーキテクチャ非依存
+# Clean up - architecture independent
 #
-# Last Change:	29-Nov-2003.
+# Last Change:	17-Nov-2021.
 # Written By:	MURAOKA Taro <koron.kaoriya@gmail.com>
 
 clean-migemo:

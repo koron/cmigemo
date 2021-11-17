@@ -1,8 +1,8 @@
 # vim:set ts=8 sts=8 sw=8 tw=0:
 #
-# Clean up アーキテクチャ依存 (UNIX)
+# Clean up - dependent on UNIX like
 #
-# Last Change:	16-May-2002.
+# Last Change:	17-Nov-2021.
 # Written By:	MURAOKA Taro <koron.kaoriya@gmail.com>
 
 DICT_DIR = dict/
