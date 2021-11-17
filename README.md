@@ -2,7 +2,7 @@
 
 C/Migemo is regexp pattern generator/expander.
 
-See doc/README\_j.txt (Japanese) for details.
+See <doc/README_j.txt> (Japanese) for details.
 
 ## License
 
