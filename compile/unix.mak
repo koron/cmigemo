@@ -14,7 +14,7 @@ CFLAGS	= -O2 -Wall $(DEFINES) $(CFLAGS_MIGEMO)
 LDFLAGS = $(LDFLAGS_MIGEMO)
 LIBS	= 
 
-default: dirs $(outdir)cmigemo$(EXEEXT)
+default: $(outdir)cmigemo$(EXEEXT)
 
 dirs:
 	@for i in $(objdir) $(outdir); do \
@@ -26,10 +26,10 @@ dirs:
 $(outdir)cmigemo$(EXEEXT): $(objdir)main.$(O) $(libmigemo_LIB)
 	$(CC) -o $@ $(objdir)main.$(O) -L. -L$(outdir) -lmigemo $(LDFLAGS)
 
-$(objdir)main.o: $(srcdir)main.c
+$(objdir)main.o: $(srcdir)main.c dirs
 	$(CC) $(CFLAGS) -o $@ -c $<
 
-$(objdir)%.o: $(srcdir)%.c
+$(objdir)%.o: $(srcdir)%.c dirs
 	$(CC) $(CFLAGS) -o $@ -c $<
 
 ##############################################################################
