@@ -66,6 +66,9 @@ install-dict: install-mkdir
 	  $(INSTALL_DATA) dict/utf-8.d/zen2han.dat $(dictdir)/utf-8; \
 	fi
 
+# depends on $(libdir) to be already present
+install-lib: install-mkdir
+
 install: $(outdir)cmigemo$(EXEEXT) $(libmigemo_DSO) install-mkdir install-dict install-lib
 	$(INSTALL_DATA) $(srcdir)migemo.h $(incdir)
 	$(INSTALL_DATA) doc/README_j.txt $(docdir)
