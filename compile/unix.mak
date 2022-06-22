@@ -45,7 +45,7 @@ install-mkdir:
 	$(MKDIR) $(dictdir)/euc-jp
 	$(MKDIR) $(dictdir)/utf-8
 
-install-dict:
+install-dict: install-mkdir
 	$(INSTALL_DATA) dict/migemo-dict $(dictdir)/cp932
 	$(INSTALL_DATA) dict/han2zen.dat $(dictdir)/cp932
 	$(INSTALL_DATA) dict/hira2kata.dat $(dictdir)/cp932
