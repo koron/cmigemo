@@ -14,7 +14,7 @@ CFLAGS	= -O2 -Wall $(DEFINES) $(CFLAGS_MIGEMO)
 LDFLAGS = $(LDFLAGS_MIGEMO)
 LIBS	= 
 
-default: dirs $(outdir)cmigemo$(EXEEXT)
+default: $(outdir)cmigemo$(EXEEXT)
 
 dirs:
 	@for i in $(objdir) $(outdir); do \
@@ -26,10 +26,10 @@ dirs:
 $(outdir)cmigemo$(EXEEXT): $(objdir)main.$(O) $(libmigemo_LIB)
 	$(CC) -o $@ $(objdir)main.$(O) -L. -L$(outdir) -lmigemo $(LDFLAGS)
 
-$(objdir)main.o: $(srcdir)main.c
+$(objdir)main.o: $(srcdir)main.c dirs
 	$(CC) $(CFLAGS) -o $@ -c $<
 
-$(objdir)%.o: $(srcdir)%.c
+$(objdir)%.o: $(srcdir)%.c dirs
 	$(CC) $(CFLAGS) -o $@ -c $<
 
 ##############################################################################
@@ -45,7 +45,7 @@ install-mkdir:
 	$(MKDIR) $(dictdir)/euc-jp
 	$(MKDIR) $(dictdir)/utf-8
 
-install-dict:
+install-dict: install-mkdir
 	$(INSTALL_DATA) dict/migemo-dict $(dictdir)/cp932
 	$(INSTALL_DATA) dict/han2zen.dat $(dictdir)/cp932
 	$(INSTALL_DATA) dict/hira2kata.dat $(dictdir)/cp932
@@ -65,6 +65,9 @@ install-dict:
 	  $(INSTALL_DATA) dict/utf-8.d/roma2hira.dat $(dictdir)/utf-8; \
 	  $(INSTALL_DATA) dict/utf-8.d/zen2han.dat $(dictdir)/utf-8; \
 	fi
+
+# depends on $(libdir) to be already present
+install-lib: install-mkdir
 
 install: $(outdir)cmigemo$(EXEEXT) $(libmigemo_DSO) install-mkdir install-dict install-lib
 	$(INSTALL_DATA) $(srcdir)migemo.h $(incdir)
