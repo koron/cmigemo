@@ -8,7 +8,6 @@
 
 config_out=config.mk
 config_in=compile/config.mk.in
-config_default=compile/config_default.mk
 
 CHECK_COMMAND() {
   command -v "$1" >/dev/null
@@ -16,11 +15,10 @@ CHECK_COMMAND() {
 
 PATH_PREFIX=/usr/local
 # Check arguments
-for i in $*
+for arg
 do
-  arg_value=`echo "$i" | sed 's/[-_a-zA-Z0-9]*=//'`
-  case $i in
-    --prefix=*) PATH_PREFIX=$arg_value;;
+  case $arg in
+    --prefix=*) PATH_PREFIX=${arg#*=}
   esac
 done
 
@@ -58,7 +56,7 @@ else
 fi
 
 # for Debug
-if test 0 != 0 ; then
+if false; then
   echo "PATH_PREFIX=${PATH_PREFIX}" 1>&2
   echo "PROGRAM_HTTP=${PROGRAM_HTTP}" 1>&2
   echo "PROGRAM_ENCODEFILTER=${PROGRAM_ENCODEFILTER}" 1>&2
@@ -67,8 +65,8 @@ fi
 
 # Generate config.mk
 while read line ; do
-  case "$line" in
-    *\$\{*) eval "echo $line" ;;
-    *) echo $line
+  case $line in
+    *\$\{*) eval "printf '%s\n' \"$line\"" ;;
+    *) printf %s\\n "$line"
   esac
 done < $config_in > $config_out
