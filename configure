@@ -3,7 +3,7 @@
 #
 # configure - Easy configuration script
 #
-# Last Change: 01-Oct-2005.
+# Last Change: 06-May-2026
 # Author & Maintainer: MURAOKA Taro <koron@tka.att.ne.jp>
 
 config_out=config.mk
@@ -11,11 +11,7 @@ config_in=compile/config.mk.in
 config_default=compile/config_default.mk
 
 CHECK_COMMAND() {
-  if test -e "`which $1 2>/dev/null`" ; then
-    return 0
-  else
-    return 1
-  fi
+  command -v "$1" >/dev/null
 }
 
 PATH_PREFIX=/usr/local
