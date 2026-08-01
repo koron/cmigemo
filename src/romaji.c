@@ -236,7 +236,7 @@ romaji_close(romaji* object)
 romaji_add_table(romaji* object, const unsigned char* key,
 	const unsigned char* value)
 {
-    int value_length;
+    size_t value_length;
     romanode **ref_node;
 
     if (!object || !key || !value)

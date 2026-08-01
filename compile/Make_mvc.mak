@@ -18,22 +18,8 @@ libmigemo_DSO = $(outdir)migemo.dll
 libmigemo_SRC = $(SRC)
 libmigemo_OBJ = $(OBJ)
 
-!if "$(_NMAKE_VER)" == "9.00.20706.01"
-MSVC_VER = 9.0
-!endif
-!if "$(_NMAKE_VER)" == "9.00.21022.08"
-MSVC_VER = 9.0
-!endif
-!if "$(_NMAKE_VER)" == "9.00.30729.01"
-MSVC_VER = 9.0
-!endif
-
-!if "$(MSVC_VER)" == "9.0"
 DEFINES = $(DEFINES) -D_CRT_SECURE_NO_WARNINGS
 CFLAGS_OPTIMIZE =
-!else
-CFLAGS_OPTIMIZE = -G6
-!endif
 
 !ifndef DEBUG
 DEFINES = $(DEFINES) -DNDEBUG
@@ -64,7 +50,7 @@ $(outdir)cmigemo.exe: $(libmigemo_LIB) $(objdir)main.obj
 	$(LD) $(LDFLAGS) -OUT:$@ $(libmigemo_LIB) $(LIBS) $(objdir)main.obj
 
 $(objdir)migemo.res: $(srcdir)migemo.rc $(srcdir)resource.h
-	$(RC) /i $(srcdir) /fo $@ $(srcdir)migemo.rc
+	$(RC) -nologo /i $(srcdir) /fo $@ $(srcdir)migemo.rc
 
 $(libmigemo_LIB): $(libmigemo_DSO)
 $(libmigemo_DSO): $(libmigemo_OBJ) $(srcdir)migemo.def $(objdir)migemo.res
