@@ -2,7 +2,7 @@
 #
 # UNIXŒn‹¤’ÊMakefile
 #
-# Last Change:	08-Dec-2004.
+# Last Change:	01-Aug-2026.
 # Base Idea:	AIDA Shinra
 # Maintainer:	MURAOKA Taro <koron.kaoriya@gmail.com>
 
@@ -10,7 +10,7 @@ libmigemo_SRC = $(SRC)
 libmigemo_OBJ = $(OBJ)
 
 DEFINES	=
-CFLAGS	= -O2 -Wall $(DEFINES) $(CFLAGS_MIGEMO)
+CFLAGS	= -O2 -Wall -Wno-pointer-sign $(DEFINES) $(CFLAGS_MIGEMO)
 LDFLAGS = $(LDFLAGS_MIGEMO)
 LIBS	= 
 

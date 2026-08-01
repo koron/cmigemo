@@ -13,6 +13,10 @@
 /dict2/migemo-dict
 /dict2/*.d/
 
+/libmigemo.so
+/libmigemo.so.1
+/libmigemo.so.1.1.0
+
 /src/testdir/profile.log
 /src/testdir/qspeed
 /src/testdir/qspeed.exe
