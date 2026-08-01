@@ -40,6 +40,8 @@ euc-jp.d/$(DICT_FILE): $(DICT_FILE) $(DAT_FILES)
 
 cp932.d/$(DICT_FILE): $(DICT_FILE) $(DAT_FILES)
 	if [ ! -d cp932.d ] ; then mkdir cp932.d ; fi
-	for i in $(DICT_FILE) $(DAT_FILES) ; do \
-	  iconv -c -f UTF-8 -t CP932 $$i > cp932.d/$$i ; \
+	for i in $(DAT_FILES) ; do \
+	  iconv -f UTF-8 -t CP932 $$i > cp932.d/$$i ; \
 	done
+	# TODO: How to handle characters that cannot be converted to CP932
+	-iconv -cs -f UTF-8 -t CP932 $(DICT_FILE) > cp932.d/$(DICT_FILE)
