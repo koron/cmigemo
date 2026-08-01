@@ -41,5 +41,5 @@ euc-jp.d/$(DICT_FILE): $(DICT_FILE) $(DAT_FILES)
 cp932.d/$(DICT_FILE): $(DICT_FILE) $(DAT_FILES)
 	if [ ! -d cp932.d ] ; then mkdir cp932.d ; fi
 	for i in $(DICT_FILE) $(DAT_FILES) ; do \
-	  iconv -f UTF-8 -t CP932 $$i > cp932.d/$$i ; \
+	  iconv -c -f UTF-8 -t CP932 $$i > cp932.d/$$i ; \
 	done
