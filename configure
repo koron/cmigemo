@@ -3,28 +3,24 @@
 #
 # configure - Easy configuration script
 #
-# Last Change: 01-Oct-2005.
+# Last Change: 01-Aug-2026
 # Author & Maintainer: MURAOKA Taro <koron@tka.att.ne.jp>
 
 config_out=config.mk
 config_in=compile/config.mk.in
-config_default=compile/config_default.mk
+
+DEBUG=0
 
 CHECK_COMMAND() {
-  if test -e "`which $1 2>/dev/null`" ; then
-    return 0
-  else
-    return 1
-  fi
+  command -v "$1" >/dev/null
 }
 
 PATH_PREFIX=/usr/local
 # Check arguments
-for i in $*
+for arg
 do
-  arg_value=`echo "$i" | sed 's/[-_a-zA-Z0-9]*=//'`
-  case $i in
-    --prefix=*) PATH_PREFIX=$arg_value;;
+  case $arg in
+    --prefix=*) PATH_PREFIX=${arg#*=}
   esac
 done
 
@@ -62,7 +58,7 @@ else
 fi
 
 # for Debug
-if test 0 != 0 ; then
+if [ $DEBUG -ne 0 ]; then
   echo "PATH_PREFIX=${PATH_PREFIX}" 1>&2
   echo "PROGRAM_HTTP=${PROGRAM_HTTP}" 1>&2
   echo "PROGRAM_ENCODEFILTER=${PROGRAM_ENCODEFILTER}" 1>&2
@@ -72,7 +68,7 @@ fi
 # Generate config.mk
 while read line ; do
   case "$line" in
-    *\$\{*) eval "echo $line" ;;
-    *) echo $line
+    *\$\{*) eval "printf '%s\n' \"$line\"" ;;
+    *) printf %s\\n "$line"
   esac
 done < $config_in > $config_out
