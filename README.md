@@ -38,7 +38,3 @@ To get profiling report:
     # profile: result is in profile.log
     $ cd src/testdir
     $ make profile
-
-### Unit Tests
-
-TODO: write unit tests and its usage.
