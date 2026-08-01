@@ -2,7 +2,7 @@
 #
 # Default configuration file.
 #
-# Last Change:	17-Nov-2021.
+# Last Change:	01-Aug-2026.
 # Base Idea:	AIDA Shinra
 # Maintainer:	MURAOKA Taro <koron.kaoriya@gmail.com>
 
@@ -35,8 +35,8 @@ HTTP		= curl -O
 PERL		= perl
 BUNZIP2		= bzip2 -d
 GUNZIP		= gzip -d
-ICONV_EUCJP_TO_CP932 = iconv -f euc-jp-ms -t cp932
-ICONV_CP932_TO_EUCJP = iconv -f cp932 -t euc-jp-ms
+ICONV_EUCJP_TO_CP932 = iconv -f euc-jp -t cp932
+ICONV_CP932_TO_EUCJP = iconv -f cp932 -t euc-jp
 ICONV_CP932_TO_UTF8  = iconv -f cp932 -t utf-8
 INSTALL		= /usr/bin/install -c
 #INSTALL	= /usr/ucb/install -c

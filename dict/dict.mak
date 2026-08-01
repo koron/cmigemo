@@ -72,7 +72,7 @@ $(UTF8_DIR)/hira2kata.dat: $(UTF8_DIR) hira2kata.dat
 $(UTF8_DIR)/roma2hira.dat: $(UTF8_DIR) roma2hira.dat
 	$(ICONV_CP932_TO_UTF8) < roma2hira.dat > $@
 $(UTF8_DIR)/migemo-dict-zh: $(UTF8_DIR) migemo-dict-zh
-	cp $< $@
+	cp migemo-dict-zh $(UTF8_DIR)
 
 ##############################################################################
 # for Microsoft Visual C
