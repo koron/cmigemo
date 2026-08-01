@@ -1,8 +1,8 @@
 # vim:set ts=8 sts=8 sw=8 tw=0 noet:
 
-HTTP_GET	= curl -O
+HTTP_GET	= curl -fsSLO
 
-SKKDICT_BASEURL	= http://openlab.ring.gr.jp/skk/dic
+SKKDICT_BASEURL	= https://skk-dev.github.io/dict
 SKKDICT_FILE	= SKK-JISYO.L
 DICT_FILE	= migemo-dict
 DAT_FILES	= han2zen.dat hira2kata.dat roma2hira.dat zen2han.dat
