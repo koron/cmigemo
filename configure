@@ -3,11 +3,13 @@
 #
 # configure - Easy configuration script
 #
-# Last Change: 06-May-2026
+# Last Change: 01-Aug-2026
 # Author & Maintainer: MURAOKA Taro <koron@tka.att.ne.jp>
 
 config_out=config.mk
 config_in=compile/config.mk.in
+
+DEBUG=0
 
 CHECK_COMMAND() {
   command -v "$1" >/dev/null
@@ -56,7 +58,7 @@ else
 fi
 
 # for Debug
-if false; then
+if [ $DEBUG -ne 0 ]; then
   echo "PATH_PREFIX=${PATH_PREFIX}" 1>&2
   echo "PROGRAM_HTTP=${PROGRAM_HTTP}" 1>&2
   echo "PROGRAM_ENCODEFILTER=${PROGRAM_ENCODEFILTER}" 1>&2
@@ -65,7 +67,7 @@ fi
 
 # Generate config.mk
 while read line ; do
-  case $line in
+  case "$line" in
     *\$\{*) eval "printf '%s\n' \"$line\"" ;;
     *) printf %s\\n "$line"
   esac
