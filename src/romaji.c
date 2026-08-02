@@ -1,6 +1,6 @@
 /* vim:set ts=8 sts=4 sw=4 tw=0: */
 /*
- * romaji.c - ƒ[ƒ}š•ÏŠ·
+ * romaji.c - ãƒ­ãƒ¼ãƒå­—å¤‰æ›
  *
  * Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
  */
@@ -109,11 +109,11 @@ romanode_dig(romanode** ref_node, const unsigned char* key)
 }
 
 /**
- * ƒL[‚É‘Î‰‚µ‚½romanode‚ğŒŸõ‚µ‚Ä•Ô‚·B
- * @return romanode‚ªŒ©‚Â‚©‚ç‚È‚©‚Á‚½ê‡NULL
- * @param node ƒ‹[ƒgƒm[ƒh
- * @param key ŒŸõƒL[
- * @param skip i‚ß‚é‚×‚«key‚ÌƒoƒCƒg”‚ğó‚¯æ‚éƒ|ƒCƒ“ƒ^
+ * ã‚­ãƒ¼ã«å¯¾å¿œã—ãŸromanodeã‚’æ¤œç´¢ã—ã¦è¿”ã™ã€‚
+ * @return romanodeãŒè¦‹ã¤ã‹ã‚‰ãªã‹ã£ãŸå ´åˆNULL
+ * @param node ãƒ«ãƒ¼ãƒˆãƒãƒ¼ãƒ‰
+ * @param key æ¤œç´¢ã‚­ãƒ¼
+ * @param skip é€²ã‚ã‚‹ã¹ãkeyã®ãƒã‚¤ãƒˆæ•°ã‚’å—ã‘å–ã‚‹ãƒã‚¤ãƒ³ã‚¿
  */
     static romanode*
 romanode_query(romanode* node, const unsigned char* key, int* skip,
@@ -145,10 +145,10 @@ romanode_query(romanode* node, const unsigned char* key, int* skip,
 		}
 		node = node->child;
 	    }
-	    /* Ÿ‚É‘–¸‚·‚éƒm[ƒh‚ª‹ó‚Ìê‡AƒL[‚ği‚ß‚ÄNULL‚ğ•Ô‚· */
+	    /* æ¬¡ã«èµ°æŸ»ã™ã‚‹ãƒãƒ¼ãƒ‰ãŒç©ºã®å ´åˆã€ã‚­ãƒ¼ã‚’é€²ã‚ã¦NULLã‚’è¿”ã™ */
 	    if (!node)
 	    {
-		/* 1ƒoƒCƒg‚Å‚Í‚È‚­1•¶ši‚ß‚é */
+		/* 1ãƒã‚¤ãƒˆã§ã¯ãªã1æ–‡å­—é€²ã‚ã‚‹ */
 		if (!char2int || (nskip = (*char2int)(key_start, NULL)) < 1)
 		    nskip = 1;
 		//printf("  HERE 3: nskip=%d\n", nskip);
@@ -162,7 +162,7 @@ romanode_query(romanode* node, const unsigned char* key, int* skip,
     return node;
 }
 
-#if 0 /* –¢g—p‚Ì‚½‚ß */
+#if 0 /* æœªä½¿ç”¨ã®ãŸã‚ */
     static void
 romanode_print_stub(romanode* node, unsigned char* p)
 {
@@ -254,7 +254,7 @@ romaji_add_table(romaji* object, const unsigned char* key,
 	    printf("romaji_add_table(\"%s\", \"%s\")\n", key, value););
     (*ref_node)->value = STRDUP(value);
 
-    /* u‚ñv‚Æu‚Áv‚Í•Û‘¶‚µ‚Ä‚¨‚­ */
+    /* ã€Œã‚“ã€ã¨ã€Œã£ã€ã¯ä¿å­˜ã—ã¦ãŠã */
     if (object->fixvalue_xn == NULL && value_length > 0
 	    && !strcmp(key, ROMAJI_FIXKEY_XN))
     {
@@ -294,15 +294,15 @@ romaji_load_stub(romaji* object, FILE* fp)
 	switch (mode)
 	{
 	    case 0:
-		/* key‘Ò‚¿ƒ‚[ƒh */
+		/* keyå¾…ã¡ãƒ¢ãƒ¼ãƒ‰ */
 		if (ch == '#')
 		{
-		    /* 1•¶šæ“Ç‚İ‚µ‚Ä‹ó”’‚È‚ç‚Îkey‚Æ‚µ‚Äˆµ‚¤ */
+		    /* 1æ–‡å­—å…ˆèª­ã¿ã—ã¦ç©ºç™½ãªã‚‰ã°keyã¨ã—ã¦æ‰±ã† */
 		    ch = fgetc(fp);
 		    if (ch != '#')
 		    {
 			ungetc(ch, fp);
-			mode = 1; /* s––‚Ü‚Å“Ç‚İ”ò‚Î‚µƒ‚[ƒh ‚ÖˆÚs */
+			mode = 1; /* è¡Œæœ«ã¾ã§èª­ã¿é£›ã°ã—ãƒ¢ãƒ¼ãƒ‰ ã¸ç§»è¡Œ */
 			break;
 		    }
 		}
@@ -310,36 +310,36 @@ romaji_load_stub(romaji* object, FILE* fp)
 		{
 		    wordbuf_reset(buf_key);
 		    wordbuf_add(buf_key, (unsigned char)ch);
-		    mode = 2; /* key“Ç‚İ‚İƒ‚[ƒh ‚ÖˆÚs */
+		    mode = 2; /* keyèª­ã¿è¾¼ã¿ãƒ¢ãƒ¼ãƒ‰ ã¸ç§»è¡Œ */
 		}
 		break;
 
 	    case 1:
-		/* s––‚Ü‚Å“Ç‚İ”ò‚Î‚µƒ‚[ƒh */
+		/* è¡Œæœ«ã¾ã§èª­ã¿é£›ã°ã—ãƒ¢ãƒ¼ãƒ‰ */
 		if (ch == '\n')
-		    mode = 0; /* key‘Ò‚¿ƒ‚[ƒh ‚ÖˆÚs */
+		    mode = 0; /* keyå¾…ã¡ãƒ¢ãƒ¼ãƒ‰ ã¸ç§»è¡Œ */
 		break;
 
 	    case 2:
-		/* key“Ç‚İ‚İƒ‚[ƒh */
+		/* keyèª­ã¿è¾¼ã¿ãƒ¢ãƒ¼ãƒ‰ */
 		if (!isspace(ch))
 		    wordbuf_add(buf_key, (unsigned char)ch);
 		else
-		    mode = 3; /* value‘Ò‚¿ƒ‚[ƒh ‚ÖˆÚs */
+		    mode = 3; /* valueå¾…ã¡ãƒ¢ãƒ¼ãƒ‰ ã¸ç§»è¡Œ */
 		break;
 
 	    case 3:
-		/* value‘Ò‚¿ƒ‚[ƒh */
+		/* valueå¾…ã¡ãƒ¢ãƒ¼ãƒ‰ */
 		if (ch != EOF && !isspace(ch))
 		{
 		    wordbuf_reset(buf_value);
 		    wordbuf_add(buf_value, (unsigned char)ch);
-		    mode = 4; /* value“Ç‚İ‚İƒ‚[ƒh ‚ÖˆÚs */
+		    mode = 4; /* valueèª­ã¿è¾¼ã¿ãƒ¢ãƒ¼ãƒ‰ ã¸ç§»è¡Œ */
 		}
 		break;
 
 	    case 4:
-		/* value“Ç‚İ‚İƒ‚[ƒh */
+		/* valueèª­ã¿è¾¼ã¿ãƒ¢ãƒ¼ãƒ‰ */
 		if (ch != EOF && !isspace(ch))
 		    wordbuf_add(buf_value, (unsigned char)ch);
 		else
@@ -360,10 +360,10 @@ romaji_load_stub(romaji* object, FILE* fp)
 }
 
 /**
- * ƒ[ƒ}š«‘‚ğ“Ç‚İ‚ŞB
- * @param object ƒ[ƒ}šƒIƒuƒWƒFƒNƒg
- * @param filename «‘ƒtƒ@ƒCƒ‹–¼
- * @return ¬Œ÷‚µ‚½ê‡0A¸”s‚µ‚½ê‡‚Í”ñ0‚ğ•Ô‚·B
+ * ãƒ­ãƒ¼ãƒå­—è¾æ›¸ã‚’èª­ã¿è¾¼ã‚€ã€‚
+ * @param object ãƒ­ãƒ¼ãƒå­—ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
+ * @param filename è¾æ›¸ãƒ•ã‚¡ã‚¤ãƒ«å
+ * @return æˆåŠŸã—ãŸå ´åˆ0ã€å¤±æ•—ã—ãŸå ´åˆã¯é0ã‚’è¿”ã™ã€‚
  */
     int
 romaji_load(romaji* object, const unsigned char* filename)
@@ -412,7 +412,7 @@ romaji_convert2(romaji* object, const unsigned char* string,
 	    romanode *node;
 	    int skip;
 
-	    /* u‚Áv‚Ì”»’è */
+	    /* ã€Œã£ã€ã®åˆ¤å®š */
 	    if (object->fixvalue_xtu && input[i] == input[i + 1]
 		    && !strchr(ROMAJI_FIXKEY_NONXTU, input[i]))
 	    {
@@ -434,7 +434,7 @@ romaji_convert2(romaji* object, const unsigned char* string,
 	    }
 	    else if (!node)
 	    {
-		/* un(q‰¹)v‚ğu‚ñ(q‰¹)v‚É•ÏŠ· */
+		/* ã€Œn(å­éŸ³)ã€ã‚’ã€Œã‚“(å­éŸ³)ã€ã«å¤‰æ› */
 		if (skip == 1 && input[i] == ROMAJI_FIXKEY_N
 			&& object->fixvalue_xn)
 		{

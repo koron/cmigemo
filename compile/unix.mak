@@ -1,6 +1,6 @@
 # vim:set ts=8 sts=8 sw=8 tw=0:
 #
-# UNIXŒn‹¤’ÊMakefile
+# UNIXç³»å…±é€šMakefile
 #
 # Base Idea:	AIDA Shinra
 # Maintainer:	MURAOKA Taro <koron.kaoriya@gmail.com>

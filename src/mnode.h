@@ -11,7 +11,7 @@
 #ifndef MNODE_H
 #define MNODE_H
 
-/* ƒcƒŠ[ƒIƒuƒWƒFƒNƒg */
+/* ãƒ„ãƒªãƒ¼ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ */
 typedef struct _mnode mnode;
 struct _mnode
 {
@@ -43,7 +43,7 @@ void mnode_close(mtree_p p);
 mnode* mnode_query(mtree_p node, const unsigned char* query);
 void mnode_traverse(mnode *node, MNODE_TRAVERSE_PROC proc, void* data);
 
-/* å‚ÉƒfƒoƒbƒO—p“r */
+/* ä¸»ã«ãƒ‡ãƒãƒƒã‚°ç”¨é€” */
 void mnode_print(mtree_p mtree, unsigned char* p);
 
 #ifdef __cplusplus

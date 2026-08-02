@@ -37,7 +37,7 @@ typedef int (*MIGEMO_PROC_CHAR2INT)(const unsigned char*, unsigned int*);
 typedef int (*MIGEMO_PROC_INT2CHAR)(unsigned int, unsigned char*);
 
 /**
- * MigemoƒIƒuƒWƒFƒNƒgBmigemo_open()‚Åì¬‚³‚êAmigemo_close‚Å”jŠü‚³‚ê‚éB
+ * Migemoã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã€‚migemo_open()ã§ä½œæˆã•ã‚Œã€migemo_closeã§ç ´æ£„ã•ã‚Œã‚‹ã€‚
  */
 typedef struct _migemo migemo;
 

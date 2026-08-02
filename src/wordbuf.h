@@ -10,9 +10,9 @@
 typedef struct _wordbuf_t wordbuf_t, *wordbuf_p;
 struct _wordbuf_t
 {
-    int len; /* buf‚ÉŠ„‚è“–‚Ä‚ç‚ê‚Ä‚¢‚éƒƒ‚ƒŠ—Ê */
+    int len; /* bufã«å‰²ã‚Šå½“ã¦ã‚‰ã‚Œã¦ã„ã‚‹ãƒ¡ãƒ¢ãƒªé‡ */
     unsigned char* buf;
-    int last; /* buf‚ÉÀÛ‚ÉŠi”[‚µ‚Ä‚¢‚é•¶š—ñ‚Ì’·‚³ */
+    int last; /* bufã«å®Ÿéš›ã«æ ¼ç´ã—ã¦ã„ã‚‹æ–‡å­—åˆ—ã®é•·ã• */
 };
 
 extern int n_wordbuf_open;

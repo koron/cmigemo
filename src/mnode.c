@@ -43,7 +43,7 @@ mnode_new(mtree_p mtree)
     if (active->used >= MTREE_MNODE_N)
     {
 	active->next = (mtree_p)calloc(1, sizeof(*active->next));
-	/* TODO: �G���[���� */
+	/* TODO: エラー処理 */
 	mtree->active = active->next;
 	active = active->next;
     }
@@ -117,7 +117,7 @@ mnode_close(mtree_p mtree)
     INLINE static mnode*
 search_or_new_mnode(mtree_p mtree, wordbuf_p buf)
 {
-    /* ���x���P�ꂪ���肵���猟���؂ɒǉ� */
+    /* ラベル単語が決定したら検索木に追加 */
     int ch;
     unsigned char *word;
     mnode **ppnext;
@@ -149,7 +149,7 @@ search_or_new_mnode(mtree_p mtree, wordbuf_p buf)
 }
 
 /*
- * �����̃m�[�h�Ƀt�@�C������f�[�^���܂Ƃ߂Ēǉ�����B
+ * 既存のノードにファイルからデータをまとめて追加する。
  */
     mtree_p
 mnode_load(mtree_p mtree, FILE* fp)
@@ -160,7 +160,7 @@ mnode_load(mtree_p mtree, FILE* fp)
     wordbuf_p buf;
     wordbuf_p prevlabel;
     wordlist_p *ppword = NULL; /* To suppress warning for GCC */
-    /* �ǂݍ��݃o�b�t�@�p�ϐ� */
+    /* 読み込みバッファ用変数 */
     unsigned char cache[MNODE_BUFSIZE];
     unsigned char *cache_ptr = cache;
     unsigned char *cache_tail = cache;
@@ -173,9 +173,9 @@ mnode_load(mtree_p mtree, FILE* fp)
     }
 
     /*
-     * EOF�̏������B���B�s���Ȍ`���̃t�@�C�����������ꍇ���l�����Ă��Ȃ��B�e
-     * ���[�h����EOF�̓���p�ӂ��Ȃ��Ɛ������Ȃ����c�ʓ|�Ȃ̂ł��Ȃ��B�f�[
-     * �^�t�@�C���͐�΂ɊԈ���Ă��Ȃ��Ƃ����O���u���B
+     * EOFの処理が曖昧。不正な形式のファイルが入った場合を考慮していない。各
+     * モードからEOFの道を用意しないと正しくないが…面倒なのでやらない。デー
+     * タファイルは絶対に間違っていないという前提を置く。
      */
     do
     {
@@ -189,29 +189,29 @@ mnode_load(mtree_p mtree, FILE* fp)
 	    ch = *cache_ptr;
 	++cache_ptr;
 
-	/* ���:mode�̃I�[�g�}�g�� */
+	/* 状態:modeのオートマトン */
 	switch (mode)
 	{
-	    case 0: /* ���x���P�ꌟ�����[�h */
-		/* �󔒂̓��x���P��ɂȂ肦�܂��� */
+	    case 0: /* ラベル単語検索モード */
+		/* 空白はラベル単語になりえません */
 		if (isspace(ch) || ch == EOF)
 		    continue;
-		/* �R�����g���C���`�F�b�N */
+		/* コメントラインチェック */
 		else if (ch == ';')
 		{
-		    mode = 2; /* �s���܂ŐH���ׂ����[�h �ֈڍs */
+		    mode = 2; /* 行末まで食い潰すモード へ移行 */
 		    continue;
 		}
 		else
 		{
-		    mode = 1; /* ���x���P��̓Ǎ����[�h �ֈڍs*/
+		    mode = 1; /* ラベル単語の読込モード へ移行*/
 		    wordbuf_reset(buf);
 		    wordbuf_add(buf, (unsigned char)ch);
 		}
 		break;
 
-	    case 1: /* ���x���P��̓Ǎ����[�h */
-		/* ���x���̏I�������o */
+	    case 1: /* ラベル単語の読込モード */
+		/* ラベルの終了を検出 */
 		switch (ch)
 		{
 		    default:
@@ -220,44 +220,44 @@ mnode_load(mtree_p mtree, FILE* fp)
 		    case '\t':
 			pp = search_or_new_mnode(mtree, buf);
 			wordbuf_reset(buf);
-			mode = 3; /* �P��O�󔒓ǔ�΂����[�h �ֈڍs */
+			mode = 3; /* 単語前空白読飛ばしモード へ移行 */
 			break;
 		}
 		break;
 
-	    case 2: /* �s���܂ŐH���ׂ����[�h */
+	    case 2: /* 行末まで食い潰すモード */
 		if (ch == '\n')
 		{
 		    wordbuf_reset(buf);
-		    mode = 0; /* ���x���P�ꌟ�����[�h �֖߂� */
+		    mode = 0; /* ラベル単語検索モード へ戻る */
 		}
 		break;
 
-	    case 3: /* �P��O�󔒓ǂݔ�΂����[�h */
+	    case 3: /* 単語前空白読み飛ばしモード */
 		if (ch == '\n')
 		{
 		    wordbuf_reset(buf);
-		    mode = 0; /* ���x���P�ꌟ�����[�h �֖߂� */
+		    mode = 0; /* ラベル単語検索モード へ戻る */
 		}
 		else if (ch != '\t')
 		{
-		    /* �P��o�b�t�@���Z�b�g */
+		    /* 単語バッファリセット */
 		    wordbuf_reset(buf);
 		    wordbuf_add(buf, (unsigned char)ch);
-		    /* �P�ꃊ�X�g�̍Ō������(���ꃉ�x����������) */
+		    /* 単語リストの最後を検索(同一ラベルが複数時) */
 		    ppword = &pp->list;
 		    while (*ppword)
 			ppword = &(*ppword)->next;
-		    mode = 4; /* �P��̓ǂݍ��݃��[�h �ֈڍs */
+		    mode = 4; /* 単語の読み込みモード へ移行 */
 		}
 		break;
 
-	    case 4: /* �P��̓ǂݍ��݃��[�h */
+	    case 4: /* 単語の読み込みモード */
 		switch (ch)
 		{
 		    case '\t':
 		    case '\n':
-			/* �P����L�� */
+			/* 単語を記憶 */
 			*ppword = wordlist_open_len(WORDBUF_GET(buf),
 				WORDBUF_LEN(buf));
 			wordbuf_reset(buf);
@@ -265,12 +265,12 @@ mnode_load(mtree_p mtree, FILE* fp)
 			if (ch == '\t')
 			{
 			    ppword = &(*ppword)->next;
-			    mode = 3; /* �P��O�󔒓ǂݔ�΂����[�h �֖߂� */
+			    mode = 3; /* 単語前空白読み飛ばしモード へ戻る */
 			}
 			else
 			{
 			    ppword = NULL;
-			    mode = 0; /* ���x���P�ꌟ�����[�h �֖߂� */
+			    mode = 0; /* ラベル単語検索モード へ戻る */
 			}
 			break;
 		    default:

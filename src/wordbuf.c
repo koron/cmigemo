@@ -55,8 +55,8 @@ wordbuf_reset(wordbuf_p p)
 
 /*
  * wordbuf_extend(wordbuf_p p, int req_len);
- *	ƒoƒbƒtƒ@‚ÌL’·BƒGƒ‰[Žž‚É‚Í0‚ª‹A‚éB
- *	‚‘¬‰»‚Ì‚½‚ß‚ÉL‚Î‚·‚×‚«‚©‚ÍŒÄo‘¤‚Å”»’f‚·‚éB
+ *	ãƒãƒƒãƒ•ã‚¡ã®ä¼¸é•·ã€‚ã‚¨ãƒ©ãƒ¼æ™‚ã«ã¯0ãŒå¸°ã‚‹ã€‚
+ *	é«˜é€ŸåŒ–ã®ãŸã‚ã«ä¼¸ã°ã™ã¹ãã‹ã¯å‘¼å‡ºå´ã§åˆ¤æ–­ã™ã‚‹ã€‚
  */
     static int
 wordbuf_extend(wordbuf_p p, int req_len)
@@ -100,7 +100,7 @@ wordbuf_add(wordbuf_p p, unsigned char ch)
 	buf[0] = ch;
 	buf[1] = '\0';
 #else
-	/* ƒŠƒgƒ‹ƒGƒ“ƒfƒBƒAƒ“‚ð‰¼’è‚·‚é‚È‚çŽg‚¦‚é‚ªc */
+	/* ãƒªãƒˆãƒ«ã‚¨ãƒ³ãƒ‡ã‚£ã‚¢ãƒ³ã‚’ä»®å®šã™ã‚‹ãªã‚‰ä½¿ãˆã‚‹ãŒâ€¦ */
 	*(unsigned short*)&p->buf[p->last] = (unsigned short)ch;
 #endif
 	return ++p->last;

@@ -6,6 +6,8 @@
 " Maintainer:  MURAOKA Taro <koron.kaoriya@gmail.com>
 " Modified:    Yasuhiro Matsumoto <mattn_jp@hotmail.com>
 
+scriptencoding utf-8
+
 " Japanese Description:
 
 if exists('plugin_migemo_disable')
@@ -59,7 +61,7 @@ if has('migemo')
     let &migemodict = s:SearchDict()
   endif
 
-  " ƒeƒXƒg
+  " Test
   function! s:SearchChar(dir)
     let input = nr2char(getchar())
     let pat = migemo(input)
