@@ -1,12 +1,11 @@
 # vim:set ts=8 sts=8 sw=8 tw=0:
 #
-# \¬ƒtƒ@ƒCƒ‹‚ÆˆË‘¶ŠÖŒW
+# æ§‹æˆãƒ•ã‚¡ã‚¤ãƒ«ã¨ä¾å­˜é–¢ä¿‚
 #
-# Last Change:	19-Jun-2004.
 # Written By:	MURAOKA Taro <koron.kaoriya@gmail.com>
 
 ##############################################################################
-# \¬ƒtƒ@ƒCƒ‹
+# æ§‹æˆãƒ•ã‚¡ã‚¤ãƒ«
 #
 SRC = 	$(srcdir)charset.c \
 	$(srcdir)filename.c \
@@ -27,7 +26,7 @@ OBJ = 	$(objdir)charset.$(O) \
 	$(objdir)wordlist.$(O)
 
 ##############################################################################
-# ˆË‘¶ŠÖŒW‚Ìİ’è
+# ä¾å­˜é–¢ä¿‚ã®è¨­å®š
 #
 $(objdir)charset.$(O): $(srcdir)charset.c \
 	$(srcdir)charset.h

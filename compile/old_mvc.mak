@@ -1,8 +1,7 @@
 # vim:set ts=8 sts=8 sw=8 tw=0:
 #
-# Visual C++—p Makefile
+# Visual C++ç”¨ Makefile
 #
-# Last Change:	27-May-2002.
 # Written By:	MURAOKA Taro <koron.kaoriya@gmail.com>
 
 default: rel

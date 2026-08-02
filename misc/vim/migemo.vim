@@ -5,7 +5,8 @@
 "
 " Maintainer:  MURAOKA Taro <koron.kaoriya@gmail.com>
 " Modified:    Yasuhiro Matsumoto <mattn_jp@hotmail.com>
-" Last Change: 15-Dec-2013.
+
+scriptencoding utf-8
 
 " Japanese Description:
 
@@ -60,7 +61,7 @@ if has('migemo')
     let &migemodict = s:SearchDict()
   endif
 
-  " ƒeƒXƒg
+  " Test
   function! s:SearchChar(dir)
     let input = nr2char(getchar())
     let pat = migemo(input)

@@ -2,13 +2,12 @@
 #
 # Clean up - dependent on DOS/Windows
 #
-# Last Change:	17-Nov-2021.
 # Written By:	MURAOKA Taro <koron.kaoriya@gmail.com>
 
-# ���s��\�̂��Ƃɂ͔��p�X�y�[�X���K�v��"\ "
+# 次行の\のあとには半角スペースが必要→"\ "
 DICT_DIR = dict\ 
 
-# BC5�ł͋�̃`�����N�̓G���[�ɂȂ�̂�"\t@"���K�v
+# BC5では空のチャンクはエラーになるので"\t@"が必要
 clean-arch:
 	@
 

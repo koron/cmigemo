@@ -2,7 +2,6 @@
 /*
  * filename.c - Operate filename.
  *
- * Last change: 20-Sep-2009.
  * Written by:  Muraoka Taro  <koron.kaoriya@gmail.com>
  */
 

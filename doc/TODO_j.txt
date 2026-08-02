@@ -1,5 +1,4 @@
  vim:set ts=8 sts=4 sw=4 tw=0 et ft=memo:
- Last Change: 01-Aug-2026.
 
 TODO
     COM/XPCOMのインターフェースを定義し、グルーコードを作成

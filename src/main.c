@@ -1,9 +1,8 @@
 /* vim:set ts=8 sts=4 sw=4 tw=0: */
 /*
- * main.c - migemoƒ‰ƒCƒuƒ‰ƒŠƒeƒXƒgƒhƒ‰ƒCƒo
+ * main.c - migemoãƒ©ã‚¤ãƒ–ãƒ©ãƒªãƒ†ã‚¹ãƒˆãƒ‰ãƒ©ã‚¤ãƒ
  *
  * Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
- * Last Change: 23-Feb-2004.
  */
 
 #include <stdio.h>
@@ -30,14 +29,14 @@ query_loop(migemo* p, int quiet)
 
 	if (!quiet)
 	    printf("QUERY: ");
-	/* gets()‚ğg‚Á‚Ä‚¢‚½‚ªfgets()‚É•ÏX */
+	/* gets()ã‚’ä½¿ã£ã¦ã„ãŸãŒfgets()ã«å¤‰æ›´ */
 	if (!fgets(buf, sizeof(buf), stdin))
 	{
 	    if (!quiet)
 		printf("\n");
 	    break;
 	}
-	/* ‰üs‚ğNUL•¶š‚É’u‚«Š·‚¦‚é */
+	/* æ”¹è¡Œã‚’NULæ–‡å­—ã«ç½®ãæ›ãˆã‚‹ */
 	if ((ans = strchr(buf, '\n')) != NULL)
 	    *ans = '\0';
 
@@ -116,7 +115,7 @@ main(int argc, char** argv)
     fplog = fopen("exe.log", "wt");
 #endif
 
-    /* «‘‚ğƒJƒŒƒ“ƒgƒfƒBƒŒƒNƒgƒŠ‚Æ1‚Âã‚ÌƒfƒBƒŒƒNƒgƒŠ‚©‚ç‘{‚· */
+    /* è¾æ›¸ã‚’ã‚«ãƒ¬ãƒ³ãƒˆãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã¨1ã¤ä¸Šã®ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã‹ã‚‰æœã™ */
     if (!dict)
     {
 	pmigemo = migemo_open("./dict/" MIGEMODICT_NAME);
@@ -127,7 +126,7 @@ main(int argc, char** argv)
 	}
 	if (!pmigemo || !migemo_is_enable(pmigemo))
 	{
-	    migemo_close(pmigemo); /* NULL‚ğclose‚µ‚Ä‚à–â‘è‚Í‚È‚¢ */
+	    migemo_close(pmigemo); /* NULLã‚’closeã—ã¦ã‚‚å•é¡Œã¯ãªã„ */
 	    pmigemo = migemo_open("../dict/" MIGEMODICT_NAME);
 	    if (!word && !mode_quiet)
 	    {
@@ -142,7 +141,7 @@ main(int argc, char** argv)
 	if (!word && !mode_quiet)
 	    fprintf(fplog, "migemo_open(\"%s\")=%p\n", dict, pmigemo);
     }
-    /* ƒTƒu«‘‚ğ“Ç‚İ‚Ş */
+    /* ã‚µãƒ–è¾æ›¸ã‚’èª­ã¿è¾¼ã‚€ */
     if (subdict_count > 0)
     {
 	int i;
@@ -197,7 +196,7 @@ main(int argc, char** argv)
 	    query_loop(pmigemo, mode_quiet);
 	}
 #else
-	/* ƒvƒƒtƒ@ƒCƒ‹—p */
+	/* ãƒ—ãƒ­ãƒ•ã‚¡ã‚¤ãƒ«ç”¨ */
 	{
 	    unsigned char *ans;
 

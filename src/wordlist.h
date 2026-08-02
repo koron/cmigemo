@@ -3,7 +3,6 @@
  * wordlist.h -
  *
  * Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
- * Last Change: 04-May-2004.
  */
 
 #ifndef WORDLIST_H

@@ -3,7 +3,6 @@
  * charset.h -
  *
  * Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
- * Last Change: 18-Jun-2004.
  */
 
 #ifndef CHARSET_H

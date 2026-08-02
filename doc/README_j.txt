@@ -2,7 +2,6 @@ C/Migemoライブラリ説明書
                                                             Since: 15-Aug-2001
                                                               Version: 1.4.0rc
                                                   Author: MURAOKA Taro (KoRoN)
-                                                     Last Change: 01-Aug-2026.
 
 説明
   C/MigemoはMigemo(Ruby/Migemo)をC言語で実装したものです。C/Migemoライブラリを

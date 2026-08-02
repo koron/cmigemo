@@ -3,7 +3,6 @@
  * mnode.c - mnode interfaces.
  *
  * Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
- * Last Change: 04-May-2004.
  */
 
 #include <stdio.h>
@@ -44,7 +43,7 @@ mnode_new(mtree_p mtree)
     if (active->used >= MTREE_MNODE_N)
     {
 	active->next = (mtree_p)calloc(1, sizeof(*active->next));
-	/* TODO: ƒGƒ‰[ˆ— */
+	/* TODO: ã‚¨ãƒ©ãƒ¼å‡¦ç† */
 	mtree->active = active->next;
 	active = active->next;
     }
@@ -118,7 +117,7 @@ mnode_close(mtree_p mtree)
     INLINE static mnode*
 search_or_new_mnode(mtree_p mtree, wordbuf_p buf)
 {
-    /* ƒ‰ƒxƒ‹’PŒê‚ªŒˆ’è‚µ‚½‚çŒŸõ–Ø‚É’Ç‰Á */
+    /* ãƒ©ãƒ™ãƒ«å˜èªãŒæ±ºå®šã—ãŸã‚‰æ¤œç´¢æœ¨ã«è¿½åŠ  */
     int ch;
     unsigned char *word;
     mnode **ppnext;
@@ -150,7 +149,7 @@ search_or_new_mnode(mtree_p mtree, wordbuf_p buf)
 }
 
 /*
- * Šù‘¶‚Ìƒm[ƒh‚Éƒtƒ@ƒCƒ‹‚©‚çƒf[ƒ^‚ğ‚Ü‚Æ‚ß‚Ä’Ç‰Á‚·‚éB
+ * æ—¢å­˜ã®ãƒãƒ¼ãƒ‰ã«ãƒ•ã‚¡ã‚¤ãƒ«ã‹ã‚‰ãƒ‡ãƒ¼ã‚¿ã‚’ã¾ã¨ã‚ã¦è¿½åŠ ã™ã‚‹ã€‚
  */
     mtree_p
 mnode_load(mtree_p mtree, FILE* fp)
@@ -161,7 +160,7 @@ mnode_load(mtree_p mtree, FILE* fp)
     wordbuf_p buf;
     wordbuf_p prevlabel;
     wordlist_p *ppword = NULL; /* To suppress warning for GCC */
-    /* “Ç‚İ‚İƒoƒbƒtƒ@—p•Ï” */
+    /* èª­ã¿è¾¼ã¿ãƒãƒƒãƒ•ã‚¡ç”¨å¤‰æ•° */
     unsigned char cache[MNODE_BUFSIZE];
     unsigned char *cache_ptr = cache;
     unsigned char *cache_tail = cache;
@@ -174,9 +173,9 @@ mnode_load(mtree_p mtree, FILE* fp)
     }
 
     /*
-     * EOF‚Ìˆ—‚ªB–†B•s³‚ÈŒ`®‚Ìƒtƒ@ƒCƒ‹‚ª“ü‚Á‚½ê‡‚ğl—¶‚µ‚Ä‚¢‚È‚¢BŠe
-     * ƒ‚[ƒh‚©‚çEOF‚Ì“¹‚ğ—pˆÓ‚µ‚È‚¢‚Æ³‚µ‚­‚È‚¢‚ªc–Ê“|‚È‚Ì‚Å‚â‚ç‚È‚¢Bƒf[
-     * ƒ^ƒtƒ@ƒCƒ‹‚Íâ‘Î‚ÉŠÔˆá‚Á‚Ä‚¢‚È‚¢‚Æ‚¢‚¤‘O’ñ‚ğ’u‚­B
+     * EOFã®å‡¦ç†ãŒæ›–æ˜§ã€‚ä¸æ­£ãªå½¢å¼ã®ãƒ•ã‚¡ã‚¤ãƒ«ãŒå…¥ã£ãŸå ´åˆã‚’è€ƒæ…®ã—ã¦ã„ãªã„ã€‚å„
+     * ãƒ¢ãƒ¼ãƒ‰ã‹ã‚‰EOFã®é“ã‚’ç”¨æ„ã—ãªã„ã¨æ­£ã—ããªã„ãŒâ€¦é¢å€’ãªã®ã§ã‚„ã‚‰ãªã„ã€‚ãƒ‡ãƒ¼
+     * ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«ã¯çµ¶å¯¾ã«é–“é•ã£ã¦ã„ãªã„ã¨ã„ã†å‰æã‚’ç½®ãã€‚
      */
     do
     {
@@ -190,29 +189,29 @@ mnode_load(mtree_p mtree, FILE* fp)
 	    ch = *cache_ptr;
 	++cache_ptr;
 
-	/* ó‘Ô:mode‚ÌƒI[ƒgƒ}ƒgƒ“ */
+	/* çŠ¶æ…‹:modeã®ã‚ªãƒ¼ãƒˆãƒãƒˆãƒ³ */
 	switch (mode)
 	{
-	    case 0: /* ƒ‰ƒxƒ‹’PŒêŒŸõƒ‚[ƒh */
-		/* ‹ó”’‚Íƒ‰ƒxƒ‹’PŒê‚É‚È‚è‚¦‚Ü‚¹‚ñ */
+	    case 0: /* ãƒ©ãƒ™ãƒ«å˜èªæ¤œç´¢ãƒ¢ãƒ¼ãƒ‰ */
+		/* ç©ºç™½ã¯ãƒ©ãƒ™ãƒ«å˜èªã«ãªã‚Šãˆã¾ã›ã‚“ */
 		if (isspace(ch) || ch == EOF)
 		    continue;
-		/* ƒRƒƒ“ƒgƒ‰ƒCƒ“ƒ`ƒFƒbƒN */
+		/* ã‚³ãƒ¡ãƒ³ãƒˆãƒ©ã‚¤ãƒ³ãƒã‚§ãƒƒã‚¯ */
 		else if (ch == ';')
 		{
-		    mode = 2; /* s––‚Ü‚ÅH‚¢’×‚·ƒ‚[ƒh ‚ÖˆÚs */
+		    mode = 2; /* è¡Œæœ«ã¾ã§é£Ÿã„æ½°ã™ãƒ¢ãƒ¼ãƒ‰ ã¸ç§»è¡Œ */
 		    continue;
 		}
 		else
 		{
-		    mode = 1; /* ƒ‰ƒxƒ‹’PŒê‚Ì“Çƒ‚[ƒh ‚ÖˆÚs*/
+		    mode = 1; /* ãƒ©ãƒ™ãƒ«å˜èªã®èª­è¾¼ãƒ¢ãƒ¼ãƒ‰ ã¸ç§»è¡Œ*/
 		    wordbuf_reset(buf);
 		    wordbuf_add(buf, (unsigned char)ch);
 		}
 		break;
 
-	    case 1: /* ƒ‰ƒxƒ‹’PŒê‚Ì“Çƒ‚[ƒh */
-		/* ƒ‰ƒxƒ‹‚ÌI—¹‚ğŒŸo */
+	    case 1: /* ãƒ©ãƒ™ãƒ«å˜èªã®èª­è¾¼ãƒ¢ãƒ¼ãƒ‰ */
+		/* ãƒ©ãƒ™ãƒ«ã®çµ‚äº†ã‚’æ¤œå‡º */
 		switch (ch)
 		{
 		    default:
@@ -221,44 +220,44 @@ mnode_load(mtree_p mtree, FILE* fp)
 		    case '\t':
 			pp = search_or_new_mnode(mtree, buf);
 			wordbuf_reset(buf);
-			mode = 3; /* ’PŒê‘O‹ó”’“Ç”ò‚Î‚µƒ‚[ƒh ‚ÖˆÚs */
+			mode = 3; /* å˜èªå‰ç©ºç™½èª­é£›ã°ã—ãƒ¢ãƒ¼ãƒ‰ ã¸ç§»è¡Œ */
 			break;
 		}
 		break;
 
-	    case 2: /* s––‚Ü‚ÅH‚¢’×‚·ƒ‚[ƒh */
+	    case 2: /* è¡Œæœ«ã¾ã§é£Ÿã„æ½°ã™ãƒ¢ãƒ¼ãƒ‰ */
 		if (ch == '\n')
 		{
 		    wordbuf_reset(buf);
-		    mode = 0; /* ƒ‰ƒxƒ‹’PŒêŒŸõƒ‚[ƒh ‚Ö–ß‚é */
+		    mode = 0; /* ãƒ©ãƒ™ãƒ«å˜èªæ¤œç´¢ãƒ¢ãƒ¼ãƒ‰ ã¸æˆ»ã‚‹ */
 		}
 		break;
 
-	    case 3: /* ’PŒê‘O‹ó”’“Ç‚İ”ò‚Î‚µƒ‚[ƒh */
+	    case 3: /* å˜èªå‰ç©ºç™½èª­ã¿é£›ã°ã—ãƒ¢ãƒ¼ãƒ‰ */
 		if (ch == '\n')
 		{
 		    wordbuf_reset(buf);
-		    mode = 0; /* ƒ‰ƒxƒ‹’PŒêŒŸõƒ‚[ƒh ‚Ö–ß‚é */
+		    mode = 0; /* ãƒ©ãƒ™ãƒ«å˜èªæ¤œç´¢ãƒ¢ãƒ¼ãƒ‰ ã¸æˆ»ã‚‹ */
 		}
 		else if (ch != '\t')
 		{
-		    /* ’PŒêƒoƒbƒtƒ@ƒŠƒZƒbƒg */
+		    /* å˜èªãƒãƒƒãƒ•ã‚¡ãƒªã‚»ãƒƒãƒˆ */
 		    wordbuf_reset(buf);
 		    wordbuf_add(buf, (unsigned char)ch);
-		    /* ’PŒêƒŠƒXƒg‚ÌÅŒã‚ğŒŸõ(“¯ˆêƒ‰ƒxƒ‹‚ª•¡”) */
+		    /* å˜èªãƒªã‚¹ãƒˆã®æœ€å¾Œã‚’æ¤œç´¢(åŒä¸€ãƒ©ãƒ™ãƒ«ãŒè¤‡æ•°æ™‚) */
 		    ppword = &pp->list;
 		    while (*ppword)
 			ppword = &(*ppword)->next;
-		    mode = 4; /* ’PŒê‚Ì“Ç‚İ‚İƒ‚[ƒh ‚ÖˆÚs */
+		    mode = 4; /* å˜èªã®èª­ã¿è¾¼ã¿ãƒ¢ãƒ¼ãƒ‰ ã¸ç§»è¡Œ */
 		}
 		break;
 
-	    case 4: /* ’PŒê‚Ì“Ç‚İ‚İƒ‚[ƒh */
+	    case 4: /* å˜èªã®èª­ã¿è¾¼ã¿ãƒ¢ãƒ¼ãƒ‰ */
 		switch (ch)
 		{
 		    case '\t':
 		    case '\n':
-			/* ’PŒê‚ğ‹L‰¯ */
+			/* å˜èªã‚’è¨˜æ†¶ */
 			*ppword = wordlist_open_len(WORDBUF_GET(buf),
 				WORDBUF_LEN(buf));
 			wordbuf_reset(buf);
@@ -266,12 +265,12 @@ mnode_load(mtree_p mtree, FILE* fp)
 			if (ch == '\t')
 			{
 			    ppword = &(*ppword)->next;
-			    mode = 3; /* ’PŒê‘O‹ó”’“Ç‚İ”ò‚Î‚µƒ‚[ƒh ‚Ö–ß‚é */
+			    mode = 3; /* å˜èªå‰ç©ºç™½èª­ã¿é£›ã°ã—ãƒ¢ãƒ¼ãƒ‰ ã¸æˆ»ã‚‹ */
 			}
 			else
 			{
 			    ppword = NULL;
-			    mode = 0; /* ƒ‰ƒxƒ‹’PŒêŒŸõƒ‚[ƒh ‚Ö–ß‚é */
+			    mode = 0; /* ãƒ©ãƒ™ãƒ«å˜èªæ¤œç´¢ãƒ¢ãƒ¼ãƒ‰ ã¸æˆ»ã‚‹ */
 			}
 			break;
 		    default:

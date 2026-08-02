@@ -3,7 +3,6 @@
 #
 # configure - Easy configuration script
 #
-# Last Change: 01-Aug-2026
 # Author & Maintainer: MURAOKA Taro <koron.kaoriya@gmail.com>
 
 config_out=config.mk

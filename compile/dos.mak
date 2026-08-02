@@ -2,7 +2,6 @@
 #
 # Dependent on DOS/Windows
 #
-# Last Change:	17-Nov-2021.
 # Written By:	MURAOKA Taro <koron.kaoriya@gmail.com>
 # Maintainer:	MURAOKA Taro <koron.kaoriya@gmail.com>
 

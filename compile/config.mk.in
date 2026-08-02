@@ -2,7 +2,6 @@
 #
 # Configuration file.
 #
-# Last Change:	08-Dec-2004.
 # Maintainer:	MURAOKA Taro <koron.kaoriya@gmail.com>
 
 srcdir = ./src/

@@ -2,7 +2,6 @@
 #
 # Clean up - dependent on UNIX like
 #
-# Last Change:	17-Nov-2021.
 # Written By:	MURAOKA Taro <koron.kaoriya@gmail.com>
 
 DICT_DIR = dict/
