@@ -71,7 +71,7 @@ install-lib: install-mkdir
 
 install: $(outdir)cmigemo$(EXEEXT) $(libmigemo_DSO) install-mkdir install-dict install-lib
 	$(INSTALL_DATA) $(srcdir)migemo.h $(incdir)
-	$(INSTALL_DATA) doc/README_j.txt $(docdir)
+	$(INSTALL_DATA) doc/README_ja.txt $(docdir)
 	$(INSTALL_PROGRAM) $(outdir)cmigemo$(EXEEXT) $(bindir)
 
 ##############################################################################
@@ -80,7 +80,7 @@ install: $(outdir)cmigemo$(EXEEXT) $(libmigemo_DSO) install-mkdir install-dict i
 uninstall: uninstall-lib
 	$(RM) $(dictdir)/migemo-dict*
 	$(RM) $(incdir)/migemo.h
-	$(RM) $(docdir)/README_j.txt
+	$(RM) $(docdir)/README_ja.txt
 	$(RM) $(bindir)/cmigemo$(EXEEXT)
 	$(RMDIR) $(dictdir)
 	$(RMDIR) $(docdir)
