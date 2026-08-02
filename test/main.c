@@ -7,8 +7,5 @@ int test1(void);
     int
 main(int argc, char** argv)
 {
-    int r;
-    if (r = test1())
-        return r;
-    return 0;
+    return test1();
 }

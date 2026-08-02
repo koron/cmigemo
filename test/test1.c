@@ -46,10 +46,10 @@ test1(void)
         printf("Failed: can't create migemo object and get its pointer\n");
         return 1;
     }
-    r = migemo_load(p, MIGEMO_DICTID_ROMA2HIRA, "../dict2/roma2hira.dat");
+    r = migemo_load(p, MIGEMO_DICTID_ROMA2HIRA, "../dict/roma2hira.dat");
     if (r != MIGEMO_DICTID_ROMA2HIRA)
     {
-        printf("Failed: can't load \"../dict2/roma2hira.dat (%d)\n",
+        printf("Failed: can't load \"../dict/roma2hira.dat (%d)\n",
                 MIGEMO_DICTID_ROMA2HIRA);
         return r;
     }
