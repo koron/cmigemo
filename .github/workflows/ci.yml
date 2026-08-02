@@ -19,7 +19,7 @@ jobs:
       run: cd test && make && ls -l
 
     - name: Build dictionaries
-      run: cd dict2 && make && ls -l
+      run: cd dict && make && ls -l
 
     - name: Profiling
       run: cd src/testdir && make profile && ls -l

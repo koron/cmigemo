@@ -23,8 +23,7 @@ use https://github.com/haya14busa/vim-migemo
 
 To execute unit tests.
 
-    $ cd test
-    $ make
+    $ make -C test
 
 ### Profiling
 
@@ -32,9 +31,8 @@ Check performance by profiling, before and after your modification.
 To get profiling report:
 
     # prepare dictionaries
-    $ cd dict2
-    $ make
+    $ make -C dict
 
     # profile: result is in profile.log
-    $ cd src/testdir
+    $ make -C src/testdir profile
     $ make profile
