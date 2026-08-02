@@ -1,17 +1,8 @@
 /build/
 
 /dict/SKK-JISYO.L
-/dict/base-dict
-/dict/euc-jp.d/*.dat
-/dict/euc-jp.d/migemo-dict
 /dict/migemo-dict
-/dict/utf-8.d/*.dat
-/dict/utf-8.d/migemo-dict
-/dict/utf-8.d/migemo-dict-zh
-
-/dict2/SKK-JISYO.L
-/dict2/migemo-dict
-/dict2/*.d/
+/dict/*.d/
 
 /libmigemo.so
 /libmigemo.so.1
