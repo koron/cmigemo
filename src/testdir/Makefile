@@ -1,6 +1,6 @@
 # vim:set ts=8 sts=8 sw=8 tw=0 noet:
 
-DICTDIR = ../../dict2/utf-8.d
+DICTDIR = ../../dict
 
 OUTPUT = qspeed romaji
 
@@ -9,7 +9,7 @@ MIGEMO_SRC = ../charset.c ../filename.c ../migemo.c ../mnode.c ../romaji.c \
 ROMAJI_SRC = romaji_main.c ../romaji.c ../wordbuf.c ../charset.c
 QSPEED_SRC = profile_speed.c $(MIGEMO_SRC)
 
-CCFLAGS = -I. -I.. -DDICTDIR=\"$(DICTDIR)\" -D_DEBUG
+CCFLAGS = -I. -I.. -DDICTDIR=\"$(DICTDIR)\" -D_DEBUG -Wall -Wno-pointer-sign
 CCFLAGS_PROF = -pg
 
 default: all

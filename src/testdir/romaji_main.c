@@ -13,7 +13,7 @@
 #include "romaji.h"
 
 #ifndef DICTDIR
-# define DICTDIR "../dict"
+# define DICTDIR "../../dict"
 #endif
 #ifndef DICT_ROMA2HIRA
 # define DICT_ROMA2HIRA (DICTDIR "/roma2hira.dat")
@@ -36,16 +36,16 @@ query_one(romaji* object, romaji* hira2kata, romaji* han2zen, romaji* zen2han, c
     unsigned char *zen;
     unsigned char *han;
     /* ローマ字→平仮名(表示)→片仮名(表示) */
-    if (hira = romaji_convert(object, buf, &stop))
+    if ((hira = romaji_convert(object, buf, &stop)) != NULL)
     {
         unsigned char* kata;
 
         printf("  hira=%s, stop=%s\n", hira, stop);
 #if 1
-        if (kata = romaji_convert2(hira2kata, hira, &stop, 0))
+        if ((kata = romaji_convert2(hira2kata, hira, &stop, 0)) != NULL)
         {
             printf("  kata=%s, stop=%s\n", kata, stop);
-            if (han = romaji_convert2(zen2han, kata, &stop, 0))
+            if ((han = romaji_convert2(zen2han, kata, &stop, 0)) != NULL)
             {
                 printf("  han=%s, stop=%s\n", han, stop);
                 romaji_release(zen2han, han);
@@ -56,7 +56,7 @@ query_one(romaji* object, romaji* hira2kata, romaji* han2zen, romaji* zen2han, c
         romaji_release(object, hira);
     }
 #if 1
-    if (zen = romaji_convert2(han2zen, buf, &stop, 0))
+    if ((zen = romaji_convert2(han2zen, buf, &stop, 0)) != NULL)
     {
         printf("  zen=%s, stop=%s\n", zen, stop);
         romaji_release(han2zen, zen);
