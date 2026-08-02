@@ -1,14 +1,13 @@
 # vim:set ts=8 sts=8 sw=8 tw=0:
 #
-# Sun's Solaris/gcc $BMQ(B Makefile
+# for Sun's Solaris/gcc
 #
-# Last Change:	19-Oct-2003.
 # Base Idea:	AIDA Shinra
 # Modified By:	Hiroshi Fujishima <pooh@nature.tsukuba.ac.jp>
 # Maintainer:	MURAOKA Taro <koron.kaoriya@gmail.com>
 
 ##############################################################################
-# $B4D6-$K1~$8$F$3$NJQ?t$rJQ99$9$k(B
+# 環境に応じてこの変数を変更する
 #
 CC		= gcc
 libmigemo_LIB	= libmigemo.so.1.1.0
@@ -25,7 +24,7 @@ include compile/clean_unix.mak
 include compile/clean.mak
 
 ##############################################################################
-# $B4D6-$K1~$8$F%i%$%V%i%j9=C[K!$rJQ99$9$k(B
+# 環境に応じてライブラリ構築法を変更する
 #
 $(libmigemo_LIB): $(libmigemo_DSO)
 $(libmigemo_DSO): $(libmigemo_OBJ)
@@ -46,4 +45,4 @@ uninstall-lib:
 	$(RM) $(libdir)/$(libmigemo)
 
 dictionary:
-	cd dict && $(MAKE) gcc
+	$(MAKE) -C dict

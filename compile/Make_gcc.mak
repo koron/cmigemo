@@ -1,8 +1,7 @@
 # vim:set ts=8 sts=8 sw=8 tw=0:
 #
-# GNU/gcc(Linux他)用Makefile
+# for GNU/gcc (Linux, and misc)
 #
-# Last Change:	01-Aug-2026.
 # Base Idea:	AIDA Shinra
 # Maintainer:	MURAOKA Taro <koron.kaoriya@gmail.com>
 
@@ -44,4 +43,4 @@ uninstall-lib:
 	$(RM) $(libdir)/$(libmigemo)
 
 dictionary:
-	cd dict && $(MAKE) gcc
+	$(MAKE) -C dict

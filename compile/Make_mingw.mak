@@ -38,4 +38,4 @@ uninstall-lib:
 	$(RM) $(libdir)/$(libmigemo_LIB)
 
 dictionary:
-	cd dict && $(MAKE) mingw
+	$(MAKE) -C dict

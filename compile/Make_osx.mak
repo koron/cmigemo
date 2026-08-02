@@ -1,12 +1,11 @@
 # vim:set ts=8 sts=8 sw=8 tw=0:
 #
-# MacOSX�pMakefile
+# for macOS
 #
-# Last Change:	19-Oct-2003.
 # Maintainer:	MURAOKA Taro <koron.kaoriya@gmail.com>
 
 ##############################################################################
-# ���ɉ����Ă��̕ϐ���ύX����
+# 環境に応じてこの変数を変更する
 #
 libmigemo_LIB	= libmigemo.1.1.0.dylib
 libmigemo_DSO	= libmigemo.1.dylib
@@ -22,7 +21,7 @@ include compile/clean_unix.mak
 include compile/clean.mak
 
 ##############################################################################
-# ���ɉ����ă��C�u�����\�z�@��ύX����
+# 環境に応じてライブラリ構築法を変更する
 #
 $(libmigemo_LIB): $(libmigemo_DSO)
 $(libmigemo_DSO): $(libmigemo_OBJ)
@@ -43,4 +42,4 @@ uninstall-lib:
 	$(RM) $(libdir)/$(libmigemo)
 
 dictionary:
-	cd dict && $(MAKE) osx
+	$(MAKE) -C dict

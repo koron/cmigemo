@@ -1,13 +1,12 @@
 # vim:set ts=8 sts=8 sw=8 tw=0:
 #
-# Cygwin�pMakefile
+# for Cygwin
 #
-# Last Change:	28-Oct-2003.
 # Base Idea:	AIDA Shinra
 # Maintainer:	MURAOKA Taro <koron.kaoriya@gmail.com>
 
 ##############################################################################
-# ���ɉ����Ă��̕ϐ���ύX����
+# 環境に応じてこの変数を変更する
 #
 DLLNAME	= cygmigemo1.dll
 libmigemo_LIB = $(outdir)libmigemo.dll.a
@@ -23,7 +22,7 @@ include compile/clean_unix.mak
 include compile/clean.mak
 
 ##############################################################################
-# ���ɉ����ă��C�u�����\�z�@��ύX����
+# 環境に応じてライブラリ構築法を変更する
 #
 $(libmigemo_LIB): $(libmigemo_DSO)
 $(libmigemo_DSO): $(libmigemo_OBJ) $(srcdir)migemo.def
@@ -38,4 +37,4 @@ uninstall-lib:
 	$(RM) $(libdir)/$(libmigemo_LIB)
 
 dictionary:
-	cd dict && $(MAKE) cyg
+	$(MAKE) -C dict

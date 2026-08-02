@@ -1,6 +1,6 @@
 # vim:set ts=8 sts=8 sw=8 tw=0:
 #
-# Visual C++—p Makefile
+# for Visual C++
 #
 # Maintainer:	MURAOKA Taro <koron.kaoriya@gmail.com>
 
@@ -57,7 +57,4 @@ $(libmigemo_DSO): $(libmigemo_OBJ) $(srcdir)migemo.def $(objdir)migemo.res
 	$(LD) $(LDFLAGS) -OUT:$@ $(libmigemo_OBJ) $(LIBS) $(objdir)migemo.res -DLL -DEF:$(srcdir)migemo.def -MAP:$(outdir)migemo.map
 
 dictionary: cd-dict msvc
-	cd ..
-
-cd-dict:
-	cd dict
+	$(MAKE) -C dict

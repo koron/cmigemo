@@ -1,12 +1,11 @@
 # vim:set ts=8 sts=8 sw=8 tw=0:
 #
-# Borland C 5óp Makefile
+# for Borland C 5
 #
-# Last Change:	19-Oct-2003.
 # Adviced By:	MATSUMOTO Yasuhiro
 # Maintainer:	MURAOKA Taro <koron.kaoriya@gmail.com>
 
-# éQçléëóø:
+# ÂèÇËÄÉË≥áÊñô:
 #	http://www2.justnet.ne.jp/~tyche/bcbbugs/bcc32-option.html
 #	http://www2.justnet.ne.jp/~tyche/bcbbugs/ilink32-option.html
 
@@ -51,8 +50,5 @@ $(libmigemo_LIB): $(libmigemo_DSO)
 $(libmigemo_DSO): $(libmigemo_OBJ) $(srcdir)migemo.def
 	$(LD) $(LDFLAGS) -Tpd -Gi $(libmigemo_OBJ) c0d32.obj, $@, , $(LIBS), $(srcdir)migemo.def,
 
-dictionary: cd-dict bc5
-	cd ..
-
-cd-dict:
-	cd dict
+dictionary:
+	$(MAKE) -C dict
