@@ -3,7 +3,6 @@
  * romaji.h - ƒ[ƒ}š•ÏŠ·
  *
  * Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
- * Last Change: 19-Jun-2004.
  */
 
 #ifndef ROMAJI_H

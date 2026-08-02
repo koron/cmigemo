@@ -3,7 +3,6 @@
  * wordbuf.h -
  *
  * Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
- * Last Change: 25-Oct-2011.
  */
 
 #include <stdio.h>

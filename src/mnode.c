@@ -3,7 +3,6 @@
  * mnode.c - mnode interfaces.
  *
  * Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
- * Last Change: 04-May-2004.
  */
 
 #include <stdio.h>

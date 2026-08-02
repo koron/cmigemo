@@ -2,7 +2,6 @@
 #
 # Clean up - architecture independent
 #
-# Last Change:	17-Nov-2021.
 # Written By:	MURAOKA Taro <koron.kaoriya@gmail.com>
 
 clean-migemo:

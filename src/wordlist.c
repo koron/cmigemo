@@ -3,7 +3,6 @@
  * wordlist.h -
  *
  * Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
- * Last Change: 20-Sep-2009.
  */
 
 #include <stdlib.h>

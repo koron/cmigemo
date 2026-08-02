@@ -2,7 +2,6 @@ Migemo DLL説明書/Vimにおける使用方法
                                                             Since: 14-Aug-2001
                                                                   Version: 1.0
                                                   Author: MURAOKA Taro (KoRoN)
-                                                     Last Change: 17-Nov-2021.
 
 説明
   Migemo DLLはローマ字入力を日本語検索の正規表現に変換するライブラリです。これ

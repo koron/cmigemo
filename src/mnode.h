@@ -3,7 +3,6 @@
  * mnode.h -
  *
  * Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
- * Last Change: 04-May-2004.
  */
 /*
  * Need to include <stdio.h>

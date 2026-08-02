@@ -3,7 +3,6 @@
  * charset.c -
  *
  * Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
- * Last Change: 20-Sep-2009.
  */
 
 #define BUFLEN_DETECT 4096

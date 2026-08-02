@@ -2,7 +2,6 @@
 #
 # Clean up - dependent on DOS/Windows
 #
-# Last Change:	17-Nov-2021.
 # Written By:	MURAOKA Taro <koron.kaoriya@gmail.com>
 
 # 次行の\のあとには半角スペースが必要→"\ "

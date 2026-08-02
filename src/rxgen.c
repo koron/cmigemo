@@ -3,7 +3,6 @@
  * rxgen.c - regular expression generator
  *
  * Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
- * Last Change: 19-Sep-2009.
  */
 
 #include <stdio.h>

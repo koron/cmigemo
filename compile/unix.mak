@@ -2,7 +2,6 @@
 #
 # UNIXŒn‹¤’ÊMakefile
 #
-# Last Change:	01-Aug-2026.
 # Base Idea:	AIDA Shinra
 # Maintainer:	MURAOKA Taro <koron.kaoriya@gmail.com>
 
