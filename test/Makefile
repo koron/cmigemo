@@ -16,7 +16,7 @@ MIGEMO_SRC = \
 	$(MIGEMO_DIR)/wordbuf.c \
 	$(MIGEMO_DIR)/wordlist.c
 
-CCFLAGS = -I. -I$(MIGEMO_DIR) -D_DEBUG
+CCFLAGS = -I. -I$(MIGEMO_DIR) -D_DEBUG -Wall -Wno-pointer-sign
 
 default: test
 

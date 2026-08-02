@@ -12,7 +12,7 @@
 #include "migemo.h"
 
 #ifndef DICTDIR
-# define DICTDIR "../dict"
+# define DICTDIR "../../dict"
 #endif
 
 #define CLOCK2SEC(t)    ((double)(t) / (double)CLOCKS_PER_SEC)

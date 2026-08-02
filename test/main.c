@@ -8,7 +8,8 @@ int test1(void);
 main(int argc, char** argv)
 {
     int r;
-    if (r = test1())
+    if ((r = test1()) != 0)
         return r;
+    // FIXME: Future test cases (group) will be added here.
     return 0;
 }
