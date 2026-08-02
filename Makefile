@@ -4,10 +4,19 @@
 #
 # Maintainer:	MURAOKA Taro <koron.kaoriya@gmail.com>
 
+SUBDIRS=dict test src/testdir
+
 default: tags
 
 tags: src/*.c src/*.h
 	ctags src/*.c src/*.h
+
+clean:
+	for subdir in $(SUBDIRS); do $(MAKE) -C "$$subdir" clean; done
+
+distclean:
+	for subdir in $(SUBDIRS); do $(MAKE) -C "$$subdir" distclean; done
+	-rm -rf build
 
 ##############################################################################
 # for Borland C 5
