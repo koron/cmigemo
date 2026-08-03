@@ -17,3 +17,13 @@ set_target_properties(
 
 add_executable(cmigemo main.c)
 target_link_libraries(cmigemo PRIVATE migemo)
+
+#------------------------------------------------------------------------------
+
+install (
+  TARGETS cmigemo migemo
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
+install (FILES migemo.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
