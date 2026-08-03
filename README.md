@@ -51,7 +51,6 @@ Or just `rm -rf build`.
     -   C11 compiler and binutils equivalents (gcc, clang, msvc or so)
 -   Building the dictionary
     -   CMake (3.16 or above)
-    -   curl
     -   iconv
     -   gzip
     -   perl

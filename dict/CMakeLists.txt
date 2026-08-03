@@ -2,7 +2,6 @@ find_package(Perl REQUIRED)
 
 #------------------------------------------------------------------------------
 # Detect required commands: curl, iconv, gzip
-find_program(CURL_EXECUTABLE curl REQUIRED)
 find_program(ICONV_EXECUTABLE iconv REQUIRED)
 find_program(GZIP_EXECUTABLE gzip REQUIRED)
 
@@ -20,7 +19,9 @@ set(BASE_DICT_PATH "${CMAKE_CURRENT_BINARY_DIR}/${DICT_FILE}")
 add_custom_command(
   OUTPUT ${SKKDICT_PATH}
   COMMAND
-    ${CURL_EXECUTABLE} -fsSLO "${SKKDICT_BASEURL}/${SKKDICT_FILE}.gz" # Download
+    ${CMAKE_COMMAND} -DURL="${SKKDICT_BASEURL}/${SKKDICT_FILE}.gz"
+    -DOUTPUT_PATH="${CMAKE_CURRENT_BINARY_DIR}/${SKKDICT_FILE}.gz" -P
+    "${CMAKE_CURRENT_SOURCE_DIR}/download.cmake" # Download
   COMMAND ${GZIP_EXECUTABLE} -d "${SKKDICT_FILE}.gz" # Extract
   COMMAND
     ${ICONV_EXECUTABLE}
@@ -167,7 +168,7 @@ function(add_dict_encoding_target ENCODING_NAME ICONV_ENCODING IGNORE_ERROR)
   # Custom targeting for registration to the overall target
   add_custom_target(dict_${ENCODING_NAME} ALL DEPENDS ${OUT_DICT})
 
-  install (
+  install(
     DIRECTORY "${OUT_DIR}/"
     DESTINATION "${CMAKE_INSTALL_DATADIR}/cmigemo/${ENCODING_NAME}")
 endfunction()
