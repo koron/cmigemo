@@ -59,3 +59,15 @@ if(BUILD_TESTING)
   add_subdirectory(test)
   add_subdirectory(src/testdir)
 endif()
+
+#------------------------------------------------------------------------------
+
+set(CPACK_PACKAGE_VENDOR "koron")
+
+if(WIN32)
+    set(CPACK_GENERATOR "ZIP")
+else()
+    set(CPACK_GENERATOR "TGZ")
+endif()
+
+include(CPack)
