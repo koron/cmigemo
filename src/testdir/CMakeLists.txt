@@ -6,7 +6,7 @@ add_executable(
 target_include_directories(romaji PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_compile_definitions(
   romaji
-  PRIVATE DICTDIR="${CMAKE_BINARY_DIR}/dict/utf-8.d" _DEBUG)
+  PRIVATE DICTDIR="${CMAKE_BINARY_DIR}/dict/utf-8" _DEBUG)
 
 #------------------------------------------------------------------------------
 # qspeed: profiling tool
@@ -24,15 +24,15 @@ add_executable(
 target_include_directories(qspeed PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_compile_definitions(
   qspeed
-  PRIVATE DICTDIR="${CMAKE_BINARY_DIR}/dict/utf-8.d" _DEBUG)
+  PRIVATE DICTDIR="${CMAKE_BINARY_DIR}/dict/utf-8" _DEBUG)
 
 #------------------------------------------------------------------------------
 # Profiling target "profile": `cmake --build build --target profile`
 find_program(GPROF_EXECUTABLE gprof)
 
 if(GPROF_EXECUTABLE AND CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
-  target_compile_options(qspeed PRIVATE -pg)
-  target_link_options(qspeed PRIVATE -pg)
+  target_compile_options(qspeed PRIVATE -O0 -pg)
+  target_link_options(qspeed PRIVATE -O0 -pg)
 
   add_custom_target(
     profile
