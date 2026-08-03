@@ -45,6 +45,11 @@ if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
     add_compile_options($<$<CONFIG:Release>:-O2>)
 endif()
 
+if(MSVC)
+    add_compile_options(/utf-8 /W3 /wd5045)
+    add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
+endif()
+
 #------------------------------------------------------------------------------
 
 add_subdirectory(src)

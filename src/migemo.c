@@ -482,7 +482,7 @@ query_a_word(migemo* object, unsigned char* query)
 		    || (step = object->char2int(&query[i], NULL)) < 1)
 		step = 1;
 	    if (step == 1 && isupper(query[i]))
-		lower[i] = tolower(query[i]);
+		lower[i] = (unsigned char)tolower(query[i]);
 	    else
 		memcpy(&lower[i], &query[i], step);
 	    i += step;

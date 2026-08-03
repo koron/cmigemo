@@ -1,4 +1,5 @@
 add_library(migemo SHARED
+    migemo.def
     charset.c
     filename.c
     migemo.c

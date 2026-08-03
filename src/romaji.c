@@ -209,7 +209,7 @@ strdup_lower(const unsigned char* string)
 
     if (out)
 	for (tmp = out; *tmp; ++tmp)
-	    *tmp = tolower(*tmp);
+	    *tmp = (unsigned char)tolower(*tmp);
     return out;
 }
 
