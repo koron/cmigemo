@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <time.h>
 
 #include "migemo.h"
@@ -71,6 +72,43 @@ OPTIONS:\n\
     exit(0);
 }
 
+    static migemo*
+open_first_migemo(const char**found, const char **dicts)
+{
+    for (; dicts != NULL && *dicts != NULL; dicts++)
+    {
+        struct stat st;
+        const char *dict = *dicts;
+        if (stat(dict, &st) != 0 || !S_ISREG(st.st_mode))
+            continue;
+        migemo *p = migemo_open(dict);
+        if (p == NULL)
+            continue;
+        *found = *dicts;
+        return p;
+    }
+    return NULL;
+}
+
+static const char *default_dicts[] = {
+#if _WIN32
+    "./dict/cp932/" MIGEMODICT_NAME,
+    "../dict/cp932/" MIGEMODICT_NAME,
+    "./build/dict/cp932/" MIGEMODICT_NAME,
+#else
+    "./dict/utf-8/" MIGEMODICT_NAME,
+    "../dict/utf-8/" MIGEMODICT_NAME,
+    "./build/dict/utf-8/" MIGEMODICT_NAME,
+#endif
+    "./dict/" MIGEMODICT_NAME,
+    "../dict/" MIGEMODICT_NAME,
+    "./build/dict/" MIGEMODICT_NAME,
+#ifdef CMIGEMO_DICTDIR
+    CMIGEMO_DICTDIR "/" MIGEMODICT_NAME,
+#endif
+    NULL,
+};
+
     int
 main(int argc, char** argv)
 {
@@ -118,22 +156,10 @@ main(int argc, char** argv)
     /* 辞書をカレントディレクトリと1つ上のディレクトリから捜す */
     if (!dict)
     {
-	pmigemo = migemo_open("./dict/" MIGEMODICT_NAME);
-	if (!word && !mode_quiet)
-	{
-	    fprintf(fplog, "migemo_open(\"%s\")=%p\n",
-		    "./dict/" MIGEMODICT_NAME, pmigemo);
-	}
-	if (!pmigemo || !migemo_is_enable(pmigemo))
-	{
-	    migemo_close(pmigemo); /* NULLをcloseしても問題はない */
-	    pmigemo = migemo_open("../dict/" MIGEMODICT_NAME);
-	    if (!word && !mode_quiet)
-	    {
-		fprintf(fplog, "migemo_open(\"%s\")=%p\n",
-			"../dict/" MIGEMODICT_NAME, pmigemo);
-	    }
-	}
+        const char *found = NULL;
+        pmigemo = open_first_migemo(&found, default_dicts);
+        if (!word && !mode_quiet)
+	    fprintf(fplog, "migemo_open(\"%s\")=%p\n", found ? found : "(N/A)", pmigemo);
     }
     else
     {
