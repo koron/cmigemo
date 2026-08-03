@@ -58,7 +58,7 @@ add_custom_command(
 #------------------------------------------------------------------------------
 # A helper function that generates a dictionary for the specified encoding.
 function(add_dict_encoding_target ENCODING_NAME ICONV_ENCODING IGNORE_ERROR)
-  set(OUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/${ENCODING_NAME}.d")
+  set(OUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/${ENCODING_NAME}")
   set(OUT_DICT "${OUT_DIR}/${DICT_FILE}")
 
   set(COMMANDS_LIST "")
@@ -100,7 +100,7 @@ function(add_dict_encoding_target ENCODING_NAME ICONV_ENCODING IGNORE_ERROR)
   endforeach()
 
   # Copy migemo-dict-zh (Chinese dictionary)
-  if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/migemo-dict-zh")
+  if(ICONV_ENCODING STREQUAL "UTF-8")
     list(
       APPEND
       COMMANDS_LIST
@@ -166,6 +166,10 @@ function(add_dict_encoding_target ENCODING_NAME ICONV_ENCODING IGNORE_ERROR)
 
   # Custom targeting for registration to the overall target
   add_custom_target(dict_${ENCODING_NAME} ALL DEPENDS ${OUT_DICT})
+
+  install (
+    DIRECTORY "${OUT_DIR}/"
+    DESTINATION "${CMAKE_INSTALL_DATADIR}/cmigemo/${ENCODING_NAME}")
 endfunction()
 
 #------------------------------------------------------------------------------
