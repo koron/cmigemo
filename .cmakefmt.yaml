@@ -1,0 +1,163 @@
+# yaml-language-server: $schema=https://cmakefmt.dev/schemas/latest/schema.json
+# Default cmakefmt configuration.
+# Copy this to .cmakefmt.yaml and uncomment the optional settings
+# you want to customize.
+
+format:
+  # Disable formatting entirely (return source unchanged).
+  # disable: true
+
+  # Output line-ending style: unix (LF), windows (CRLF), or auto (detect from input).
+  # line_ending: windows
+
+  # Maximum rendered line width before cmakefmt wraps a call.
+  line_width: 80
+
+  # Number of spaces per indentation level when use_tabs is false.
+  tab_size: 2
+
+  # Indent with tab characters instead of spaces.
+  # use_tabs: true
+
+  # How to handle fractional indentation when use_tabs is true: use-space or round-up.
+  # fractional_tab_policy: round-up
+
+  # Maximum number of consecutive blank lines to preserve.
+  max_empty_lines: 1
+
+  # Maximum wrapped lines to tolerate before switching to a more vertical layout.
+  max_hanging_wrap_lines: 2
+
+  # Maximum positional arguments to keep in a hanging-wrap layout.
+  max_hanging_wrap_positional_args: 6
+
+  # Maximum keyword/flag subgroups to keep in a hanging-wrap layout.
+  max_hanging_wrap_groups: 2
+
+  # Maximum rows a hanging-wrap positional group may consume before nesting is forced.
+  max_rows_cmdline: 2
+
+  # Commands that must always use vertical (wrapped) layout.
+  # always_wrap:
+  #   - target_link_libraries
+
+  # Return an error if any formatted line exceeds line_width.
+  # require_valid_layout: true
+
+  # Keep the first positional argument on the command line when wrapping.
+  # wrap_after_first_arg: true
+
+  # Continuation-line alignment when a wrapped keyword section overflows
+  # line_width: under-first-value (default, cmake-format hanging-indent) or
+  # same-indent (wrap at the keyword's own indent).
+  # continuation_align: same-indent
+
+  # Sort arguments in keyword sections marked sortable in the command spec.
+  # enable_sort: true
+
+  # Heuristically sort keyword sections where all arguments are simple unquoted tokens.
+  # autosort: true
+
+  # Put the closing ')' on its own line when a call wraps.
+  dangle_parens: false
+
+  # Alignment strategy for a dangling ')': prefix, open, or close.
+  dangle_align: prefix
+
+  # Lower heuristic bound used when deciding between compact and wrapped layouts.
+  min_prefix_length: 4
+
+  # Upper heuristic bound used when deciding between compact and wrapped layouts.
+  max_prefix_length: 10
+
+  # Insert a space before '(' for control-flow commands like if/foreach.
+  # space_before_control_paren: true
+
+  # Insert a space before '(' for function() and macro() definitions.
+  # space_before_definition_paren: true
+
+  # Output casing for command names: lower, upper, or unchanged.
+  command_case: lower
+
+  # Output casing for recognized keywords and flags: lower, upper, or unchanged.
+  keyword_case: upper
+
+markup:
+  # Enable markup-aware comment handling.
+  enable_markup: true
+
+  # Preserve the first comment block in a file literally.
+  first_comment_is_literal: true
+
+  # Preserve comments matching a custom regex literally.
+  # literal_comment_pattern: '^\s*NOTE:'
+
+  # Preferred bullet character when normalizing markup lists.
+  bullet_char: '*'
+
+  # Preferred punctuation for numbered lists when normalizing markup.
+  enum_char: '.'
+
+  # Regex describing fenced literal comment blocks.
+  fence_pattern: '^\s*[`~]{3}[^`\n]*$'
+
+  # Regex describing ruler-style comments that should be treated specially.
+  ruler_pattern: '^[^\w\s]{3}.*[^\w\s]{3}$'
+
+  # Minimum ruler length before a hash-only line is treated as a ruler.
+  hashruler_min_length: 10
+
+  # Normalize ruler comments when markup handling is enabled.
+  canonicalize_hashrulers: true
+
+# Uncomment and edit a block like this to override formatting knobs
+# for a specific command. This changes layout behavior for that
+# command name only; it does not define new command syntax.
+#
+# per_command_overrides:
+#   my_add_test:
+#     # Override the line width just for this command.
+#     line_width: 120
+#
+#     # Override command casing just for this command.
+#     command_case: unchanged
+#
+#     # Override keyword casing just for this command.
+#     keyword_case: upper
+#
+#     # Override indentation width just for this command.
+#     tab_size: 4
+#
+#     # Override dangling-paren placement just for this command.
+#     dangle_parens: false
+#
+#     # Override dangling-paren alignment just for this command.
+#     dangle_align: prefix
+#
+#     # Override the positional-argument hanging-wrap threshold just for this command.
+#     max_hanging_wrap_positional_args: 8
+#
+#     # Override the subgroup hanging-wrap threshold just for this command.
+#     max_hanging_wrap_groups: 3
+
+# YAML custom-command specs live under commands:<name>. Command
+# specs tell the formatter which tokens are positional arguments,
+# standalone flags, and keyword sections.
+#
+# Example: a custom test command with a flag and four keyword sections.
+# Uncomment this block to teach cmakefmt the argument structure.
+#
+# commands:
+#   my_add_test:
+#     pargs: 0
+#     flags:
+#       - VERBOSE
+#     kwargs:
+#       NAME:
+#         nargs: 1
+#       SOURCES:
+#         nargs: "+"
+#       LIBRARIES:
+#         nargs: "+"
+#       TIMEOUT:
+#         nargs: 1
