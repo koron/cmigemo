@@ -422,7 +422,7 @@ romaji_convert2(romaji* object, const unsigned char* string,
 	    }
 
 	    node = romanode_query(object->node, &input[i], &skip, object->char2int);
-	    VERBOSE(object, 1, printf("key=%s value=%s skip=%d\n", &input[i], node ? (char*)node->value : "null" , skip);)
+	    VERBOSE(object, 1, printf("key=%s value=%s skip=%d\n", &input[i], node && node->value ? (char*)node->value : "null" , skip);)
 	    if (skip == 0)
 	    {
 		if (string[i])
