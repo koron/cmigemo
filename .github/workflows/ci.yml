@@ -24,35 +24,11 @@ jobs:
     - name: Profiling
       run: cmake --build build --target profile
 
+    - name: List files in build
+      run: tree -Fh build
+
     - name: Upload profile.log
       uses: actions/upload-artifact@v7
       with:
         path: build/profile.log
         archive: false
-
-  build-make:
-    name: Build with Make
-
-    runs-on: ubuntu-latest
-
-    steps:
-
-    - uses: actions/checkout@v7
-
-    - name: Build
-      run: make gcc && ls -l build
-
-    - name: Test
-      run: cd test && make && ls -l
-
-    - name: Build dictionaries
-      run: cd dict && make && ls -l
-
-    - name: Profiling
-      run: cd src/testdir && make profile && ls -l
-
-    #- name: Upload profile.log
-    #  uses: actions/upload-artifact@v7
-    #  with:
-    #    path: src/testdir/profile.log
-    #    archive: false
