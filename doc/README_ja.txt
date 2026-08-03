@@ -3,6 +3,9 @@ C/Migemoライブラリ説明書
                                                               Version: 1.4.0rc
                                                   Author: MURAOKA Taro (KoRoN)
 
+注意: 本ドキュメントの内容は更新されていません。そのため実体とズレているところ
+      があります。
+
 説明
   C/MigemoはMigemo(Ruby/Migemo)をC言語で実装したものです。C/Migemoライブラリを
   利用するソフトウェアは「ローマ字のまま日本語を(インクリメンタルに)検索する」
