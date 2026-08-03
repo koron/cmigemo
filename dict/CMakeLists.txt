@@ -58,7 +58,7 @@ add_custom_command(
 #------------------------------------------------------------------------------
 # A helper function that generates a dictionary for the specified encoding.
 function(add_dict_encoding_target ENCODING_NAME ICONV_ENCODING IGNORE_ERROR)
-  set(OUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/${ENCODING_NAME}.d")
+  set(OUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/${ENCODING_NAME}")
   set(OUT_DICT "${OUT_DIR}/${DICT_FILE}")
 
   set(COMMANDS_LIST "")
@@ -169,7 +169,7 @@ function(add_dict_encoding_target ENCODING_NAME ICONV_ENCODING IGNORE_ERROR)
 
   install (
     DIRECTORY "${OUT_DIR}/"
-    DESTINATION "${CMAKE_INSTALL_DATADIR}/migemo/${ENCODING_NAME}.d")
+    DESTINATION "${CMAKE_INSTALL_DATADIR}/cmigemo/${ENCODING_NAME}")
 endfunction()
 
 #------------------------------------------------------------------------------
