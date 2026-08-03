@@ -39,6 +39,8 @@ add_custom_command(
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   COMMENT "Downloading and converting ${SKKDICT_FILE} to UTF-8")
 
+add_custom_target(fetch_skkdict DEPENDS ${SKKDICT_PATH})
+
 #------------------------------------------------------------------------------
 # Generate C/Migemo dictionary file (migemo-dict).
 add_custom_command(
@@ -167,6 +169,8 @@ function(add_dict_encoding_target ENCODING_NAME ICONV_ENCODING IGNORE_ERROR)
 
   # Custom targeting for registration to the overall target
   add_custom_target(dict_${ENCODING_NAME} ALL DEPENDS ${OUT_DICT})
+
+  add_dependencies(dict_${ENCODING_NAME} fetch_skkdict)
 
   install(
     DIRECTORY "${OUT_DIR}/"
