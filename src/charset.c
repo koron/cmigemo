@@ -2,8 +2,7 @@
 /*
  * charset.c -
  *
- * Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
- * Last Change: 20-Sep-2009.
+ * Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
  */
 
 #define BUFLEN_DETECT 4096
@@ -71,7 +70,7 @@ eucjp_char2int(const unsigned char* in, unsigned int* out)
     int
 eucjp_int2char(unsigned int in, unsigned char* out)
 {
-    /* CP932�Ɠ��e�͓�����������JISX0213�ɑΉ������邽�߂ɕ������Ă��� */
+    /* CP932と内容は同じだが将来JISX0213に対応させるために分離しておく */
     if (in >= 0x100)
     {
 	if (out)
@@ -197,7 +196,7 @@ charset_detect_buf(const unsigned char* buf, int len)
     for (i = 0; i < len; ++i)
     {
 	unsigned char c = buf[i];
-	// SJIS�ł��邩�̃`�F�b�N
+	// SJISであるかのチェック
 	if (smode)
 	{
 	    if ((0x40 <= c && c <= 0x7e) || (0x80 <= c && c <= 0xfc))
@@ -206,7 +205,7 @@ charset_detect_buf(const unsigned char* buf, int len)
 	}
 	else if ((0x81 <= c && c <= 0x9f) || (0xe0 <= c && c <= 0xf0))
 	    smode = 1;
-	// EUC�ł��邩�̃`�F�b�N
+	// EUCであるかのチェック
 	eflag = 0xa1 <= c && c <= 0xfe;
 	if (emode)
 	{
@@ -216,7 +215,7 @@ charset_detect_buf(const unsigned char* buf, int len)
 	}
 	else if (eflag)
 	    emode = 1;
-	// UTF8�ł��邩�̃`�F�b�N
+	// UTF8であるかのチェック
 	if (!ufailed)
 	{
 	    if (umode < 1)
@@ -258,7 +257,7 @@ charset_detect_buf(const unsigned char* buf, int len)
 		utf8 = 0;
 	}
     }
-    // �ŏI�I�Ɉ�ԓ��_�̍����G���R�[�h��Ԃ�
+    // 最終的に一番得点の高いエンコードを返す
     if (euc > sjis && euc > utf8)
 	return CHARSET_EUCJP;
     else if (!ufailed && utf8 > euc && utf8 > sjis)

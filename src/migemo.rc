@@ -7,13 +7,13 @@
 //
 // Generated from the TEXTINCLUDE 2 resource.
 //
-#include "afxres.h"
+#include "winres.h"
 
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// “ú–{Œê resources
+// æ—¥æœ¬èª resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_JPN)
 #ifdef _WIN32
@@ -44,7 +44,7 @@ BEGIN
     BEGIN
         BLOCK "041104b0"
         BEGIN
-            VALUE "Comments", "ƒ[ƒ}š‚É‚æ‚é“ú–{ŒêŒŸõ³‹K•\Œ»¶¬ƒ‰ƒCƒuƒ‰ƒŠ\0"
+            VALUE "Comments", "ãƒ­ãƒ¼ãƒå­—ã«ã‚ˆã‚‹æ—¥æœ¬èªæ¤œç´¢æ­£è¦è¡¨ç¾ç”Ÿæˆãƒ©ã‚¤ãƒ–ãƒ©ãƒª\0"
             VALUE "CompanyName", "KaoriYa\0"
             VALUE "FileDescription", "Migemo written in C\0"
             VALUE "FileVersion", "1, 3, 0, 175\0"
@@ -92,7 +92,7 @@ END
 
 #endif    // APSTUDIO_INVOKED
 
-#endif    // “ú–{Œê resources
+#endif    // æ—¥æœ¬èª resources
 /////////////////////////////////////////////////////////////////////////////
 
 

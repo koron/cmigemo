@@ -2,8 +2,7 @@
 /*
  * charset.h -
  *
- * Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
- * Last Change: 18-Jun-2004.
+ * Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
  */
 
 #ifndef CHARSET_H

@@ -1,0 +1,45 @@
+name: CI
+
+on: [push]
+
+jobs:
+
+  build:
+    name: Build with CMake
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - uses: actions/checkout@v7
+
+    - name: Build
+      run: |
+        cmake -B build
+        cmake --build build --parallel
+
+    - name: Test
+      run: cmake --build build --target test
+
+    - name: Profiling
+      run: cmake --build build --target profile
+
+    - name: Packaging
+      run: |
+        cmake -B build -DCMAKE_BUILD_TYPE=Release
+        cmake --build build --target package --parallel
+
+    - name: List files in build
+      run: tree -Fh build
+
+    - name: Upload profile.log
+      uses: actions/upload-artifact@v7
+      with:
+        path: build/profile.log
+        archive: false
+
+    - name: Upload the package
+      uses: actions/upload-artifact@v7
+      with:
+        path: build/cmigemo-*.tar.gz
+        archive: false

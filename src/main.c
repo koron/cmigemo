@@ -1,14 +1,14 @@
 /* vim:set ts=8 sts=4 sw=4 tw=0: */
 /*
- * main.c - migemoƒ‰ƒCƒuƒ‰ƒŠƒeƒXƒgƒhƒ‰ƒCƒo
+ * main.c - migemoãƒ©ã‚¤ãƒ–ãƒ©ãƒªãƒ†ã‚¹ãƒˆãƒ‰ãƒ©ã‚¤ãƒ
  *
- * Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
- * Last Change: 23-Feb-2004.
+ * Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <time.h>
 
 #include "migemo.h"
@@ -30,14 +30,14 @@ query_loop(migemo* p, int quiet)
 
 	if (!quiet)
 	    printf("QUERY: ");
-	/* gets()‚ğg‚Á‚Ä‚¢‚½‚ªfgets()‚É•ÏX */
+	/* gets()ã‚’ä½¿ã£ã¦ã„ãŸãŒfgets()ã«å¤‰æ›´ */
 	if (!fgets(buf, sizeof(buf), stdin))
 	{
 	    if (!quiet)
 		printf("\n");
 	    break;
 	}
-	/* ‰üs‚ğNUL•¶š‚É’u‚«Š·‚¦‚é */
+	/* æ”¹è¡Œã‚’NULæ–‡å­—ã«ç½®ãæ›ãˆã‚‹ */
 	if ((ans = strchr(buf, '\n')) != NULL)
 	    *ans = '\0';
 
@@ -71,6 +71,43 @@ OPTIONS:\n\
 	  , MIGEMO_ABOUT, prgname, MIGEMO_SUBDICT_MAX);
     exit(0);
 }
+
+    static migemo*
+open_first_migemo(const char**found, const char **dicts)
+{
+    for (; dicts != NULL && *dicts != NULL; dicts++)
+    {
+        struct stat st;
+        const char *dict = *dicts;
+        if (stat(dict, &st) != 0 || !S_ISREG(st.st_mode))
+            continue;
+        migemo *p = migemo_open(dict);
+        if (p == NULL)
+            continue;
+        *found = *dicts;
+        return p;
+    }
+    return NULL;
+}
+
+static const char *default_dicts[] = {
+#if _WIN32
+    "./dict/cp932/" MIGEMODICT_NAME,
+    "../dict/cp932/" MIGEMODICT_NAME,
+    "./build/dict/cp932/" MIGEMODICT_NAME,
+#else
+    "./dict/utf-8/" MIGEMODICT_NAME,
+    "../dict/utf-8/" MIGEMODICT_NAME,
+    "./build/dict/utf-8/" MIGEMODICT_NAME,
+#endif
+    "./dict/" MIGEMODICT_NAME,
+    "../dict/" MIGEMODICT_NAME,
+    "./build/dict/" MIGEMODICT_NAME,
+#ifdef CMIGEMO_DICTDIR
+    CMIGEMO_DICTDIR "/" MIGEMODICT_NAME,
+#endif
+    NULL,
+};
 
     int
 main(int argc, char** argv)
@@ -116,25 +153,13 @@ main(int argc, char** argv)
     fplog = fopen("exe.log", "wt");
 #endif
 
-    /* «‘‚ğƒJƒŒƒ“ƒgƒfƒBƒŒƒNƒgƒŠ‚Æ1‚Âã‚ÌƒfƒBƒŒƒNƒgƒŠ‚©‚ç‘{‚· */
+    /* è¾æ›¸ã‚’ã‚«ãƒ¬ãƒ³ãƒˆãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã¨1ã¤ä¸Šã®ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªã‹ã‚‰æœã™ */
     if (!dict)
     {
-	pmigemo = migemo_open("./dict/" MIGEMODICT_NAME);
-	if (!word && !mode_quiet)
-	{
-	    fprintf(fplog, "migemo_open(\"%s\")=%p\n",
-		    "./dict/" MIGEMODICT_NAME, pmigemo);
-	}
-	if (!pmigemo || !migemo_is_enable(pmigemo))
-	{
-	    migemo_close(pmigemo); /* NULL‚ğclose‚µ‚Ä‚à–â‘è‚Í‚È‚¢ */
-	    pmigemo = migemo_open("../dict/" MIGEMODICT_NAME);
-	    if (!word && !mode_quiet)
-	    {
-		fprintf(fplog, "migemo_open(\"%s\")=%p\n",
-			"../dict/" MIGEMODICT_NAME, pmigemo);
-	    }
-	}
+        const char *found = NULL;
+        pmigemo = open_first_migemo(&found, default_dicts);
+        if (!word && !mode_quiet)
+	    fprintf(fplog, "migemo_open(\"%s\")=%p\n", found ? found : "(N/A)", pmigemo);
     }
     else
     {
@@ -142,7 +167,7 @@ main(int argc, char** argv)
 	if (!word && !mode_quiet)
 	    fprintf(fplog, "migemo_open(\"%s\")=%p\n", dict, pmigemo);
     }
-    /* ƒTƒu«‘‚ğ“Ç‚İ‚Ş */
+    /* ã‚µãƒ–è¾æ›¸ã‚’èª­ã¿è¾¼ã‚€ */
     if (subdict_count > 0)
     {
 	int i;
@@ -197,7 +222,7 @@ main(int argc, char** argv)
 	    query_loop(pmigemo, mode_quiet);
 	}
 #else
-	/* ƒvƒƒtƒ@ƒCƒ‹—p */
+	/* ãƒ—ãƒ­ãƒ•ã‚¡ã‚¤ãƒ«ç”¨ */
 	{
 	    unsigned char *ans;
 

@@ -2,8 +2,7 @@
 /*
  * rxgen.h - regular expression generator
  *
- * Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
- * Last Change: 04-May-2004.
+ * Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
  */
 
 #ifndef RXGEN_H

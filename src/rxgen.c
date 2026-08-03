@@ -2,8 +2,7 @@
 /*
  * rxgen.c - regular expression generator
  *
- * Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
- * Last Change: 19-Sep-2009.
+ * Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
  */
 
 #include <stdio.h>
@@ -96,7 +95,7 @@ default_char2int(const unsigned char* in, unsigned int* out)
 default_int2char(unsigned int in, unsigned char* out)
 {
     int len = 0;
-    /* out‚ÍÅ’á‚Å‚à16ƒoƒCƒg‚Í‚ ‚éA‚Æ‚¢‚¤‰¼’è‚ğ’u‚­ */
+    /* outã¯æœ€ä½ã§ã‚‚16ãƒã‚¤ãƒˆã¯ã‚ã‚‹ã€ã¨ã„ã†ä»®å®šã‚’ç½®ã */
     switch (in)
     {
 	case '\\':
@@ -197,10 +196,10 @@ rxgen_add(rxgen* object, const unsigned char* word)
 	int len = rxgen_call_char2int(object, word, &code);
 	/*printf("rxgen_call_char2int: code=%08x\n", code);*/
 
-	/* “ü—Íƒpƒ^[ƒ“‚ªs‚«‚½‚çI—¹ */
+	/* å…¥åŠ›ãƒ‘ã‚¿ãƒ¼ãƒ³ãŒå°½ããŸã‚‰çµ‚äº† */
 	if (code == 0)
 	{
-	    /* “ü—Íƒpƒ^[ƒ“‚æ‚è‚à’·‚¢Šù‘¶ƒpƒ^[ƒ“‚Í”jŠü‚·‚é */
+	    /* å…¥åŠ›ãƒ‘ã‚¿ãƒ¼ãƒ³ã‚ˆã‚Šã‚‚é•·ã„æ—¢å­˜ãƒ‘ã‚¿ãƒ¼ãƒ³ã¯ç ´æ£„ã™ã‚‹ */
 	    if (*ppnode)
 	    {
 		rnode_delete(*ppnode);
@@ -211,7 +210,7 @@ rxgen_add(rxgen* object, const unsigned char* word)
 	pnode = search_rnode(*ppnode, code);
 	if (pnode == NULL)
 	{
-	    /* code‚ğ‚Âƒm[ƒh‚ª–³‚¢ê‡Aì¬’Ç‰Á‚·‚é */
+	    /* codeã‚’æŒã¤ãƒãƒ¼ãƒ‰ãŒç„¡ã„å ´åˆã€ä½œæˆè¿½åŠ ã™ã‚‹ */
 	    pnode = rnode_new();
 	    pnode->code = code;
 	    pnode->next = *ppnode;
@@ -220,14 +219,14 @@ rxgen_add(rxgen* object, const unsigned char* word)
 	else if (pnode->child == NULL)
 	{
 	    /*
-	     * code‚ğ‚Âƒm[ƒh‚Í—L‚é‚ªA‚»‚Ìq‹Ÿ‚ª–³‚¢ê‡A‚»‚êˆÈ~‚Ì“ü—Í
-	     * ƒpƒ^[ƒ“‚Í”jŠü‚·‚éB—á:
-	     *     ‚ ‚©‚¢ + ‚ ‚©‚é‚¢ -> ‚ ‚©
-	     *	   ‚½‚Ì‚µ‚¢ + ‚½‚Ì‚µ‚İ -> ‚½‚Ì‚µ
+	     * codeã‚’æŒã¤ãƒãƒ¼ãƒ‰ã¯æœ‰ã‚‹ãŒã€ãã®å­ä¾›ãŒç„¡ã„å ´åˆã€ãã‚Œä»¥é™ã®å…¥åŠ›
+	     * ãƒ‘ã‚¿ãƒ¼ãƒ³ã¯ç ´æ£„ã™ã‚‹ã€‚ä¾‹:
+	     *     ã‚ã‹ã„ + ã‚ã‹ã‚‹ã„ -> ã‚ã‹
+	     *	   ãŸã®ã—ã„ + ãŸã®ã—ã¿ -> ãŸã®ã—
 	     */
 	    break;
 	}
-	/* qƒm[ƒh‚ğ’H‚Á‚Ä[‚¢•û‚Ö’‹“_‚ğˆÚ“® */
+	/* å­ãƒãƒ¼ãƒ‰ã‚’è¾¿ã£ã¦æ·±ã„æ–¹ã¸æ³¨è¦–ç‚¹ã‚’ç§»å‹• */
 	ppnode = &pnode->child;
 	word += len;
     }
@@ -241,7 +240,7 @@ rxgen_generate_stub(rxgen* object, wordbuf_t* buf, rnode* node)
     int chlen, nochild, haschild = 0, brother = 1;
     rnode *tmp;
 
-    /* Œ»İ‚ÌŠK‘w‚Ì“Á«(ŒZ’í‚Ì”Aq‹Ÿ‚Ì”)‚ğƒ`ƒFƒbƒN‚·‚é */
+    /* ç¾åœ¨ã®éšå±¤ã®ç‰¹æ€§(å…„å¼Ÿã®æ•°ã€å­ä¾›ã®æ•°)ã‚’ãƒã‚§ãƒƒã‚¯ã™ã‚‹ */
     for (tmp = node; tmp; tmp = tmp->next)
     {
 	if (tmp->next)
@@ -254,11 +253,11 @@ rxgen_generate_stub(rxgen* object, wordbuf_t* buf, rnode* node)
     printf("node=%p code=%04X\n  nochild=%d haschild=%d brother=%d\n",
 	    node, node->code, nochild, haschild, brother);
 #endif
-    /* •K—v‚È‚ç‚Î()‚É‚æ‚éƒOƒ‹[ƒsƒ“ƒO */
+    /* å¿…è¦ãªã‚‰ã°()ã«ã‚ˆã‚‹ã‚°ãƒ«ãƒ¼ãƒ”ãƒ³ã‚° */
     if (brother > 1 && haschild > 0)
 	wordbuf_cat(buf, object->op_nest_in);
 #if 1
-    /* q‚Ì–³‚¢ƒm[ƒh‚ğæ‚É[]‚É‚æ‚èƒOƒ‹[ƒsƒ“ƒO */
+    /* å­ã®ç„¡ã„ãƒãƒ¼ãƒ‰ã‚’å…ˆã«[]ã«ã‚ˆã‚Šã‚°ãƒ«ãƒ¼ãƒ”ãƒ³ã‚° */
     if (nochild > 0)
     {
 	if (nochild > 1)
@@ -277,10 +276,10 @@ rxgen_generate_stub(rxgen* object, wordbuf_t* buf, rnode* node)
     }
 #endif
 #if 1
-    /* q‚Ì‚ ‚éƒm[ƒh‚ğo—Í */
+    /* å­ã®ã‚ã‚‹ãƒãƒ¼ãƒ‰ã‚’å‡ºåŠ› */
     if (haschild > 0)
     {
-	/* ƒOƒ‹[ƒv‚ğo—ÍÏ‚İ‚È‚çOR‚ÅŒq‚® */
+	/* ã‚°ãƒ«ãƒ¼ãƒ—ã‚’å‡ºåŠ›æ¸ˆã¿ãªã‚‰ORã§ç¹‹ã */
 	if (nochild > 0)
 	    wordbuf_cat(buf, object->op_or);
 	for (tmp = node; !tmp->child; tmp = tmp->next)
@@ -291,7 +290,7 @@ rxgen_generate_stub(rxgen* object, wordbuf_t* buf, rnode* node)
 	    /*printf("code=%04X len=%d\n", tmp->code, chlen);*/
 	    ch[chlen] = '\0';
 	    wordbuf_cat(buf, ch);
-	    /* ‹ó”’E‰üs”ò‚Î‚µ‚Ìƒpƒ^[ƒ“‚ğ‘}“ü */
+	    /* ç©ºç™½ãƒ»æ”¹è¡Œé£›ã°ã—ã®ãƒ‘ã‚¿ãƒ¼ãƒ³ã‚’æŒ¿å…¥ */
 	    if (object->op_newline[0])
 		wordbuf_cat(buf, object->op_newline);
 	    rxgen_generate_stub(object, buf, tmp->child);
@@ -304,7 +303,7 @@ rxgen_generate_stub(rxgen* object, wordbuf_t* buf, rnode* node)
 	}
     }
 #endif
-    /* •K—v‚È‚ç‚Î()‚É‚æ‚éƒOƒ‹[ƒsƒ“ƒO */
+    /* å¿…è¦ãªã‚‰ã°()ã«ã‚ˆã‚‹ã‚°ãƒ«ãƒ¼ãƒ”ãƒ³ã‚° */
     if (brother > 1 && haschild > 0)
 	wordbuf_cat(buf, object->op_nest_out);
 }
@@ -332,7 +331,7 @@ rxgen_release(rxgen* object, unsigned char* string)
 }
 
 /*
- * rxgen_add()‚µ‚Ä‚«‚½ƒpƒ^[ƒ“‚ğ‘S‚ÄƒŠƒZƒbƒgB
+ * rxgen_add()ã—ã¦ããŸãƒ‘ã‚¿ãƒ¼ãƒ³ã‚’å…¨ã¦ãƒªã‚»ãƒƒãƒˆã€‚
  */
     void
 rxgen_reset(rxgen* object)

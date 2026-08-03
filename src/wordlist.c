@@ -2,8 +2,7 @@
 /*
  * wordlist.h -
  *
- * Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
- * Last Change: 20-Sep-2009.
+ * Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
  */
 
 #include <stdlib.h>
@@ -27,8 +26,8 @@ wordlist_open_len(const unsigned char* ptr, int len)
 	    p->ptr  = (char*)(p + 1);
 	    p->next = NULL;
 	    /*
-	     * ‚Ù‚Ústrdup()‚Æ“™‰¿‚ÈŽÀ‘•B’PŒê‚Ì•Û‘¶‚É•K—v‚È‘ƒƒ‚ƒŠ‚ð’m‚è‚½
-	     * ‚¢‚Ì‚Å“ÆŽ©‚ÉÄŽÀ‘•B
+	     * ã»ã¼strdup()ã¨ç­‰ä¾¡ãªå®Ÿè£…ã€‚å˜èªžã®ä¿å­˜ã«å¿…è¦ãªç·ãƒ¡ãƒ¢ãƒªã‚’çŸ¥ã‚ŠãŸ
+	     * ã„ã®ã§ç‹¬è‡ªã«å†å®Ÿè£…ã€‚
 	     */
 	    memcpy(p->ptr, ptr, len);
 	    p->ptr[len] = '\0';

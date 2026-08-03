@@ -1,9 +1,8 @@
 /* vi:set ts=8 sts=4 sw=4 tw=0: */
 /*
- * romaji.h - ƒ[ƒ}š•ÏŠ·
+ * romaji.h - ãƒ­ãƒ¼ãƒå­—å¤‰æ›
  *
- * Written By:  MURAOKA Taro <koron@tka.att.ne.jp>
- * Last Change: 19-Jun-2004.
+ * Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
  */
 
 #ifndef ROMAJI_H
