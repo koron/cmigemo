@@ -8,38 +8,44 @@ find_program(GZIP_EXECUTABLE gzip REQUIRED)
 #------------------------------------------------------------------------------
 set(SKKDICT_BASEURL "https://skk-dev.github.io/dict")
 set(SKKDICT_FILE "SKK-JISYO.L")
+set(SKKDICT_UTF8_FILE "SKK-JISYO.L.utf-8")
 set(DICT_FILE "migemo-dict")
 set(DAT_FILES han2zen.dat hira2kata.dat roma2hira.dat zen2han.dat)
 
 set(SKKDICT_PATH "${CMAKE_CURRENT_BINARY_DIR}/${SKKDICT_FILE}")
+set(SKKDICT_UTF8_PATH "${CMAKE_CURRENT_BINARY_DIR}/${SKKDICT_UTF8_FILE}")
 set(BASE_DICT_PATH "${CMAKE_CURRENT_BINARY_DIR}/${DICT_FILE}")
 
 #------------------------------------------------------------------------------
-# Download the SKK dictionary and convert it to UTF-8
+
+# Download SKK-JISYO.L
 add_custom_command(
   OUTPUT ${SKKDICT_PATH}
   COMMAND
     ${CMAKE_COMMAND} -DURL="${SKKDICT_BASEURL}/${SKKDICT_FILE}.gz"
     -DOUTPUT_PATH="${CMAKE_CURRENT_BINARY_DIR}/${SKKDICT_FILE}.gz" -P
-    "${CMAKE_CURRENT_SOURCE_DIR}/download.cmake" # Download
-  COMMAND ${GZIP_EXECUTABLE} -d "${SKKDICT_FILE}.gz" # Extract
+    "${CMAKE_CURRENT_SOURCE_DIR}/download.cmake"
+  COMMAND ${GZIP_EXECUTABLE} -d "${SKKDICT_FILE}.gz"
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+  COMMENT "Downloading and extracting ${SKKDICT_FILE}")
+
+# Convert SKK-JISYO.L (EUC-JP) to SKK-JISYO.L.utf-8 (UTF-8)
+add_custom_command(
+  OUTPUT ${SKKDICT_UTF8_PATH}
   COMMAND
     ${ICONV_EXECUTABLE}
     -f
     EUC-JISX0213
     -t
     UTF-8
-    ${SKKDICT_FILE}
+    ${SKKDICT_PATH}
     >
-    ${SKKDICT_FILE}.utf-8 # Conert EUC-JISX0213 -> UTF-8
-  COMMAND
-    ${CMAKE_COMMAND} -E rename ${SKKDICT_FILE}.utf-8 ${SKKDICT_FILE}
-    # Remove temporary files
-  COMMAND ${CMAKE_COMMAND} -E remove "${SKKDICT_FILE}.gz"
+    ${SKKDICT_UTF8_PATH}
+  DEPENDS ${SKKDICT_PATH}
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-  COMMENT "Downloading and converting ${SKKDICT_FILE} to UTF-8")
+  COMMENT "Converting ${SKKDICT_FILE} to UTF-8")
 
-add_custom_target(fetch_skkdict DEPENDS ${SKKDICT_PATH})
+add_custom_target(fetch_skkdict DEPENDS ${SKKDICT_UTF8_PATH})
 
 #------------------------------------------------------------------------------
 # Generate C/Migemo dictionary file (migemo-dict).
@@ -47,13 +53,13 @@ add_custom_command(
   OUTPUT ${BASE_DICT_PATH}
   COMMAND
     ${PERL_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/skk2migemo.pl <
-    ${SKKDICT_PATH} > ${CMAKE_CURRENT_BINARY_DIR}/tmp.dict
+    ${SKKDICT_UTF8_PATH} > ${CMAKE_CURRENT_BINARY_DIR}/tmp.dict
   COMMAND
     ${PERL_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/optimize-dict.pl <
     ${CMAKE_CURRENT_BINARY_DIR}/tmp.dict > ${BASE_DICT_PATH}
   COMMAND ${CMAKE_COMMAND} -E remove ${CMAKE_CURRENT_BINARY_DIR}/tmp.dict
   DEPENDS
-    ${SKKDICT_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/skk2migemo.pl
+    ${SKKDICT_UTF8_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/skk2migemo.pl
     ${CMAKE_CURRENT_SOURCE_DIR}/optimize-dict.pl
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   COMMENT "Generating base migemo-dict")
