@@ -1,8 +1,0 @@
-if(NOT EXISTS "${OUTPUT_PATH}")
-  message(STATUS "Downloading ${URL}...")
-  file(DOWNLOAD "${URL}" "${OUTPUT_PATH}" STATUS DOWNLOAD_STATUS)
-  list(GET DOWNLOAD_STATUS 0 STATUS_CODE)
-  if(NOT STATUS_CODE EQUAL 0)
-    message(FATAL_ERROR "Failed to download: ${DOWNLOAD_STATUS}")
-  endif()
-endif()

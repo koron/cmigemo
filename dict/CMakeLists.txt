@@ -2,6 +2,7 @@ find_package(Perl REQUIRED)
 
 #------------------------------------------------------------------------------
 # Detect required commands: curl, iconv, gzip
+find_program(CURL_EXECUTABLE curl REQUIRED)
 find_program(ICONV_EXECUTABLE iconv REQUIRED)
 find_program(GZIP_EXECUTABLE gzip REQUIRED)
 
@@ -28,10 +29,7 @@ set_property(
 # Download SKK-JISYO.L
 add_custom_command(
   OUTPUT ${SKKDICT_PATH}
-  COMMAND
-    ${CMAKE_COMMAND} -DURL="${SKKDICT_BASEURL}/${SKKDICT_FILE}.gz"
-    -DOUTPUT_PATH="${CMAKE_CURRENT_BINARY_DIR}/${SKKDICT_FILE}.gz" -P
-    "${CMAKE_CURRENT_SOURCE_DIR}/download.cmake"
+  COMMAND ${CURL_EXECUTABLE} -fsSLO "${SKKDICT_BASEURL}/${SKKDICT_FILE}.gz"
   COMMAND ${GZIP_EXECUTABLE} -d "${SKKDICT_FILE}.gz"
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   COMMENT "Downloading and extracting ${SKKDICT_FILE}")
@@ -52,8 +50,6 @@ add_custom_command(
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   COMMENT "Converting ${SKKDICT_FILE} to UTF-8")
 
-add_custom_target(fetch_skkdict DEPENDS ${SKKDICT_UTF8_PATH})
-
 #------------------------------------------------------------------------------
 # Generate C/Migemo dictionary file (migemo-dict).
 add_custom_command(
@@ -70,6 +66,8 @@ add_custom_command(
     ${CMAKE_CURRENT_SOURCE_DIR}/optimize-dict.pl
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
   COMMENT "Generating base migemo-dict")
+
+add_custom_target(generate_base_dict DEPENDS ${BASE_DICT_PATH})
 
 #------------------------------------------------------------------------------
 # A helper function that generates a dictionary for the specified encoding.
@@ -185,7 +183,7 @@ function(add_dict_encoding_target ENCODING_NAME ICONV_ENCODING IGNORE_ERROR)
   # Custom targeting for registration to the overall target
   add_custom_target(dict_${ENCODING_NAME} ALL DEPENDS ${OUT_DICT})
 
-  add_dependencies(dict_${ENCODING_NAME} fetch_skkdict)
+  add_dependencies(dict_${ENCODING_NAME} generate_base_dict)
 
   install(
     DIRECTORY "${OUT_DIR}/"
