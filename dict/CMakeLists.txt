@@ -16,6 +16,13 @@ set(SKKDICT_PATH "${CMAKE_CURRENT_BINARY_DIR}/${SKKDICT_FILE}")
 set(SKKDICT_UTF8_PATH "${CMAKE_CURRENT_BINARY_DIR}/${SKKDICT_UTF8_FILE}")
 set(BASE_DICT_PATH "${CMAKE_CURRENT_BINARY_DIR}/${DICT_FILE}")
 
+set_property(
+  DIRECTORY
+  APPEND
+  PROPERTY
+    ADDITIONAL_CLEAN_FILES "${SKKDICT_PATH}.gz" "${SKKDICT_PATH}"
+    "${SKKDICT_UTF8_PATH}" "${BASE_DICT_PATH}")
+
 #------------------------------------------------------------------------------
 
 # Download SKK-JISYO.L
@@ -71,6 +78,8 @@ function(add_dict_encoding_target ENCODING_NAME ICONV_ENCODING IGNORE_ERROR)
   set(OUT_DICT "${OUT_DIR}/${DICT_FILE}")
 
   set(COMMANDS_LIST "")
+
+  set_property(DIRECTORY APPEND PROPERTY ADDITIONAL_CLEAN_FILES "${OUT_DIR}")
 
   list(
     APPEND
