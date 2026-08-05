@@ -1,4 +1,5 @@
-// vim:set ts=8 sts=4 sw=4 tw=0:
+// vim:set ts=8 sts=4 sw=4 tw=0 et:
+//
 // main.c - migemoライブラリテストドライバ
 //
 // Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
@@ -11,45 +12,45 @@
 
 #include "migemo.h"
 
-#define MIGEMO_ABOUT "cmigemo - C/Migemo Library " MIGEMO_VERSION " Driver"
+#define MIGEMO_ABOUT    "cmigemo - C/Migemo Library " MIGEMO_VERSION " Driver"
 #define MIGEMODICT_NAME "migemo-dict"
 #define MIGEMO_SUBDICT_MAX 8
 
 // main
 
-    int
-query_loop(migemo* p, int quiet)
+int
+query_loop(migemo *p, int quiet)
 {
     while (!feof(stdin))
     {
-	unsigned char buf[256], *ans;
+        unsigned char buf[256], *ans;
 
-	if (!quiet)
-	    printf("QUERY: ");
-	// gets()を使っていたがfgets()に変更
-	if (!fgets(buf, sizeof(buf), stdin))
-	{
-	    if (!quiet)
-		printf("\n");
-	    break;
-	}
-	// 改行をNUL文字に置き換える
-	if ((ans = strchr(buf, '\n')) != NULL)
-	    *ans = '\0';
+        if (!quiet)
+            printf("QUERY: ");
+        // gets()を使っていたがfgets()に変更
+        if (!fgets(buf, sizeof(buf), stdin))
+        {
+            if (!quiet)
+                printf("\n");
+            break;
+        }
+        // 改行をNUL文字に置き換える
+        if ((ans = strchr(buf, '\n')) != NULL)
+            *ans = '\0';
 
-	ans = migemo_query(p, buf);
-	if (ans)
-	    printf(quiet ? "%s\n" : "PATTERN: %s\n", ans);
-	fflush(stdout);
-	migemo_release(p, ans);
+        ans = migemo_query(p, buf);
+        if (ans)
+            printf(quiet ? "%s\n" : "PATTERN: %s\n", ans);
+        fflush(stdout);
+        migemo_release(p, ans);
     }
     return 0;
 }
 
-    static void
-help(char* prgname)
+static void
+help(char *prgname)
 {
-    printf( "\
+    printf("\
 %s \n\
 \n\
 USAGE: %s [OPTIONS]\n\
@@ -63,13 +64,13 @@ OPTIONS:\n\
   -n --nonewline	Don't use newline match.\n\
   -w --word <word>	Expand a <word> and soon exit.\n\
   -h --help		Show this message.\n\
-"
-	  , MIGEMO_ABOUT, prgname, MIGEMO_SUBDICT_MAX);
+",
+            MIGEMO_ABOUT, prgname, MIGEMO_SUBDICT_MAX);
     exit(0);
 }
 
-    static migemo*
-open_first_migemo(const char**found, const char **dicts)
+static migemo *
+open_first_migemo(const char **found, const char **dicts)
 {
     for (; dicts != NULL && *dicts != NULL; dicts++)
     {
@@ -88,32 +89,32 @@ open_first_migemo(const char**found, const char **dicts)
 
 static const char *default_dicts[] = {
 #if _WIN32
-    "./dict/cp932/" MIGEMODICT_NAME,
-    "../dict/cp932/" MIGEMODICT_NAME,
-    "./build/dict/cp932/" MIGEMODICT_NAME,
+        "./dict/cp932/" MIGEMODICT_NAME,
+        "../dict/cp932/" MIGEMODICT_NAME,
+        "./build/dict/cp932/" MIGEMODICT_NAME,
 #else
-    "./dict/utf-8/" MIGEMODICT_NAME,
-    "../dict/utf-8/" MIGEMODICT_NAME,
-    "./build/dict/utf-8/" MIGEMODICT_NAME,
+        "./dict/utf-8/" MIGEMODICT_NAME,
+        "../dict/utf-8/" MIGEMODICT_NAME,
+        "./build/dict/utf-8/" MIGEMODICT_NAME,
 #endif
-    "./dict/" MIGEMODICT_NAME,
-    "../dict/" MIGEMODICT_NAME,
-    "./build/dict/" MIGEMODICT_NAME,
+        "./dict/" MIGEMODICT_NAME,
+        "../dict/" MIGEMODICT_NAME,
+        "./build/dict/" MIGEMODICT_NAME,
 #ifdef CMIGEMO_DICTDIR
-    CMIGEMO_DICTDIR "/" MIGEMODICT_NAME,
+        CMIGEMO_DICTDIR "/" MIGEMODICT_NAME,
 #endif
-    NULL,
+        NULL,
 };
 
-    int
-main(int argc, char** argv)
+int
+main(int argc, char **argv)
 {
     int mode_vim = 0;
     int mode_emacs = 0;
     int mode_nonewline = 0;
     int mode_quiet = 0;
-    char* dict = NULL;
-    char* subdict[MIGEMO_SUBDICT_MAX];
+    char *dict = NULL;
+    char *subdict[MIGEMO_SUBDICT_MAX];
     int subdict_count = 0;
     migemo *pmigemo;
     FILE *fplog = stdout;
@@ -123,26 +124,26 @@ main(int argc, char** argv)
     memset(subdict, 0, sizeof(subdict));
     while (*++argv)
     {
-	if (0)
-	    ;
-	else if (!strcmp("--vim", *argv) || !strcmp("-v", *argv))
-	    mode_vim = 1;
-	else if (!strcmp("--emacs", *argv) || !strcmp("-e", *argv))
-	    mode_emacs = 1;
-	else if (!strcmp("--nonewline", *argv) || !strcmp("-n", *argv))
-	    mode_nonewline = 1;
-	else if (argv[1] && (!strcmp("--dict", *argv) || !strcmp("-d", *argv)))
-	    dict = *++argv;
-	else if (argv[1]
-		&& (!strcmp("--subdict", *argv) || !strcmp("-s", *argv))
-		&& subdict_count < MIGEMO_SUBDICT_MAX)
-	    subdict[subdict_count++] = *++argv;
-	else if (argv[1] && (!strcmp("--word", *argv) || !strcmp("-w", *argv)))
-	    word = *++argv;
-	else if (!strcmp("--quiet", *argv) || !strcmp("-q", *argv))
-	    mode_quiet = 1;
-	else if (!strcmp("--help", *argv) || !strcmp("-h", *argv))
-	    help(prgname);
+        if (0)
+            ;
+        else if (!strcmp("--vim", *argv) || !strcmp("-v", *argv))
+            mode_vim = 1;
+        else if (!strcmp("--emacs", *argv) || !strcmp("-e", *argv))
+            mode_emacs = 1;
+        else if (!strcmp("--nonewline", *argv) || !strcmp("-n", *argv))
+            mode_nonewline = 1;
+        else if (argv[1] && (!strcmp("--dict", *argv) || !strcmp("-d", *argv)))
+            dict = *++argv;
+        else if (argv[1]
+                 && (!strcmp("--subdict", *argv) || !strcmp("-s", *argv))
+                 && subdict_count < MIGEMO_SUBDICT_MAX)
+            subdict[subdict_count++] = *++argv;
+        else if (argv[1] && (!strcmp("--word", *argv) || !strcmp("-w", *argv)))
+            word = *++argv;
+        else if (!strcmp("--quiet", *argv) || !strcmp("-q", *argv))
+            mode_quiet = 1;
+        else if (!strcmp("--help", *argv) || !strcmp("-h", *argv))
+            help(prgname);
     }
 
 #ifdef _PROFILE
@@ -155,88 +156,89 @@ main(int argc, char** argv)
         const char *found = NULL;
         pmigemo = open_first_migemo(&found, default_dicts);
         if (!word && !mode_quiet)
-	    fprintf(fplog, "migemo_open(\"%s\")=%p\n", found ? found : "(N/A)", pmigemo);
+            fprintf(fplog, "migemo_open(\"%s\")=%p\n", found ? found : "(N/A)",
+                    pmigemo);
     }
     else
     {
-	pmigemo = migemo_open(dict);
-	if (!word && !mode_quiet)
-	    fprintf(fplog, "migemo_open(\"%s\")=%p\n", dict, pmigemo);
+        pmigemo = migemo_open(dict);
+        if (!word && !mode_quiet)
+            fprintf(fplog, "migemo_open(\"%s\")=%p\n", dict, pmigemo);
     }
     // サブ辞書を読み込む
     if (subdict_count > 0)
     {
-	int i;
+        int i;
 
-	for (i = 0; i < subdict_count; ++i)
-	{
-	    int result;
+        for (i = 0; i < subdict_count; ++i)
+        {
+            int result;
 
-	    if (subdict[i] == NULL || subdict[i][0] == '\0')
-		continue;
-	    result = migemo_load(pmigemo, MIGEMO_DICTID_MIGEMO, subdict[i]);
-	    if (!word && !mode_quiet)
-		fprintf(fplog, "migemo_load(%p, %d, \"%s\")=%d\n",
-			pmigemo, MIGEMO_DICTID_MIGEMO, subdict[i], result);
-	}
+            if (subdict[i] == NULL || subdict[i][0] == '\0')
+                continue;
+            result = migemo_load(pmigemo, MIGEMO_DICTID_MIGEMO, subdict[i]);
+            if (!word && !mode_quiet)
+                fprintf(fplog, "migemo_load(%p, %d, \"%s\")=%d\n", pmigemo,
+                        MIGEMO_DICTID_MIGEMO, subdict[i], result);
+        }
     }
 
     if (!pmigemo)
-	return 1;
+        return 1;
     else
     {
-	if (mode_vim)
-	{
-	    migemo_set_operator(pmigemo, MIGEMO_OPINDEX_OR, "\\|");
-	    migemo_set_operator(pmigemo, MIGEMO_OPINDEX_NEST_IN, "\\%(");
-	    migemo_set_operator(pmigemo, MIGEMO_OPINDEX_NEST_OUT, "\\)");
-	    if (!mode_nonewline)
-		migemo_set_operator(pmigemo, MIGEMO_OPINDEX_NEWLINE, "\\_s*");
-	}
-	else if (mode_emacs)
-	{
-	    migemo_set_operator(pmigemo, MIGEMO_OPINDEX_OR, "\\|");
-	    migemo_set_operator(pmigemo, MIGEMO_OPINDEX_NEST_IN, "\\(");
-	    migemo_set_operator(pmigemo, MIGEMO_OPINDEX_NEST_OUT, "\\)");
-	    if (!mode_nonewline)
-		migemo_set_operator(pmigemo, MIGEMO_OPINDEX_NEWLINE, "\\s-*");
-	}
+        if (mode_vim)
+        {
+            migemo_set_operator(pmigemo, MIGEMO_OPINDEX_OR, "\\|");
+            migemo_set_operator(pmigemo, MIGEMO_OPINDEX_NEST_IN, "\\%(");
+            migemo_set_operator(pmigemo, MIGEMO_OPINDEX_NEST_OUT, "\\)");
+            if (!mode_nonewline)
+                migemo_set_operator(pmigemo, MIGEMO_OPINDEX_NEWLINE, "\\_s*");
+        }
+        else if (mode_emacs)
+        {
+            migemo_set_operator(pmigemo, MIGEMO_OPINDEX_OR, "\\|");
+            migemo_set_operator(pmigemo, MIGEMO_OPINDEX_NEST_IN, "\\(");
+            migemo_set_operator(pmigemo, MIGEMO_OPINDEX_NEST_OUT, "\\)");
+            if (!mode_nonewline)
+                migemo_set_operator(pmigemo, MIGEMO_OPINDEX_NEWLINE, "\\s-*");
+        }
 #ifndef _PROFILE
-	if (word)
-	{
-	    unsigned char *ans;
+        if (word)
+        {
+            unsigned char *ans;
 
-	    ans = migemo_query(pmigemo, word);
-	    if (ans)
-		fprintf(fplog, mode_vim ? "%s" : "%s\n", ans);
-	    migemo_release(pmigemo, ans);
-	}
-	else
-	{
-	    if (!mode_quiet)
-		printf("clock()=%f\n", (float)clock() / CLOCKS_PER_SEC);
-	    query_loop(pmigemo, mode_quiet);
-	}
+            ans = migemo_query(pmigemo, word);
+            if (ans)
+                fprintf(fplog, mode_vim ? "%s" : "%s\n", ans);
+            migemo_release(pmigemo, ans);
+        }
+        else
+        {
+            if (!mode_quiet)
+                printf("clock()=%f\n", (float)clock() / CLOCKS_PER_SEC);
+            query_loop(pmigemo, mode_quiet);
+        }
 #else
-	// プロファイル用
-	{
-	    unsigned char *ans;
+        // プロファイル用
+        {
+            unsigned char *ans;
 
-	    ans = migemo_query(pmigemo, "a");
-	    if (ans)
-		fprintf(fplog, "  [%s]\n", ans);
-	    migemo_release(pmigemo, ans);
+            ans = migemo_query(pmigemo, "a");
+            if (ans)
+                fprintf(fplog, "  [%s]\n", ans);
+            migemo_release(pmigemo, ans);
 
-	    ans = migemo_query(pmigemo, "k");
-	    if (ans)
-		fprintf(fplog, "  [%s]\n", ans);
-	    migemo_release(pmigemo, ans);
-	}
+            ans = migemo_query(pmigemo, "k");
+            if (ans)
+                fprintf(fplog, "  [%s]\n", ans);
+            migemo_release(pmigemo, ans);
+        }
 #endif
-	migemo_close(pmigemo);
+        migemo_close(pmigemo);
     }
 
     if (fplog != stdout)
-	fclose(fplog);
+        fclose(fplog);
     return 0;
 }

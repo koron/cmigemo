@@ -1,4 +1,5 @@
-// vim:set ts=8 sts=4 sw=4 tw=0:
+// vim:set ts=8 sts=4 sw=4 tw=0 et:
+//
 // wordlist.h -
 //
 // Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
@@ -9,7 +10,7 @@
 typedef struct _wordlist_t wordlist_t, *wordlist_p;
 struct _wordlist_t
 {
-    unsigned char* ptr;
+    unsigned char *ptr;
     wordlist_p next;
 };
 
@@ -21,8 +22,8 @@ extern int n_wordlist_total;
 extern "C" {
 #endif
 
-wordlist_p wordlist_open(const unsigned char* ptr);
-wordlist_p wordlist_open_len(const unsigned char* ptr, int len);
+wordlist_p wordlist_open(const unsigned char *ptr);
+wordlist_p wordlist_open_len(const unsigned char *ptr, int len);
 void wordlist_close(wordlist_p p);
 
 #ifdef __cplusplus

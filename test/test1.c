@@ -2,18 +2,19 @@
 
 #include <stdio.h>
 #include <string.h>
+
 #include "migemo.h"
 
-    static int
+static int
 assert_query(migemo *p, const char *q, const char *ex)
 {
-    char    *r;
+    char *r;
 
     r = migemo_query(p, q);
     if (strcmp(r, ex) != 0)
     {
-        printf("Failed: query \"%s\" generate \"%s\" (expected \"%s\")\n",
-                q, r, ex);
+        printf("Failed: query \"%s\" generate \"%s\" (expected \"%s\")\n", q, r,
+                ex);
         migemo_release(p, r);
         return 1;
     }
@@ -21,11 +22,12 @@ assert_query(migemo *p, const char *q, const char *ex)
     return 0;
 }
 
-    static int
+static int
 test_all(migemo *p)
 {
-    if (assert_query(p, "ak",
-                "([明悪秋朱紅赤]|あ([こけくきか]|っ[こけくきか])|ak)") != 0)
+    if (assert_query(
+                p, "ak", "([明悪秋朱紅赤]|あ([こけくきか]|っ[こけくきか])|ak)")
+            != 0)
         return 1;
     if (assert_query(p, "n", "[んのねぬになn]") != 0)
         return 1;
@@ -34,11 +36,11 @@ test_all(migemo *p)
     return 0;
 }
 
-    int
+int
 test1(void)
 {
-    int     r;
-    migemo  *p;
+    int r;
+    migemo *p;
 
     p = migemo_open("test1/migemo-dict");
     if (p == NULL)

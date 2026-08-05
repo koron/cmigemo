@@ -6,3 +6,40 @@ IndentWidth: 4
 TabWidth: 8
 UseTab: Never
 ColumnLimit: 80
+
+BreakAfterReturnType: AllDefinitions
+
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterCaseLabel: true
+  AfterClass: true
+  AfterControlStatement: Always
+  AfterEnum: false
+  AfterFunction: true
+  AfterNamespace: true
+  AfterObjCDeclaration: true
+  AfterStruct: true
+  AfterUnion: true
+  AfterExternBlock: false
+  BeforeCatch: true
+  BeforeElse: true
+  BeforeLambdaBody: true
+  BeforeWhile: true
+  #IndentBraces: true
+  #SplitEmptyFunction: true
+  #SplitEmptyRecord: true
+  #SplitEmptyNamespace: true
+
+BreakBeforeBinaryOperators: NonAssignment
+
+IndentPPDirectives: AfterHash
+PPIndentWidth: 1
+
+IndentCaseLabels: true
+
+IndentExternBlock: NoIndent
+
+ContinuationIndentWidth: 8
+AlignAfterOpenBracket: false
+
+AlignConsecutiveMacros: Consecutive
