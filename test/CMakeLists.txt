@@ -10,3 +10,10 @@ add_test(NAME test_migemo1 COMMAND test1)
 set_tests_properties(
   test_migemo1
   PROPERTIES WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/test)
+
+#------------------------------------------------------------------------------
+
+add_custom_target(check
+    COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
+    DEPENDS test1
+)
