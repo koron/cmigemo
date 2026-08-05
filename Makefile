@@ -2,7 +2,7 @@
 #
 # C/Migemo Makefile
 
-.PHONY: build tags format package clean distclean
+.PHONY: build test profile tags format package clean distclean
 
 build:
 	cmake -B build
@@ -10,6 +10,14 @@ build:
 
 tags: src/*.c src/*.h
 	ctags src/*.c src/*.h
+
+test:
+	cmake -B build
+	cmake --build build --parallel --target check
+
+profile:
+	cmake -B build
+	cmake --build build --parallel --target profile
 
 format:
 	find . -type f \( -name "*.c" -o -name "*.h" \) | xargs clang-format -i

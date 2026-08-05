@@ -26,10 +26,10 @@ static int
 test_all(migemo *p)
 {
     if (assert_query(
-                p, "ak", "([明悪秋朱紅赤]|あ([こけくきか]|っ[こけくきか])|ak)")
+                p, "ak", "([悪明朱秋紅赤]|ak|あ([かきくけこ]|っ[かきくけこ]))")
             != 0)
         return 1;
-    if (assert_query(p, "n", "[んのねぬになn]") != 0)
+    if (assert_query(p, "n", "[nなにぬねのん]") != 0)
         return 1;
     // FIXME: add tests
 

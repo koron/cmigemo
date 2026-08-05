@@ -53,9 +53,14 @@ struct _rxgen
 
 struct _rnode
 {
-    unsigned int code;
+    rnode *parent;
     rnode *low, *high;
     rnode *child;
+
+    bool red;
+    bool wordtail;
+
+    unsigned int code;
 };
 
 static rnode *
@@ -101,6 +106,7 @@ rnode_dig(rnode **pp, unsigned int code)
             if (p->low == NULL)
             {
                 p->low = rnode_new(code);
+                p->low->parent = p;
                 return p->low;
             }
             p = p->low;
@@ -110,6 +116,7 @@ rnode_dig(rnode **pp, unsigned int code)
             if (p->high == NULL)
             {
                 p->high = rnode_new(code);
+                p->high->parent = p;
                 return p->high;
             }
             p = p->high;
@@ -220,6 +227,7 @@ rxgen_add(rxgen *object, const unsigned char *word)
         return 0;
 
     rnode **ppnode = &object->root;
+    rnode *pnode = NULL;
     while (1)
     {
         unsigned int code;
@@ -229,28 +237,38 @@ rxgen_add(rxgen *object, const unsigned char *word)
         // 入力パターンが尽きたら終了
         if (code == 0)
         {
-            // 入力パターンよりも長い既存パターンは破棄する
+            if (pnode)
+                pnode->wordtail = true;
             if (*ppnode)
             {
+                // 登録しようとしている単語よりも、長い単語が既に登録されている
+                // 場合は、長い方を破棄する。例:
+                //      赤ちゃん + 赤 -> 赤
+                //      国際便 + 国際 -> 国際
                 rnode_delete(*ppnode);
                 *ppnode = NULL;
             }
             break;
         }
-        rnode *pnode = rnode_dig(ppnode, code);
-        if (pnode != NULL && pnode->child == NULL)
+
+        word += len;
+
+        pnode = rnode_dig(ppnode, code);
+        if (!pnode)
+            return 0; // allocation error.
+        ppnode = &pnode->child;
+
+        if (pnode && pnode->wordtail)
         {
-            // codeを持つノードは有るが、その子供が無い場合、それ以降の入力
-            // パターンは破棄する。例:
-            //     あかい + あかるい -> あか
-            //	   たのしい + たのしみ -> たのし
-            break;
+            // 登録しようとしている単語よりも短い単語が登録されている場合、
+            // それ以降の文字は破棄する。例:
+            //      赤 + 赤ちゃん -> 赤
+            //      国際 + 国際便 -> 国際
+            return 2; // not registered a word, but found short one.
         }
         // 子ノードを辿って深い方へ注視点を移動
-        ppnode = &pnode->child;
-        word += len;
     }
-    return 1;
+    return 1; // registered a word, some nodes.
 }
 
 static void
@@ -332,7 +350,6 @@ rxgen_generate_stub(rxgen *object, wordbuf_t *buf, rnode *node)
     if (needGroup)
         wordbuf_cat(buf, object->op_nest_in);
 
-#if 1
     // 子の無いノードを先に[]によりグルーピング
     if (noChildrenCount > 0)
     {
@@ -345,16 +362,13 @@ rxgen_generate_stub(rxgen *object, wordbuf_t *buf, rnode *node)
         else
             rxgen_write_node_no_children(object, buf, node);
     }
-#endif
 
-#if 1
     // 子のあるノードを出力
     if (childrenCount > 0)
     {
         bool needOr = noChildrenCount > 0;
         rxgen_write_node_has_children(object, buf, node, &needOr);
     }
-#endif
 
     // 必要ならば()によるグルーピング
     if (needGroup)
