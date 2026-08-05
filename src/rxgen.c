@@ -167,11 +167,21 @@ rxgen_close(rxgen* object)
 }
 
     static rnode*
-search_rnode(rnode* node, unsigned int code)
+search_rnode(rnode** phead, unsigned int code)
 {
-    while (node && node->code != code)
-	node = node->next;
-    return node;
+    rnode **pp = phead;
+    while (*pp && (*pp)->code != code)
+	pp = &(*pp)->next;
+
+    if (*pp && pp != phead)
+    {
+	rnode *found = *pp;
+	*pp = found->next;
+	found->next = *phead;
+	*phead = found;
+	return found;
+    }
+    return *pp;
 }
 
     int
@@ -201,7 +211,7 @@ rxgen_add(rxgen* object, const unsigned char* word)
 	    }
 	    break;
 	}
-	pnode = search_rnode(*ppnode, code);
+	pnode = search_rnode(ppnode, code);
 	if (pnode == NULL)
 	{
 	    // codeを持つノードが無い場合、作成追加する
