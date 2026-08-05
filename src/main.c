@@ -16,6 +16,10 @@
 #define MIGEMODICT_NAME "migemo-dict"
 #define MIGEMO_SUBDICT_MAX 8
 
+#ifndef S_ISREG
+#define S_ISREG(m) (((m) & _S_IFMT) == _S_IFREG)
+#endif
+
 // main
 
 int

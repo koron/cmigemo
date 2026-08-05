@@ -133,11 +133,11 @@ wordbuf_write_bytes(wordbuf_p buf, const unsigned char *p, size_t len)
 {
     if (p != NULL && len > 0)
     {
-        int newlen = buf->last + len + 1;
+        int newlen = buf->last + (int)len + 1;
         if (newlen > buf->len && !wordbuf_extend(buf, newlen))
             return 0;
         memcpy(&buf->buf[buf->last], p, len);
-        buf->last = buf->last + len;
+        buf->last = buf->last + (int)len;
         buf->buf[buf->last] = '\0';
     }
     return buf->last;
