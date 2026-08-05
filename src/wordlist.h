@@ -1,9 +1,7 @@
-/* vim:set ts=8 sts=4 sw=4 tw=0: */
-/*
- * wordlist.h -
- *
- * Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
- */
+// vim:set ts=8 sts=4 sw=4 tw=0:
+// wordlist.h -
+//
+// Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
 
 #ifndef WORDLIST_H
 #define WORDLIST_H
@@ -31,4 +29,4 @@ void wordlist_close(wordlist_p p);
 }
 #endif
 
-#endif /* WORDLIST_H */
+#endif // WORDLIST_H

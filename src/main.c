@@ -1,9 +1,7 @@
-/* vim:set ts=8 sts=4 sw=4 tw=0: */
-/*
- * main.c - migemoライブラリテストドライバ
- *
- * Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
- */
+// vim:set ts=8 sts=4 sw=4 tw=0:
+// main.c - migemoライブラリテストドライバ
+//
+// Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,9 +15,7 @@
 #define MIGEMODICT_NAME "migemo-dict"
 #define MIGEMO_SUBDICT_MAX 8
 
-/*
- * main
- */
+// main
 
     int
 query_loop(migemo* p, int quiet)
@@ -30,14 +26,14 @@ query_loop(migemo* p, int quiet)
 
 	if (!quiet)
 	    printf("QUERY: ");
-	/* gets()を使っていたがfgets()に変更 */
+	// gets()を使っていたがfgets()に変更
 	if (!fgets(buf, sizeof(buf), stdin))
 	{
 	    if (!quiet)
 		printf("\n");
 	    break;
 	}
-	/* 改行をNUL文字に置き換える */
+	// 改行をNUL文字に置き換える
 	if ((ans = strchr(buf, '\n')) != NULL)
 	    *ans = '\0';
 
@@ -153,7 +149,7 @@ main(int argc, char** argv)
     fplog = fopen("exe.log", "wt");
 #endif
 
-    /* 辞書をカレントディレクトリと1つ上のディレクトリから捜す */
+    // 辞書をカレントディレクトリと1つ上のディレクトリから捜す
     if (!dict)
     {
         const char *found = NULL;
@@ -167,7 +163,7 @@ main(int argc, char** argv)
 	if (!word && !mode_quiet)
 	    fprintf(fplog, "migemo_open(\"%s\")=%p\n", dict, pmigemo);
     }
-    /* サブ辞書を読み込む */
+    // サブ辞書を読み込む
     if (subdict_count > 0)
     {
 	int i;
@@ -222,7 +218,7 @@ main(int argc, char** argv)
 	    query_loop(pmigemo, mode_quiet);
 	}
 #else
-	/* プロファイル用 */
+	// プロファイル用
 	{
 	    unsigned char *ans;
 

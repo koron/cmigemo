@@ -1,17 +1,13 @@
-/* vim:set ts=8 sts=4 sw=4 tw=0: */
-/*
- * mnode.h -
- *
- * Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
- */
-/*
- * Need to include <stdio.h>
- */
+// vim:set ts=8 sts=4 sw=4 tw=0:
+// mnode.h -
+//
+// Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
+// Need to include <stdio.h>
 
 #ifndef MNODE_H
 #define MNODE_H
 
-/* ツリーオブジェクト */
+// ツリーオブジェクト
 typedef struct _mnode mnode;
 struct _mnode
 {
@@ -26,7 +22,7 @@ struct _mnode
 
 typedef struct _mtree_t mtree_t, *mtree_p;
 
-/* for mnode_traverse() */
+// for mnode_traverse()
 typedef void (*mnode_traverse_proc)(mnode* node, void* data);
 #define MNODE_TRAVERSE_PROC mnode_traverse_proc
 
@@ -43,7 +39,7 @@ void mnode_close(mtree_p p);
 mnode* mnode_query(mtree_p node, const unsigned char* query);
 void mnode_traverse(mnode *node, MNODE_TRAVERSE_PROC proc, void* data);
 
-/* 主にデバッグ用途 */
+// 主にデバッグ用途
 void mnode_print(mtree_p mtree, unsigned char* p);
 
 #ifdef __cplusplus
@@ -51,4 +47,4 @@ void mnode_print(mtree_p mtree, unsigned char* p);
 #endif
 
 
-#endif /* MNODE_H */
+#endif // MNODE_H

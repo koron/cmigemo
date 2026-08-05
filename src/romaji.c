@@ -1,9 +1,7 @@
-/* vim:set ts=8 sts=4 sw=4 tw=0: */
-/*
- * romaji.c - ローマ字変換
- *
- * Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
- */
+// vim:set ts=8 sts=4 sw=4 tw=0:
+// romaji.c - ローマ字変換
+//
+// Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,7 +14,7 @@
 #if defined(_MSC_VER) || defined(__GNUC__)
 # define INLINE __inline
 #else
-# define INLINE 
+# define INLINE
 #endif
 
 #ifdef _DEBUG
@@ -36,9 +34,7 @@
 #define ROMAJI_FIXKEY_XTU "xtu"
 #define ROMAJI_FIXKEY_NONXTU "aiueon"
 
-/*
- * romanode interfaces
- */
+// romanode interfaces
 
 typedef struct _romanode romanode;
 struct _romanode
@@ -108,13 +104,11 @@ romanode_dig(romanode** ref_node, const unsigned char* key)
     return ref_node;
 }
 
-/**
- * キーに対応したromanodeを検索して返す。
- * @return romanodeが見つからなかった場合NULL
- * @param node ルートノード
- * @param key 検索キー
- * @param skip 進めるべきkeyのバイト数を受け取るポインタ
- */
+/// キーに対応したromanodeを検索して返す。
+/// @return romanodeが見つからなかった場合NULL
+/// @param node ルートノード
+/// @param key 検索キー
+/// @param skip 進めるべきkeyのバイト数を受け取るポインタ
     static romanode*
 romanode_query(romanode* node, const unsigned char* key, int* skip,
 	ROMAJI_PROC_CHAR2INT char2int)
@@ -145,10 +139,10 @@ romanode_query(romanode* node, const unsigned char* key, int* skip,
 		}
 		node = node->child;
 	    }
-	    /* 次に走査するノードが空の場合、キーを進めてNULLを返す */
+	    // 次に走査するノードが空の場合、キーを進めてNULLを返す
 	    if (!node)
 	    {
-		/* 1バイトではなく1文字進める */
+		// 1バイトではなく1文字進める
 		if (!char2int || (nskip = (*char2int)(key_start, NULL)) < 1)
 		    nskip = 1;
 		//printf("  HERE 3: nskip=%d\n", nskip);
@@ -162,7 +156,7 @@ romanode_query(romanode* node, const unsigned char* key, int* skip,
     return node;
 }
 
-#if 0 /* 未使用のため */
+#if 0 // 未使用のため
     static void
 romanode_print_stub(romanode* node, unsigned char* p)
 {
@@ -189,9 +183,7 @@ romanode_print(romanode* node)
 }
 #endif
 
-/*
- * romaji interfaces
- */
+// romaji interfaces
 
 struct _romaji
 {
@@ -240,31 +232,31 @@ romaji_add_table(romaji* object, const unsigned char* key,
     romanode **ref_node;
 
     if (!object || !key || !value)
-	return 1; /* Unexpected error */
+	return 1; // Unexpected error
 
     value_length = strlen(value);
     if (value_length == 0)
-	return 2; /* Too short value string */
+	return 2; // Too short value string
 
     if (!(ref_node = romanode_dig(&object->node, key)))
     {
-	return 4; /* Memory exhausted */
+	return 4; // Memory exhausted
     }
     VERBOSE(object, 10,
 	    printf("romaji_add_table(\"%s\", \"%s\")\n", key, value););
     (*ref_node)->value = STRDUP(value);
 
-    /* 「ん」と「っ」は保存しておく */
+    // 「ん」と「っ」は保存しておく
     if (object->fixvalue_xn == NULL && value_length > 0
 	    && !strcmp(key, ROMAJI_FIXKEY_XN))
     {
-	/*fprintf(stderr, "XN: key=%s, value=%s\n", key, value);*/
+	//fprintf(stderr, "XN: key=%s, value=%s\n", key, value);
 	object->fixvalue_xn = STRDUP(value);
     }
     if (object->fixvalue_xtu == NULL && value_length > 0
 	    && !strcmp(key, ROMAJI_FIXKEY_XTU))
     {
-	/*fprintf(stderr, "XTU: key=%s, value=%s\n", key, value);*/
+	//fprintf(stderr, "XTU: key=%s, value=%s\n", key, value);
 	object->fixvalue_xtu = STRDUP(value);
     }
 
@@ -277,7 +269,7 @@ romaji_load_stub(romaji* object, FILE* fp)
     int mode, ch;
     wordbuf_p buf_key;
     wordbuf_p buf_value;
-    
+
     buf_key = wordbuf_open();
     buf_value = wordbuf_open();
     if (!buf_key || !buf_value)
@@ -294,15 +286,15 @@ romaji_load_stub(romaji* object, FILE* fp)
 	switch (mode)
 	{
 	    case 0:
-		/* key待ちモード */
+		// key待ちモード
 		if (ch == '#')
 		{
-		    /* 1文字先読みして空白ならばkeyとして扱う */
+		    // 1文字先読みして空白ならばkeyとして扱う
 		    ch = fgetc(fp);
 		    if (ch != '#')
 		    {
 			ungetc(ch, fp);
-			mode = 1; /* 行末まで読み飛ばしモード へ移行 */
+			mode = 1; // 行末まで読み飛ばしモード へ移行
 			break;
 		    }
 		}
@@ -310,36 +302,36 @@ romaji_load_stub(romaji* object, FILE* fp)
 		{
 		    wordbuf_reset(buf_key);
 		    wordbuf_add(buf_key, (unsigned char)ch);
-		    mode = 2; /* key読み込みモード へ移行 */
+		    mode = 2; // key読み込みモード へ移行
 		}
 		break;
 
 	    case 1:
-		/* 行末まで読み飛ばしモード */
+		// 行末まで読み飛ばしモード
 		if (ch == '\n')
-		    mode = 0; /* key待ちモード へ移行 */
+		    mode = 0; // key待ちモード へ移行
 		break;
 
 	    case 2:
-		/* key読み込みモード */
+		// key読み込みモード
 		if (!isspace(ch))
 		    wordbuf_add(buf_key, (unsigned char)ch);
 		else
-		    mode = 3; /* value待ちモード へ移行 */
+		    mode = 3; // value待ちモード へ移行
 		break;
 
 	    case 3:
-		/* value待ちモード */
+		// value待ちモード
 		if (ch != EOF && !isspace(ch))
 		{
 		    wordbuf_reset(buf_value);
 		    wordbuf_add(buf_value, (unsigned char)ch);
-		    mode = 4; /* value読み込みモード へ移行 */
+		    mode = 4; // value読み込みモード へ移行
 		}
 		break;
 
 	    case 4:
-		/* value読み込みモード */
+		// value読み込みモード
 		if (ch != EOF && !isspace(ch))
 		    wordbuf_add(buf_value, (unsigned char)ch);
 		else
@@ -359,12 +351,10 @@ romaji_load_stub(romaji* object, FILE* fp)
     return 0;
 }
 
-/**
- * ローマ字辞書を読み込む。
- * @param object ローマ字オブジェクト
- * @param filename 辞書ファイル名
- * @return 成功した場合0、失敗した場合は非0を返す。
- */
+/// ローマ字辞書を読み込む。
+/// @param object ローマ字オブジェクト
+/// @param filename 辞書ファイル名
+/// @return 成功した場合0、失敗した場合は非0を返す。
     int
 romaji_load(romaji* object, const unsigned char* filename)
 {
@@ -390,7 +380,7 @@ romaji_load(romaji* object, const unsigned char* filename)
 romaji_convert2(romaji* object, const unsigned char* string,
 	unsigned char** ppstop, int ignorecase)
 {
-    /* Argument "ppstop" receive conversion stoped position. */
+    // Argument "ppstop" receive conversion stoped position.
     wordbuf_p buf = NULL;
     unsigned char *lower = NULL;
     unsigned char *answer = NULL;
@@ -412,7 +402,7 @@ romaji_convert2(romaji* object, const unsigned char* string,
 	    romanode *node;
 	    int skip;
 
-	    /* 「っ」の判定 */
+	    // 「っ」の判定
 	    if (object->fixvalue_xtu && input[i] == input[i + 1]
 		    && !strchr(ROMAJI_FIXKEY_NONXTU, input[i]))
 	    {
@@ -434,7 +424,7 @@ romaji_convert2(romaji* object, const unsigned char* string,
 	    }
 	    else if (!node)
 	    {
-		/* 「n(子音)」を「ん(子音)」に変換 */
+		// 「n(子音)」を「ん(子音)」に変換
 		if (skip == 1 && input[i] == ROMAJI_FIXKEY_N
 			&& object->fixvalue_xn)
 		{

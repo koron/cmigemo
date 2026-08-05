@@ -1,9 +1,7 @@
-/* vim:set ts=8 sts=4 sw=4 tw=0: */
-/*
- * charset.c -
- *
- * Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
- */
+// vim:set ts=8 sts=4 sw=4 tw=0:
+// charset.c -
+//
+// Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
 
 #define BUFLEN_DETECT 4096
 
@@ -70,7 +68,7 @@ eucjp_char2int(const unsigned char* in, unsigned int* out)
     int
 eucjp_int2char(unsigned int in, unsigned char* out)
 {
-    /* CP932と内容は同じだが将来JISX0213に対応させるために分離しておく */
+    // CP932と内容は同じだが将来JISX0213に対応させるために分離しておく
     if (in >= 0x100)
     {
 	if (out)
@@ -93,7 +91,7 @@ utf8_char2int_noascii(const unsigned char* in, unsigned int* out)
 
     for (ch = in[0]; ch & 0x80; ch <<= 1)
 	++len;
-    /*printf("len=%d in=%s\n", len, in);*/
+    //printf("len=%d in=%s\n", len, in);
     if (len < 2)
 	return 0;
     ch = (ch & 0xff) >> len;
@@ -104,7 +102,7 @@ utf8_char2int_noascii(const unsigned char* in, unsigned int* out)
 	ch <<= 6;
 	ch += in[i] & 0x3f;
     }
-    /*printf("len=%d in=%s ch=%08x\n", len, in, ch);*/
+    //printf("len=%d in=%s ch=%08x\n", len, in, ch);
     if (out)
 	*out = ch;
     return len;

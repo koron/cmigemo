@@ -1,9 +1,7 @@
-/* vim:set ts=8 sts=4 sw=4 tw=0: */
-/*
- * mnode.c - mnode interfaces.
- *
- * Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
- */
+// vim:set ts=8 sts=4 sw=4 tw=0:
+// mnode.c - mnode interfaces.
+//
+// Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,7 +27,7 @@ struct _mtree_t
 #if defined(_MSC_VER) || defined(__GNUC__)
 # define INLINE __inline
 #else
-# define INLINE 
+# define INLINE
 #endif
 
 int n_mnode_new = 0;
@@ -43,7 +41,7 @@ mnode_new(mtree_p mtree)
     if (active->used >= MTREE_MNODE_N)
     {
 	active->next = (mtree_p)calloc(1, sizeof(*active->next));
-	/* TODO: エラー処理 */
+	// TODO: エラー処理
 	mtree->active = active->next;
 	active = active->next;
     }
@@ -62,7 +60,7 @@ mnode_delete(mnode* p)
 	    wordlist_close(p->list);
 	if (p->next)
 	    mnode_delete(p->next);
-	/*free(p);*/
+	//free(p);
 	p = child;
 	++n_mnode_delete;
     }
@@ -117,11 +115,11 @@ mnode_close(mtree_p mtree)
     INLINE static mnode*
 search_or_new_mnode(mtree_p mtree, wordbuf_p buf)
 {
-    /* ラベル単語が決定したら検索木に追加 */
+    // ラベル単語が決定したら検索木に追加
     int ch;
     unsigned char *word;
     mnode **ppnext;
-    mnode **res = NULL; /* To suppress warning for GCC */
+    mnode **res = NULL; // To suppress warning for GCC
     mnode *root;
 
     word = WORDBUF_GET(buf);
@@ -148,9 +146,7 @@ search_or_new_mnode(mtree_p mtree, wordbuf_p buf)
     return *res;
 }
 
-/*
- * 既存のノードにファイルからデータをまとめて追加する。
- */
+// 既存のノードにファイルからデータをまとめて追加する。
     mtree_p
 mnode_load(mtree_p mtree, FILE* fp)
 {
@@ -159,8 +155,8 @@ mnode_load(mtree_p mtree, FILE* fp)
     int ch;
     wordbuf_p buf;
     wordbuf_p prevlabel;
-    wordlist_p *ppword = NULL; /* To suppress warning for GCC */
-    /* 読み込みバッファ用変数 */
+    wordlist_p *ppword = NULL; // To suppress warning for GCC
+    // 読み込みバッファ用変数
     unsigned char cache[MNODE_BUFSIZE];
     unsigned char *cache_ptr = cache;
     unsigned char *cache_tail = cache;
@@ -172,11 +168,9 @@ mnode_load(mtree_p mtree, FILE* fp)
 	goto END_MNODE_LOAD;
     }
 
-    /*
-     * EOFの処理が曖昧。不正な形式のファイルが入った場合を考慮していない。各
-     * モードからEOFの道を用意しないと正しくないが…面倒なのでやらない。デー
-     * タファイルは絶対に間違っていないという前提を置く。
-     */
+    // EOFの処理が曖昧。不正な形式のファイルが入った場合を考慮していない。各
+    // モードからEOFの道を用意しないと正しくないが…面倒なのでやらない。デー
+    // タファイルは絶対に間違っていないという前提を置く。
     do
     {
 	if (cache_ptr >= cache_tail)
@@ -189,29 +183,29 @@ mnode_load(mtree_p mtree, FILE* fp)
 	    ch = *cache_ptr;
 	++cache_ptr;
 
-	/* 状態:modeのオートマトン */
+	// 状態:modeのオートマトン
 	switch (mode)
 	{
-	    case 0: /* ラベル単語検索モード */
-		/* 空白はラベル単語になりえません */
+	    case 0: // ラベル単語検索モード
+		// 空白はラベル単語になりえません
 		if (isspace(ch) || ch == EOF)
 		    continue;
-		/* コメントラインチェック */
+		// コメントラインチェック
 		else if (ch == ';')
 		{
-		    mode = 2; /* 行末まで食い潰すモード へ移行 */
+		    mode = 2; // 行末まで食い潰すモード へ移行
 		    continue;
 		}
 		else
 		{
-		    mode = 1; /* ラベル単語の読込モード へ移行*/
+		    mode = 1; // ラベル単語の読込モード へ移行
 		    wordbuf_reset(buf);
 		    wordbuf_add(buf, (unsigned char)ch);
 		}
 		break;
 
-	    case 1: /* ラベル単語の読込モード */
-		/* ラベルの終了を検出 */
+	    case 1: // ラベル単語の読込モード
+		// ラベルの終了を検出
 		switch (ch)
 		{
 		    default:
@@ -220,44 +214,44 @@ mnode_load(mtree_p mtree, FILE* fp)
 		    case '\t':
 			pp = search_or_new_mnode(mtree, buf);
 			wordbuf_reset(buf);
-			mode = 3; /* 単語前空白読飛ばしモード へ移行 */
+			mode = 3; // 単語前空白読飛ばしモード へ移行
 			break;
 		}
 		break;
 
-	    case 2: /* 行末まで食い潰すモード */
+	    case 2: // 行末まで食い潰すモード
 		if (ch == '\n')
 		{
 		    wordbuf_reset(buf);
-		    mode = 0; /* ラベル単語検索モード へ戻る */
+		    mode = 0; // ラベル単語検索モード へ戻る
 		}
 		break;
 
-	    case 3: /* 単語前空白読み飛ばしモード */
+	    case 3: // 単語前空白読み飛ばしモード
 		if (ch == '\n')
 		{
 		    wordbuf_reset(buf);
-		    mode = 0; /* ラベル単語検索モード へ戻る */
+		    mode = 0; // ラベル単語検索モード へ戻る
 		}
 		else if (ch != '\t')
 		{
-		    /* 単語バッファリセット */
+		    // 単語バッファリセット
 		    wordbuf_reset(buf);
 		    wordbuf_add(buf, (unsigned char)ch);
-		    /* 単語リストの最後を検索(同一ラベルが複数時) */
+		    // 単語リストの最後を検索(同一ラベルが複数時)
 		    ppword = &pp->list;
 		    while (*ppword)
 			ppword = &(*ppword)->next;
-		    mode = 4; /* 単語の読み込みモード へ移行 */
+		    mode = 4; // 単語の読み込みモード へ移行
 		}
 		break;
 
-	    case 4: /* 単語の読み込みモード */
+	    case 4: // 単語の読み込みモード
 		switch (ch)
 		{
 		    case '\t':
 		    case '\n':
-			/* 単語を記憶 */
+			// 単語を記憶
 			*ppword = wordlist_open_len(WORDBUF_GET(buf),
 				WORDBUF_LEN(buf));
 			wordbuf_reset(buf);
@@ -265,12 +259,12 @@ mnode_load(mtree_p mtree, FILE* fp)
 			if (ch == '\t')
 			{
 			    ppword = &(*ppword)->next;
-			    mode = 3; /* 単語前空白読み飛ばしモード へ戻る */
+			    mode = 3; // 単語前空白読み飛ばしモード へ戻る
 			}
 			else
 			{
 			    ppword = NULL;
-			    mode = 0; /* ラベル単語検索モード へ戻る */
+			    mode = 0; // ラベル単語検索モード へ戻る
 			}
 			break;
 		    default:

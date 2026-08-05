@@ -1,9 +1,7 @@
-/* vi:set ts=8 sts=4 sw=4 tw=0: */
-/*
- * filename.h - Operate filename.
- *
- * Written by:  Muraoka Taro  <koron.kaoriya@gmail.com>
- */
+// vi:set ts=8 sts=4 sw=4 tw=0:
+// filename.h - Operate filename.
+//
+// Written by:  Muraoka Taro  <koron.kaoriya@gmail.com>
 
 #ifndef FILENAME_H
 #define FILENAME_H
@@ -22,4 +20,4 @@ int filename_generate(char *filepath, const char *dir, const char *base, const c
 }
 #endif
 
-#endif /* FILENAME_H */
+#endif // FILENAME_H

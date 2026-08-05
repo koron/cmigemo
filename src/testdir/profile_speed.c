@@ -1,9 +1,7 @@
-/* vim:set ts=8 sts=4 sw=4 tw=0 et: */
-/*
- * profile_speed.c - Query speed profiler.
- *
- * Author:  MURAOKA Taro <koron.kaoriya@gmail.com>
- */
+// vim:set ts=8 sts=4 sw=4 tw=0 et:
+// profile_speed.c - Query speed profiler.
+//
+// Author:  MURAOKA Taro <koron.kaoriya@gmail.com>
 
 #define NUM_TRIAL 10
 

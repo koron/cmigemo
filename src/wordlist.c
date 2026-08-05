@@ -1,9 +1,7 @@
-/* vim:set ts=8 sts=4 sw=4 tw=0: */
-/*
- * wordlist.h -
- *
- * Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
- */
+// vim:set ts=8 sts=4 sw=4 tw=0:
+// wordlist.h -
+//
+// Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
 
 #include <stdlib.h>
 #include <string.h>
@@ -25,10 +23,8 @@ wordlist_open_len(const unsigned char* ptr, int len)
 	{
 	    p->ptr  = (char*)(p + 1);
 	    p->next = NULL;
-	    /*
-	     * ほぼstrdup()と等価な実装。単語の保存に必要な総メモリを知りた
-	     * いので独自に再実装。
-	     */
+	    // ほぼstrdup()と等価な実装。単語の保存に必要な総メモリを知りた
+	    // いので独自に再実装。
 	    memcpy(p->ptr, ptr, len);
 	    p->ptr[len] = '\0';
 

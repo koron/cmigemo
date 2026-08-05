@@ -1,4 +1,4 @@
-/* vim:set ts=8 sts=4 sw=4 tw=0 et: */
+// vim:set ts=8 sts=4 sw=4 tw=0 et:
 
 #include <stdio.h>
 #include <string.h>
@@ -29,7 +29,7 @@ test_all(migemo *p)
         return 1;
     if (assert_query(p, "n", "[んのねぬになn]") != 0)
         return 1;
-    /* FIXME: add tests */
+    // FIXME: add tests
 
     return 0;
 }
