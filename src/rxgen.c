@@ -1,9 +1,7 @@
-/* vim:set ts=8 sts=4 sw=4 tw=0: */
-/*
- * rxgen.c - regular expression generator
- *
- * Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
- */
+// vim:set ts=8 sts=4 sw=4 tw=0:
+// rxgen.c - regular expression generator
+//
+// Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -47,9 +45,7 @@ struct _rxgen
     unsigned char op_newline[RXGEN_OP_MAXLEN];
 };
 
-/*
- * rnode interfaces
- */
+// rnode interfaces
 
 struct _rnode
 {
@@ -79,9 +75,7 @@ rnode_delete(rnode* node)
     }
 }
 
-/*
- * rxgen interfaces
- */
+// rxgen interfaces
 
     static int
 default_char2int(const unsigned char* in, unsigned int* out)
@@ -95,7 +89,7 @@ default_char2int(const unsigned char* in, unsigned int* out)
 default_int2char(unsigned int in, unsigned char* out)
 {
     int len = 0;
-    /* outは最低でも16バイトはある、という仮定を置く */
+    // outは最低でも16バイトはある、という仮定を置く
     switch (in)
     {
 	case '\\':
@@ -194,12 +188,12 @@ rxgen_add(rxgen* object, const unsigned char* word)
     {
 	unsigned int code;
 	int len = rxgen_call_char2int(object, word, &code);
-	/*printf("rxgen_call_char2int: code=%08x\n", code);*/
+	//printf("rxgen_call_char2int: code=%08x\n", code);
 
-	/* 入力パターンが尽きたら終了 */
+	// 入力パターンが尽きたら終了
 	if (code == 0)
 	{
-	    /* 入力パターンよりも長い既存パターンは破棄する */
+	    // 入力パターンよりも長い既存パターンは破棄する
 	    if (*ppnode)
 	    {
 		rnode_delete(*ppnode);
@@ -210,7 +204,7 @@ rxgen_add(rxgen* object, const unsigned char* word)
 	pnode = search_rnode(*ppnode, code);
 	if (pnode == NULL)
 	{
-	    /* codeを持つノードが無い場合、作成追加する */
+	    // codeを持つノードが無い場合、作成追加する
 	    pnode = rnode_new();
 	    pnode->code = code;
 	    pnode->next = *ppnode;
@@ -218,15 +212,13 @@ rxgen_add(rxgen* object, const unsigned char* word)
 	}
 	else if (pnode->child == NULL)
 	{
-	    /*
-	     * codeを持つノードは有るが、その子供が無い場合、それ以降の入力
-	     * パターンは破棄する。例:
-	     *     あかい + あかるい -> あか
-	     *	   たのしい + たのしみ -> たのし
-	     */
+	    // codeを持つノードは有るが、その子供が無い場合、それ以降の入力
+	    // パターンは破棄する。例:
+	    //     あかい + あかるい -> あか
+	    //	   たのしい + たのしみ -> たのし
 	    break;
 	}
-	/* 子ノードを辿って深い方へ注視点を移動 */
+	// 子ノードを辿って深い方へ注視点を移動
 	ppnode = &pnode->child;
 	word += len;
     }
@@ -240,7 +232,7 @@ rxgen_generate_stub(rxgen* object, wordbuf_t* buf, rnode* node)
     int chlen, nochild, haschild = 0, brother = 1;
     rnode *tmp;
 
-    /* 現在の階層の特性(兄弟の数、子供の数)をチェックする */
+    // 現在の階層の特性(兄弟の数、子供の数)をチェックする
     for (tmp = node; tmp; tmp = tmp->next)
     {
 	if (tmp->next)
@@ -249,15 +241,15 @@ rxgen_generate_stub(rxgen* object, wordbuf_t* buf, rnode* node)
 	    ++haschild;
     }
     nochild = brother - haschild;
-#if 0 /* For debug */
+#if 0 // For debug
     printf("node=%p code=%04X\n  nochild=%d haschild=%d brother=%d\n",
 	    node, node->code, nochild, haschild, brother);
 #endif
-    /* 必要ならば()によるグルーピング */
+    // 必要ならば()によるグルーピング
     if (brother > 1 && haschild > 0)
 	wordbuf_cat(buf, object->op_nest_in);
 #if 1
-    /* 子の無いノードを先に[]によりグルーピング */
+    // 子の無いノードを先に[]によりグルーピング
     if (nochild > 0)
     {
 	if (nochild > 1)
@@ -268,7 +260,7 @@ rxgen_generate_stub(rxgen* object, wordbuf_t* buf, rnode* node)
 		continue;
 	    chlen = rxgen_call_int2char(object, tmp->code, ch);
 	    ch[chlen] = '\0';
-	    /*printf("nochild: %s\n", ch);*/
+	    //printf("nochild: %s\n", ch);
 	    wordbuf_cat(buf, ch);
 	}
 	if (nochild > 1)
@@ -276,10 +268,10 @@ rxgen_generate_stub(rxgen* object, wordbuf_t* buf, rnode* node)
     }
 #endif
 #if 1
-    /* 子のあるノードを出力 */
+    // 子のあるノードを出力
     if (haschild > 0)
     {
-	/* グループを出力済みならORで繋ぐ */
+	// グループを出力済みならORで繋ぐ
 	if (nochild > 0)
 	    wordbuf_cat(buf, object->op_or);
 	for (tmp = node; !tmp->child; tmp = tmp->next)
@@ -287,10 +279,10 @@ rxgen_generate_stub(rxgen* object, wordbuf_t* buf, rnode* node)
 	while (1)
 	{
 	    chlen = rxgen_call_int2char(object, tmp->code, ch);
-	    /*printf("code=%04X len=%d\n", tmp->code, chlen);*/
+	    //printf("code=%04X len=%d\n", tmp->code, chlen);
 	    ch[chlen] = '\0';
 	    wordbuf_cat(buf, ch);
-	    /* 空白・改行飛ばしのパターンを挿入 */
+	    // 空白・改行飛ばしのパターンを挿入
 	    if (object->op_newline[0])
 		wordbuf_cat(buf, object->op_newline);
 	    rxgen_generate_stub(object, buf, tmp->child);
@@ -303,7 +295,7 @@ rxgen_generate_stub(rxgen* object, wordbuf_t* buf, rnode* node)
 	}
     }
 #endif
-    /* 必要ならば()によるグルーピング */
+    // 必要ならば()によるグルーピング
     if (brother > 1 && haschild > 0)
 	wordbuf_cat(buf, object->op_nest_out);
 }
@@ -330,9 +322,7 @@ rxgen_release(rxgen* object, unsigned char* string)
     free(string);
 }
 
-/*
- * rxgen_add()してきたパターンを全てリセット。
- */
+// rxgen_add()してきたパターンを全てリセット。
     void
 rxgen_reset(rxgen* object)
 {
@@ -378,20 +368,18 @@ rxgen_set_operator(rxgen* object, int index, const unsigned char* op)
     unsigned char* dest;
 
     if (!object)
-	return 1; /* Invalid object */
+	return 1; // Invalid object
     if (strlen(op) >= RXGEN_OP_MAXLEN)
-	return 2; /* Too long operator */
+	return 2; // Too long operator
     if (!(dest = rxgen_get_operator_stub(object, index)))
-	return 3; /* No such an operator */
+	return 3; // No such an operator
     strcpy(dest, op);
 
     return 0;
 }
 
 #if 0
-/*
- * main
- */
+// main
     int
 main(int argc, char** argv)
 {

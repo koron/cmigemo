@@ -1,9 +1,7 @@
-/* vi:set ts=8 sts=4 sw=4 tw=0: */
-/*
- * romaji.h - ローマ字変換
- *
- * Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
- */
+// vi:set ts=8 sts=4 sw=4 tw=0:
+// romaji.h - ローマ字変換
+//
+// Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
 
 #ifndef ROMAJI_H
 #define ROMAJI_H
@@ -34,4 +32,4 @@ void romaji_set_verbose(romaji* object, int level);
 }
 #endif
 
-#endif /* ROMAJI_H */
+#endif // ROMAJI_H

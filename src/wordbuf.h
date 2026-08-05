@@ -1,18 +1,16 @@
-/* vim:set ts=8 sts=4 sw=4 tw=0: */
-/*
- * wordbuf.h -
- *
- * Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
- */
+// vim:set ts=8 sts=4 sw=4 tw=0:
+// wordbuf.h -
+//
+// Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
 #ifndef WORDBUF_H
 #define WORDBUF_H
 
 typedef struct _wordbuf_t wordbuf_t, *wordbuf_p;
 struct _wordbuf_t
 {
-    int len; /* bufに割り当てられているメモリ量 */
+    int len; // bufに割り当てられているメモリ量
     unsigned char* buf;
-    int last; /* bufに実際に格納している文字列の長さ */
+    int last; // bufに実際に格納している文字列の長さ
 };
 
 extern int n_wordbuf_open;
@@ -38,4 +36,4 @@ unsigned char* wordbuf_get(wordbuf_p p);
 }
 #endif
 
-#endif /* WORDBUF_H */
+#endif // WORDBUF_H

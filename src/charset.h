@@ -1,9 +1,7 @@
-/* vim:set ts=8 sts=4 sw=4 tw=0: */
-/*
- * charset.h -
- *
- * Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
- */
+// vim:set ts=8 sts=4 sw=4 tw=0:
+// charset.h -
+//
+// Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
 
 #ifndef CHARSET_H
 # define CHARSET_H
@@ -40,4 +38,4 @@ void charset_getproc(int charset, CHARSET_PROC_CHAR2INT* char2int,
 }
 #endif
 
-#endif /* CHARSET_H */
+#endif // CHARSET_H

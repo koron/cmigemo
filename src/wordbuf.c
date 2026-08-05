@@ -1,9 +1,7 @@
-/* vim:set ts=8 sts=4 sw=4 tw=0: */
-/*
- * wordbuf.h -
- *
- * Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
- */
+// vim:set ts=8 sts=4 sw=4 tw=0:
+// wordbuf.h -
+//
+// Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,10 +11,10 @@
 
 #define WORDLEN_DEF 64
 
-int n_wordbuf_open = 0;		/* for DEBUG */
-int n_wordbuf_close = 0;	/* for DEBUG */
+int n_wordbuf_open = 0;		// for DEBUG
+int n_wordbuf_close = 0;	// for DEBUG
 
-/* function pre-declaration */
+// function pre-declaration
 static int wordbuf_extend(wordbuf_p p, int len);
 
     wordbuf_p
@@ -26,7 +24,7 @@ wordbuf_open()
 
     if (p)
     {
-	++n_wordbuf_open;	/* for DEBUG */
+	++n_wordbuf_open;	// for DEBUG
 	p->len = WORDLEN_DEF;
 	p->buf = (unsigned char*)malloc(p->len);
 	p->last = 0;
@@ -40,7 +38,7 @@ wordbuf_close(wordbuf_p p)
 {
     if (p)
     {
-	++n_wordbuf_close;	/* for DEBUG */
+	++n_wordbuf_close;	// for DEBUG
 	free(p->buf);
 	free(p);
     }
@@ -53,11 +51,9 @@ wordbuf_reset(wordbuf_p p)
     p->buf[0] = '\0';
 }
 
-/*
- * wordbuf_extend(wordbuf_p p, int req_len);
- *	バッファの伸長。エラー時には0が帰る。
- *	高速化のために伸ばすべきかは呼出側で判断する。
- */
+// wordbuf_extend(wordbuf_p p, int req_len);
+//	バッファの伸長。エラー時には0が帰る。
+//	高速化のために伸ばすべきかは呼出側で判断する。
     static int
 wordbuf_extend(wordbuf_p p, int req_len)
 {
@@ -68,7 +64,7 @@ wordbuf_extend(wordbuf_p p, int req_len)
 	newlen *= 2;
     if (!(newbuf = (unsigned char*)realloc(p->buf, newlen)))
     {
-	/*fprintf(stderr, "wordbuf_add(): failed to extend buffer\n");*/
+	//fprintf(stderr, "wordbuf_add(): failed to extend buffer\n");
 	return 0;
     }
     else
@@ -100,7 +96,7 @@ wordbuf_add(wordbuf_p p, unsigned char ch)
 	buf[0] = ch;
 	buf[1] = '\0';
 #else
-	/* リトルエンディアンを仮定するなら使えるが… */
+	// リトルエンディアンを仮定するなら使えるが…
 	*(unsigned short*)&p->buf[p->last] = (unsigned short)ch;
 #endif
 	return ++p->last;

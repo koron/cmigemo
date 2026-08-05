@@ -1,12 +1,8 @@
-/* vim:set ts=8 sts=4 sw=4 tw=0 et: */
-/*
- * romaji_main.c - Romaji convert console.
- *
- * Author:  MURAOKA Taro <koron.kaoriya@gmail.com>
- */
-/*
- * gcc -o romaji romaji_main.c ../romaji.c ../wordbuf.c
- */
+// vim:set ts=8 sts=4 sw=4 tw=0 et:
+// romaji_main.c - Romaji convert console.
+//
+// Author:  MURAOKA Taro <koron.kaoriya@gmail.com>
+// gcc -o romaji romaji_main.c ../romaji.c ../wordbuf.c
 
 #include <stdio.h>
 #include <string.h>
@@ -35,7 +31,7 @@ query_one(romaji* object, romaji* hira2kata, romaji* han2zen, romaji* zen2han, c
     unsigned char *hira;
     unsigned char *zen;
     unsigned char *han;
-    /* ローマ字→平仮名(表示)→片仮名(表示) */
+    // ローマ字→平仮名(表示)→片仮名(表示)
     if ((hira = romaji_convert(object, buf, &stop)) != NULL)
     {
         unsigned char* kata;
@@ -78,7 +74,7 @@ query_loop(romaji* object, romaji* hira2kata, romaji* han2zen, romaji* zen2han)
             printf("\n");
             break;
         }
-        /* 改行をNUL文字に置き換える */
+        // 改行をNUL文字に置き換える
         if ((ans = strchr(buf, '\n')) != NULL)
             *ans = '\0';
         query_one(object, hira2kata, han2zen, zen2han, buf);

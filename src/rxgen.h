@@ -1,9 +1,7 @@
-/* vim:set ts=8 sts=4 sw=4 tw=0: */
-/*
- * rxgen.h - regular expression generator
- *
- * Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
- */
+// vim:set ts=8 sts=4 sw=4 tw=0:
+// rxgen.h - regular expression generator
+//
+// Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
 
 #ifndef RXGEN_H
 #define RXGEN_H
@@ -14,7 +12,7 @@ typedef int (*rxgen_proc_int2char)(unsigned int, unsigned char*);
 #define RXGEN_PROC_CHAR2INT rxgen_proc_char2int
 #define RXGEN_PROC_INT2CHAR rxgen_proc_int2char
 
-/* for rxgen_set_operator */
+// for rxgen_set_operator
 #define RXGEN_OPINDEX_OR		0
 #define RXGEN_OPINDEX_NEST_IN		1
 #define RXGEN_OPINDEX_NEST_OUT		2
@@ -45,4 +43,4 @@ const unsigned char* rxgen_get_operator(rxgen* object, int index);
 }
 #endif
 
-#endif /* RXGEN_H */
+#endif // RXGEN_H

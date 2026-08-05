@@ -1,9 +1,7 @@
-/* vim:set ts=8 sts=4 sw=4 tw=0: */
-/*
- * migemo.h -
- *
- * Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
- */
+// vim:set ts=8 sts=4 sw=4 tw=0:
+// migemo.h -
+//
+// Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
 
 #ifndef MIGEMO_H
 #define MIGEMO_H
@@ -16,7 +14,7 @@
 
 #define MIGEMO_VERSION "1.4"
 
-/* for migemo_load() */
+// for migemo_load()
 #define MIGEMO_DICTID_INVALID		0
 #define MIGEMO_DICTID_MIGEMO		1
 #define MIGEMO_DICTID_ROMA2HIRA		2
@@ -24,7 +22,7 @@
 #define MIGEMO_DICTID_HAN2ZEN		4
 #define MIGEMO_DICTID_ZEN2HAN		5
 
-/* for migemo_set_operator()/migemo_get_operator().  see: rxgen.h */
+// for migemo_set_operator()/migemo_get_operator().  see: rxgen.h
 #define MIGEMO_OPINDEX_OR		0
 #define MIGEMO_OPINDEX_NEST_IN		1
 #define MIGEMO_OPINDEX_NEST_OUT		2
@@ -32,13 +30,11 @@
 #define MIGEMO_OPINDEX_SELECT_OUT	4
 #define MIGEMO_OPINDEX_NEWLINE		5
 
-/* see: rxgen.h */
+// see: rxgen.h
 typedef int (*MIGEMO_PROC_CHAR2INT)(const unsigned char*, unsigned int*);
 typedef int (*MIGEMO_PROC_INT2CHAR)(unsigned int, unsigned char*);
 
-/**
- * Migemoオブジェクト。migemo_open()で作成され、migemo_closeで破棄される。
- */
+/// Migemoオブジェクト。migemo_open()で作成され、migemo_closeで破棄される。
 typedef struct _migemo migemo;
 
 #ifdef __cplusplus
@@ -69,4 +65,4 @@ int MIGEMO_CALLTYPE	migemo_is_enable(migemo* obj);
 }
 #endif
 
-#endif /* MIGEMO_H */
+#endif // MIGEMO_H

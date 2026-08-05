@@ -1,9 +1,7 @@
-/* vim:set ts=8 sts=4 sw=4 tw=0: */
-/*
- * filename.c - Operate filename.
- *
- * Written by:  Muraoka Taro  <koron.kaoriya@gmail.com>
- */
+// vim:set ts=8 sts=4 sw=4 tw=0:
+// filename.c - Operate filename.
+//
+// Written by:  Muraoka Taro  <koron.kaoriya@gmail.com>
 
 #include <string.h>
 #include <limits.h>
@@ -17,10 +15,8 @@ my_strlen(const char* s)
     return len <= INT_MAX ? (int)len : INT_MAX;
 }
 
-/*
- * Cut out base string of filename from filepath.  If base is NULL, then
- * return length that require for store base name.
- */
+// Cut out base string of filename from filepath.  If base is NULL, then
+// return length that require for store base name.
     int
 filename_base(char *base, const char *path)
 {
@@ -52,10 +48,8 @@ filename_base(char *base, const char *path)
     return len;
 }
 
-/*
- * Cut out directroy string from filepath.  If dir is NULL, then return
- * length that require for store directory.
- */
+// Cut out directroy string from filepath.  If dir is NULL, then return
+// length that require for store directory.
     int
 filename_directory(char *dir, const char *path)
 {
@@ -78,10 +72,8 @@ filename_directory(char *dir, const char *path)
     return i;
 }
 
-/*
- * Cut out extension of filename or filepath. If ext is NULL, then return
- * length that require for store extension.
- */
+// Cut out extension of filename or filepath. If ext is NULL, then return
+// length that require for store extension.
     int
 filename_extension(char *ext, const char *path)
 {
@@ -102,10 +94,8 @@ filename_extension(char *ext, const char *path)
     return len;
 }
 
-/*
- * Cut out filename string from filepath.  If name is NULL, then return
- * length that require for store directory.
- */
+// Cut out filename string from filepath.  If name is NULL, then return
+// length that require for store directory.
     int
 filename_filename(char *name, const char *path)
 {
@@ -125,9 +115,7 @@ filename_filename(char *name, const char *path)
     return len;
 }
 
-/*
- * Generate file full path name.
- */
+// Generate file full path name.
     int
 filename_generate(char *filepath, const char *dir, const char *base,
 	const char *ext)
