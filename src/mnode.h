@@ -5,8 +5,7 @@
 // Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
 // Need to include <stdio.h>
 
-#ifndef MNODE_H
-#define MNODE_H
+#pragma once
 
 #include "wordlist.h"
 
@@ -48,5 +47,3 @@ void mnode_print(mtree_p mtree, unsigned char *p);
 #ifdef __cplusplus
 }
 #endif
-
-#endif // MNODE_H

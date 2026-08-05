@@ -4,8 +4,7 @@
 //
 // Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
 
-#ifndef CHARSET_H
-#define CHARSET_H
+#pragma once
 
 enum {
     CHARSET_NONE = 0,
@@ -38,5 +37,3 @@ void charset_getproc(int charset, CHARSET_PROC_CHAR2INT *char2int,
 #ifdef __cplusplus
 }
 #endif
-
-#endif // CHARSET_H

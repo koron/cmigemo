@@ -4,8 +4,7 @@
 //
 // Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
 
-#ifndef WORDBUF_H
-#define WORDBUF_H
+#pragma once
 
 typedef struct _wordbuf_t wordbuf_t, *wordbuf_p;
 struct _wordbuf_t
@@ -37,5 +36,3 @@ unsigned char *wordbuf_get(wordbuf_p p);
 #ifdef __cplusplus
 }
 #endif
-
-#endif // WORDBUF_H

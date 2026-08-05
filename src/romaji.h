@@ -4,8 +4,7 @@
 //
 // Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
 
-#ifndef ROMAJI_H
-#define ROMAJI_H
+#pragma once
 
 typedef struct _romaji romaji;
 typedef int (*romaji_proc_char2int)(const unsigned char *, unsigned int *);
@@ -32,5 +31,3 @@ void romaji_set_verbose(romaji *object, int level);
 #ifdef __cplusplus
 }
 #endif
-
-#endif // ROMAJI_H

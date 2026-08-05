@@ -4,8 +4,7 @@
 //
 // Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
 
-#ifndef MIGEMO_H
-#define MIGEMO_H
+#pragma once
 
 #if defined(_WIN32) && !defined(__MINGW32__) && !defined(__CYGWIN32__)
 # define MIGEMO_CALLTYPE __stdcall
@@ -64,5 +63,3 @@ int MIGEMO_CALLTYPE migemo_is_enable(migemo *obj);
 #ifdef __cplusplus
 }
 #endif
-
-#endif // MIGEMO_H

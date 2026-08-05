@@ -4,8 +4,7 @@
 //
 // Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
 
-#ifndef WORDLIST_H
-#define WORDLIST_H
+#pragma once
 
 typedef struct _wordlist_t wordlist_t, *wordlist_p;
 struct _wordlist_t
@@ -29,5 +28,3 @@ void wordlist_close(wordlist_p p);
 #ifdef __cplusplus
 }
 #endif
-
-#endif // WORDLIST_H

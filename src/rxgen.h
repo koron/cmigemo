@@ -4,8 +4,7 @@
 //
 // Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
 
-#ifndef RXGEN_H
-#define RXGEN_H
+#pragma once
 
 typedef struct _rxgen rxgen;
 typedef int (*rxgen_proc_char2int)(const unsigned char *, unsigned int *);
@@ -43,5 +42,3 @@ const unsigned char *rxgen_get_operator(rxgen *object, int index);
 #ifdef __cplusplus
 }
 #endif
-
-#endif // RXGEN_H

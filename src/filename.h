@@ -4,8 +4,7 @@
 //
 // Written by:  Muraoka Taro  <koron.kaoriya@gmail.com>
 
-#ifndef FILENAME_H
-#define FILENAME_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,5 +20,3 @@ int filename_generate(
 #ifdef __cplusplus
 }
 #endif
-
-#endif // FILENAME_H
