@@ -4,8 +4,8 @@
 
 int test1(void);
 
-    int
-main(int argc, char** argv)
+int
+main(int argc, char **argv)
 {
     int r;
     if ((r = test1()) != 0)

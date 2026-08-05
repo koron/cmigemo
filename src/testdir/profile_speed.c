@@ -1,4 +1,5 @@
 // vim:set ts=8 sts=4 sw=4 tw=0 et:
+//
 // profile_speed.c - Query speed profiler.
 //
 // Author:  MURAOKA Taro <koron.kaoriya@gmail.com>
@@ -7,20 +8,21 @@
 
 #include <stdio.h>
 #include <time.h>
+
 #include "migemo.h"
 
 #ifndef DICTDIR
 # define DICTDIR "../../dict"
 #endif
 
-#define CLOCK2SEC(t)    ((double)(t) / (double)CLOCKS_PER_SEC)
+#define CLOCK2SEC(t) ((double)(t) / (double)CLOCKS_PER_SEC)
 
-    int
-main(int argc, char** argv)
+int
+main(int argc, char **argv)
 {
-    migemo* pmig;
-    char* ans;
-    char key[2] = { '\0', '\0' };
+    migemo *pmig;
+    char *ans;
+    char key[2] = {'\0', '\0'};
     int i;
     clock_t clock_load = 0, clock_query = 0, clock_tmp = 0;
 

@@ -1,11 +1,14 @@
 // vim:set ts=8 sts=4 sw=4 tw=0 et:
+//
 // romaji_main.c - Romaji convert console.
 //
 // Author:  MURAOKA Taro <koron.kaoriya@gmail.com>
+//
 // gcc -o romaji romaji_main.c ../romaji.c ../wordbuf.c
 
 #include <stdio.h>
 #include <string.h>
+
 #include "romaji.h"
 
 #ifndef DICTDIR
@@ -18,14 +21,15 @@
 # define DICT_HIRA2KATA (DICTDIR "/hira2kata.dat")
 #endif
 #ifndef DICT_HAN2ZEN
-# define DICT_HAN2ZEN   (DICTDIR "/han2zen.dat")
+# define DICT_HAN2ZEN (DICTDIR "/han2zen.dat")
 #endif
 #ifndef DICT_ZEN2HAN
-# define DICT_ZEN2HAN   (DICTDIR "/zen2han.dat")
+# define DICT_ZEN2HAN (DICTDIR "/zen2han.dat")
 #endif
 
-    void
-query_one(romaji* object, romaji* hira2kata, romaji* han2zen, romaji* zen2han, char* buf)
+void
+query_one(romaji *object, romaji *hira2kata, romaji *han2zen, romaji *zen2han,
+        char *buf)
 {
     unsigned char *stop;
     unsigned char *hira;
@@ -34,7 +38,7 @@ query_one(romaji* object, romaji* hira2kata, romaji* han2zen, romaji* zen2han, c
     // ローマ字→平仮名(表示)→片仮名(表示)
     if ((hira = romaji_convert(object, buf, &stop)) != NULL)
     {
-        unsigned char* kata;
+        unsigned char *kata;
 
         printf("  hira=%s, stop=%s\n", hira, stop);
 #if 1
@@ -61,8 +65,8 @@ query_one(romaji* object, romaji* hira2kata, romaji* han2zen, romaji* zen2han, c
     fflush(stdout);
 }
 
-    void
-query_loop(romaji* object, romaji* hira2kata, romaji* han2zen, romaji* zen2han)
+void
+query_loop(romaji *object, romaji *hira2kata, romaji *han2zen, romaji *zen2han)
 {
     char buf[256], *ans;
 
@@ -81,8 +85,8 @@ query_loop(romaji* object, romaji* hira2kata, romaji* han2zen, romaji* zen2han)
     }
 }
 
-    int
-main(int argc, char** argv)
+int
+main(int argc, char **argv)
 {
     romaji *object, *hira2kata, *han2zen, *zen2han;
     char *word = NULL;
