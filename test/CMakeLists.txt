@@ -13,7 +13,7 @@ set_tests_properties(
 
 #------------------------------------------------------------------------------
 
-add_custom_target(check
-    COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
-    DEPENDS test1
-)
+add_custom_target(
+  check
+  COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
+  DEPENDS test1)

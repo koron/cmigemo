@@ -1,6 +1,6 @@
 ; Written By:  Muraoka Taro <koron.kaoriya@gmail.com>
 
-LIBRARY MIGEMO
+;LIBRARY MIGEMO
 ;DESCRIPTION "Migemo DLL"
 EXPORTS
 	migemo_open

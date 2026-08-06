@@ -31,6 +31,7 @@ void wordbuf_reset(wordbuf_p p);
 int wordbuf_last(wordbuf_p p);
 int wordbuf_add(wordbuf_p p, unsigned char ch);
 int wordbuf_cat(wordbuf_p p, const unsigned char *sz);
+int wordbuf_write_bytes(wordbuf_p buf, const unsigned char *p, size_t len);
 unsigned char *wordbuf_get(wordbuf_p p);
 
 #ifdef __cplusplus

@@ -4,6 +4,7 @@
 //
 // Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -28,6 +29,8 @@
 #define RXGEN_OP_SELECT_OUT "]"
 #define RXGEN_OP_NEWLINE    ""
 
+#define RXGEN_DEBUG_STAT 0
+
 int n_rnode_new = 0;
 int n_rnode_delete = 0;
 
@@ -35,9 +38,11 @@ typedef struct _rnode rnode;
 
 struct _rxgen
 {
-    rnode *node;
+    rnode *root;
+
     RXGEN_PROC_CHAR2INT char2int;
     RXGEN_PROC_INT2CHAR int2char;
+
     unsigned char op_or[RXGEN_OP_MAXLEN];
     unsigned char op_nest_in[RXGEN_OP_MAXLEN];
     unsigned char op_nest_out[RXGEN_OP_MAXLEN];
@@ -50,16 +55,20 @@ struct _rxgen
 
 struct _rnode
 {
-    unsigned int code;
+    rnode *low, *high;
     rnode *child;
-    rnode *next;
+
+    unsigned int code;
+    bool wordtail;
 };
 
 static rnode *
-rnode_new()
+rnode_new(unsigned int code)
 {
     ++n_rnode_new;
-    return (rnode *)calloc(1, sizeof(rnode));
+    rnode *p = (rnode *)calloc(1, sizeof(rnode));
+    p->code = code;
+    return p;
 }
 
 static void
@@ -68,11 +77,47 @@ rnode_delete(rnode *node)
     while (node)
     {
         rnode *child = node->child;
-        if (node->next)
-            rnode_delete(node->next);
+        if (node->low)
+            rnode_delete(node->low);
+        if (node->high)
+            rnode_delete(node->high);
         free(node);
         node = child;
         ++n_rnode_delete;
+    }
+}
+
+static rnode *
+rnode_dig(rnode **pp, unsigned int code)
+{
+    rnode *p = *pp;
+    if (p == NULL)
+    {
+        *pp = rnode_new(code);
+        return *pp;
+    }
+    while (1)
+    {
+        if (code == p->code)
+            return p;
+        if (code < p->code)
+        {
+            if (p->low == NULL)
+            {
+                p->low = rnode_new(code);
+                return p->low;
+            }
+            p = p->low;
+        }
+        else
+        {
+            if (p->high == NULL)
+            {
+                p->high = rnode_new(code);
+                return p->high;
+            }
+            p = p->high;
+        }
     }
 }
 
@@ -167,39 +212,19 @@ rxgen_close(rxgen *object)
 {
     if (object)
     {
-        rnode_delete(object->node);
+        rnode_delete(object->root);
         free(object);
     }
-}
-
-static rnode *
-search_rnode(rnode **phead, unsigned int code)
-{
-    rnode **pp = phead;
-    while (*pp && (*pp)->code != code)
-        pp = &(*pp)->next;
-
-    if (*pp && pp != phead)
-    {
-        rnode *found = *pp;
-        *pp = found->next;
-        found->next = *phead;
-        *phead = found;
-        return found;
-    }
-    return *pp;
 }
 
 int
 rxgen_add(rxgen *object, const unsigned char *word)
 {
-    rnode **ppnode;
-    rnode *pnode;
-
     if (!object || !word)
         return 0;
 
-    ppnode = &object->node;
+    rnode **ppnode = &object->root;
+    rnode *pnode = NULL;
     while (1)
     {
         unsigned int code;
@@ -209,112 +234,179 @@ rxgen_add(rxgen *object, const unsigned char *word)
         // 入力パターンが尽きたら終了
         if (code == 0)
         {
-            // 入力パターンよりも長い既存パターンは破棄する
+            if (pnode)
+                pnode->wordtail = true;
             if (*ppnode)
             {
+                // 登録しようとしている単語よりも、長い単語が既に登録されている
+                // 場合は、長い方を破棄する。例:
+                //      赤ちゃん + 赤 -> 赤
+                //      国際便 + 国際 -> 国際
                 rnode_delete(*ppnode);
                 *ppnode = NULL;
             }
             break;
         }
-        pnode = search_rnode(ppnode, code);
-        if (pnode == NULL)
+
+        word += len;
+
+        pnode = rnode_dig(ppnode, code);
+        if (!pnode)
+            return 0; // allocation error.
+        ppnode = &pnode->child;
+
+        if (pnode && pnode->wordtail)
         {
-            // codeを持つノードが無い場合、作成追加する
-            pnode = rnode_new();
-            pnode->code = code;
-            pnode->next = *ppnode;
-            *ppnode = pnode;
-        }
-        else if (pnode->child == NULL)
-        {
-            // codeを持つノードは有るが、その子供が無い場合、それ以降の入力
-            // パターンは破棄する。例:
-            //     あかい + あかるい -> あか
-            //	   たのしい + たのしみ -> たのし
-            break;
+            // 登録しようとしている単語よりも短い単語が登録されている場合、
+            // それ以降の文字は破棄する。例:
+            //      赤 + 赤ちゃん -> 赤
+            //      国際 + 国際便 -> 国際
+            return 2; // not registered a word, but found short one.
         }
         // 子ノードを辿って深い方へ注視点を移動
-        ppnode = &pnode->child;
-        word += len;
     }
-    return 1;
+    return 1; // registered a word, some nodes.
+}
+
+static void
+rxgen_rnode_count(rnode *node, int *childrenCount, int *brotherCount)
+{
+    if (node->child)
+        (*childrenCount)++;
+    if (node->low)
+    {
+        (*brotherCount)++;
+        rxgen_rnode_count(node->low, childrenCount, brotherCount);
+    }
+    if (node->high)
+    {
+        (*brotherCount)++;
+        rxgen_rnode_count(node->high, childrenCount, brotherCount);
+    }
+}
+
+static void rxgen_generate_stub(rxgen *object, wordbuf_t *buf, rnode *node);
+
+static void
+rxgen_write_node_code(rxgen *object, wordbuf_t *buf, rnode *node)
+{
+    unsigned char bytes[6];
+    int len = rxgen_call_int2char(object, node->code, bytes);
+    wordbuf_write_bytes(buf, bytes, len);
+}
+
+static void
+rxgen_write_node_no_children(rxgen *object, wordbuf_t *buf, rnode *node)
+{
+    if (node->low)
+        rxgen_write_node_no_children(object, buf, node->low);
+    if (node->child == NULL)
+        rxgen_write_node_code(object, buf, node);
+    if (node->high)
+        rxgen_write_node_no_children(object, buf, node->high);
+}
+
+static void
+rxgen_write_node_has_children(
+        rxgen *object, wordbuf_t *buf, rnode *node, bool *needOr)
+{
+    if (node->low)
+        rxgen_write_node_has_children(object, buf, node->low, needOr);
+    if (node->child != NULL)
+    {
+        // 必要ならばORを出力
+        if (*needOr)
+            wordbuf_cat(buf, object->op_or);
+        rxgen_write_node_code(object, buf, node);
+        // 空白・改行飛ばしのパターンを挿入
+        if (object->op_newline[0])
+            wordbuf_cat(buf, object->op_newline);
+        rxgen_generate_stub(object, buf, node->child);
+        *needOr = true;
+    }
+    if (node->high)
+        rxgen_write_node_has_children(object, buf, node->high, needOr);
 }
 
 static void
 rxgen_generate_stub(rxgen *object, wordbuf_t *buf, rnode *node)
 {
-    unsigned char ch[16];
-    int chlen, nochild, haschild = 0, brother = 1;
-    rnode *tmp;
-
     // 現在の階層の特性(兄弟の数、子供の数)をチェックする
-    for (tmp = node; tmp; tmp = tmp->next)
-    {
-        if (tmp->next)
-            ++brother;
-        if (tmp->child)
-            ++haschild;
-    }
-    nochild = brother - haschild;
+    int childrenCount = 0;
+    int brotherCount = 1;
+    rxgen_rnode_count(node, &childrenCount, &brotherCount);
+    int noChildrenCount = brotherCount - childrenCount;
 #if 0 // For debug
-    printf("node=%p code=%04X\n  nochild=%d haschild=%d brother=%d\n",
-	    node, node->code, nochild, haschild, brother);
+    printf("node=%p code=%04X\n  noChildrenCount=%d childrenCount=%d brotherCount=%d\n",
+	    node, node->code, noChildrenCount, childrenCount, brotherCount);
 #endif
+
+    bool needGroup = brotherCount > 1 && childrenCount > 0;
+    bool needClass = noChildrenCount > 1;
+
     // 必要ならば()によるグルーピング
-    if (brother > 1 && haschild > 0)
+    if (needGroup)
         wordbuf_cat(buf, object->op_nest_in);
-#if 1
+
     // 子の無いノードを先に[]によりグルーピング
-    if (nochild > 0)
+    if (noChildrenCount > 0)
     {
-        if (nochild > 1)
+        if (needClass)
+        {
             wordbuf_cat(buf, object->op_select_in);
-        for (tmp = node; tmp; tmp = tmp->next)
-        {
-            if (tmp->child)
-                continue;
-            chlen = rxgen_call_int2char(object, tmp->code, ch);
-            ch[chlen] = '\0';
-            // printf("nochild: %s\n", ch);
-            wordbuf_cat(buf, ch);
-        }
-        if (nochild > 1)
+            rxgen_write_node_no_children(object, buf, node);
             wordbuf_cat(buf, object->op_select_out);
-    }
-#endif
-#if 1
-    // 子のあるノードを出力
-    if (haschild > 0)
-    {
-        // グループを出力済みならORで繋ぐ
-        if (nochild > 0)
-            wordbuf_cat(buf, object->op_or);
-        for (tmp = node; !tmp->child; tmp = tmp->next)
-            ;
-        while (1)
-        {
-            chlen = rxgen_call_int2char(object, tmp->code, ch);
-            // printf("code=%04X len=%d\n", tmp->code, chlen);
-            ch[chlen] = '\0';
-            wordbuf_cat(buf, ch);
-            // 空白・改行飛ばしのパターンを挿入
-            if (object->op_newline[0])
-                wordbuf_cat(buf, object->op_newline);
-            rxgen_generate_stub(object, buf, tmp->child);
-            for (tmp = tmp->next; tmp && !tmp->child; tmp = tmp->next)
-                ;
-            if (!tmp)
-                break;
-            if (haschild > 1)
-                wordbuf_cat(buf, object->op_or);
         }
+        else
+            rxgen_write_node_no_children(object, buf, node);
     }
-#endif
+
+    // 子のあるノードを出力
+    if (childrenCount > 0)
+    {
+        bool needOr = noChildrenCount > 0;
+        rxgen_write_node_has_children(object, buf, node, &needOr);
+    }
+
     // 必要ならば()によるグルーピング
-    if (brother > 1 && haschild > 0)
+    if (needGroup)
         wordbuf_cat(buf, object->op_nest_out);
 }
+
+#if RXGEN_DEBUG_STAT
+
+static void
+rnode_count_nodes(
+        rnode *node, int *all, int *low, int *high, int *maxdepth, int depth)
+{
+    (*all)++;
+    depth++;
+    if (*maxdepth < depth)
+        *maxdepth = depth;
+    if (node->low)
+    {
+        (*low)++;
+        rnode_count_nodes(node->low, all, low, high, maxdepth, depth);
+    }
+    if (node->high)
+    {
+        (*high)++;
+        rnode_count_nodes(node->high, all, low, high, maxdepth, depth);
+    }
+}
+
+static void
+rxgen_debug_stat(rnode *root)
+{
+    int all = 0, low = 0, high = 0, depth = 0;
+    if (root)
+        rnode_count_nodes(root, &all, &low, &high, &depth, 0);
+    printf("rxgen_debug_stat: all=%d, low=%d, high=%d, balance(high-low)=%d, "
+           "max depth=%d\n",
+            all, low, high, high - low, depth);
+}
+
+#endif
 
 unsigned char *
 rxgen_generate(rxgen *object)
@@ -324,8 +416,14 @@ rxgen_generate(rxgen *object)
 
     if (object && (buf = wordbuf_open()))
     {
-        if (object->node)
-            rxgen_generate_stub(object, buf, object->node);
+
+        if (object->root)
+        {
+#if RXGEN_DEBUG_STAT
+            rxgen_debug_stat(object->root);
+#endif
+            rxgen_generate_stub(object, buf, object->root);
+        }
         answer = STRDUP(WORDBUF_GET(buf));
         wordbuf_close(buf);
     }
@@ -344,8 +442,8 @@ rxgen_reset(rxgen *object)
 {
     if (object)
     {
-        rnode_delete(object->node);
-        object->node = NULL;
+        rnode_delete(object->root);
+        object->root = NULL;
     }
 }
 
