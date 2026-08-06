@@ -57,9 +57,9 @@ struct _rnode
 {
     rnode *low, *high;
     rnode *child;
+
     unsigned int code;
     bool wordtail;
-
 };
 
 static rnode *
@@ -288,7 +288,7 @@ rxgen_rnode_count(rnode *node, int *childrenCount, int *brotherCount)
 static void rxgen_generate_stub(rxgen *object, wordbuf_t *buf, rnode *node);
 
 static void
-rxgen_write_node_code(rxgen* object, wordbuf_t *buf, rnode *node)
+rxgen_write_node_code(rxgen *object, wordbuf_t *buf, rnode *node)
 {
     unsigned char bytes[6];
     int len = rxgen_call_int2char(object, node->code, bytes);
@@ -296,7 +296,7 @@ rxgen_write_node_code(rxgen* object, wordbuf_t *buf, rnode *node)
 }
 
 static void
-rxgen_write_node_no_children(rxgen* object, wordbuf_t *buf, rnode *node)
+rxgen_write_node_no_children(rxgen *object, wordbuf_t *buf, rnode *node)
 {
     if (node->low)
         rxgen_write_node_no_children(object, buf, node->low);
@@ -307,7 +307,8 @@ rxgen_write_node_no_children(rxgen* object, wordbuf_t *buf, rnode *node)
 }
 
 static void
-rxgen_write_node_has_children(rxgen* object, wordbuf_t *buf, rnode *node, bool *needOr)
+rxgen_write_node_has_children(
+        rxgen *object, wordbuf_t *buf, rnode *node, bool *needOr)
 {
     if (node->low)
         rxgen_write_node_has_children(object, buf, node->low, needOr);
@@ -375,7 +376,8 @@ rxgen_generate_stub(rxgen *object, wordbuf_t *buf, rnode *node)
 #if RXGEN_DEBUG_STAT
 
 static void
-rnode_count_nodes(rnode *node, int *all, int *low, int *high, int *maxdepth, int depth)
+rnode_count_nodes(
+        rnode *node, int *all, int *low, int *high, int *maxdepth, int depth)
 {
     (*all)++;
     depth++;
@@ -399,7 +401,9 @@ rxgen_debug_stat(rnode *root)
     int all = 0, low = 0, high = 0, depth = 0;
     if (root)
         rnode_count_nodes(root, &all, &low, &high, &depth, 0);
-    printf("rxgen_debug_stat: all=%d, low=%d, high=%d, balance(high-low)=%d, max depth=%d\n", all, low, high, high - low, depth);
+    printf("rxgen_debug_stat: all=%d, low=%d, high=%d, balance(high-low)=%d, "
+           "max depth=%d\n",
+            all, low, high, high - low, depth);
 }
 
 #endif
