@@ -9,7 +9,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "dbg.h"
 #include "mnode.h"
 #include "wordbuf.h"
 #include "wordlist.h"
@@ -142,7 +141,6 @@ search_or_new_mnode(mtree_p mtree, wordbuf_p buf)
         ++word;
     }
 
-    _ASSERT(*res != NULL);
     return *res;
 }
 
