@@ -40,10 +40,12 @@ mnode_new(mtree_p mtree)
 
     if (active->used >= MTREE_MNODE_N)
     {
-        active->next = (mtree_p)calloc(1, sizeof(*active->next));
-        // TODO: エラー処理
-        mtree->active = active->next;
-        active = active->next;
+        mtree_p p = (mtree_p)calloc(1, sizeof(*active->next));
+        if (!p)
+            return NULL;
+        active->next = p;
+        mtree->active = p;
+        active = p;
     }
     ++n_mnode_new;
     return &active->nodes[active->used++];
@@ -130,6 +132,8 @@ search_or_new_mnode(mtree_p mtree, wordbuf_p buf)
         if (!*res)
         {
             *res = mnode_new(mtree);
+            if (!(*res))
+                return NULL;
             MNODE_SET_CH(*res, ch);
         }
         else if (MNODE_GET_CH(*res) != ch)
@@ -163,6 +167,7 @@ mnode_load(mtree_p mtree, FILE *fp)
     prevlabel = wordbuf_open();
     if (!fp || !buf || !prevlabel)
     {
+        mtree = NULL;
         goto END_MNODE_LOAD;
     }
 
@@ -211,6 +216,11 @@ mnode_load(mtree_p mtree, FILE *fp)
                         break;
                     case '\t':
                         pp = search_or_new_mnode(mtree, buf);
+                        if (!pp)
+                        {
+                            mtree = NULL;
+                            goto END_MNODE_LOAD;
+                        }
                         wordbuf_reset(buf);
                         mode = 3; // 単語前空白読飛ばしモード へ移行
                         break;
@@ -288,7 +298,11 @@ mnode_open(FILE *fp)
     mtree = (mtree_p)calloc(1, sizeof(*mtree));
     mtree->active = mtree;
     if (mtree && fp)
-        mnode_load(mtree, fp);
+        if (!mnode_load(mtree, fp))
+        {
+            mnode_close(mtree);
+            return NULL;
+        }
 
     return mtree;
 }
