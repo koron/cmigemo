@@ -33,8 +33,6 @@
 # define EXPORTS
 #endif
 
-typedef int (*MIGEMO_PROC_ADDWORD)(void *data, unsigned char *word);
-
 // migemoオブジェクト
 struct _migemo
 {
@@ -46,7 +44,6 @@ struct _migemo
     romaji *han2zen;
     romaji *zen2han;
     rxgen *rx;
-    MIGEMO_PROC_ADDWORD addword;
     CHARSET_PROC_CHAR2INT char2int;
 };
 
@@ -280,6 +277,12 @@ migemo_close(migemo *obj)
 
 // query version 2
 
+static int
+migemo_addword(migemo *object, unsigned char *word)
+{
+    return rxgen_add(object->rx, word);
+}
+
 // mnodeの持つ単語リストを正規表現生成エンジンに入力する。
 static void
 migemo_query_proc(mnode *p, void *data)
@@ -288,7 +291,7 @@ migemo_query_proc(mnode *p, void *data)
     wordlist_p list = p->list;
 
     for (; list; list = list->next)
-        object->addword(object, list->ptr);
+        migemo_addword(object, list->ptr);
 }
 
 // バッファを用意してmnodeに再帰で書き込ませる
@@ -310,16 +313,16 @@ add_roma(migemo *object, unsigned char *query)
     hira = romaji_convert(object->roma2hira, query, &stop);
     if (!stop)
     {
-        object->addword(object, hira);
+        migemo_addword(object, hira);
         // 平仮名による辞書引き
         add_mnode_query(object, hira);
         // 片仮名文字列を生成し候補に加える
         kata = romaji_convert2(object->hira2kata, hira, NULL, 0);
-        object->addword(object, kata);
+        migemo_addword(object, kata);
         // TODO: 半角カナを生成し候補に加える
 #if 1
         han = romaji_convert2(object->zen2han, kata, NULL, 0);
-        object->addword(object, han);
+        migemo_addword(object, han);
         // printf("kata=%s\nhan=%s\n", kata, han);
         romaji_release(object->zen2han, han);
 #endif
@@ -440,7 +443,7 @@ query_a_word(migemo *object, unsigned char *query)
     int len = my_strlen(query);
 
     // query自信はもちろん候補に加える
-    object->addword(object, query);
+    migemo_addword(object, query);
     // queryそのものでの辞書引き
     lower = malloc(len + 1);
     if (!lower)
@@ -469,7 +472,7 @@ query_a_word(migemo *object, unsigned char *query)
     zen = romaji_convert2(object->han2zen, query, NULL, 0);
     if (zen != NULL)
     {
-        object->addword(object, zen);
+        migemo_addword(object, zen);
         romaji_release(object->han2zen, zen);
     }
 
@@ -477,7 +480,7 @@ query_a_word(migemo *object, unsigned char *query)
     han = romaji_convert2(object->zen2han, query, NULL, 0);
     if (han != NULL)
     {
-        object->addword(object, han);
+        migemo_addword(object, han);
         romaji_release(object->zen2han, han);
     }
 
@@ -486,14 +489,6 @@ query_a_word(migemo *object, unsigned char *query)
         add_dubious_roma(object, object->rx, query);
 
     return 1;
-}
-
-static int
-addword_rxgen(migemo *object, unsigned char *word)
-{
-    // 正規表現生成エンジンに追加された単語を表示する
-    // printf("addword_rxgen: %s\n", word);
-    return rxgen_add(object->rx, word);
 }
 
 /// queryで与えられた文字列(ローマ字)を日本語検索のための正規表現へ変換する。
@@ -521,7 +516,6 @@ migemo_query(migemo *object, const unsigned char *query)
             goto MIGEMO_QUERY_END; // 出力用のメモリ領域不足のためエラー
 
         // 単語群をrxgenオブジェクトに入力し正規表現を得る
-        object->addword = (MIGEMO_PROC_ADDWORD)addword_rxgen;
         rxgen_reset(object->rx);
         for (p = querylist; p; p = p->next)
         {
