@@ -210,8 +210,8 @@ migemo_open(const char *dict)
     obj->hira2kata = romaji_open();
     obj->han2zen = romaji_open();
     obj->zen2han = romaji_open();
-    if (!obj->rx || !obj->roma2hira || !obj->hira2kata || !obj->han2zen
-            || !obj->zen2han)
+    if (!obj->mtree || !obj->rx || !obj->roma2hira || !obj->hira2kata
+            || !obj->han2zen || !obj->zen2han)
     {
         migemo_close(obj);
         return obj = NULL;
@@ -319,13 +319,10 @@ add_roma(migemo *object, unsigned char *query)
         // 片仮名文字列を生成し候補に加える
         kata = romaji_convert2(object->hira2kata, hira, NULL, 0);
         migemo_addword(object, kata);
-        // TODO: 半角カナを生成し候補に加える
-#if 1
+        // 半角カナを生成し候補に加える
         han = romaji_convert2(object->zen2han, kata, NULL, 0);
         migemo_addword(object, han);
-        // printf("kata=%s\nhan=%s\n", kata, han);
         romaji_release(object->zen2han, han);
-#endif
         // カタカナによる辞書引き
         add_mnode_query(object, kata);
         romaji_release(object->hira2kata, kata); // カタカナ解放
