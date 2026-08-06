@@ -1,0 +1,59 @@
+name: CI on Linux
+
+on:
+  workflow_call:
+
+concurrency:
+  group: ci-linux-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  build:
+
+    name: Build
+
+    strategy:
+      matrix:
+        include:
+        - { arch: aarch64, runner: ubuntu-24.04-arm, }
+        - { arch: x86_64,  runner: ubuntu-latest,    }
+
+    runs-on: ${{ matrix.runner }}
+
+    steps:
+
+    - uses: actions/checkout@v7
+
+    - name: Build
+      run: |
+        cmake -B build
+        cmake --build build --parallel
+
+    - name: Test
+      run: cmake --build build --target test
+
+    - name: Profiling
+      run: |
+        cmake --build build --target profile
+        mv build/profile.log build/profile-linux-${{ matrix.arch }}.log
+
+    - name: Packaging
+      run: |
+        cmake -B build -DCMAKE_BUILD_TYPE=Release
+        cmake --build build --target package --parallel
+
+    - name: List files in build
+      run: tree -Fh build
+
+    - name: Upload profile.log
+      uses: actions/upload-artifact@v7
+      with:
+        path: build/profile-linux-*.log
+        archive: false
+
+    - name: Upload the package
+      uses: actions/upload-artifact@v7
+      with:
+        path: build/cmigemo-*.tar.gz
+        archive: false
