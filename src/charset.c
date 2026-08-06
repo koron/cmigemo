@@ -83,44 +83,48 @@ eucjp_int2char(unsigned int in, unsigned char *out)
         return 0;
 }
 
-static int
-utf8_char2int_noascii(const unsigned char *in, unsigned int *out)
-{
-    int len = 0;
-    int i;
-    unsigned int ch;
-
-    for (ch = in[0]; ch & 0x80; ch <<= 1)
-        ++len;
-    // printf("len=%d in=%s\n", len, in);
-    if (len < 2)
-        return 0;
-    ch = (ch & 0xff) >> len;
-    for (i = 1; i < len; ++i)
-    {
-        if ((in[i] & 0xc0) != 0x80)
-            return 0;
-        ch <<= 6;
-        ch += in[i] & 0x3f;
-    }
-    // printf("len=%d in=%s ch=%08x\n", len, in, ch);
-    if (out)
-        *out = ch;
-    return len;
-}
-
 int
 utf8_char2int(const unsigned char *in, unsigned int *out)
 {
-    int retval = utf8_char2int_noascii(in, out);
-    if (retval)
-        return retval;
-    else
+    if (!(in[0] & 0x80))
     {
         if (out)
             *out = in[0];
         return 1;
     }
+    if (in[0] < 0xc0)
+        return 0; // invalid byte for UTF-8
+
+    // Use LUT to determine number of continuation bytes in UTF-8.
+    // clang-format off
+    static const unsigned char UTF8_LUT[64] = {
+            // 0xC0 - 0xDF (110xxxxx): 2 bytes character
+            2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+            2, 2, 2, 2, 2, 2, 2, 2, 2,
+            // 0xE0 - 0xEF (1110xxxx): 3 bytes character
+            3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+            // 0xF0 - 0xF7 (11110xxx): 4 bytes character
+            4, 4, 4, 4, 4, 4, 4, 4,
+            // 0xF8 - 0xFF (11111xxx or greater): invalid values.
+            0, 0, 0, 0, 0, 0, 0, 0
+    };
+    // clang-format on
+    int len = UTF8_LUT[in[0] - 192];
+    if (!len)
+        return 0;
+
+    unsigned int code = in[0] & (0xff >> len);
+    for (int i = 1; i < len; ++i)
+    {
+        // check invalid byte.
+        if ((in[i] & 0xc0) != 0x80)
+            return 0;
+        code <<= 6;
+        code += in[i] & 0x3f;
+    }
+    if (out)
+        *out = code;
+    return len;
 }
 
 int
