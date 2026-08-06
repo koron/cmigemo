@@ -52,3 +52,69 @@ jobs:
       with:
         path: build/cmigemo-*.tar.gz
         archive: false
+
+  build-windows-ucrt64:
+
+    name: Build on Windows (ucrt64)
+
+    runs-on: windows-2025-vs2026
+
+    defaults:
+      run:
+        shell: cmd
+
+    steps:
+    - name: Set up MSYS2 packages
+      uses: msys2/setup-msys2@66cd2cce69caa17b53920067426061ca1de3a884 # v2.32.0
+      id: msys2
+      with:
+        msystem: UCRT64
+        update:  true
+        release: false
+        pacboy: >-
+          cmake:p
+          gcc:p
+          iconv:
+          gzip:
+          perl:
+          tree:
+
+    - uses: actions/checkout@v7
+
+    - name: Build
+      shell: msys2 {0}
+      run: |
+        cmake -B build
+        cmake --build build --parallel
+
+    - name: Test
+      shell: msys2 {0}
+      run: cmake --build build --target test
+
+    - name: Profiling
+      shell: msys2 {0}
+      run: |
+        cmake --build build --target profile
+        mv build/profile.log build/profile-windows-ucrt64-amd64.log
+
+    - name: Packaging
+      shell: msys2 {0}
+      run: |
+        cmake -B build -DCMAKE_BUILD_TYPE=Release
+        cmake --build build --target package --parallel
+
+    - name: List files in build
+      shell: msys2 {0}
+      run: tree -Fh build
+
+    - name: Upload profile.log
+      uses: actions/upload-artifact@v7
+      with:
+        path: build/profile-windows-*.log
+        archive: false
+
+    - name: Upload the package
+      uses: actions/upload-artifact@v7
+      with:
+        path: build/cmigemo-*.zip
+        archive: false
