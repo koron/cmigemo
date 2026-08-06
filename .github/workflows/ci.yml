@@ -4,10 +4,17 @@ on: [push]
 
 jobs:
 
-  build:
-    name: Build with CMake
+  build-linux:
 
-    runs-on: ubuntu-latest
+    name: Build on Linux
+
+    strategy:
+      matrix:
+        include:
+        - { arch: aarch64, runner: ubuntu-24.04-arm, }
+        - { arch: x86_64,  runner: ubuntu-latest,    }
+
+    runs-on: ${{ matrix.runner }}
 
     steps:
 
@@ -22,7 +29,9 @@ jobs:
       run: cmake --build build --target test
 
     - name: Profiling
-      run: cmake --build build --target profile
+      run: |
+        cmake --build build --target profile
+        mv build/profile.log build/profile-linux-${{ matrix.arch }}.log
 
     - name: Packaging
       run: |
@@ -35,7 +44,7 @@ jobs:
     - name: Upload profile.log
       uses: actions/upload-artifact@v7
       with:
-        path: build/profile.log
+        path: build/profile-linux-*.log
         archive: false
 
     - name: Upload the package
