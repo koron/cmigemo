@@ -29,6 +29,8 @@
 #define RXGEN_OP_SELECT_OUT "]"
 #define RXGEN_OP_NEWLINE    ""
 
+#define RXGEN_DEBUG_STAT 0
+
 int n_rnode_new = 0;
 int n_rnode_delete = 0;
 
@@ -53,14 +55,11 @@ struct _rxgen
 
 struct _rnode
 {
-    rnode *parent;
     rnode *low, *high;
     rnode *child;
-
-    bool red;
+    unsigned int code;
     bool wordtail;
 
-    unsigned int code;
 };
 
 static rnode *
@@ -106,7 +105,6 @@ rnode_dig(rnode **pp, unsigned int code)
             if (p->low == NULL)
             {
                 p->low = rnode_new(code);
-                p->low->parent = p;
                 return p->low;
             }
             p = p->low;
@@ -116,7 +114,6 @@ rnode_dig(rnode **pp, unsigned int code)
             if (p->high == NULL)
             {
                 p->high = rnode_new(code);
-                p->high->parent = p;
                 return p->high;
             }
             p = p->high;
@@ -375,6 +372,38 @@ rxgen_generate_stub(rxgen *object, wordbuf_t *buf, rnode *node)
         wordbuf_cat(buf, object->op_nest_out);
 }
 
+#if RXGEN_DEBUG_STAT
+
+static void
+rnode_count_nodes(rnode *node, int *all, int *low, int *high, int *maxdepth, int depth)
+{
+    (*all)++;
+    depth++;
+    if (*maxdepth < depth)
+        *maxdepth = depth;
+    if (node->low)
+    {
+        (*low)++;
+        rnode_count_nodes(node->low, all, low, high, maxdepth, depth);
+    }
+    if (node->high)
+    {
+        (*high)++;
+        rnode_count_nodes(node->high, all, low, high, maxdepth, depth);
+    }
+}
+
+static void
+rxgen_debug_stat(rnode *root)
+{
+    int all = 0, low = 0, high = 0, depth = 0;
+    if (root)
+        rnode_count_nodes(root, &all, &low, &high, &depth, 0);
+    printf("rxgen_debug_stat: all=%d, low=%d, high=%d, balance(high-low)=%d, max depth=%d\n", all, low, high, high - low, depth);
+}
+
+#endif
+
 unsigned char *
 rxgen_generate(rxgen *object)
 {
@@ -383,8 +412,14 @@ rxgen_generate(rxgen *object)
 
     if (object && (buf = wordbuf_open()))
     {
+
         if (object->root)
+        {
+#if RXGEN_DEBUG_STAT
+            rxgen_debug_stat(object->root);
+#endif
             rxgen_generate_stub(object, buf, object->root);
+        }
         answer = STRDUP(WORDBUF_GET(buf));
         wordbuf_close(buf);
     }
