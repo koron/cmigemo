@@ -1,0 +1,71 @@
+name: CI on Windows (MSVC)
+
+on:
+  workflow_call:
+
+concurrency:
+  group: ci-windows-msvc-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  build:
+
+    name: Build
+
+    runs-on: windows-2025-vs2026
+
+    defaults:
+      run:
+        shell: cmd
+
+    steps:
+    - name: Set up MSYS2 packages
+      uses: msys2/setup-msys2@66cd2cce69caa17b53920067426061ca1de3a884 # v2.32.0
+      id: msys2
+      with:
+        msystem: UCRT64
+        update:  true
+        release: false
+        pacboy: >-
+          cmake:p
+          iconv:
+          gzip:
+          perl:
+          tree:
+
+    - name: Setup MSYS2 PATH
+      run: |
+        echo ${{ steps.msys2.outputs.msys2-location }}\%MSYSTEM%\bin>> %GITHUB_PATH%
+        echo ${{ steps.msys2.outputs.msys2-location }}\usr\bin>> %GITHUB_PATH%
+
+    - name: Setup VC++ environment (VCVARSALL)
+      run: for /f "usebackq tokens=*" %%i in (`vswhere -products * -latest -property installationPath`) do (echo VCVARSALL=%%i\VC\Auxiliary\Build\vcvarsall.bat) >> %GITHUB_ENV%
+
+    - uses: actions/checkout@v7
+
+    - name: Build
+      run: |
+        call "%VCVARSALL%" amd64
+        cmake -B build -DCMAKE_BUILD_TYPE=Release
+        cmake --build build --parallel
+
+    - name: Test
+      run: |
+        call "%VCVARSALL%" amd64
+        cmake --build build --target test
+
+    - name: Packaging
+      run: |
+        call "%VCVARSALL%" amd64
+        cmake --build build --target package --parallel
+
+    - name: List files in build
+      shell: msys2 {0}
+      run: tree -Fh build
+
+    - name: Upload the package
+      uses: actions/upload-artifact@v7
+      with:
+        path: build/cmigemo-*.zip
+        archive: false

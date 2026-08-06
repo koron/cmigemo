@@ -1,0 +1,50 @@
+name: CI on macOS
+
+on:
+  workflow_call:
+
+concurrency:
+  group: ci-macos-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  build:
+
+    name: Build
+
+    runs-on: macos-latest
+
+    steps:
+
+    - name: Trust AWS Tap
+      run: brew trust aws/tap
+
+    - name: Install dependencies via Homebrew
+      run: |
+        brew update
+        brew install tree
+
+    - uses: actions/checkout@v7
+
+    - name: Build
+      run: |
+        cmake -B build
+        cmake --build build --parallel
+
+    - name: Test
+      run: cmake --build build --target test
+
+    - name: Packaging
+      run: |
+        cmake -B build -DCMAKE_BUILD_TYPE=Release
+        cmake --build build --target package --parallel
+
+    - name: List files in build
+      run: tree -Fh build
+
+    - name: Upload the package
+      uses: actions/upload-artifact@v7
+      with:
+        path: build/cmigemo-*.tar.gz
+        archive: false
