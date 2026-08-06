@@ -283,25 +283,31 @@ migemo_addword(migemo *object, unsigned char *word)
     return rxgen_add(object->rx, word);
 }
 
-// mnodeの持つ単語リストを正規表現生成エンジンに入力する。
-static void
-migemo_query_proc(mnode *p, void *data)
-{
-    migemo *object = (migemo *)data;
-    wordlist_p list = p->list;
+static void add_mnode_siblings(migemo *object, mnode *pnode);
 
+static void
+add_mnode_all_words(migemo *object, mnode *pnode)
+{
+    wordlist_p list = pnode->list;
     for (; list; list = list->next)
         migemo_addword(object, list->ptr);
+    if (pnode->child)
+        add_mnode_siblings(object, pnode->child);
 }
 
-// バッファを用意してmnodeに再帰で書き込ませる
+static void
+add_mnode_siblings(migemo *object, mnode *pnode)
+{
+    for (; pnode; pnode = pnode->next)
+        add_mnode_all_words(object, pnode);
+}
+
 static void
 add_mnode_query(migemo *object, unsigned char *query)
 {
-    mnode *pnode;
-
-    if ((pnode = mnode_query(object->mtree, query)) != NULL)
-        mnode_traverse(pnode, migemo_query_proc, object);
+    mnode *pnode = mnode_query(object->mtree, query);
+    if (pnode)
+        add_mnode_all_words(object, pnode);
 }
 
 /// 入力をローマから仮名に変換して検索キーに加える。
