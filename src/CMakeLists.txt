@@ -19,7 +19,9 @@ add_library(
 
 set_target_properties(
   migemo
-  PROPERTIES OUTPUT_NAME "migemo" VERSION 1.4.0 SOVERSION 1)
+  PROPERTIES
+    OUTPUT_NAME "migemo" VERSION ${PROJECT_VERSION} SOVERSION
+    ${PROJECT_VERSION_MAJOR})
 
 target_include_directories(
   migemo
