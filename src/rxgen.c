@@ -175,7 +175,7 @@ rxgen_setproc_int2char(rxgen *object, RXGEN_PROC_INT2CHAR proc)
         object->int2char = proc ? proc : default_int2char;
 }
 
-static int
+static inline int
 rxgen_call_char2int(rxgen *object, const unsigned char *pch, unsigned int *code)
 {
     int len = object->char2int(pch, code);
@@ -220,7 +220,7 @@ rxgen_close(rxgen *object)
 int
 rxgen_add(rxgen *object, const unsigned char *word)
 {
-    if (!object || !word)
+    if (!word)
         return 0;
 
     rnode **ppnode = &object->root;
@@ -229,7 +229,6 @@ rxgen_add(rxgen *object, const unsigned char *word)
     {
         unsigned int code;
         int len = rxgen_call_char2int(object, word, &code);
-        // printf("rxgen_call_char2int: code=%08x\n", code);
 
         // 入力パターンが尽きたら終了
         if (code == 0)
