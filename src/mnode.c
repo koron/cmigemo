@@ -13,6 +13,8 @@
 #include "wordbuf.h"
 #include "wordlist.h"
 
+#define MNODE_DEBUG_STAT 0
+
 #define MTREE_MNODE_N 1024
 struct _mtree_t
 {
@@ -32,6 +34,105 @@ struct _mtree_t
 
 int n_mnode_new = 0;
 int n_mnode_delete = 0;
+
+#if MNODE_DEBUG_STAT
+
+typedef struct
+{
+    size_t total_nodes;
+    size_t low_count;
+    size_t high_count;
+    size_t child_count;
+    size_t word_count;
+
+    int max_sibling_depth;
+    size_t total_sibling_depth;
+
+    int max_word_cmp_count;
+    size_t total_word_cmp_count;
+} mnode_stat;
+
+static void
+mnode_debug_stat_stub(
+        mnode *node, mnode_stat *stat, int sib_depth, int total_cmp)
+{
+    if (!node)
+        return;
+
+    stat->total_nodes++;
+    stat->total_sibling_depth += sib_depth;
+    if (sib_depth > stat->max_sibling_depth)
+        stat->max_sibling_depth = sib_depth;
+
+    if (node->low)
+        stat->low_count++;
+    if (node->high)
+        stat->high_count++;
+    if (node->child)
+        stat->child_count++;
+
+    if (node->list)
+    {
+        stat->word_count++;
+        stat->total_word_cmp_count += total_cmp;
+        if (total_cmp > stat->max_word_cmp_count)
+            stat->max_word_cmp_count = total_cmp;
+    }
+
+    // recursive calls for low, high, and child nodes.
+    if (node->low)
+        mnode_debug_stat_stub(node->low, stat, sib_depth + 1, total_cmp + 1);
+    if (node->high)
+        mnode_debug_stat_stub(node->high, stat, sib_depth + 1, total_cmp + 1);
+    if (node->child)
+        mnode_debug_stat_stub(node->child, stat, 0, total_cmp + 1);
+}
+
+static void
+mnode_debug_stat(mnode *root, mnode_stat *stat)
+{
+    if (!stat)
+        return;
+    memset(stat, 0, sizeof(*stat));
+    if (!root)
+        return;
+    mnode_debug_stat_stub(root, stat, 0, 1);
+}
+
+static void
+mnode_print_stat(const mnode_stat *stat)
+{
+    if (!stat)
+        return;
+
+    printf("=== mnode statistics ===\n");
+    printf("Total Nodes          : %zu\n", stat->total_nodes);
+    printf("Word Nodes (list)    : %zu\n", stat->word_count);
+    printf("Pointer Counts       : low=%zu, high=%zu, child=%zu\n",
+            stat->low_count, stat->high_count, stat->child_count);
+    printf("Low/High Balance Ratio: %.2f%% / %.2f%%\n",
+            stat->low_count + stat->high_count > 0
+                    ? (double)stat->low_count
+                              / (stat->low_count + stat->high_count) * 100.0
+                    : 0.0,
+            stat->low_count + stat->high_count > 0
+                    ? (double)stat->high_count
+                              / (stat->low_count + stat->high_count) * 100.0
+                    : 0.0);
+
+    printf("Sibling Depth        : max=%d, avg=%.2f\n", stat->max_sibling_depth,
+            stat->total_nodes > 0
+                    ? (double)stat->total_sibling_depth / stat->total_nodes
+                    : 0.0);
+
+    printf("Word Compare Count   : max=%d, avg=%.2f\n",
+            stat->max_word_cmp_count,
+            stat->word_count > 0
+                    ? (double)stat->total_word_cmp_count / stat->word_count
+                    : 0.0);
+    printf("======================\n");
+}
+#endif
 
 INLINE static mnode *
 mnode_new(mtree_p mtree)
@@ -60,9 +161,10 @@ mnode_delete(mnode *p)
 
         if (p->list)
             wordlist_close(p->list);
-        if (p->next)
-            mnode_delete(p->next);
-        // free(p);
+        if (p->low)
+            mnode_delete(p->low);
+        if (p->high)
+            mnode_delete(p->high);
         p = child;
         ++n_mnode_delete;
     }
@@ -83,8 +185,10 @@ mnode_print_stub(mnode *vp, unsigned char *p)
         printf("%s (list=%p)\n", buf, vp->list);
     if (vp->child)
         mnode_print_stub(vp->child, p + 1);
-    if (vp->next)
-        mnode_print_stub(vp->next, p);
+    if (vp->low)
+        mnode_print_stub(vp->low, p);
+    if (vp->high)
+        mnode_print_stub(vp->high, p);
 }
 
 void
@@ -136,10 +240,19 @@ search_or_new_mnode(mtree_p mtree, wordbuf_p buf)
                 return NULL;
             MNODE_SET_CH(*res, ch);
         }
-        else if (MNODE_GET_CH(*res) != ch)
+        else
         {
-            ppnext = &(*res)->next;
-            continue;
+            int pivot = MNODE_GET_CH(*res);
+            if (ch < pivot)
+            {
+                ppnext = &(*res)->low;
+                continue;
+            }
+            else if (ch > pivot)
+            {
+                ppnext = &(*res)->high;
+                continue;
+            }
         }
         ppnext = &(*res)->child;
         ++word;
@@ -287,6 +400,14 @@ mnode_load(mtree_p mtree, FILE *fp)
 END_MNODE_LOAD:
     wordbuf_close(buf);
     wordbuf_close(prevlabel);
+#if MNODE_DEBUG_STAT
+    if (mtree && mtree->used > 0)
+    {
+        mnode_stat st;
+        mnode_debug_stat(&mtree->nodes[0], &st);
+        mnode_print_stat(&st);
+    }
+#endif
     return mtree;
 }
 
@@ -318,17 +439,18 @@ mnode_size(mnode* p)
 static mnode *
 mnode_query_stub(mnode *node, const unsigned char *query)
 {
-    while (1)
+    int pivot = MNODE_GET_CH(node);
+
+    if (*query < pivot)
+        return node->low ? mnode_query_stub(node->low, query) : NULL;
+    else if (*query > pivot)
+        return node->high ? mnode_query_stub(node->high, query) : NULL;
+    else
     {
-        if (*query == MNODE_GET_CH(node))
-            return (*++query == '\0')
-                           ? node
-                           : (node->child ? mnode_query_stub(node->child, query)
-                                          : NULL);
-        if (!(node = node->next))
-            break;
+        if (*++query == '\0')
+            return node;
+        return node->child ? mnode_query_stub(node->child, query) : NULL;
     }
-    return NULL;
 }
 
 mnode *
@@ -342,14 +464,13 @@ mnode_query(mtree_p mtree, const unsigned char *query)
 static void
 mnode_traverse_stub(mnode *node, MNODE_TRAVERSE_PROC proc, void *data)
 {
-    while (1)
-    {
-        if (node->child)
-            mnode_traverse_stub(node->child, proc, data);
-        proc(node, data);
-        if (!(node = node->next))
-            break;
-    }
+    if (node->low)
+        mnode_traverse_stub(node->low, proc, data);
+    proc(node, data);
+    if (node->child)
+        mnode_traverse_stub(node->child, proc, data);
+    if (node->high)
+        mnode_traverse_stub(node->high, proc, data);
 }
 
 void
