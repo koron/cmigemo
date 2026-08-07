@@ -283,23 +283,22 @@ migemo_addword(migemo *object, unsigned char *word)
     return rxgen_add(object->rx, word);
 }
 
-static void add_mnode_siblings(migemo *object, mnode *pnode);
-
-static void
-add_mnode_all_words(migemo *object, mnode *pnode)
+static inline void
+add_mnode_words(migemo *object, wordlist_p list)
 {
-    wordlist_p list = pnode->list;
     for (; list; list = list->next)
         migemo_addword(object, list->ptr);
-    if (pnode->child)
-        add_mnode_siblings(object, pnode->child);
 }
 
 static void
 add_mnode_siblings(migemo *object, mnode *pnode)
 {
     for (; pnode; pnode = pnode->next)
-        add_mnode_all_words(object, pnode);
+    {
+        add_mnode_words(object, pnode->list);
+        if (pnode->child)
+            add_mnode_siblings(object, pnode->child);
+    }
 }
 
 static void
@@ -307,7 +306,11 @@ add_mnode_query(migemo *object, unsigned char *query)
 {
     mnode *pnode = mnode_query(object->mtree, query);
     if (pnode)
-        add_mnode_all_words(object, pnode);
+    {
+        add_mnode_words(object, pnode->list);
+        if (pnode->child)
+            add_mnode_siblings(object, pnode->child);
+    }
 }
 
 /// 入力をローマから仮名に変換して検索キーに加える。
