@@ -21,8 +21,16 @@ set_target_properties(
   migemo
   PROPERTIES OUTPUT_NAME "migemo" VERSION 1.4.0 SOVERSION 1)
 
+target_include_directories(
+  migemo
+  PUBLIC
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+
 add_executable(cmigemo main.c)
+
 target_link_libraries(cmigemo PRIVATE migemo)
+
 target_compile_definitions(
   cmigemo
   PRIVATE CMIGEMO_DICTDIR="${CMIGEMO_DEFAULT_DICTDIR}")
@@ -35,4 +43,6 @@ install(
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
-install(FILES migemo.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(
+  FILES ${PROJECT_SOURCE_DIR}/include/migemo.h
+  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
