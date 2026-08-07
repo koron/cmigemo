@@ -16,9 +16,6 @@
 int n_wordbuf_open = 0;  // for DEBUG
 int n_wordbuf_close = 0; // for DEBUG
 
-// function pre-declaration
-static int wordbuf_extend(wordbuf_p p, int len);
-
 wordbuf_p
 wordbuf_open()
 {
@@ -56,7 +53,7 @@ wordbuf_reset(wordbuf_p p)
 // wordbuf_extend(wordbuf_p p, int req_len);
 //	バッファの伸長。エラー時には0が帰る。
 //	高速化のために伸ばすべきかは呼出側で判断する。
-static int
+int
 wordbuf_extend(wordbuf_p p, int req_len)
 {
     int newlen = p->len * 2;
@@ -81,28 +78,6 @@ int
 wordbuf_last(wordbuf_p p)
 {
     return p->last;
-}
-
-int
-wordbuf_add(wordbuf_p p, unsigned char ch)
-{
-    int newlen = p->last + 2;
-
-    if (newlen > p->len && !wordbuf_extend(p, newlen))
-        return 0;
-    else
-    {
-#if 1
-        unsigned char *buf = p->buf + p->last;
-
-        buf[0] = ch;
-        buf[1] = '\0';
-#else
-        // リトルエンディアンを仮定するなら使えるが…
-        *(unsigned short *)&p->buf[p->last] = (unsigned short)ch;
-#endif
-        return ++p->last;
-    }
 }
 
 int
