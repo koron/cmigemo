@@ -60,9 +60,10 @@ mnode_delete(mnode *p)
 
         if (p->list)
             wordlist_close(p->list);
-        if (p->next)
-            mnode_delete(p->next);
-        // free(p);
+        if (p->low)
+            mnode_delete(p->low);
+        if (p->high)
+            mnode_delete(p->high);
         p = child;
         ++n_mnode_delete;
     }
@@ -83,8 +84,10 @@ mnode_print_stub(mnode *vp, unsigned char *p)
         printf("%s (list=%p)\n", buf, vp->list);
     if (vp->child)
         mnode_print_stub(vp->child, p + 1);
-    if (vp->next)
-        mnode_print_stub(vp->next, p);
+    if (vp->low)
+        mnode_print_stub(vp->low, p);
+    if (vp->high)
+        mnode_print_stub(vp->high, p);
 }
 
 void
@@ -136,10 +139,19 @@ search_or_new_mnode(mtree_p mtree, wordbuf_p buf)
                 return NULL;
             MNODE_SET_CH(*res, ch);
         }
-        else if (MNODE_GET_CH(*res) != ch)
+        else
         {
-            ppnext = &(*res)->next;
-            continue;
+            int pivot = MNODE_GET_CH(*res);
+            if (ch < pivot)
+            {
+                ppnext = &(*res)->low;
+                continue;
+            }
+            else if (ch > pivot)
+            {
+                ppnext = &(*res)->high;
+                continue;
+            }
         }
         ppnext = &(*res)->child;
         ++word;
@@ -318,17 +330,18 @@ mnode_size(mnode* p)
 static mnode *
 mnode_query_stub(mnode *node, const unsigned char *query)
 {
-    while (1)
+    int pivot = MNODE_GET_CH(node);
+
+    if (*query < pivot)
+        return node->low ? mnode_query_stub(node->low, query) : NULL;
+    else if (*query > pivot)
+        return node->high ? mnode_query_stub(node->high, query) : NULL;
+    else
     {
-        if (*query == MNODE_GET_CH(node))
-            return (*++query == '\0')
-                           ? node
-                           : (node->child ? mnode_query_stub(node->child, query)
-                                          : NULL);
-        if (!(node = node->next))
-            break;
+        if (*++query == '\0')
+            return node;
+        return node->child ? mnode_query_stub(node->child, query) : NULL;
     }
-    return NULL;
 }
 
 mnode *
@@ -342,14 +355,13 @@ mnode_query(mtree_p mtree, const unsigned char *query)
 static void
 mnode_traverse_stub(mnode *node, MNODE_TRAVERSE_PROC proc, void *data)
 {
-    while (1)
-    {
-        if (node->child)
-            mnode_traverse_stub(node->child, proc, data);
-        proc(node, data);
-        if (!(node = node->next))
-            break;
-    }
+    if (node->low)
+        mnode_traverse_stub(node->low, proc, data);
+    proc(node, data);
+    if (node->child)
+        mnode_traverse_stub(node->child, proc, data);
+    if (node->high)
+        mnode_traverse_stub(node->high, proc, data);
 }
 
 void

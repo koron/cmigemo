@@ -293,12 +293,13 @@ add_mnode_words(migemo *object, wordlist_p list)
 static void
 add_mnode_siblings(migemo *object, mnode *pnode)
 {
-    for (; pnode; pnode = pnode->next)
-    {
-        add_mnode_words(object, pnode->list);
-        if (pnode->child)
-            add_mnode_siblings(object, pnode->child);
-    }
+    add_mnode_words(object, pnode->list);
+    if (pnode->child)
+        add_mnode_siblings(object, pnode->child);
+    if (pnode->low)
+        add_mnode_siblings(object, pnode->low);
+    if (pnode->high)
+        add_mnode_siblings(object, pnode->high);
 }
 
 static void

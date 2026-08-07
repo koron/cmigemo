@@ -14,7 +14,7 @@ typedef struct _mnode mnode;
 struct _mnode
 {
     unsigned int attr;
-    mnode *next;
+    mnode *low, *high;
     mnode *child;
     wordlist_p list;
 };
