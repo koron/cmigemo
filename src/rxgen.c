@@ -31,14 +31,36 @@
 
 #define RXGEN_DEBUG_STAT 0
 
-int n_rnode_new = 0;
-int n_rnode_delete = 0;
+#define RNODE_BLOCK_SIZE 1024
 
 typedef struct _rnode rnode;
+struct _rnode
+{
+    rnode *low, *high;
+    rnode *child;
+
+    unsigned int code;
+    bool wordtail;
+};
+
+typedef struct rnode_block rnode_block;
+struct rnode_block
+{
+    rnode_block *next;
+    size_t used;
+    rnode nodes[RNODE_BLOCK_SIZE];
+};
+
+typedef struct rnode_arena
+{
+    rnode_block *head;
+    rnode_block *curr;
+} rnode_arena;
 
 struct _rxgen
 {
     rnode *root;
+    rnode_arena arena;
 
     RXGEN_PROC_CHAR2INT char2int;
     RXGEN_PROC_INT2CHAR int2char;
@@ -53,47 +75,47 @@ struct _rxgen
 
 // rnode interfaces
 
-struct _rnode
-{
-    rnode *low, *high;
-    rnode *child;
-
-    unsigned int code;
-    bool wordtail;
-};
-
 static rnode *
-rnode_new(unsigned int code)
+rnode_arena_alloc(rnode_arena *arena, unsigned code)
 {
-    ++n_rnode_new;
-    rnode *p = (rnode *)calloc(1, sizeof(rnode));
+    if (!arena->curr || arena->curr->used >= RNODE_BLOCK_SIZE)
+    {
+        rnode_block *block = (rnode_block *)calloc(1, sizeof(rnode_block));
+        if (!block)
+            return NULL;
+        if (!arena->head)
+            arena->head = block;
+        else
+            arena->curr->next = block;
+        arena->curr = block;
+    }
+    rnode *p = &arena->curr->nodes[arena->curr->used++];
     p->code = code;
     return p;
 }
 
 static void
-rnode_delete(rnode *node)
+rnode_arena_free(rnode_arena *arena)
 {
-    while (node)
+    if (arena == NULL)
+        return;
+    for (rnode_block *p = arena->head; p;)
     {
-        rnode *child = node->child;
-        if (node->low)
-            rnode_delete(node->low);
-        if (node->high)
-            rnode_delete(node->high);
-        free(node);
-        node = child;
-        ++n_rnode_delete;
+        rnode_block *tmp = p;
+        p = p->next;
+        free(tmp);
     }
+    arena->head = NULL;
+    arena->curr = NULL;
 }
 
 static rnode *
-rnode_dig(rnode **pp, unsigned int code)
+rnode_dig(rnode_arena *arena, rnode **pp, unsigned int code)
 {
     rnode *p = *pp;
     if (p == NULL)
     {
-        *pp = rnode_new(code);
+        *pp = rnode_arena_alloc(arena, code);
         return *pp;
     }
     while (1)
@@ -104,7 +126,7 @@ rnode_dig(rnode **pp, unsigned int code)
         {
             if (p->low == NULL)
             {
-                p->low = rnode_new(code);
+                p->low = rnode_arena_alloc(arena, code);
                 return p->low;
             }
             p = p->low;
@@ -113,7 +135,7 @@ rnode_dig(rnode **pp, unsigned int code)
         {
             if (p->high == NULL)
             {
-                p->high = rnode_new(code);
+                p->high = rnode_arena_alloc(arena, code);
                 return p->high;
             }
             p = p->high;
@@ -212,7 +234,7 @@ rxgen_close(rxgen *object)
 {
     if (object)
     {
-        rnode_delete(object->root);
+        rnode_arena_free(&object->arena);
         free(object);
     }
 }
@@ -241,15 +263,16 @@ rxgen_add(rxgen *object, const unsigned char *word)
                 // 場合は、長い方を破棄する。例:
                 //      赤ちゃん + 赤 -> 赤
                 //      国際便 + 国際 -> 国際
-                rnode_delete(*ppnode);
                 *ppnode = NULL;
+                // FIXME: mark *ppnode here for future use when collecting
+                // statistical information or reusing reclaimed nodes.
             }
             break;
         }
 
         word += len;
 
-        pnode = rnode_dig(ppnode, code);
+        pnode = rnode_dig(&object->arena, ppnode, code);
         if (!pnode)
             return 0; // allocation error.
         ppnode = &pnode->child;
@@ -441,7 +464,7 @@ rxgen_reset(rxgen *object)
 {
     if (object)
     {
-        rnode_delete(object->root);
+        rnode_arena_free(&object->arena);
         object->root = NULL;
     }
 }
@@ -491,26 +514,3 @@ rxgen_set_operator(rxgen *object, int index, const unsigned char *op)
 
     return 0;
 }
-
-#if 0
-// main
-    int
-main(int argc, char** argv)
-{
-    rxgen *prx;
-
-    if (prx = rxgen_open())
-    {
-	char buf[256], *ans;
-
-	while (gets(buf) && !feof(stdin))
-	    rxgen_add(prx, buf);
-	ans = rxgen_generate(prx);
-	printf("rxgen=%s\n", ans);
-	rxgen_release(prx, ans);
-	rxgen_close(prx);
-    }
-    fprintf(stderr, "n_rnode_new=%d\n", n_rnode_new);
-    fprintf(stderr, "n_rnode_delete=%d\n", n_rnode_delete);
-}
-#endif
