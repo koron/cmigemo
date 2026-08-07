@@ -9,9 +9,9 @@
 typedef struct _wordbuf_t wordbuf_t, *wordbuf_p;
 struct _wordbuf_t
 {
-    int len; // bufに割り当てられているメモリ量
+    int len; // amount of memory allocated to buf
     unsigned char *buf;
-    int last; // bufに実際に格納している文字列の長さ
+    int last; // length of the string actually stored in buf
 };
 
 extern int n_wordbuf_open;

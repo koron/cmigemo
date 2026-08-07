@@ -69,7 +69,7 @@ eucjp_char2int(const unsigned char *in, unsigned int *out)
 int
 eucjp_int2char(unsigned int in, unsigned char *out)
 {
-    // CP932と内容は同じだが将来JISX0213に対応させるために分離しておく
+    // Same as CP932, but separated to support JISX0213 in the future
     if (in >= 0x100)
     {
         if (out)
@@ -206,7 +206,7 @@ charset_detect_buf(const unsigned char *buf, int len)
     for (i = 0; i < len; ++i)
     {
         unsigned char c = buf[i];
-        // SJISであるかのチェック
+        // Check if it is SJIS
         if (smode)
         {
             if ((0x40 <= c && c <= 0x7e) || (0x80 <= c && c <= 0xfc))
@@ -215,7 +215,7 @@ charset_detect_buf(const unsigned char *buf, int len)
         }
         else if ((0x81 <= c && c <= 0x9f) || (0xe0 <= c && c <= 0xf0))
             smode = 1;
-        // EUCであるかのチェック
+        // Check if it is EUC
         eflag = 0xa1 <= c && c <= 0xfe;
         if (emode)
         {
@@ -225,7 +225,7 @@ charset_detect_buf(const unsigned char *buf, int len)
         }
         else if (eflag)
             emode = 1;
-        // UTF8であるかのチェック
+        // Check if it is UTF8
         if (!ufailed)
         {
             if (umode < 1)
@@ -267,7 +267,7 @@ charset_detect_buf(const unsigned char *buf, int len)
                 utf8 = 0;
         }
     }
-    // 最終的に一番得点の高いエンコードを返す
+    // Finally, return the encoding with the highest score
     if (euc > sjis && euc > utf8)
         return CHARSET_EUCJP;
     else if (!ufailed && utf8 > euc && utf8 > sjis)

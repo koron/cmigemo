@@ -157,7 +157,7 @@ static int
 default_int2char(unsigned int in, unsigned char *out)
 {
     int len = 0;
-    // outは最低でも16バイトはある、という仮定を置く
+    // Assume that out has at least 16 bytes
     switch (in)
     {
         case '\\':
@@ -252,17 +252,17 @@ rxgen_add(rxgen *object, const unsigned char *word)
         unsigned int code;
         int len = rxgen_call_char2int(object, word, &code);
 
-        // 入力パターンが尽きたら終了
+        // Terminate if the input pattern is exhausted
         if (code == 0)
         {
             if (pnode)
                 pnode->wordtail = true;
             if (*ppnode)
             {
-                // 登録しようとしている単語よりも、長い単語が既に登録されている
-                // 場合は、長い方を破棄する。例:
-                //      赤ちゃん + 赤 -> 赤
-                //      国際便 + 国際 -> 国際
+                // If a longer word is already registered than the one being
+                // registered, discard the longer one. E.g.:
+                //      赤ちゃん + 赤   -> 赤
+                //      国際便   + 国際 -> 国際
                 *ppnode = NULL;
                 // FIXME: mark *ppnode here for future use when collecting
                 // statistical information or reusing reclaimed nodes.
@@ -279,13 +279,13 @@ rxgen_add(rxgen *object, const unsigned char *word)
 
         if (pnode && pnode->wordtail)
         {
-            // 登録しようとしている単語よりも短い単語が登録されている場合、
-            // それ以降の文字は破棄する。例:
-            //      赤 + 赤ちゃん -> 赤
-            //      国際 + 国際便 -> 国際
+            // If a shorter word is already registered than the one being
+            // registered, discard the remaining characters. E.g.:
+            //      赤ちゃん + 赤   -> 赤
+            //      国際便   + 国際 -> 国際
             return 2; // not registered a word, but found short one.
         }
-        // 子ノードを辿って深い方へ注視点を移動
+        // Move the focus deeper by traversing child nodes
     }
     return 1; // registered a word, some nodes.
 }
@@ -336,11 +336,11 @@ rxgen_write_node_has_children(
         rxgen_write_node_has_children(object, buf, node->low, needOr);
     if (node->child != NULL)
     {
-        // 必要ならばORを出力
+        // Output OR if necessary
         if (*needOr)
             wordbuf_cat(buf, object->op_or);
         rxgen_write_node_code(object, buf, node);
-        // 空白・改行飛ばしのパターンを挿入
+        // Insert a pattern that skips whitespace/newline
         if (object->op_newline[0])
             wordbuf_cat(buf, object->op_newline);
         rxgen_generate_stub(object, buf, node->child);
@@ -353,7 +353,8 @@ rxgen_write_node_has_children(
 static void
 rxgen_generate_stub(rxgen *object, wordbuf_t *buf, rnode *node)
 {
-    // 現在の階層の特性(兄弟の数、子供の数)をチェックする
+    // Check characteristics of the current level (number of siblings, number of
+    // children)
     int childrenCount = 0;
     int brotherCount = 1;
     rxgen_rnode_count(node, &childrenCount, &brotherCount);
@@ -366,11 +367,11 @@ rxgen_generate_stub(rxgen *object, wordbuf_t *buf, rnode *node)
     bool needGroup = brotherCount > 1 && childrenCount > 0;
     bool needClass = noChildrenCount > 1;
 
-    // 必要ならば()によるグルーピング
+    // Group using () if necessary
     if (needGroup)
         wordbuf_cat(buf, object->op_nest_in);
 
-    // 子の無いノードを先に[]によりグルーピング
+    // Group nodes without children first with []
     if (noChildrenCount > 0)
     {
         if (needClass)
@@ -383,14 +384,14 @@ rxgen_generate_stub(rxgen *object, wordbuf_t *buf, rnode *node)
             rxgen_write_node_no_children(object, buf, node);
     }
 
-    // 子のあるノードを出力
+    // Output nodes with children
     if (childrenCount > 0)
     {
         bool needOr = noChildrenCount > 0;
         rxgen_write_node_has_children(object, buf, node, &needOr);
     }
 
-    // 必要ならば()によるグルーピング
+    // Group using () if necessary
     if (needGroup)
         wordbuf_cat(buf, object->op_nest_out);
 }
@@ -510,7 +511,7 @@ rxgen_release(rxgen *object, unsigned char *string)
     free(string);
 }
 
-// rxgen_add()してきたパターンを全てリセット。
+// Reset all patterns added via rxgen_add()
 void
 rxgen_reset(rxgen *object)
 {
