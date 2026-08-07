@@ -27,7 +27,6 @@ extern "C" {
 
 wordbuf_p wordbuf_open();
 void wordbuf_close(wordbuf_p p);
-void wordbuf_reset(wordbuf_p p);
 int wordbuf_extend(wordbuf_p p, int len);
 int wordbuf_last(wordbuf_p p);
 int wordbuf_cat(wordbuf_p p, const unsigned char *sz);
@@ -37,6 +36,13 @@ unsigned char *wordbuf_get(wordbuf_p p);
 #ifdef __cplusplus
 }
 #endif
+
+static inline void
+wordbuf_reset(wordbuf_p p)
+{
+    p->last = 0;
+    p->buf[0] = '\0';
+}
 
 static inline int
 wordbuf_add(wordbuf_p p, unsigned char ch)
