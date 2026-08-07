@@ -12,7 +12,7 @@
 # define MIGEMO_CALLTYPE
 #endif
 
-#define MIGEMO_VERSION "1.4"
+#define MIGEMO_VERSION "1.5"
 
 // for migemo_load()
 #define MIGEMO_DICTID_INVALID   0
