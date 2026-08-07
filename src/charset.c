@@ -92,24 +92,31 @@ utf8_char2int(const unsigned char *in, unsigned int *out)
             *out = in[0];
         return 1;
     }
-    if (in[0] < 0xc0)
-        return 0; // invalid byte for UTF-8
 
     // Use LUT to determine number of continuation bytes in UTF-8.
     // clang-format off
-    static const unsigned char UTF8_LUT[64] = {
-            // 0xC0 - 0xDF (110xxxxx): 2 bytes character
-            2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-            2, 2, 2, 2, 2, 2, 2, 2, 2,
+    static const unsigned char UTF8_LUT[128] = {
+            // 0x80 - 0xBF: invalid sequence (continuation byte without leader)
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            // 0xC0 - 0xC1: invalid (overlong encoding)
+            0, 0,
+            // 0xC2 - 0xDF (110xxxxx): 2 bytes character
+                  2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+            2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
             // 0xE0 - 0xEF (1110xxxx): 3 bytes character
             3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
             // 0xF0 - 0xF7 (11110xxx): 4 bytes character
-            4, 4, 4, 4, 4, 4, 4, 4,
+            4, 4, 4, 4, 4,
+            // 0xF5 - 0xF7: invalid (exceeding Unicode max value of U+10FFFF)
+                           0, 0, 0,
             // 0xF8 - 0xFF (11111xxx or greater): invalid values.
-            0, 0, 0, 0, 0, 0, 0, 0
+                                    0, 0, 0, 0, 0, 0, 0, 0,
     };
     // clang-format on
-    int len = UTF8_LUT[in[0] - 192];
+    int len = UTF8_LUT[in[0] - 128];
     if (!len)
         return 0;
 
