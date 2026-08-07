@@ -1,6 +1,6 @@
 // vim:set ts=8 sts=4 sw=4 tw=0 et:
 //
-// main.c - migemoライブラリテストドライバ
+// main.c - Migemo library test driver
 //
 // Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
 
@@ -31,14 +31,14 @@ query_loop(migemo *p, int quiet)
 
         if (!quiet)
             printf("QUERY: ");
-        // gets()を使っていたがfgets()に変更
+        // Changed from gets() to fgets()
         if (!fgets(buf, sizeof(buf), stdin))
         {
             if (!quiet)
                 printf("\n");
             break;
         }
-        // 改行をNUL文字に置き換える
+        // Replace newline with NULL character
         if ((ans = strchr(buf, '\n')) != NULL)
             *ans = '\0';
 
@@ -154,7 +154,7 @@ main(int argc, char **argv)
     fplog = fopen("exe.log", "wt");
 #endif
 
-    // 辞書をカレントディレクトリと1つ上のディレクトリから捜す
+    // Search for dictionaries in the current directory and the parent directory
     if (!dict)
     {
         const char *found = NULL;
@@ -169,7 +169,7 @@ main(int argc, char **argv)
         if (!word && !mode_quiet)
             fprintf(fplog, "migemo_open(\"%s\")=%p\n", dict, pmigemo);
     }
-    // サブ辞書を読み込む
+    // Load sub-dictionaries
     if (subdict_count > 0)
     {
         int i;
@@ -224,7 +224,7 @@ main(int argc, char **argv)
             query_loop(pmigemo, mode_quiet);
         }
 #else
-        // プロファイル用
+        // For profiling
         {
             unsigned char *ans;
 

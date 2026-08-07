@@ -34,7 +34,7 @@
 typedef int (*MIGEMO_PROC_CHAR2INT)(const unsigned char *, unsigned int *);
 typedef int (*MIGEMO_PROC_INT2CHAR)(unsigned int, unsigned char *);
 
-/// Migemoオブジェクト。migemo_open()で作成され、migemo_closeで破棄される。
+/// Migemo object. Created by migemo_open() and destroyed by migemo_close.
 typedef struct _migemo migemo;
 
 #ifdef __cplusplus

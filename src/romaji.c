@@ -1,6 +1,6 @@
 // vim:set ts=8 sts=4 sw=4 tw=0 et:
 //
-// romaji.c - ローマ字変換
+// romaji.c - Romaji conversion
 //
 // Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
 
@@ -108,11 +108,11 @@ romanode_dig(romanode **ref_node, const unsigned char *key)
     return ref_node;
 }
 
-/// キーに対応したromanodeを検索して返す。
-/// @return romanodeが見つからなかった場合NULL
-/// @param node ルートノード
-/// @param key 検索キー
-/// @param skip 進めるべきkeyのバイト数を受け取るポインタ
+/// Search for and return the romanode corresponding to the key.
+/// @return NULL if romanode is not found
+/// @param node root node
+/// @param key search key
+/// @param skip pointer to receive the number of bytes to skip in key
 static romanode *
 romanode_query(romanode *node, const unsigned char *key, int *skip,
         ROMAJI_PROC_CHAR2INT char2int)
@@ -144,10 +144,11 @@ romanode_query(romanode *node, const unsigned char *key, int *skip,
                 }
                 node = node->child;
             }
-            // 次に走査するノードが空の場合、キーを進めてNULLを返す
+            // If the next node to traverse is empty, advance the key and return
+            // NULL
             if (!node)
             {
-                // 1バイトではなく1文字進める
+                // Advance by one character, not one byte
                 if (!char2int || (nskip = (*char2int)(key_start, NULL)) < 1)
                     nskip = 1;
                 // printf("  HERE 3: nskip=%d\n", nskip);
@@ -161,7 +162,7 @@ romanode_query(romanode *node, const unsigned char *key, int *skip,
     return node;
 }
 
-#if 0 // 未使用のため
+#if 0 // Unused
     static void
 romanode_print_stub(romanode* node, unsigned char* p)
 {
@@ -251,7 +252,7 @@ romaji_add_table(
             printf("romaji_add_table(\"%s\", \"%s\")\n", key, value););
     (*ref_node)->value = STRDUP(value);
 
-    // 「ん」と「っ」は保存しておく
+    // Save "n" ("ん") and "tsu" ("っ")
     if (object->fixvalue_xn == NULL && value_length > 0
             && !strcmp(key, ROMAJI_FIXKEY_XN))
     {
@@ -291,15 +292,17 @@ romaji_load_stub(romaji *object, FILE *fp)
         switch (mode)
         {
             case 0:
-                // key待ちモード
+                // Waiting for key mode
                 if (ch == '#')
                 {
-                    // 1文字先読みして空白ならばkeyとして扱う
+                    // If the next character is whitespace, treat it as part of
+                    // the key
                     ch = fgetc(fp);
                     if (ch != '#')
                     {
                         ungetc(ch, fp);
-                        mode = 1; // 行末まで読み飛ばしモード へ移行
+                        mode = 1; // Transition to skipping until end of line
+                                  // mode
                         break;
                     }
                 }
@@ -307,36 +310,36 @@ romaji_load_stub(romaji *object, FILE *fp)
                 {
                     wordbuf_reset(buf_key);
                     wordbuf_add(buf_key, (unsigned char)ch);
-                    mode = 2; // key読み込みモード へ移行
+                    mode = 2; // Transition to key reading mode
                 }
                 break;
 
             case 1:
-                // 行末まで読み飛ばしモード
+                // Skipping until end of line mode
                 if (ch == '\n')
-                    mode = 0; // key待ちモード へ移行
+                    mode = 0; // Transition to waiting for key mode
                 break;
 
             case 2:
-                // key読み込みモード
+                // Key reading mode
                 if (!isspace(ch))
                     wordbuf_add(buf_key, (unsigned char)ch);
                 else
-                    mode = 3; // value待ちモード へ移行
+                    mode = 3; // Transition to waiting for value mode
                 break;
 
             case 3:
-                // value待ちモード
+                // Waiting for value mode
                 if (ch != EOF && !isspace(ch))
                 {
                     wordbuf_reset(buf_value);
                     wordbuf_add(buf_value, (unsigned char)ch);
-                    mode = 4; // value読み込みモード へ移行
+                    mode = 4; // Transition to value reading mode
                 }
                 break;
 
             case 4:
-                // value読み込みモード
+                // Value reading mode
                 if (ch != EOF && !isspace(ch))
                     wordbuf_add(buf_value, (unsigned char)ch);
                 else
@@ -356,10 +359,10 @@ romaji_load_stub(romaji *object, FILE *fp)
     return 0;
 }
 
-/// ローマ字辞書を読み込む。
-/// @param object ローマ字オブジェクト
-/// @param filename 辞書ファイル名
-/// @return 成功した場合0、失敗した場合は非0を返す。
+/// Load the Romaji dictionary.
+/// @param object Romaji object
+/// @param filename Dictionary filename
+/// @return 0 on success, non-zero on failure.
 int
 romaji_load(romaji *object, const unsigned char *filename)
 {
@@ -407,7 +410,7 @@ romaji_convert2(romaji *object, const unsigned char *string,
             romanode *node;
             int skip;
 
-            // 「っ」の判定
+            // Detect "tsu" (small tsu: "っ")
             if (object->fixvalue_xtu && input[i] == input[i + 1]
                     && !strchr(ROMAJI_FIXKEY_NONXTU, input[i]))
             {
@@ -433,7 +436,7 @@ romaji_convert2(romaji *object, const unsigned char *string,
             }
             else if (!node)
             {
-                // 「n(子音)」を「ん(子音)」に変換
+                // Convert "n + (consonant)" to "ん + (consant)"
                 if (skip == 1 && input[i] == ROMAJI_FIXKEY_N
                         && object->fixvalue_xn)
                 {

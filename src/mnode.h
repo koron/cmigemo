@@ -9,7 +9,7 @@
 
 #include "wordlist.h"
 
-// ツリーオブジェクト
+// Tree object
 typedef struct _mnode mnode;
 struct _mnode
 {
@@ -41,7 +41,7 @@ void mnode_close(mtree_p p);
 mnode *mnode_query(mtree_p node, const unsigned char *query);
 void mnode_traverse(mnode *node, MNODE_TRAVERSE_PROC proc, void *data);
 
-// 主にデバッグ用途
+// Mainly for debugging purposes
 void mnode_print(mtree_p mtree, unsigned char *p);
 
 #ifdef __cplusplus

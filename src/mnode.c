@@ -220,7 +220,7 @@ mnode_close(mtree_p mtree)
 INLINE static mnode *
 search_or_new_mnode(mtree_p mtree, wordbuf_p buf)
 {
-    // ラベル単語が決定したら検索木に追加
+    // Add to the search tree once the label word is determined
     int ch;
     unsigned char *word;
     mnode **ppnext;
@@ -261,7 +261,7 @@ search_or_new_mnode(mtree_p mtree, wordbuf_p buf)
     return *res;
 }
 
-// 既存のノードにファイルからデータをまとめて追加する。
+// Batch add data from a file to existing nodes.
 mtree_p
 mnode_load(mtree_p mtree, FILE *fp)
 {
@@ -271,7 +271,7 @@ mnode_load(mtree_p mtree, FILE *fp)
     wordbuf_p buf;
     wordbuf_p prevlabel;
     wordlist_p *ppword = NULL; // To suppress warning for GCC
-    // 読み込みバッファ用変数
+    // Variables for the input buffer
     unsigned char cache[MNODE_BUFSIZE];
     unsigned char *cache_ptr = cache;
     unsigned char *cache_tail = cache;
@@ -284,9 +284,10 @@ mnode_load(mtree_p mtree, FILE *fp)
         goto END_MNODE_LOAD;
     }
 
-    // EOFの処理が曖昧。不正な形式のファイルが入った場合を考慮していない。各
-    // モードからEOFの道を用意しないと正しくないが…面倒なのでやらない。デー
-    // タファイルは絶対に間違っていないという前提を置く。
+    // EOF handling is ambiguous and doesn't account for malformed files. While
+    // it wouldn't be correct without providing a path to EOF from each mode,
+    // it's omitted for simplicity. We assume the data file is always
+    // well-formed.
     do
     {
         if (cache_ptr >= cache_tail)
@@ -299,29 +300,29 @@ mnode_load(mtree_p mtree, FILE *fp)
             ch = *cache_ptr;
         ++cache_ptr;
 
-        // 状態:modeのオートマトン
+        // Automaton for state 'mode'
         switch (mode)
         {
-            case 0: // ラベル単語検索モード
-                // 空白はラベル単語になりえません
+            case 0: // Label word search mode
+                // Whitespace cannot be a label word
                 if (isspace(ch) || ch == EOF)
                     continue;
-                // コメントラインチェック
+                // Check for comment line
                 else if (ch == ';')
                 {
-                    mode = 2; // 行末まで食い潰すモード へ移行
+                    mode = 2; // Switch to mode that consumes until end of line
                     continue;
                 }
                 else
                 {
-                    mode = 1; // ラベル単語の読込モード へ移行
+                    mode = 1; // Switch to mode for reading label words
                     wordbuf_reset(buf);
                     wordbuf_add(buf, (unsigned char)ch);
                 }
                 break;
 
-            case 1: // ラベル単語の読込モード
-                // ラベルの終了を検出
+            case 1: // Label word loading mode
+                // Detect end of label
                 switch (ch)
                 {
                     default:
@@ -335,44 +336,46 @@ mnode_load(mtree_p mtree, FILE *fp)
                             goto END_MNODE_LOAD;
                         }
                         wordbuf_reset(buf);
-                        mode = 3; // 単語前空白読飛ばしモード へ移行
+                        mode = 3; // Switch to mode for skipping whitespace
+                                  // before words
                         break;
                 }
                 break;
 
-            case 2: // 行末まで食い潰すモード
+            case 2: // Mode that consumes until end of line
                 if (ch == '\n')
                 {
                     wordbuf_reset(buf);
-                    mode = 0; // ラベル単語検索モード へ戻る
+                    mode = 0; // Return to label word search mode
                 }
                 break;
 
-            case 3: // 単語前空白読み飛ばしモード
+            case 3: // Mode for skipping whitespace before words
                 if (ch == '\n')
                 {
                     wordbuf_reset(buf);
-                    mode = 0; // ラベル単語検索モード へ戻る
+                    mode = 0; // Return to label word search mode
                 }
                 else if (ch != '\t')
                 {
-                    // 単語バッファリセット
+                    // Reset word buffer
                     wordbuf_reset(buf);
                     wordbuf_add(buf, (unsigned char)ch);
-                    // 単語リストの最後を検索(同一ラベルが複数時)
+                    // Search for the end of the word list (if multiple words
+                    // for same label)
                     ppword = &pp->list;
                     while (*ppword)
                         ppword = &(*ppword)->next;
-                    mode = 4; // 単語の読み込みモード へ移行
+                    mode = 4; // Switch to mode for reading words
                 }
                 break;
 
-            case 4: // 単語の読み込みモード
+            case 4: // Mode for reading words
                 switch (ch)
                 {
                     case '\t':
                     case '\n':
-                        // 単語を記憶
+                        // Store word
                         *ppword = wordlist_open_len(
                                 WORDBUF_GET(buf), WORDBUF_LEN(buf));
                         wordbuf_reset(buf);
@@ -380,12 +383,13 @@ mnode_load(mtree_p mtree, FILE *fp)
                         if (ch == '\t')
                         {
                             ppword = &(*ppword)->next;
-                            mode = 3; // 単語前空白読み飛ばしモード へ戻る
+                            mode = 3; // Return to mode for skipping whitespace
+                                      // before words
                         }
                         else
                         {
                             ppword = NULL;
-                            mode = 0; // ラベル単語検索モード へ戻る
+                            mode = 0; // Return to label word search mode
                         }
                         break;
                     default:

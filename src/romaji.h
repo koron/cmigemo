@@ -1,6 +1,6 @@
 // vim:set ts=8 sts=4 sw=4 tw=0 et:
 //
-// romaji.h - ローマ字変換
+// romaji.h - Romaji conversion
 //
 // Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
 
