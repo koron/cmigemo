@@ -34,7 +34,7 @@
 #endif
 
 // Migemo object
-struct _migemo
+struct migemo
 {
     int enable;
     mtree *mtree;
