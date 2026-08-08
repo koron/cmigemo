@@ -289,7 +289,7 @@ migemo_addword(migemo *object, unsigned char *word)
 }
 
 static inline void
-add_mnode_words(migemo *object, wordlist_p list)
+add_mnode_words(migemo *object, wordlist *list)
 {
     for (; list; list = list->next)
         migemo_addword(object, list->ptr);
@@ -408,12 +408,12 @@ add_dubious_roma(migemo *object, rxgen *rx, unsigned char *query)
 /// Split the query into phrases. Phrases are typically separated by uppercase
 /// letters. A phrase starting with multiple uppercase letters is separated by
 /// non-uppercase characters.
-static wordlist_p
+static wordlist *
 parse_query(migemo *object, const unsigned char *query)
 {
     const unsigned char *curr = query;
     const unsigned char *start = NULL;
-    wordlist_p querylist = NULL, *pp = &querylist;
+    wordlist *querylist = NULL, **pp = &querylist;
 
     while (1)
     {
@@ -515,12 +515,12 @@ EXPORTS unsigned char *MIGEMO_CALLTYPE
 migemo_query(migemo *object, const unsigned char *query)
 {
     unsigned char *retval = NULL;
-    wordlist_p querylist = NULL;
+    wordlist *querylist = NULL;
     wordbuf *outbuf = NULL;
 
     if (object && object->rx && query)
     {
-        wordlist_p p;
+        wordlist *p;
 
         querylist = parse_query(object, query);
         if (querylist == NULL)

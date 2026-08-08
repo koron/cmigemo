@@ -270,7 +270,7 @@ mnode_load(mtree_p mtree, FILE *fp)
     int ch;
     wordbuf *buf;
     wordbuf *prevlabel;
-    wordlist_p *ppword = NULL; // To suppress warning for GCC
+    wordlist **ppword = NULL; // To suppress warning for GCC
     // Variables for the input buffer
     unsigned char cache[MNODE_BUFSIZE];
     unsigned char *cache_ptr = cache;

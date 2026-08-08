@@ -16,7 +16,7 @@ struct _mnode
     unsigned int attr;
     mnode *low, *high;
     mnode *child;
-    wordlist_p list;
+    wordlist *list;
 };
 #define MNODE_MASK_CH      0x000000FF
 #define MNODE_GET_CH(p)    ((unsigned char)(p)->attr)

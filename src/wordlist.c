@@ -14,14 +14,14 @@ int n_wordlist_open = 0;
 int n_wordlist_close = 0;
 int n_wordlist_total = 0;
 
-wordlist_p
+wordlist *
 wordlist_open_len(const unsigned char *ptr, int len)
 {
     if (ptr && len >= 0)
     {
-        wordlist_p p;
+        wordlist *p;
 
-        if ((p = (wordlist_p)malloc(sizeof(*p) + len + 1)) != NULL)
+        if ((p = (wordlist *)malloc(sizeof(*p) + len + 1)) != NULL)
         {
             p->ptr = (char *)(p + 1);
             p->next = NULL;
@@ -39,10 +39,10 @@ wordlist_open_len(const unsigned char *ptr, int len)
     return NULL;
 }
 
-wordlist_p
+wordlist *
 wordlist_open(const unsigned char *ptr)
 {
-    wordlist_p p = NULL;
+    wordlist *p = NULL;
     if (ptr != NULL)
     {
         size_t len;
@@ -53,11 +53,11 @@ wordlist_open(const unsigned char *ptr)
 }
 
 void
-wordlist_close(wordlist_p p)
+wordlist_close(wordlist *p)
 {
     while (p)
     {
-        wordlist_p next = p->next;
+        wordlist *next = p->next;
 
         ++n_wordlist_close;
         free(p);
