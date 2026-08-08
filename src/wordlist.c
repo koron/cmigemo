@@ -25,8 +25,9 @@ wordlist_open_len(const unsigned char *ptr, int len)
         {
             p->ptr = (char *)(p + 1);
             p->next = NULL;
-            // ほぼstrdup()と等価な実装。単語の保存に必要な総メモリを知りた
-            // いので独自に再実装。
+            // Implementation nearly equivalent to strdup(). Reimplemented
+            // manually because we need to know the total memory required to
+            // store the word.
             memcpy(p->ptr, ptr, len);
             p->ptr[len] = '\0';
 

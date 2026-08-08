@@ -35,7 +35,7 @@ query_one(romaji *object, romaji *hira2kata, romaji *han2zen, romaji *zen2han,
     unsigned char *hira;
     unsigned char *zen;
     unsigned char *han;
-    // ローマ字→平仮名(表示)→片仮名(表示)
+    // Romaji -> Hiragana (display) -> Katakana (display)
     if ((hira = romaji_convert(object, buf, &stop)) != NULL)
     {
         unsigned char *kata;
@@ -78,7 +78,7 @@ query_loop(romaji *object, romaji *hira2kata, romaji *han2zen, romaji *zen2han)
             printf("\n");
             break;
         }
-        // 改行をNUL文字に置き換える
+        // Replace newline with NUL character
         if ((ans = strchr(buf, '\n')) != NULL)
             *ans = '\0';
         query_one(object, hira2kata, han2zen, zen2han, buf);

@@ -44,8 +44,8 @@ wordbuf_close(wordbuf_p p)
 }
 
 // wordbuf_extend(wordbuf_p p, int req_len);
-//	バッファの伸長。エラー時には0が帰る。
-//	高速化のために伸ばすべきかは呼出側で判断する。
+//	Expand the buffer. Returns 0 on error.
+//	The caller decides whether to expand for performance.
 int
 wordbuf_extend(wordbuf_p p, int req_len)
 {
