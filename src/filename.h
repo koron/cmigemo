@@ -11,6 +11,7 @@ extern "C" {
 #endif
 
 size_t filename_directory(char *dir, size_t cap, const char *path);
+size_t filename_join(char *out, size_t cap, const char *dir, const char *file);
 
 #ifdef __cplusplus
 }

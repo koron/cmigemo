@@ -43,8 +43,28 @@ filename_directory(char *dir, size_t cap, const char *path)
     size_t len = p - path;
     if (cap >= len + 1 && dir)
     {
-        strncpy(dir, path, len);
+        memcpy(dir, path, len);
         dir[len] = '\0';
     }
     return len + 1;
+}
+
+size_t
+filename_join(char *out, size_t cap, const char *dir, const char *file)
+{
+    size_t len_d = my_strlen(dir);
+    // Strip trailing directory separators.
+    while (len_d > 0 && (dir[len_d - 1] == '/' || dir[len_d - 1] == '\\'))
+        len_d--;
+
+    size_t len_f = my_strlen(file);
+    size_t total = len_d + 1 + len_f + 1;
+    if (cap >= total && out)
+    {
+        memcpy(out, dir, len_d);
+        out[len_d] = '/';
+        memcpy(out + len_d + 1, file, len_f);
+        out[len_d + 1 + len_f] = '\0';
+    }
+    return total;
 }
