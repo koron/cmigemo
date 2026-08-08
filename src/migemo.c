@@ -438,7 +438,7 @@ parse_query(migemo *object, const unsigned char *query)
         // Register a phrase
         if (start && start < curr)
         {
-            *pp = wordlist_open_len(start, sum);
+            *pp = wordlist_new(start, sum);
             pp = &(*pp)->next;
         }
         if (*curr == '\0')
@@ -555,7 +555,7 @@ MIGEMO_QUERY_END:
         wordbuf_close(outbuf);
     }
     if (querylist)
-        wordlist_close(querylist);
+        wordlist_destroy(querylist);
 
     return retval;
 }
