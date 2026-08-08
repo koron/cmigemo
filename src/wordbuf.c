@@ -11,7 +11,8 @@
 
 #include "wordbuf.h"
 
-#define WORDLEN_DEF 64
+#define WORDBUF_DEFAULT_SIZE 64
+#define WORDBUF_MAX_SIZE     (8 * 1024 * 1024)
 
 int n_wordbuf_open = 0;  // for DEBUG
 int n_wordbuf_close = 0; // for DEBUG
@@ -20,15 +21,19 @@ wordbuf *
 wordbuf_open()
 {
     wordbuf *p = (wordbuf *)malloc(sizeof(wordbuf));
+    if (!p)
+        return NULL;
 
-    if (p)
+    p->len = WORDBUF_DEFAULT_SIZE;
+    p->buf = (unsigned char *)malloc(p->len);
+    if (!p->buf)
     {
-        ++n_wordbuf_open; // for DEBUG
-        p->len = WORDLEN_DEF;
-        p->buf = (unsigned char *)malloc(p->len);
-        p->last = 0;
-        p->buf[0] = '\0';
+        free(p);
+        return NULL;
     }
+    p->last = 0;
+    p->buf[0] = '\0';
+    ++n_wordbuf_open; // for DEBUG
     return p;
 }
 
@@ -49,6 +54,9 @@ wordbuf_close(wordbuf *p)
 int
 wordbuf_extend(wordbuf *p, int req_len)
 {
+    if (req_len > WORDBUF_MAX_SIZE || req_len < 0)
+        return 0;
+
     int newlen = p->len * 2;
     unsigned char *newbuf;
 
@@ -76,19 +84,19 @@ wordbuf_last(wordbuf *p)
 int
 wordbuf_cat(wordbuf *p, const unsigned char *sz)
 {
-    int len = 0;
+    size_t len = 0;
 
     if (sz != NULL)
     {
         size_t l = strlen(sz);
-        len = l < INT_MAX ? (int)l : INT_MAX;
+        len = l < INT_MAX ? l : INT_MAX;
     }
 
     if (len > 0)
     {
-        int newlen = p->last + len + 1;
+        size_t newlen = (size_t)p->last + len + 1;
 
-        if (newlen > p->len && !wordbuf_extend(p, newlen))
+        if (newlen > p->len && !wordbuf_extend(p, (int)newlen))
             return 0;
         memcpy(&p->buf[p->last], sz, len + 1);
         p->last = p->last + len;
@@ -101,8 +109,8 @@ wordbuf_write_bytes(wordbuf *buf, const unsigned char *p, size_t len)
 {
     if (p != NULL && len > 0)
     {
-        int newlen = buf->last + (int)len + 1;
-        if (newlen > buf->len && !wordbuf_extend(buf, newlen))
+        size_t newlen = buf->last + (int)len + 1;
+        if (newlen > buf->len && !wordbuf_extend(buf, (int)newlen))
             return 0;
         memcpy(&buf->buf[buf->last], p, len);
         buf->last = buf->last + (int)len;
