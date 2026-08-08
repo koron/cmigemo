@@ -33,8 +33,8 @@
 
 #define RNODE_BLOCK_SIZE 1024
 
-typedef struct _rnode rnode;
-struct _rnode
+typedef struct rnode rnode;
+struct rnode
 {
     rnode *low, *high;
     rnode *child;
@@ -57,7 +57,7 @@ typedef struct rnode_arena
     rnode_block *curr;
 } rnode_arena;
 
-struct _rxgen
+struct rxgen
 {
     rnode *root;
     rnode_arena arena;

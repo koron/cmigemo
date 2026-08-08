@@ -6,7 +6,7 @@
 
 #pragma once
 
-typedef struct _rxgen rxgen;
+typedef struct rxgen rxgen;
 typedef int (*rxgen_proc_char2int)(const unsigned char *, unsigned int *);
 typedef int (*rxgen_proc_int2char)(unsigned int, unsigned char *);
 #define RXGEN_PROC_CHAR2INT rxgen_proc_char2int
