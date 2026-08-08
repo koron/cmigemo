@@ -236,7 +236,7 @@ migemo_open(const char *dict)
         const char *tmp;
         mtree *mt;
 
-        filename_directory(dir, dict);
+        filename_directory(dir, _MAX_PATH, dict);
         tmp = strlen(dir) ? dir : ".";
         dircat(roma_dict, tmp, DICT_ROMA2HIRA);
         dircat(kata_dict, tmp, DICT_HIRA2KATA);
