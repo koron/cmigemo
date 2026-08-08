@@ -160,7 +160,7 @@ mnode_delete(mnode *p)
         mnode *child = p->child;
 
         if (p->list)
-            wordlist_close(p->list);
+            wordlist_destroy(p->list);
         if (p->low)
             mnode_delete(p->low);
         if (p->high)
@@ -376,7 +376,7 @@ mnode_load(mtree *mt, FILE *fp)
                     case '\t':
                     case '\n':
                         // Store word
-                        *ppword = wordlist_open_len(
+                        *ppword = wordlist_new(
                                 WORDBUF_GET(buf), WORDBUF_LEN(buf));
                         wordbuf_reset(buf);
 

@@ -15,45 +15,31 @@ int n_wordlist_close = 0;
 int n_wordlist_total = 0;
 
 wordlist *
-wordlist_open_len(const unsigned char *ptr, int len)
+wordlist_new(const unsigned char *ptr, int len)
 {
-    if (ptr && len >= 0)
-    {
-        wordlist *p;
+    if (!ptr || len < 0)
+        return NULL;
 
-        if ((p = (wordlist *)malloc(sizeof(*p) + len + 1)) != NULL)
-        {
-            p->ptr = (char *)(p + 1);
-            p->next = NULL;
-            // Implementation nearly equivalent to strdup(). Reimplemented
-            // manually because we need to know the total memory required to
-            // store the word.
-            memcpy(p->ptr, ptr, len);
-            p->ptr[len] = '\0';
+    wordlist *p = (wordlist *)malloc(sizeof(*p) + len + 1);
+    if (!p)
+        return NULL;
 
-            ++n_wordlist_open;
-            n_wordlist_total += len;
-        }
-        return p;
-    }
-    return NULL;
-}
+    p->ptr = (char *)(p + 1);
+    p->next = NULL;
 
-wordlist *
-wordlist_open(const unsigned char *ptr)
-{
-    wordlist *p = NULL;
-    if (ptr != NULL)
-    {
-        size_t len;
-        len = strlen(ptr);
-        p = wordlist_open_len(ptr, (len < INT_MAX ? (int)len : INT_MAX));
-    }
+    // Implementation nearly equivalent to strdup(). Reimplemented manually
+    // because we need to know the total memory required to store the word.
+    memcpy(p->ptr, ptr, len);
+    p->ptr[len] = '\0';
+
+    ++n_wordlist_open;
+    n_wordlist_total += len;
+
     return p;
 }
 
 void
-wordlist_close(wordlist *p)
+wordlist_destroy(wordlist *p)
 {
     while (p)
     {

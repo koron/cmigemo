@@ -21,9 +21,8 @@ extern int n_wordlist_total;
 extern "C" {
 #endif
 
-wordlist *wordlist_open(const unsigned char *ptr);
-wordlist *wordlist_open_len(const unsigned char *ptr, int len);
-void wordlist_close(wordlist *p);
+wordlist *wordlist_new(const unsigned char *ptr, int len);
+void wordlist_destroy(wordlist *p);
 
 #ifdef __cplusplus
 }

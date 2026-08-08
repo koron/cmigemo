@@ -92,14 +92,6 @@ load_mtree_dictionary2(migemo *obj, const char *dict_file)
     return load_mtree_dictionary(obj->mtree, dict_file);
 }
 
-static void
-dircat(char *buf, const char *dir, const char *file)
-{
-    strcpy(buf, dir);
-    strcat(buf, "/");
-    strcat(buf, file);
-}
-
 // migemo interfaces
 
 /// Add a dictionary or a data file to the Migemo object.
@@ -236,12 +228,12 @@ migemo_open(const char *dict)
         const char *tmp;
         mtree *mt;
 
-        filename_directory(dir, dict);
+        filename_directory(dir, _MAX_PATH, dict);
         tmp = strlen(dir) ? dir : ".";
-        dircat(roma_dict, tmp, DICT_ROMA2HIRA);
-        dircat(kata_dict, tmp, DICT_HIRA2KATA);
-        dircat(h2z_dict, tmp, DICT_HAN2ZEN);
-        dircat(z2h_dict, tmp, DICT_ZEN2HAN);
+        filename_join(roma_dict, _MAX_PATH, tmp, DICT_ROMA2HIRA);
+        filename_join(kata_dict, _MAX_PATH, tmp, DICT_HIRA2KATA);
+        filename_join(h2z_dict, _MAX_PATH, tmp, DICT_HAN2ZEN);
+        filename_join(z2h_dict, _MAX_PATH, tmp, DICT_ZEN2HAN);
 
         mt = load_mtree_dictionary2(obj, dict);
         if (mt)
@@ -438,7 +430,7 @@ parse_query(migemo *object, const unsigned char *query)
         // Register a phrase
         if (start && start < curr)
         {
-            *pp = wordlist_open_len(start, sum);
+            *pp = wordlist_new(start, sum);
             pp = &(*pp)->next;
         }
         if (*curr == '\0')
@@ -555,7 +547,7 @@ MIGEMO_QUERY_END:
         wordbuf_close(outbuf);
     }
     if (querylist)
-        wordlist_close(querylist);
+        wordlist_destroy(querylist);
 
     return retval;
 }

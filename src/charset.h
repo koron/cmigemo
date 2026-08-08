@@ -30,7 +30,6 @@ int utf8_char2int(const unsigned char *in, unsigned int *out);
 int utf8_int2char(unsigned int in, unsigned char *out);
 
 int charset_detect_file(const char *path);
-int charset_detect_buf(const unsigned char *buf, int len);
 void charset_getproc(int charset, CHARSET_PROC_CHAR2INT *char2int,
         CHARSET_PROC_INT2CHAR *int2char);
 

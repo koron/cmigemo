@@ -10,12 +10,8 @@
 extern "C" {
 #endif
 
-int filename_base(char *base, const char *path);
-int filename_directory(char *dir, const char *path);
-int filename_extension(char *ext, const char *path);
-int filename_filename(char *name, const char *path);
-int filename_generate(
-        char *filepath, const char *dir, const char *base, const char *ext);
+size_t filename_directory(char *dir, size_t cap, const char *path);
+size_t filename_join(char *out, size_t cap, const char *dir, const char *file);
 
 #ifdef __cplusplus
 }
