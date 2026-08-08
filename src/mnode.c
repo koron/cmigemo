@@ -218,7 +218,7 @@ mnode_close(mtree_p mtree)
 }
 
 INLINE static mnode *
-search_or_new_mnode(mtree_p mtree, wordbuf_p buf)
+search_or_new_mnode(mtree_p mtree, wordbuf *buf)
 {
     // Add to the search tree once the label word is determined
     int ch;
@@ -268,8 +268,8 @@ mnode_load(mtree_p mtree, FILE *fp)
     mnode *pp = NULL;
     int mode = 0;
     int ch;
-    wordbuf_p buf;
-    wordbuf_p prevlabel;
+    wordbuf *buf;
+    wordbuf *prevlabel;
     wordlist_p *ppword = NULL; // To suppress warning for GCC
     // Variables for the input buffer
     unsigned char cache[MNODE_BUFSIZE];

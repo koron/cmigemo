@@ -516,7 +516,7 @@ migemo_query(migemo *object, const unsigned char *query)
 {
     unsigned char *retval = NULL;
     wordlist_p querylist = NULL;
-    wordbuf_p outbuf = NULL;
+    wordbuf *outbuf = NULL;
 
     if (object && object->rx && query)
     {

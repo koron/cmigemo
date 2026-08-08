@@ -16,10 +16,10 @@
 int n_wordbuf_open = 0;  // for DEBUG
 int n_wordbuf_close = 0; // for DEBUG
 
-wordbuf_p
+wordbuf *
 wordbuf_open()
 {
-    wordbuf_p p = (wordbuf_p)malloc(sizeof(wordbuf_t));
+    wordbuf *p = (wordbuf *)malloc(sizeof(wordbuf));
 
     if (p)
     {
@@ -33,7 +33,7 @@ wordbuf_open()
 }
 
 void
-wordbuf_close(wordbuf_p p)
+wordbuf_close(wordbuf *p)
 {
     if (p)
     {
@@ -43,11 +43,11 @@ wordbuf_close(wordbuf_p p)
     }
 }
 
-// wordbuf_extend(wordbuf_p p, int req_len);
+// wordbuf_extend(wordbuf * p, int req_len);
 //	Expand the buffer. Returns 0 on error.
 //	The caller decides whether to expand for performance.
 int
-wordbuf_extend(wordbuf_p p, int req_len)
+wordbuf_extend(wordbuf *p, int req_len)
 {
     int newlen = p->len * 2;
     unsigned char *newbuf;
@@ -68,13 +68,13 @@ wordbuf_extend(wordbuf_p p, int req_len)
 }
 
 int
-wordbuf_last(wordbuf_p p)
+wordbuf_last(wordbuf *p)
 {
     return p->last;
 }
 
 int
-wordbuf_cat(wordbuf_p p, const unsigned char *sz)
+wordbuf_cat(wordbuf *p, const unsigned char *sz)
 {
     int len = 0;
 
@@ -97,7 +97,7 @@ wordbuf_cat(wordbuf_p p, const unsigned char *sz)
 }
 
 int
-wordbuf_write_bytes(wordbuf_p buf, const unsigned char *p, size_t len)
+wordbuf_write_bytes(wordbuf *buf, const unsigned char *p, size_t len)
 {
     if (p != NULL && len > 0)
     {
@@ -112,7 +112,7 @@ wordbuf_write_bytes(wordbuf_p buf, const unsigned char *p, size_t len)
 }
 
 unsigned char *
-wordbuf_get(wordbuf_p p)
+wordbuf_get(wordbuf *p)
 {
     return p->buf;
 }
