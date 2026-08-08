@@ -40,42 +40,75 @@
 
 // romanode interfaces
 
-typedef struct _romanode romanode;
-struct _romanode
+#define ROMANODE_BLOCK_SIZE 1024
+
+typedef struct romanode romanode;
+struct romanode
 {
     unsigned char key;
-    unsigned char *value;
     romanode *next;
     romanode *child;
+
+    unsigned char *value;
+};
+
+typedef struct romanode_block romanode_block;
+struct romanode_block
+{
+    romanode_block *next;
+    size_t used;
+    romanode nodes[ROMANODE_BLOCK_SIZE];
+};
+
+typedef struct romanode_arena romanode_arena;
+struct romanode_arena
+{
+    romanode_block *head;
+    romanode_block *curr;
 };
 
 int n_romanode_new = 0;
-int n_romanode_delete = 0;
 
-INLINE static romanode *
-romanode_new()
+static romanode *
+romanode_arena_alloc(romanode_arena *arena, unsigned char key)
 {
-    ++n_romanode_new;
-    return (romanode *)calloc(1, sizeof(romanode));
+    if (!arena->curr || arena->curr->used >= ROMANODE_BLOCK_SIZE)
+    {
+        romanode_block *block =
+                (romanode_block *)calloc(1, sizeof(romanode_block));
+        if (!block)
+            return NULL;
+        if (!arena->head)
+            arena->head = block;
+        else
+            arena->curr->next = block;
+        arena->curr = block;
+    }
+    romanode *p = &arena->curr->nodes[arena->curr->used++];
+    p->key = key;
+    ++n_romanode_new; // FIXME: record to arena
+    return p;
 }
 
 static void
-romanode_delete(romanode *node)
+romanode_arena_free(romanode_arena *arena)
 {
-    while (node)
+    for (romanode_block *p = arena->head; p;)
     {
-        romanode *child = node->child;
-        if (node->next)
-            romanode_delete(node->next);
-        free(node->value);
-        free(node);
-        node = child;
-        ++n_romanode_delete;
+        romanode_block *next = p->next;
+        for (int i = 0; i < p->used; i++)
+            if (p->nodes[i].value)
+                free(p->nodes[i].value);
+        free(p);
+        p = next;
     }
+    arena->head = NULL;
+    arena->curr = NULL;
 }
 
 static romanode **
-romanode_dig(romanode **ref_node, const unsigned char *key)
+romanode_dig(
+        romanode_arena *arena, romanode **ref_node, const unsigned char *key)
 {
     if (!ref_node || !key || key[0] == '\0')
         return NULL;
@@ -83,11 +116,8 @@ romanode_dig(romanode **ref_node, const unsigned char *key)
     while (1)
     {
         if (!*ref_node)
-        {
-            if (!(*ref_node = romanode_new()))
+            if (!(*ref_node = romanode_arena_alloc(arena, *key)))
                 return NULL;
-            (*ref_node)->key = *key;
-        }
 
         if ((*ref_node)->key == *key)
         {
@@ -100,11 +130,12 @@ romanode_dig(romanode **ref_node, const unsigned char *key)
             ref_node = &(*ref_node)->next;
     }
 
-    if ((*ref_node)->child)
-    {
-        romanode_delete((*ref_node)->child);
-        (*ref_node)->child = 0;
-    }
+    // If a key shorter than an existing Romaji conversion key is registered,
+    // the node for the longer key is discarded as invalid.  The `value` field
+    // of the existing node being detached here is deallocated precisely when
+    // the arena is freed.
+    (*ref_node)->child = NULL;
+
     return ref_node;
 }
 
@@ -162,39 +193,15 @@ romanode_query(romanode *node, const unsigned char *key, int *skip,
     return node;
 }
 
-#if 0 // Unused
-    static void
-romanode_print_stub(romanode* node, unsigned char* p)
-{
-    static unsigned char buf[256];
-
-    if (!p)
-	p = &buf[0];
-    p[0] = node->key;
-    p[1] = '\0';
-    if (node->value)
-	printf("%s=%s\n", buf, node->value);
-    if (node->child)
-	romanode_print_stub(node->child, p + 1);
-    if (node->next)
-	romanode_print_stub(node->next, p);
-}
-
-    static void
-romanode_print(romanode* node)
-{
-    if (!node)
-	return;
-    romanode_print_stub(node, NULL);
-}
-#endif
-
 // romaji interfaces
 
-struct _romaji
+struct romaji
 {
     int verbose;
+
     romanode *node;
+    romanode_arena arena;
+
     unsigned char *fixvalue_xn;
     unsigned char *fixvalue_xtu;
     ROMAJI_PROC_CHAR2INT char2int;
@@ -222,8 +229,7 @@ romaji_close(romaji *object)
 {
     if (object)
     {
-        if (object->node)
-            romanode_delete(object->node);
+        romanode_arena_free(&object->arena);
         free(object->fixvalue_xn);
         free(object->fixvalue_xtu);
         free(object);
@@ -244,7 +250,7 @@ romaji_add_table(
     if (value_length == 0)
         return 2; // Too short value string
 
-    if (!(ref_node = romanode_dig(&object->node, key)))
+    if (!(ref_node = romanode_dig(&object->arena, &object->node, key)))
     {
         return 4; // Memory exhausted
     }

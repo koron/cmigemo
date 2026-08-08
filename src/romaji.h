@@ -6,7 +6,8 @@
 
 #pragma once
 
-typedef struct _romaji romaji;
+typedef struct romaji romaji;
+
 typedef int (*romaji_proc_char2int)(const unsigned char *, unsigned int *);
 #define ROMAJI_PROC_CHAR2INT romaji_proc_char2int
 
