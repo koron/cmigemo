@@ -14,20 +14,18 @@
 int
 cp932_char2int(const unsigned char *in, unsigned int *out)
 {
-    if (((0x81 <= in[0] && in[0] <= 0x9f) || (0xe0 <= in[0] && in[0] <= 0xf0))
-            && ((0x40 <= in[1] && in[1] <= 0x7e)
-                    || (0x80 <= in[1] && in[1] <= 0xfc)))
+    unsigned char c0 = in[0];
+    unsigned char c1 = c0 ? in[1] : 0;
+    if (((c0 >= 0x81 && c0 <= 0x9f) || (c0 >= 0xe0 && c0 <= 0xf0))
+            && (c1 >= 0x40 && c1 <= 0xfc && c1 != 0x7f))
     {
         if (out)
-            *out = (unsigned int)in[0] << 8 | (unsigned int)in[1];
+            *out = (unsigned int)c0 << 8 | (unsigned int)c1;
         return 2;
     }
-    else
-    {
-        if (out)
-            *out = in[0];
-        return 1;
-    }
+    if (out)
+        *out = c0;
+    return 1;
 }
 
 int
@@ -51,19 +49,18 @@ cp932_int2char(unsigned int in, unsigned char *out)
 int
 eucjp_char2int(const unsigned char *in, unsigned int *out)
 {
-    if ((in[0] == 0x8e && 0xa0 <= in[1] && in[1] <= 0xdf)
-            || (IS_EUC_RANGE(in[0]) && IS_EUC_RANGE(in[1])))
+    unsigned char c0 = in[0];
+    unsigned char c1 = c0 ? in[1] : 0;
+    if ((c0 == 0x8e && c1 >= 0xa0 && c1 <= 0xdf)
+            || (IS_EUC_RANGE(c0) && IS_EUC_RANGE(c1)))
     {
         if (out)
-            *out = (unsigned int)in[0] << 8 | (unsigned int)in[1];
+            *out = (unsigned int)c0 << 8 | (unsigned int)c1;
         return 2;
     }
-    else
-    {
-        if (out)
-            *out = in[0];
-        return 1;
-    }
+    if (out)
+        *out = c0;
+    return 1;
 }
 
 int
@@ -169,34 +166,12 @@ utf8_int2char(unsigned int in, unsigned char *out)
         }
         return 4;
     }
-    if (in < 0x4000000)
-    {
-        if (out)
-        {
-            out[0] = 0xf8 + (in >> 24);
-            out[1] = 0x80 + ((in >> 18) & 0x3f);
-            out[2] = 0x80 + ((in >> 12) & 0x3f);
-            out[3] = 0x80 + ((in >> 6) & 0x3f);
-            out[4] = 0x80 + ((in >> 0) & 0x3f);
-        }
-        return 5;
-    }
-    else
-    {
-        if (out)
-        {
-            out[0] = 0xf8 + (in >> 30);
-            out[1] = 0x80 + ((in >> 24) & 0x3f);
-            out[2] = 0x80 + ((in >> 18) & 0x3f);
-            out[3] = 0x80 + ((in >> 12) & 0x3f);
-            out[4] = 0x80 + ((in >> 6) & 0x3f);
-            out[5] = 0x80 + ((in >> 0) & 0x3f);
-        }
-        return 6;
-    }
+    // RFC 3629 specifies that a single UTF-8 character consists of up to 4
+    // bytes, so we adhere to that.
+    return 0;
 }
 
-int
+static int
 charset_detect_buf(const unsigned char *buf, int len)
 {
     int sjis = 0, smode = 0;
