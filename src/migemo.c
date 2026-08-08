@@ -34,10 +34,10 @@
 #endif
 
 // Migemo object
-struct _migemo
+struct migemo
 {
     int enable;
-    mtree_p mtree;
+    mtree *mtree;
     int charset;
     romaji *roma2hira;
     romaji *hira2kata;
@@ -58,19 +58,19 @@ my_strlen(const char *s)
     return len <= INT_MAX ? (int)len : INT_MAX;
 }
 
-static mtree_p
-load_mtree_dictionary(mtree_p mtree, const char *dict_file)
+static mtree *
+load_mtree_dictionary(mtree *mt, const char *dict_file)
 {
     FILE *fp;
 
     if ((fp = fopen(dict_file, "rt")) == NULL)
         return NULL; // Can't find file
-    mtree = mnode_load(mtree, fp);
+    mt = mnode_load(mt, fp);
     fclose(fp);
-    return mtree;
+    return mt;
 }
 
-static mtree_p
+static mtree *
 load_mtree_dictionary2(migemo *obj, const char *dict_file)
 {
     if (obj->charset == CHARSET_NONE)
@@ -135,11 +135,11 @@ migemo_load(migemo *obj, int dict_id, const char *dict_file)
     if (dict_id == MIGEMO_DICTID_MIGEMO)
     {
         // Load migemo dictionary
-        mtree_p mtree;
+        mtree *mt;
 
-        if ((mtree = load_mtree_dictionary2(obj, dict_file)) == NULL)
+        if ((mt = load_mtree_dictionary2(obj, dict_file)) == NULL)
             return MIGEMO_DICTID_INVALID;
-        obj->mtree = mtree;
+        obj->mtree = mt;
         obj->enable = 1;
         return dict_id; // Loaded successfully
     }
@@ -234,7 +234,7 @@ migemo_open(const char *dict)
         char h2z_dict[_MAX_PATH];
         char z2h_dict[_MAX_PATH];
         const char *tmp;
-        mtree_p mtree;
+        mtree *mt;
 
         filename_directory(dir, dict);
         tmp = strlen(dir) ? dir : ".";
@@ -243,10 +243,10 @@ migemo_open(const char *dict)
         dircat(h2z_dict, tmp, DICT_HAN2ZEN);
         dircat(z2h_dict, tmp, DICT_ZEN2HAN);
 
-        mtree = load_mtree_dictionary2(obj, dict);
-        if (mtree)
+        mt = load_mtree_dictionary2(obj, dict);
+        if (mt)
         {
-            obj->mtree = mtree;
+            obj->mtree = mt;
             obj->enable = 1;
             romaji_load(obj->roma2hira, roma_dict);
             romaji_load(obj->hira2kata, kata_dict);
@@ -289,7 +289,7 @@ migemo_addword(migemo *object, unsigned char *word)
 }
 
 static inline void
-add_mnode_words(migemo *object, wordlist_p list)
+add_mnode_words(migemo *object, wordlist *list)
 {
     for (; list; list = list->next)
         migemo_addword(object, list->ptr);
@@ -408,12 +408,12 @@ add_dubious_roma(migemo *object, rxgen *rx, unsigned char *query)
 /// Split the query into phrases. Phrases are typically separated by uppercase
 /// letters. A phrase starting with multiple uppercase letters is separated by
 /// non-uppercase characters.
-static wordlist_p
+static wordlist *
 parse_query(migemo *object, const unsigned char *query)
 {
     const unsigned char *curr = query;
     const unsigned char *start = NULL;
-    wordlist_p querylist = NULL, *pp = &querylist;
+    wordlist *querylist = NULL, **pp = &querylist;
 
     while (1)
     {
@@ -515,12 +515,12 @@ EXPORTS unsigned char *MIGEMO_CALLTYPE
 migemo_query(migemo *object, const unsigned char *query)
 {
     unsigned char *retval = NULL;
-    wordlist_p querylist = NULL;
-    wordbuf_p outbuf = NULL;
+    wordlist *querylist = NULL;
+    wordbuf *outbuf = NULL;
 
     if (object && object->rx && query)
     {
-        wordlist_p p;
+        wordlist *p;
 
         querylist = parse_query(object, query);
         if (querylist == NULL)

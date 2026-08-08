@@ -273,8 +273,8 @@ int
 romaji_load_stub(romaji *object, FILE *fp)
 {
     int mode, ch;
-    wordbuf_p buf_key;
-    wordbuf_p buf_value;
+    wordbuf *buf_key;
+    wordbuf *buf_value;
 
     buf_key = wordbuf_open();
     buf_value = wordbuf_open();
@@ -389,7 +389,7 @@ romaji_convert2(romaji *object, const unsigned char *string,
         unsigned char **ppstop, int ignorecase)
 {
     // Argument "ppstop" receive conversion stoped position.
-    wordbuf_p buf = NULL;
+    wordbuf *buf = NULL;
     unsigned char *lower = NULL;
     unsigned char *answer = NULL;
     const unsigned char *input = string;

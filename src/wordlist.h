@@ -6,11 +6,11 @@
 
 #pragma once
 
-typedef struct _wordlist_t wordlist_t, *wordlist_p;
-struct _wordlist_t
+typedef struct wordlist wordlist;
+struct wordlist
 {
     unsigned char *ptr;
-    wordlist_p next;
+    wordlist *next;
 };
 
 extern int n_wordlist_open;
@@ -21,9 +21,9 @@ extern int n_wordlist_total;
 extern "C" {
 #endif
 
-wordlist_p wordlist_open(const unsigned char *ptr);
-wordlist_p wordlist_open_len(const unsigned char *ptr, int len);
-void wordlist_close(wordlist_p p);
+wordlist *wordlist_open(const unsigned char *ptr);
+wordlist *wordlist_open_len(const unsigned char *ptr, int len);
+void wordlist_close(wordlist *p);
 
 #ifdef __cplusplus
 }

@@ -33,8 +33,8 @@
 
 #define RNODE_BLOCK_SIZE 1024
 
-typedef struct _rnode rnode;
-struct _rnode
+typedef struct rnode rnode;
+struct rnode
 {
     rnode *low, *high;
     rnode *child;
@@ -57,7 +57,7 @@ typedef struct rnode_arena
     rnode_block *curr;
 } rnode_arena;
 
-struct _rxgen
+struct rxgen
 {
     rnode *root;
     rnode_arena arena;
@@ -307,10 +307,10 @@ rxgen_rnode_count(rnode *node, int *childrenCount, int *brotherCount)
     }
 }
 
-static void rxgen_generate_stub(rxgen *object, wordbuf_t *buf, rnode *node);
+static void rxgen_generate_stub(rxgen *object, wordbuf *buf, rnode *node);
 
 static void
-rxgen_write_node_code(rxgen *object, wordbuf_t *buf, rnode *node)
+rxgen_write_node_code(rxgen *object, wordbuf *buf, rnode *node)
 {
     unsigned char bytes[6];
     int len = rxgen_call_int2char(object, node->code, bytes);
@@ -318,7 +318,7 @@ rxgen_write_node_code(rxgen *object, wordbuf_t *buf, rnode *node)
 }
 
 static void
-rxgen_write_node_no_children(rxgen *object, wordbuf_t *buf, rnode *node)
+rxgen_write_node_no_children(rxgen *object, wordbuf *buf, rnode *node)
 {
     if (node->low)
         rxgen_write_node_no_children(object, buf, node->low);
@@ -330,7 +330,7 @@ rxgen_write_node_no_children(rxgen *object, wordbuf_t *buf, rnode *node)
 
 static void
 rxgen_write_node_has_children(
-        rxgen *object, wordbuf_t *buf, rnode *node, bool *needOr)
+        rxgen *object, wordbuf *buf, rnode *node, bool *needOr)
 {
     if (node->low)
         rxgen_write_node_has_children(object, buf, node->low, needOr);
@@ -351,7 +351,7 @@ rxgen_write_node_has_children(
 }
 
 static void
-rxgen_generate_stub(rxgen *object, wordbuf_t *buf, rnode *node)
+rxgen_generate_stub(rxgen *object, wordbuf *buf, rnode *node)
 {
     // Check characteristics of the current level (number of siblings, number of
     // children)
@@ -487,7 +487,7 @@ unsigned char *
 rxgen_generate(rxgen *object)
 {
     unsigned char *answer = NULL;
-    wordbuf_t *buf;
+    wordbuf *buf;
 
     if (object && (buf = wordbuf_open()))
     {

@@ -10,19 +10,19 @@
 #include "wordlist.h"
 
 // Tree object
-typedef struct _mnode mnode;
-struct _mnode
+typedef struct mnode mnode;
+struct mnode
 {
     unsigned int attr;
     mnode *low, *high;
     mnode *child;
-    wordlist_p list;
+    wordlist *list;
 };
 #define MNODE_MASK_CH      0x000000FF
 #define MNODE_GET_CH(p)    ((unsigned char)(p)->attr)
 #define MNODE_SET_CH(p, c) ((p)->attr = (c))
 
-typedef struct _mtree_t mtree_t, *mtree_p;
+typedef struct mtree mtree;
 
 // for mnode_traverse()
 typedef void (*mnode_traverse_proc)(mnode *node, void *data);
@@ -35,14 +35,14 @@ extern int n_mnode_delete;
 extern "C" {
 #endif
 
-mtree_p mnode_open(FILE *fp);
-mtree_p mnode_load(mtree_p root, FILE *fp);
-void mnode_close(mtree_p p);
-mnode *mnode_query(mtree_p node, const unsigned char *query);
+mtree *mnode_open(FILE *fp);
+mtree *mnode_load(mtree *root, FILE *fp);
+void mnode_close(mtree *p);
+mnode *mnode_query(mtree *node, const unsigned char *query);
 void mnode_traverse(mnode *node, MNODE_TRAVERSE_PROC proc, void *data);
 
 // Mainly for debugging purposes
-void mnode_print(mtree_p mtree, unsigned char *p);
+void mnode_print(mtree *mt, unsigned char *p);
 
 #ifdef __cplusplus
 }
