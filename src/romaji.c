@@ -384,7 +384,7 @@ romaji_load(romaji *object, const unsigned char *filename)
 #endif
     if ((fp = fopen(filename, "rt")) != NULL)
     {
-        int result = result = romaji_load_stub(object, fp);
+        int result = romaji_load_stub(object, fp);
         fclose(fp);
         return result;
     }
