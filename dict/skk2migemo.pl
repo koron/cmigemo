@@ -1,11 +1,16 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 # vim:set ts=8 sts=4 sw=4 tw=0 et:
 #
 # conv.pl - Convert SKK-JISYO to migemo-dict
 #
 # Author:  MURAOKA Taro <koron.kaoriya@gmail.com>
 
-binmode STDOUT;
+use strict;
+use warnings;
+
+binmode STDOUT, ':utf8';
+binmode STDIN,  ':utf8';
+
 while (<>)
 {
     chomp;
@@ -29,7 +34,7 @@ while (<>)
 
     $value =~ s{^/}{};
     $value =~ s{/$}{};
-    @values = grep {
+    my @values = grep {
         # Remove lisp expressions.
         $_ !~ m/^\([a-zA-Z].*\)$/;
     } grep {
@@ -38,11 +43,10 @@ while (<>)
     } map {
         # Remove annotation
         s/;.*$//; $_;
-    } split(/\//, $value);
+    } split(/\s*\/\s*/, $value);
 
     # Output
-    if ($key ne '' and $#values >= 0)
-    {
-        print "$key\t" . join("\t", @values) . "\n";
+    if ($key ne '' and @values) {
+        print "$key\t" . join("\t", sort @values) . "\n";
     }
 }
