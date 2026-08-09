@@ -4,6 +4,8 @@
 //
 // Author:  MURAOKA Taro <koron.kaoriya@gmail.com>
 
+#include "common.h"
+
 #define NUM_TRIAL 10
 
 #include <stdio.h>

@@ -4,6 +4,8 @@
 //
 // Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
 
+#include "common.h"
+
 #include <ctype.h>
 #include <limits.h>
 #include <stdio.h>

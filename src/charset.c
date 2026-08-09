@@ -4,6 +4,8 @@
 //
 // Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
 
+#include "common.h"
+
 #define BUFLEN_DETECT 4096
 
 #include <limits.h>

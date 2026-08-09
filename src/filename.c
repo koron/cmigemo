@@ -4,6 +4,8 @@
 //
 // Written by:  Muraoka Taro  <koron.kaoriya@gmail.com>
 
+#include "common.h"
+
 #include <limits.h>
 #include <string.h>
 

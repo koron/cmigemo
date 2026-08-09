@@ -8,6 +8,14 @@ target_compile_definitions(
   romaji
   PRIVATE DICTDIR="${CMAKE_BINARY_DIR}/dict/utf-8" _DEBUG)
 
+if(MSVC)
+  set_target_properties(
+    romaji
+    PROPERTIES MSVC_RUNTIME_LIBRARY "MultiThreadedDebug")
+elseif(MINGW)
+  target_link_libraries(romaji PRIVATE ucrtbased)
+endif()
+
 #------------------------------------------------------------------------------
 # qspeed: profiling tool
 add_executable(
@@ -25,6 +33,14 @@ target_include_directories(qspeed PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_compile_definitions(
   qspeed
   PRIVATE DICTDIR="${CMAKE_BINARY_DIR}/dict/utf-8" _DEBUG)
+
+if(MSVC)
+  set_target_properties(
+    qspeed
+    PROPERTIES MSVC_RUNTIME_LIBRARY "MultiThreadedDebug")
+elseif(MINGW)
+  target_link_libraries(qspeed PRIVATE ucrtbased)
+endif()
 
 #------------------------------------------------------------------------------
 # Profiling target "profile": `cmake --build build --target profile`
