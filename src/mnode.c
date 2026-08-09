@@ -263,8 +263,6 @@ search_or_new_mnode(mtree *mt, wordbuf *buf)
         ++word;
     }
 
-    if (!res)
-        return NULL;
     return *res;
 }
 
@@ -431,15 +429,13 @@ mnode_open(FILE *fp)
     if (!mt)
         return NULL;
     mt->active = mt;
-    if (fp)
+    if (!fp)
+        return mt;
+    if (!mnode_load(mt, fp))
     {
-        if (!mnode_load(mt, fp))
-        {
-            mnode_close(mt);
-            return NULL;
-        }
+        mnode_close(mt);
+        return NULL;
     }
-
     return mt;
 }
 
