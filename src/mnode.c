@@ -230,6 +230,9 @@ search_or_new_mnode(mtree *mt, wordbuf *buf)
     mnode *root;
 
     word = WORDBUF_GET(buf);
+    if (!word || *word == '\0')
+        return NULL;
+
     root = mt->used > 0 ? &mt->nodes[0] : NULL;
     ppnext = &root;
     while ((ch = *word) != 0)
@@ -260,6 +263,8 @@ search_or_new_mnode(mtree *mt, wordbuf *buf)
         ++word;
     }
 
+    if (!res)
+        return NULL;
     return *res;
 }
 
@@ -423,13 +428,17 @@ mnode_open(FILE *fp)
     mtree *mt;
 
     mt = (mtree *)calloc(1, sizeof(*mt));
+    if (!mt)
+        return NULL;
     mt->active = mt;
-    if (mt && fp)
+    if (fp)
+    {
         if (!mnode_load(mt, fp))
         {
             mnode_close(mt);
             return NULL;
         }
+    }
 
     return mt;
 }
