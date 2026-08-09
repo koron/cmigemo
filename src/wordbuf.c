@@ -53,13 +53,13 @@ wordbuf_close(wordbuf *p)
 // wordbuf_extend(wordbuf * p, int req_len);
 //	Expand the buffer. Returns 0 on error.
 //	The caller decides whether to expand for performance.
-int
-wordbuf_extend(wordbuf *p, int req_len)
+size_t
+wordbuf_extend(wordbuf *p, size_t req_len)
 {
-    if (req_len > WORDBUF_MAX_SIZE || req_len < 0)
+    if (req_len > WORDBUF_MAX_SIZE)
         return 0;
 
-    int newlen = p->len * 2;
+    size_t newlen = p->len * 2;
     unsigned char *newbuf;
 
     while (req_len > newlen)
@@ -77,13 +77,13 @@ wordbuf_extend(wordbuf *p, int req_len)
     }
 }
 
-int
+size_t
 wordbuf_last(wordbuf *p)
 {
     return p->last;
 }
 
-int
+size_t
 wordbuf_cat(wordbuf *p, const unsigned char *sz)
 {
     size_t len = 0;
@@ -98,24 +98,24 @@ wordbuf_cat(wordbuf *p, const unsigned char *sz)
     {
         size_t newlen = (size_t)p->last + len + 1;
 
-        if (newlen > p->len && !wordbuf_extend(p, (int)newlen))
+        if (newlen > p->len && !wordbuf_extend(p, newlen))
             return 0;
         memcpy(&p->buf[p->last], sz, len + 1);
-        p->last = p->last + len;
+        p->last += len;
     }
     return p->last;
 }
 
-int
+size_t
 wordbuf_write_bytes(wordbuf *buf, const unsigned char *p, size_t len)
 {
     if (p != NULL && len > 0)
     {
-        size_t newlen = buf->last + (int)len + 1;
-        if (newlen > buf->len && !wordbuf_extend(buf, (int)newlen))
+        size_t newlen = buf->last + len + 1;
+        if (newlen > buf->len && !wordbuf_extend(buf, newlen))
             return 0;
         memcpy(&buf->buf[buf->last], p, len);
-        buf->last = buf->last + (int)len;
+        buf->last += len;
         buf->buf[buf->last] = '\0';
     }
     return buf->last;
