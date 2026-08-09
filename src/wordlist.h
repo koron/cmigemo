@@ -13,15 +13,15 @@ struct wordlist
     wordlist *next;
 };
 
-extern int n_wordlist_open;
-extern int n_wordlist_close;
-extern int n_wordlist_total;
+extern size_t n_wordlist_open;
+extern size_t n_wordlist_close;
+extern size_t n_wordlist_total;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-wordlist *wordlist_new(const unsigned char *ptr, int len);
+wordlist *wordlist_new(const unsigned char *ptr, size_t len);
 void wordlist_destroy(wordlist *p);
 
 #ifdef __cplusplus

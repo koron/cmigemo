@@ -12,14 +12,14 @@
 
 #include "wordlist.h"
 
-int n_wordlist_open = 0;
-int n_wordlist_close = 0;
-int n_wordlist_total = 0;
+size_t n_wordlist_open = 0;
+size_t n_wordlist_close = 0;
+size_t n_wordlist_total = 0;
 
 wordlist *
-wordlist_new(const unsigned char *ptr, int len)
+wordlist_new(const unsigned char *ptr, size_t len)
 {
-    if (!ptr || len < 0)
+    if (!ptr)
         return NULL;
 
     wordlist *p = (wordlist *)malloc(sizeof(*p) + len + 1);
@@ -31,7 +31,8 @@ wordlist_new(const unsigned char *ptr, int len)
 
     // Implementation nearly equivalent to strdup(). Reimplemented manually
     // because we need to know the total memory required to store the word.
-    memcpy(p->ptr, ptr, len);
+    if (len > 0)
+        memcpy(p->ptr, ptr, len);
     p->ptr[len] = '\0';
 
     ++n_wordlist_open;
