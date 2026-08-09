@@ -1,4 +1,4 @@
-name: CI on Windows (UCRT64)
+name: CI on Windows (MSYS2)
 
 on:
   workflow_call:
@@ -20,12 +20,13 @@ jobs:
       uses: msys2/setup-msys2@66cd2cce69caa17b53920067426061ca1de3a884 # v2.32.0
       id: msys2
       with:
-        msystem: UCRT64
+        msystem: MSYS
         update:  true
         release: false
         pacboy: >-
-          cmake:p
-          gcc:p
+          cmake:
+          make:
+          gcc:
           iconv:
           gzip:
           perl:
@@ -47,7 +48,7 @@ jobs:
       shell: msys2 {0}
       run: |
         cmake --build build --target profile
-        mv build/profile.log build/profile-windows-ucrt64-amd64.log
+        mv build/profile.log build/profile-windows-msys-amd64.log
 
     - name: Packaging
       shell: msys2 {0}
