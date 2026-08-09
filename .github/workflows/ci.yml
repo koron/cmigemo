@@ -27,3 +27,8 @@ jobs:
     name: Windows (MSVC)
     uses: ./.github/workflows/ci-windows-msvc.yml
     secrets: inherit
+
+  windows-msys2:
+    name: Windows (MSYS2)
+    uses: ./.github/workflows/ci-windows-msys2.yml
+    secrets: inherit

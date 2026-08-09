@@ -3,10 +3,6 @@ name: CI on macOS
 on:
   workflow_call:
 
-concurrency:
-  group: ci-macos-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
 
   build:
@@ -29,7 +25,7 @@ jobs:
 
     - name: Build
       run: |
-        cmake -B build
+        cmake -B build -DCMAKE_BUILD_TYPE=Release
         cmake --build build --parallel
 
     - name: Test
@@ -37,7 +33,6 @@ jobs:
 
     - name: Packaging
       run: |
-        cmake -B build -DCMAKE_BUILD_TYPE=Release
         cmake --build build --target package --parallel
 
     - name: List files in build

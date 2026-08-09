@@ -3,10 +3,6 @@ name: CI on Windows (MSVC)
 on:
   workflow_call:
 
-concurrency:
-  group: ci-windows-msvc-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
 
   build:
