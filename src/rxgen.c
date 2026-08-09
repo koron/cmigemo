@@ -4,6 +4,8 @@
 //
 // Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
 
+#include "common.h"
+
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
