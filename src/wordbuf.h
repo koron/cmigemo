@@ -9,8 +9,8 @@
 typedef struct wordbuf wordbuf;
 struct wordbuf
 {
-    int len;  // amount of memory allocated to buf
-    int last; // length of the string actually stored in buf
+    size_t len;  // amount of memory allocated to buf
+    size_t last; // length of the string actually stored in buf
     unsigned char *buf;
 };
 
@@ -27,10 +27,10 @@ extern "C" {
 
 wordbuf *wordbuf_open();
 void wordbuf_close(wordbuf *p);
-int wordbuf_extend(wordbuf *p, int len);
-int wordbuf_last(wordbuf *p);
-int wordbuf_cat(wordbuf *p, const unsigned char *sz);
-int wordbuf_write_bytes(wordbuf *buf, const unsigned char *p, size_t len);
+size_t wordbuf_extend(wordbuf *p, size_t len);
+size_t wordbuf_last(wordbuf *p);
+size_t wordbuf_cat(wordbuf *p, const unsigned char *sz);
+size_t wordbuf_write_bytes(wordbuf *buf, const unsigned char *p, size_t len);
 unsigned char *wordbuf_get(wordbuf *p);
 
 #ifdef __cplusplus
@@ -44,10 +44,10 @@ wordbuf_reset(wordbuf *p)
     p->buf[0] = '\0';
 }
 
-static inline int
+static inline size_t
 wordbuf_add(wordbuf *p, unsigned char ch)
 {
-    int newlen = p->last + 2;
+    size_t newlen = p->last + 2;
     if (newlen > p->len)
         if (!wordbuf_extend(p, newlen))
             return 0;
