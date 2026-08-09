@@ -437,7 +437,7 @@ romaji_convert2(romaji *object, const unsigned char *string,
             {
                 if (string[i])
                 {
-                    stop = WORDBUF_LEN(buf);
+                    stop = (int)WORDBUF_LEN(buf);
                     wordbuf_cat(buf, &string[i]);
                 }
                 break;
