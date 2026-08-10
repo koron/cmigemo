@@ -5,6 +5,13 @@
 
 #include "migemo.h"
 
+#ifndef TEST_DICTDIR_MIGEMO
+# define TEST_DICTDIR_MIGEMO "test1"
+#endif
+#ifndef TEST_DICTDIR_ROMA2HIRA
+# define TEST_DICTDIR_ROMA2HIRA "../dict"
+#endif
+
 static int
 assert_query(migemo *p, const char *q, const char *ex)
 {
@@ -42,16 +49,18 @@ test1(void)
     int r;
     migemo *p;
 
-    p = migemo_open("test1/migemo-dict");
+    p = migemo_open(TEST_DICTDIR_MIGEMO "/migemo-dict");
     if (p == NULL)
     {
         printf("Failed: can't create migemo object and get its pointer\n");
         return 1;
     }
-    r = migemo_load(p, MIGEMO_DICTID_ROMA2HIRA, "../dict/roma2hira.dat");
+    r = migemo_load(p, MIGEMO_DICTID_ROMA2HIRA,
+            TEST_DICTDIR_ROMA2HIRA "/roma2hira.dat");
     if (r != MIGEMO_DICTID_ROMA2HIRA)
     {
-        printf("Failed: can't load \"../dict/roma2hira.dat (%d)\n",
+        printf("Failed: can't load \"%s\" (dict_id: %d)\n",
+                TEST_DICTDIR_ROMA2HIRA "/roma2hira.dat",
                 MIGEMO_DICTID_ROMA2HIRA);
         return r;
     }
