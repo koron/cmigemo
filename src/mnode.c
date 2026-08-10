@@ -144,7 +144,7 @@ mnode_print_stat(const mnode_stat *stat)
 #endif
 
 static mnode *
-mnode_arena_alloc(mnode_arena *arena)
+mnode_arena_alloc(mnode_arena *arena, unsigned int code)
 {
     if (!arena->curr || arena->curr->used >= MNODE_BLOCK_SIZE)
     {
@@ -158,6 +158,7 @@ mnode_arena_alloc(mnode_arena *arena)
         arena->curr = block;
     }
     mnode *p = &arena->curr->nodes[arena->curr->used++];
+    p->attr = code;
     return p;
 }
 
@@ -178,7 +179,7 @@ mnode_arena_free(mnode_arena *arena)
 }
 
 void
-mnode_print_stub(mnode *vp, unsigned char *p)
+mnode_print_stub(mtree *mt, mnode *vp, unsigned char *p)
 {
     static unsigned char buf[256];
 
@@ -186,23 +187,23 @@ mnode_print_stub(mnode *vp, unsigned char *p)
         return;
     if (!p)
         p = &buf[0];
-    p[0] = MNODE_GET_CH(vp);
-    p[1] = '\0';
+    int len = mt->int2char(vp->attr, p);
+    p[len] = '\0';
     if (vp->list)
         printf("%s (list=%p)\n", buf, vp->list);
     if (vp->child)
-        mnode_print_stub(vp->child, p + 1);
+        mnode_print_stub(mt, vp->child, p + len);
     if (vp->low)
-        mnode_print_stub(vp->low, p);
+        mnode_print_stub(mt, vp->low, p);
     if (vp->high)
-        mnode_print_stub(vp->high, p);
+        mnode_print_stub(mt, vp->high, p);
 }
 
 void
 mnode_print(mtree *mt, unsigned char *p)
 {
     if (mt && mt->rootnode)
-        mnode_print_stub(mt->rootnode, p);
+        mnode_print_stub(mt, mt->rootnode, p);
 }
 
 void
@@ -215,46 +216,60 @@ mnode_close(mtree *mt)
     }
 }
 
+// decode_rune decodes a single rune from a string. Returns the number of bytes
+// consumed. Always consumes one byte, even for invalid byte sequences.
+static inline int
+decode_rune(mtree *mt, const unsigned char **pp)
+{
+    unsigned int code = 0;
+    int len = mt->char2int(*pp, &code);
+    if (len == 0)
+        len = charset_none_char2int(*pp, &code);
+    *pp += len;
+    return code;
+}
+
 static mnode *
 search_or_new_mnode(mtree *mt, wordbuf *buf)
 {
     // Add to the search tree once the label word is determined
-    int ch;
-    unsigned char *word;
-    mnode **ppnext;
-    mnode **res = NULL; // To suppress warning for GCC
+    mnode **res = NULL;
 
-    word = WORDBUF_GET(buf);
-    if (!word || *word == '\0')
+    const unsigned char *word = WORDBUF_GET(buf);
+    if (!word)
+        return NULL;
+    unsigned int code = decode_rune(mt, &word);
+    if (code == 0)
         return NULL;
 
-    ppnext = &mt->rootnode;
-    while ((ch = *word) != 0)
+    mnode **ppnext = &mt->rootnode;
+    while (1)
     {
         res = ppnext;
         if (!*res)
         {
-            *res = mnode_arena_alloc(&mt->arena);
+            *res = mnode_arena_alloc(&mt->arena, code);
             if (!(*res))
                 return NULL;
-            MNODE_SET_CH(*res, ch);
         }
         else
         {
-            int pivot = MNODE_GET_CH(*res);
-            if (ch < pivot)
+            int pivot = (*res)->attr;
+            if (code < pivot)
             {
                 ppnext = &(*res)->low;
                 continue;
             }
-            else if (ch > pivot)
+            else if (code > pivot)
             {
                 ppnext = &(*res)->high;
                 continue;
             }
         }
         ppnext = &(*res)->child;
-        ++word;
+        code = decode_rune(mt, &word);
+        if (code == 0)
+            break;
     }
 
     return *res;
@@ -408,10 +423,10 @@ END_MNODE_LOAD:
     wordbuf_close(buf);
     wordbuf_close(prevlabel);
 #if MNODE_DEBUG_STAT
-    if (mt && mt->used > 0)
+    if (mt && mt->rootnode)
     {
         mnode_stat st;
-        mnode_debug_stat(&mt->nodes[0], &st);
+        mnode_debug_stat(mt->rootnode, &st);
         mnode_print_stat(&st);
     }
 #endif
@@ -428,29 +443,31 @@ mnode_open(void)
     return mt;
 }
 
-static mnode *
-mnode_query_stub(mnode *node, const unsigned char *query)
-{
-    int pivot = MNODE_GET_CH(node);
-
-    if (*query < pivot)
-        return node->low ? mnode_query_stub(node->low, query) : NULL;
-    else if (*query > pivot)
-        return node->high ? mnode_query_stub(node->high, query) : NULL;
-    else
-    {
-        if (*++query == '\0')
-            return node;
-        return node->child ? mnode_query_stub(node->child, query) : NULL;
-    }
-}
-
 mnode *
 mnode_query(mtree *mt, const unsigned char *query)
 {
-    if (!mt || !mt->rootnode || !query || *query == '\0')
-        return 0;
-    return mnode_query_stub(mt->rootnode, query);
+    if (!mt || !mt->rootnode || !query)
+        return NULL;
+
+    unsigned int code = decode_rune(mt, &query);
+    if (code == 0)
+        return NULL;
+    mnode *node = mt->rootnode;
+
+    while (node)
+    {
+        // Search from siblings
+        while (node != NULL && code != node->attr)
+            node = code < node->attr ? node->low : node->high;
+        if (!node)
+            break; // Not found the rune.
+        // Proceed to the child node
+        code = decode_rune(mt, &query);
+        if (code == 0)
+            break; // Found the node.
+        node = node->child;
+    }
+    return node;
 }
 
 static void

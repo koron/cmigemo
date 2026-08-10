@@ -376,7 +376,6 @@ romaji_load(romaji *object, const unsigned char *filename,
         CHARSET_PROC_CHAR2INT char2int)
 {
     FILE *fp;
-    int charset;
     if (!object || !filename)
         return -1;
     object->char2int = char2int;

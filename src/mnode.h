@@ -18,9 +18,6 @@ struct mnode
     mnode *child;
     wordlist *list;
 };
-#define MNODE_MASK_CH      0x000000FF
-#define MNODE_GET_CH(p)    ((unsigned char)(p)->attr)
-#define MNODE_SET_CH(p, c) ((p)->attr = (c))
 
 typedef struct mtree mtree;
 
