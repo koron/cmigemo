@@ -13,6 +13,7 @@
 
 #include "charset.h"
 #include "mnode.h"
+#include "trie.h"
 #include "wordbuf.h"
 #include "wordlist.h"
 
@@ -42,24 +43,9 @@ struct mtree
     CHARSET_PROC_INT2CHAR int2char;
 };
 
-typedef struct
-{
-    size_t total_nodes;
-    size_t low_count;
-    size_t high_count;
-    size_t child_count;
-    size_t word_count;
-
-    int max_sibling_depth;
-    size_t total_sibling_depth;
-
-    int max_word_cmp_count;
-    size_t total_word_cmp_count;
-} mnode_stat;
-
 static void
 mnode_debug_stat_stub(
-        mnode *node, mnode_stat *stat, int sib_depth, int total_cmp)
+        mnode *node, trie_stat *stat, int sib_depth, int total_cmp)
 {
     if (!node)
         return;
@@ -78,10 +64,10 @@ mnode_debug_stat_stub(
 
     if (node->list)
     {
-        stat->word_count++;
-        stat->total_word_cmp_count += total_cmp;
-        if (total_cmp > stat->max_word_cmp_count)
-            stat->max_word_cmp_count = total_cmp;
+        stat->wordtail_count++;
+        stat->total_node_cmp_count += total_cmp;
+        if (total_cmp > stat->max_node_cmp_count)
+            stat->max_node_cmp_count = total_cmp;
     }
 
     // recursive calls for low, high, and child nodes.
@@ -94,7 +80,7 @@ mnode_debug_stat_stub(
 }
 
 static void
-mnode_debug_stat(mnode *root, mnode_stat *stat)
+mnode_debug_stat(mnode *root, trie_stat *stat)
 {
     if (!stat)
         return;
@@ -113,35 +99,10 @@ mnode_print_stat(mtree *mt)
         return;
     }
 
-    mnode_stat v, *stat = &v;
-    mnode_debug_stat(mt->rootnode, stat);
+    trie_stat stat;
+    mnode_debug_stat(mt->rootnode, &stat);
 
-    printf("=== mnode statistics ===\n");
-    printf("Total Nodes          : %zu\n", stat->total_nodes);
-    printf("Word Nodes (list)    : %zu\n", stat->word_count);
-    printf("Pointer Counts       : low=%zu, high=%zu, child=%zu\n",
-            stat->low_count, stat->high_count, stat->child_count);
-    printf("Low/High Balance Ratio: %.2f%% / %.2f%%\n",
-            stat->low_count + stat->high_count > 0
-                    ? (double)stat->low_count
-                              / (stat->low_count + stat->high_count) * 100.0
-                    : 0.0,
-            stat->low_count + stat->high_count > 0
-                    ? (double)stat->high_count
-                              / (stat->low_count + stat->high_count) * 100.0
-                    : 0.0);
-
-    printf("Sibling Depth        : max=%d, avg=%.2f\n", stat->max_sibling_depth,
-            stat->total_nodes > 0
-                    ? (double)stat->total_sibling_depth / stat->total_nodes
-                    : 0.0);
-
-    printf("Word Compare Count   : max=%d, avg=%.2f\n",
-            stat->max_word_cmp_count,
-            stat->word_count > 0
-                    ? (double)stat->total_word_cmp_count / stat->word_count
-                    : 0.0);
-    printf("======================\n");
+    trie_stat_print(&stat, "mnode statistics");
 }
 
 static mnode *

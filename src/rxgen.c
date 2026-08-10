@@ -12,6 +12,7 @@
 #include <string.h>
 
 #include "rxgen.h"
+#include "trie.h"
 #include "wordbuf.h"
 
 #if defined(_MSC_VER)
@@ -19,9 +20,6 @@
 #else
 # define STRDUP strdup
 #endif
-
-#define RXGEN_ENC_SJISTINY
-// #define RXGEN_OP_VIM
 
 #define RXGEN_OP_MAXLEN     8
 #define RXGEN_OP_OR         "|"
@@ -168,11 +166,6 @@ default_int2char(unsigned int in, unsigned char *out)
         case '^':
         case '$':
         case '/':
-#ifdef RXGEN_OP_VIM
-        case '[':
-        case ']':
-        case '~':
-#endif
             if (out)
                 out[len] = '\\';
             ++len;
@@ -400,24 +393,9 @@ rxgen_generate_stub(rxgen *object, wordbuf *buf, rnode *node)
 
 #if RXGEN_DEBUG_STAT
 
-typedef struct
-{
-    size_t total_nodes;
-    size_t low_count;
-    size_t high_count;
-    size_t child_count;
-    size_t wordtail_count;
-
-    int max_sibling_depth;
-    size_t total_sibling_depth;
-
-    int max_node_cmp_count;
-    size_t total_node_cmp_count;
-} rnode_stat;
-
 static void
 rnode_debug_stat_stub(
-        rnode *node, rnode_stat *stat, int sib_depth, int total_cmp)
+        rnode *node, trie_stat *stat, int sib_depth, int total_cmp)
 {
     if (!node)
         return;
@@ -451,36 +429,13 @@ rnode_debug_stat_stub(
 static void
 rnode_debug_stat(rnode *root)
 {
-    rnode_stat stat;
+    trie_stat stat;
     memset(&stat, 0, sizeof(stat));
     if (!root)
         return;
 
     rnode_debug_stat_stub(root, &stat, 0, 1);
-
-    printf("=== rnode statistics ===\n");
-    printf("Total Nodes          : %zu\n", stat.total_nodes);
-    printf("Wordtail Nodes       : %zu\n", stat.wordtail_count);
-    printf("Pointer Counts       : low=%zu, high=%zu, child=%zu\n",
-            stat.low_count, stat.high_count, stat.child_count);
-    printf("Low/High Balance Ratio: %.2f%% / %.2f%%\n",
-            stat.low_count + stat.high_count > 0
-                    ? (double)stat.low_count
-                              / (stat.low_count + stat.high_count) * 100.0
-                    : 0.0,
-            stat.low_count + stat.high_count > 0
-                    ? (double)stat.high_count
-                              / (stat.low_count + stat.high_count) * 100.0
-                    : 0.0);
-    printf("Sibling Depth        : max=%d, avg=%.2f\n", stat.max_sibling_depth,
-            stat.total_nodes > 0
-                    ? (double)stat.total_sibling_depth / stat.total_nodes
-                    : 0.0);
-    printf("Node Compare Count   : max=%d, avg=%.2f\n", stat.max_node_cmp_count,
-            stat.total_nodes > 0
-                    ? (double)stat.total_node_cmp_count / stat.total_nodes
-                    : 0.0);
-    printf("======================\n");
+    trie_stat_print(&stat, "rnode statistics");
 }
 
 #endif

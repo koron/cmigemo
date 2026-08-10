@@ -14,6 +14,7 @@ add_library(
     mnode.c
     romaji.c
     rxgen.c
+    trie.c
     wordbuf.c
     wordlist.c)
 
