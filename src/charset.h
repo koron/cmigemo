@@ -22,12 +22,15 @@ typedef int (*charset_proc_int2char)(unsigned int, unsigned char *);
 extern "C" {
 #endif
 
-int cp932_char2int(const unsigned char *in, unsigned int *out);
-int cp932_int2char(unsigned int in, unsigned char *out);
-int eucjp_char2int(const unsigned char *in, unsigned int *out);
-int eucjp_int2char(unsigned int in, unsigned char *out);
-int utf8_char2int(const unsigned char *in, unsigned int *out);
-int utf8_int2char(unsigned int in, unsigned char *out);
+int charset_none_char2int(const unsigned char *in, unsigned int *out);
+int charset_none_int2char(unsigned int in, unsigned char *out);
+
+int charset_cp932_char2int(const unsigned char *in, unsigned int *out);
+int charset_cp932_int2char(unsigned int in, unsigned char *out);
+int charset_eucjp_char2int(const unsigned char *in, unsigned int *out);
+int charset_eucjp_int2char(unsigned int in, unsigned char *out);
+int charset_utf8_char2int(const unsigned char *in, unsigned int *out);
+int charset_utf8_int2char(unsigned int in, unsigned char *out);
 
 int charset_detect_file(const char *path);
 void charset_getproc(int charset, CHARSET_PROC_CHAR2INT *char2int,

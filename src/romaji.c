@@ -372,16 +372,13 @@ romaji_load_stub(romaji *object, FILE *fp)
 /// @param filename Dictionary filename
 /// @return 0 on success, non-zero on failure.
 int
-romaji_load(romaji *object, const unsigned char *filename)
+romaji_load(romaji *object, const unsigned char *filename,
+        CHARSET_PROC_CHAR2INT char2int)
 {
     FILE *fp;
-    int charset;
     if (!object || !filename)
         return -1;
-#if 1
-    charset = charset_detect_file(filename);
-    charset_getproc(charset, (CHARSET_PROC_CHAR2INT *)&object->char2int, NULL);
-#endif
+    object->char2int = char2int;
     if ((fp = fopen(filename, "rt")) != NULL)
     {
         int result = romaji_load_stub(object, fp);

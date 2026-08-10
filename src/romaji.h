@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include "charset.h"
+
 typedef struct romaji romaji;
 
 typedef int (*romaji_proc_char2int)(const unsigned char *, unsigned int *);
@@ -19,7 +21,8 @@ romaji *romaji_open();
 void romaji_close(romaji *object);
 int romaji_add_table(
         romaji *object, const unsigned char *key, const unsigned char *value);
-int romaji_load(romaji *object, const unsigned char *filename);
+int romaji_load(romaji *object, const unsigned char *filename,
+        CHARSET_PROC_CHAR2INT char2int);
 unsigned char *romaji_convert(
         romaji *object, const unsigned char *string, unsigned char **ppstop);
 unsigned char *romaji_convert2(romaji *object, const unsigned char *string,

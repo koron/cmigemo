@@ -14,7 +14,23 @@
 #include "charset.h"
 
 int
-cp932_char2int(const unsigned char *in, unsigned int *out)
+charset_none_char2int(const unsigned char *in, unsigned int *out)
+{
+    if (out)
+        *out = *in;
+    return 1;
+}
+
+int
+charset_none_int2char(unsigned int in, unsigned char *out)
+{
+    if (out)
+        *out = (unsigned char)in;
+    return 1;
+}
+
+int
+charset_cp932_char2int(const unsigned char *in, unsigned int *out)
 {
     unsigned char c0 = in[0];
     unsigned char c1 = c0 ? in[1] : 0;
@@ -31,7 +47,7 @@ cp932_char2int(const unsigned char *in, unsigned int *out)
 }
 
 int
-cp932_int2char(unsigned int in, unsigned char *out)
+charset_cp932_int2char(unsigned int in, unsigned char *out)
 {
     if (in >= 0x100)
     {
@@ -49,7 +65,7 @@ cp932_int2char(unsigned int in, unsigned char *out)
 #define IS_EUC_RANGE(c) (0xa1 <= (c) && (c) <= 0xfe)
 
 int
-eucjp_char2int(const unsigned char *in, unsigned int *out)
+charset_eucjp_char2int(const unsigned char *in, unsigned int *out)
 {
     unsigned char c0 = in[0];
     unsigned char c1 = c0 ? in[1] : 0;
@@ -66,7 +82,7 @@ eucjp_char2int(const unsigned char *in, unsigned int *out)
 }
 
 int
-eucjp_int2char(unsigned int in, unsigned char *out)
+charset_eucjp_int2char(unsigned int in, unsigned char *out)
 {
     // Same as CP932, but separated to support JISX0213 in the future
     if (in >= 0x100)
@@ -83,7 +99,7 @@ eucjp_int2char(unsigned int in, unsigned char *out)
 }
 
 int
-utf8_char2int(const unsigned char *in, unsigned int *out)
+charset_utf8_char2int(const unsigned char *in, unsigned int *out)
 {
     if (!(in[0] & 0x80))
     {
@@ -134,7 +150,7 @@ utf8_char2int(const unsigned char *in, unsigned int *out)
 }
 
 int
-utf8_int2char(unsigned int in, unsigned char *out)
+charset_utf8_int2char(unsigned int in, unsigned char *out)
 {
     if (in < 0x80)
         return 0;
@@ -255,6 +271,9 @@ charset_detect_buf(const unsigned char *buf, int len)
         return CHARSET_NONE;
 }
 
+// character returns a character set encoder/decoder. Even for invalid
+// character sets, it returns a primitive encoder and decoder that function on
+// a single-byte basis.
 void
 charset_getproc(int charset, CHARSET_PROC_CHAR2INT *char2int,
         CHARSET_PROC_INT2CHAR *int2char)
@@ -264,18 +283,20 @@ charset_getproc(int charset, CHARSET_PROC_CHAR2INT *char2int,
     switch (charset)
     {
         case CHARSET_CP932:
-            c2i = cp932_char2int;
-            i2c = cp932_int2char;
+            c2i = charset_cp932_char2int;
+            i2c = charset_cp932_int2char;
             break;
         case CHARSET_EUCJP:
-            c2i = eucjp_char2int;
-            i2c = eucjp_int2char;
+            c2i = charset_eucjp_char2int;
+            i2c = charset_eucjp_int2char;
             break;
         case CHARSET_UTF8:
-            c2i = utf8_char2int;
-            i2c = utf8_int2char;
+            c2i = charset_utf8_char2int;
+            i2c = charset_utf8_int2char;
             break;
         default:
+            c2i = charset_none_char2int;
+            i2c = charset_none_int2char;
             break;
     }
     if (char2int)

@@ -11,31 +11,38 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "charset.h"
 #include "mnode.h"
 #include "wordbuf.h"
 #include "wordlist.h"
 
 #define MNODE_DEBUG_STAT 0
 
-#define MTREE_MNODE_N 1024
-struct mtree
+#define MNODE_BUFSIZE    16384
+#define MNODE_BLOCK_SIZE 1024
+
+typedef struct mnode_block mnode_block;
+struct mnode_block
 {
-    mtree *active;
-    int used;
-    mnode nodes[MTREE_MNODE_N];
-    mtree *next;
+    mnode_block *next;
+    size_t used;
+    mnode nodes[MNODE_BLOCK_SIZE];
 };
 
-#define MNODE_BUFSIZE 16384
+typedef struct mnode_arena
+{
+    mnode_block *head;
+    mnode_block *curr;
+} mnode_arena;
 
-#if defined(_MSC_VER) || defined(__GNUC__)
-# define INLINE __inline
-#else
-# define INLINE
-#endif
+struct mtree
+{
+    mnode *rootnode;
+    mnode_arena arena;
 
-int n_mnode_new = 0;
-int n_mnode_delete = 0;
+    CHARSET_PROC_CHAR2INT char2int;
+    CHARSET_PROC_INT2CHAR int2char;
+};
 
 #if MNODE_DEBUG_STAT
 
@@ -136,44 +143,43 @@ mnode_print_stat(const mnode_stat *stat)
 }
 #endif
 
-INLINE static mnode *
-mnode_new(mtree *mt)
+static mnode *
+mnode_arena_alloc(mnode_arena *arena, unsigned int code)
 {
-    mtree *active = mt->active;
-
-    if (active->used >= MTREE_MNODE_N)
+    if (!arena->curr || arena->curr->used >= MNODE_BLOCK_SIZE)
     {
-        mtree *p = (mtree *)calloc(1, sizeof(*active->next));
-        if (!p)
+        mnode_block *block = (mnode_block *)calloc(1, sizeof(mnode_block));
+        if (!block)
             return NULL;
-        active->next = p;
-        mt->active = p;
-        active = p;
+        if (!arena->head)
+            arena->head = block;
+        else
+            arena->curr->next = block;
+        arena->curr = block;
     }
-    ++n_mnode_new;
-    return &active->nodes[active->used++];
+    mnode *p = &arena->curr->nodes[arena->curr->used++];
+    p->attr = code;
+    return p;
 }
 
 static void
-mnode_delete(mnode *p)
+mnode_arena_free(mnode_arena *arena)
 {
-    while (p)
+    for (mnode_block *b = arena->head; b;)
     {
-        mnode *child = p->child;
-
-        if (p->list)
-            wordlist_destroy(p->list);
-        if (p->low)
-            mnode_delete(p->low);
-        if (p->high)
-            mnode_delete(p->high);
-        p = child;
-        ++n_mnode_delete;
+        mnode_block *next = b->next;
+        for (size_t i = 0; i < b->used; i++)
+            if (b->nodes[i].list)
+                wordlist_destroy(b->nodes[i].list);
+        free(b);
+        b = next;
     }
+    arena->head = NULL;
+    arena->curr = NULL;
 }
 
 void
-mnode_print_stub(mnode *vp, unsigned char *p)
+mnode_print_stub(mtree *mt, mnode *vp, unsigned char *p)
 {
     static unsigned char buf[256];
 
@@ -181,23 +187,23 @@ mnode_print_stub(mnode *vp, unsigned char *p)
         return;
     if (!p)
         p = &buf[0];
-    p[0] = MNODE_GET_CH(vp);
-    p[1] = '\0';
+    int len = mt->int2char(vp->attr, p);
+    p[len] = '\0';
     if (vp->list)
         printf("%s (list=%p)\n", buf, vp->list);
     if (vp->child)
-        mnode_print_stub(vp->child, p + 1);
+        mnode_print_stub(mt, vp->child, p + len);
     if (vp->low)
-        mnode_print_stub(vp->low, p);
+        mnode_print_stub(mt, vp->low, p);
     if (vp->high)
-        mnode_print_stub(vp->high, p);
+        mnode_print_stub(mt, vp->high, p);
 }
 
 void
 mnode_print(mtree *mt, unsigned char *p)
 {
-    if (mt && mt->used > 0)
-        mnode_print_stub(&mt->nodes[0], p);
+    if (mt && mt->rootnode)
+        mnode_print_stub(mt, mt->rootnode, p);
 }
 
 void
@@ -205,62 +211,65 @@ mnode_close(mtree *mt)
 {
     if (mt)
     {
-        mtree *next;
-
-        if (mt->used > 0)
-            mnode_delete(&mt->nodes[0]);
-
-        while (mt)
-        {
-            next = mt->next;
-            free(mt);
-            mt = next;
-        }
+        mnode_arena_free(&mt->arena);
+        free(mt);
     }
 }
 
-INLINE static mnode *
+// decode_rune decodes a single rune from a string. Returns the number of bytes
+// consumed. Always consumes one byte, even for invalid byte sequences.
+static inline int
+decode_rune(mtree *mt, const unsigned char **pp)
+{
+    unsigned int code = 0;
+    int len = mt->char2int(*pp, &code);
+    if (len == 0)
+        len = charset_none_char2int(*pp, &code);
+    *pp += len;
+    return code;
+}
+
+static mnode *
 search_or_new_mnode(mtree *mt, wordbuf *buf)
 {
     // Add to the search tree once the label word is determined
-    int ch;
-    unsigned char *word;
-    mnode **ppnext;
-    mnode **res = NULL; // To suppress warning for GCC
-    mnode *root;
+    mnode **res = NULL;
 
-    word = WORDBUF_GET(buf);
-    if (!word || *word == '\0')
+    const unsigned char *word = WORDBUF_GET(buf);
+    if (!word)
+        return NULL;
+    unsigned int code = decode_rune(mt, &word);
+    if (code == 0)
         return NULL;
 
-    root = mt->used > 0 ? &mt->nodes[0] : NULL;
-    ppnext = &root;
-    while ((ch = *word) != 0)
+    mnode **ppnext = &mt->rootnode;
+    while (1)
     {
         res = ppnext;
         if (!*res)
         {
-            *res = mnode_new(mt);
+            *res = mnode_arena_alloc(&mt->arena, code);
             if (!(*res))
                 return NULL;
-            MNODE_SET_CH(*res, ch);
         }
         else
         {
-            int pivot = MNODE_GET_CH(*res);
-            if (ch < pivot)
+            int pivot = (*res)->attr;
+            if (code < pivot)
             {
                 ppnext = &(*res)->low;
                 continue;
             }
-            else if (ch > pivot)
+            else if (code > pivot)
             {
                 ppnext = &(*res)->high;
                 continue;
             }
         }
         ppnext = &(*res)->child;
-        ++word;
+        code = decode_rune(mt, &word);
+        if (code == 0)
+            break;
     }
 
     return *res;
@@ -268,7 +277,8 @@ search_or_new_mnode(mtree *mt, wordbuf *buf)
 
 // Batch add data from a file to existing nodes.
 mtree *
-mnode_load(mtree *mt, FILE *fp)
+mnode_load(mtree *mt, FILE *fp, CHARSET_PROC_CHAR2INT char2int,
+        CHARSET_PROC_INT2CHAR int2char)
 {
     mnode *pp = NULL;
     int mode = 0;
@@ -280,6 +290,9 @@ mnode_load(mtree *mt, FILE *fp)
     unsigned char cache[MNODE_BUFSIZE];
     unsigned char *cache_ptr = cache;
     unsigned char *cache_tail = cache;
+
+    mt->char2int = char2int;
+    mt->int2char = int2char;
 
     buf = wordbuf_open();
     prevlabel = wordbuf_open();
@@ -410,10 +423,10 @@ END_MNODE_LOAD:
     wordbuf_close(buf);
     wordbuf_close(prevlabel);
 #if MNODE_DEBUG_STAT
-    if (mt && mt->used > 0)
+    if (mt && mt->rootnode)
     {
         mnode_stat st;
-        mnode_debug_stat(&mt->nodes[0], &st);
+        mnode_debug_stat(mt->rootnode, &st);
         mnode_print_stat(&st);
     }
 #endif
@@ -421,55 +434,40 @@ END_MNODE_LOAD:
 }
 
 mtree *
-mnode_open(FILE *fp)
+mnode_open(void)
 {
-    mtree *mt;
-
-    mt = (mtree *)calloc(1, sizeof(*mt));
-    if (!mt)
-        return NULL;
-    mt->active = mt;
-    if (!fp)
-        return mt;
-    if (!mnode_load(mt, fp))
-    {
-        mnode_close(mt);
-        return NULL;
-    }
+    mtree *mt = (mtree *)calloc(1, sizeof(*mt));
+    // Set the default to UTF-8.
+    mt->char2int = charset_utf8_char2int;
+    mt->int2char = charset_utf8_int2char;
     return mt;
-}
-
-#if 0
-    static int
-mnode_size(mnode* p)
-{
-    return p ? mnode_size(p->child) + mnode_size(p->next) + 1 : 0;
-}
-#endif
-
-static mnode *
-mnode_query_stub(mnode *node, const unsigned char *query)
-{
-    int pivot = MNODE_GET_CH(node);
-
-    if (*query < pivot)
-        return node->low ? mnode_query_stub(node->low, query) : NULL;
-    else if (*query > pivot)
-        return node->high ? mnode_query_stub(node->high, query) : NULL;
-    else
-    {
-        if (*++query == '\0')
-            return node;
-        return node->child ? mnode_query_stub(node->child, query) : NULL;
-    }
 }
 
 mnode *
 mnode_query(mtree *mt, const unsigned char *query)
 {
-    return (query && *query != '\0' && mt)
-                   ? mnode_query_stub(&mt->nodes[0], query)
-                   : 0;
+    if (!mt || !mt->rootnode || !query)
+        return NULL;
+
+    unsigned int code = decode_rune(mt, &query);
+    if (code == 0)
+        return NULL;
+    mnode *node = mt->rootnode;
+
+    while (node)
+    {
+        // Search from siblings
+        while (node != NULL && code != node->attr)
+            node = code < node->attr ? node->low : node->high;
+        if (!node)
+            break; // Not found the rune.
+        // Proceed to the child node
+        code = decode_rune(mt, &query);
+        if (code == 0)
+            break; // Found the node.
+        node = node->child;
+    }
+    return node;
 }
 
 static void
