@@ -11,31 +11,38 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "migemo.h"
 #include "mnode.h"
 #include "wordbuf.h"
 #include "wordlist.h"
 
 #define MNODE_DEBUG_STAT 0
 
-#define MTREE_MNODE_N 1024
-struct mtree
+#define MNODE_BUFSIZE    16384
+#define MNODE_BLOCK_SIZE 1024
+
+typedef struct mnode_block mnode_block;
+struct mnode_block
 {
-    mtree *active;
-    int used;
-    mnode nodes[MTREE_MNODE_N];
-    mtree *next;
+    mnode_block *next;
+    size_t used;
+    mnode nodes[MNODE_BLOCK_SIZE];
 };
 
-#define MNODE_BUFSIZE 16384
+typedef struct mnode_arena
+{
+    mnode_block *head;
+    mnode_block *curr;
+} mnode_arena;
 
-#if defined(_MSC_VER) || defined(__GNUC__)
-# define INLINE __inline
-#else
-# define INLINE
-#endif
+struct mtree
+{
+    mnode *rootnode;
+    mnode_arena arena;
 
-int n_mnode_new = 0;
-int n_mnode_delete = 0;
+    MIGEMO_PROC_CHAR2INT char2int;
+    MIGEMO_PROC_INT2CHAR int2char;
+};
 
 #if MNODE_DEBUG_STAT
 
@@ -136,40 +143,38 @@ mnode_print_stat(const mnode_stat *stat)
 }
 #endif
 
-INLINE static mnode *
-mnode_new(mtree *mt)
+static mnode *
+mnode_arena_alloc(mnode_arena *arena)
 {
-    mtree *active = mt->active;
-
-    if (active->used >= MTREE_MNODE_N)
+    if (!arena->curr || arena->curr->used >= MNODE_BLOCK_SIZE)
     {
-        mtree *p = (mtree *)calloc(1, sizeof(*active->next));
-        if (!p)
+        mnode_block *block = (mnode_block *)calloc(1, sizeof(mnode_block));
+        if (!block)
             return NULL;
-        active->next = p;
-        mt->active = p;
-        active = p;
+        if (!arena->head)
+            arena->head = block;
+        else
+            arena->curr->next = block;
+        arena->curr = block;
     }
-    ++n_mnode_new;
-    return &active->nodes[active->used++];
+    mnode *p = &arena->curr->nodes[arena->curr->used++];
+    return p;
 }
 
 static void
-mnode_delete(mnode *p)
+mnode_arena_free(mnode_arena *arena)
 {
-    while (p)
+    for (mnode_block *b = arena->head; b;)
     {
-        mnode *child = p->child;
-
-        if (p->list)
-            wordlist_destroy(p->list);
-        if (p->low)
-            mnode_delete(p->low);
-        if (p->high)
-            mnode_delete(p->high);
-        p = child;
-        ++n_mnode_delete;
+        mnode_block *next = b->next;
+        for (size_t i = 0; i < b->used; i++)
+            if (b->nodes[i].list)
+                wordlist_destroy(b->nodes[i].list);
+        free(b);
+        b = next;
     }
+    arena->head = NULL;
+    arena->curr = NULL;
 }
 
 void
@@ -196,8 +201,8 @@ mnode_print_stub(mnode *vp, unsigned char *p)
 void
 mnode_print(mtree *mt, unsigned char *p)
 {
-    if (mt && mt->used > 0)
-        mnode_print_stub(&mt->nodes[0], p);
+    if (mt && mt->rootnode)
+        mnode_print_stub(mt->rootnode, p);
 }
 
 void
@@ -205,21 +210,12 @@ mnode_close(mtree *mt)
 {
     if (mt)
     {
-        mtree *next;
-
-        if (mt->used > 0)
-            mnode_delete(&mt->nodes[0]);
-
-        while (mt)
-        {
-            next = mt->next;
-            free(mt);
-            mt = next;
-        }
+        mnode_arena_free(&mt->arena);
+        free(mt);
     }
 }
 
-INLINE static mnode *
+static mnode *
 search_or_new_mnode(mtree *mt, wordbuf *buf)
 {
     // Add to the search tree once the label word is determined
@@ -227,20 +223,18 @@ search_or_new_mnode(mtree *mt, wordbuf *buf)
     unsigned char *word;
     mnode **ppnext;
     mnode **res = NULL; // To suppress warning for GCC
-    mnode *root;
 
     word = WORDBUF_GET(buf);
     if (!word || *word == '\0')
         return NULL;
 
-    root = mt->used > 0 ? &mt->nodes[0] : NULL;
-    ppnext = &root;
+    ppnext = &mt->rootnode;
     while ((ch = *word) != 0)
     {
         res = ppnext;
         if (!*res)
         {
-            *res = mnode_new(mt);
+            *res = mnode_arena_alloc(&mt->arena);
             if (!(*res))
                 return NULL;
             MNODE_SET_CH(*res, ch);
@@ -428,7 +422,6 @@ mnode_open(FILE *fp)
     mt = (mtree *)calloc(1, sizeof(*mt));
     if (!mt)
         return NULL;
-    mt->active = mt;
     if (!fp)
         return mt;
     if (!mnode_load(mt, fp))
@@ -438,14 +431,6 @@ mnode_open(FILE *fp)
     }
     return mt;
 }
-
-#if 0
-    static int
-mnode_size(mnode* p)
-{
-    return p ? mnode_size(p->child) + mnode_size(p->next) + 1 : 0;
-}
-#endif
 
 static mnode *
 mnode_query_stub(mnode *node, const unsigned char *query)
@@ -467,9 +452,9 @@ mnode_query_stub(mnode *node, const unsigned char *query)
 mnode *
 mnode_query(mtree *mt, const unsigned char *query)
 {
-    return (query && *query != '\0' && mt)
-                   ? mnode_query_stub(&mt->nodes[0], query)
-                   : 0;
+    if (!mt || !mt->rootnode || !query || *query == '\0')
+        return 0;
+    return mnode_query_stub(mt->rootnode, query);
 }
 
 static void
