@@ -25,22 +25,25 @@ typedef struct mtree mtree;
 typedef void (*mnode_traverse_proc)(mnode *node, void *data);
 #define MNODE_TRAVERSE_PROC mnode_traverse_proc
 
-extern int n_mnode_new;
-extern int n_mnode_delete;
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 mtree *mnode_open(void);
+
 mtree *mnode_load(mtree *root, FILE *fp, CHARSET_PROC_CHAR2INT char2int,
         CHARSET_PROC_INT2CHAR int2char);
+
 void mnode_close(mtree *p);
+
 mnode *mnode_query(mtree *node, const unsigned char *query);
+
 void mnode_traverse(mnode *node, MNODE_TRAVERSE_PROC proc, void *data);
 
 // Mainly for debugging purposes
 void mnode_print(mtree *mt, unsigned char *p);
+
+void mnode_print_stat(mtree *mt);
 
 #ifdef __cplusplus
 }

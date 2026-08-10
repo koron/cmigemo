@@ -12,6 +12,7 @@
 #include <time.h>
 
 #include "migemo.h"
+#include "migemo_struct.h"
 
 #ifndef DICTDIR
 # define DICTDIR "../../dict"
@@ -47,13 +48,14 @@ main(int argc, char **argv)
     migemo *pmig;
     clock_t clock_load = 0, clock_query = 0, clock_tmp = 0;
 
-    printf("Start\n");
+    printf("Loading\n");
     clock_tmp = clock();
     pmig = migemo_open(DICTDIR "/migemo-dict");
     clock_load = clock() - clock_tmp;
-    printf("Loaded\n");
+    mnode_print_stat(pmig->mtree);
     if (pmig != NULL)
     {
+        printf("Quering\n");
         clock_query = profile_queries(pmig, NUM_TRIAL);
         migemo_close(pmig);
     }

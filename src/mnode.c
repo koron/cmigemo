@@ -16,8 +16,6 @@
 #include "wordbuf.h"
 #include "wordlist.h"
 
-#define MNODE_DEBUG_STAT 0
-
 #define MNODE_BUFSIZE    16384
 #define MNODE_BLOCK_SIZE 1024
 
@@ -43,8 +41,6 @@ struct mtree
     CHARSET_PROC_CHAR2INT char2int;
     CHARSET_PROC_INT2CHAR int2char;
 };
-
-#if MNODE_DEBUG_STAT
 
 typedef struct
 {
@@ -108,11 +104,17 @@ mnode_debug_stat(mnode *root, mnode_stat *stat)
     mnode_debug_stat_stub(root, stat, 0, 1);
 }
 
-static void
-mnode_print_stat(const mnode_stat *stat)
+void
+mnode_print_stat(mtree *mt)
 {
-    if (!stat)
+    if (!mt || !mt->rootnode)
+    {
+        printf("== INVALID mnode ===\n");
         return;
+    }
+
+    mnode_stat v, *stat = &v;
+    mnode_debug_stat(mt->rootnode, stat);
 
     printf("=== mnode statistics ===\n");
     printf("Total Nodes          : %zu\n", stat->total_nodes);
@@ -141,7 +143,6 @@ mnode_print_stat(const mnode_stat *stat)
                     : 0.0);
     printf("======================\n");
 }
-#endif
 
 static mnode *
 mnode_arena_alloc(mnode_arena *arena, unsigned int code)
@@ -422,14 +423,6 @@ mnode_load(mtree *mt, FILE *fp, CHARSET_PROC_CHAR2INT char2int,
 END_MNODE_LOAD:
     wordbuf_close(buf);
     wordbuf_close(prevlabel);
-#if MNODE_DEBUG_STAT
-    if (mt && mt->rootnode)
-    {
-        mnode_stat st;
-        mnode_debug_stat(mt->rootnode, &st);
-        mnode_print_stat(&st);
-    }
-#endif
     return mt;
 }
 
