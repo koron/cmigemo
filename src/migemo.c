@@ -15,6 +15,7 @@
 #include "charset.h"
 #include "filename.h"
 #include "migemo.h"
+#include "migemo_struct.h"
 #include "mnode.h"
 #include "romaji.h"
 #include "rxgen.h"
@@ -34,21 +35,6 @@
 #else
 # define EXPORTS
 #endif
-
-// Migemo object
-struct migemo
-{
-    int enable;
-    mtree *mtree;
-    int charset;
-    romaji *roma2hira;
-    romaji *hira2kata;
-    romaji *han2zen;
-    romaji *zen2han;
-    rxgen *rx;
-
-    CHARSET_PROC_CHAR2INT char2int;
-};
 
 static const unsigned char VOWEL_CHARS[] = "aiueo";
 

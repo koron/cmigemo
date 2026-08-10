@@ -1,0 +1,25 @@
+// vim:set ts=8 sts=4 sw=4 tw=0 et:
+//
+// migemo_struct.h -
+
+#pragma once
+
+#include "charset.h"
+#include "mnode.h"
+#include "romaji.h"
+#include "rxgen.h"
+
+// Migemo object
+struct migemo
+{
+    int enable;
+    mtree *mtree;
+    int charset;
+    romaji *roma2hira;
+    romaji *hira2kata;
+    romaji *han2zen;
+    romaji *zen2han;
+    rxgen *rx;
+
+    CHARSET_PROC_CHAR2INT char2int;
+};
