@@ -46,6 +46,7 @@ struct migemo
     romaji *han2zen;
     romaji *zen2han;
     rxgen *rx;
+
     CHARSET_PROC_CHAR2INT char2int;
 };
 
@@ -61,37 +62,24 @@ my_strlen(const char *s)
 }
 
 static mtree *
-load_mtree_dictionary(mtree *mt, const char *dict_file)
-{
-    FILE *fp;
-
-    if ((fp = fopen(dict_file, "rt")) == NULL)
-        return NULL; // Can't find file
-    mt = mnode_load(mt, fp);
-    fclose(fp);
-    return mt;
-}
-
-static mtree *
-load_mtree_dictionary2(migemo *obj, const char *dict_file)
+load_mtree_dictionary(migemo *obj, const char *dict_file)
 {
     if (obj->charset == CHARSET_NONE)
-    {
-        // Change the function used for regular expression generation to match
-        // the charset of the dictionary
-        CHARSET_PROC_CHAR2INT char2int = NULL;
-        CHARSET_PROC_INT2CHAR int2char = NULL;
         obj->charset = charset_detect_file(dict_file);
-        charset_getproc(obj->charset, &char2int, &int2char);
-        if (char2int)
-        {
-            migemo_setproc_char2int(obj, (MIGEMO_PROC_CHAR2INT)char2int);
-            obj->char2int = char2int;
-        }
-        if (int2char)
-            migemo_setproc_int2char(obj, (MIGEMO_PROC_INT2CHAR)int2char);
-    }
-    return load_mtree_dictionary(obj->mtree, dict_file);
+
+    CHARSET_PROC_CHAR2INT char2int = NULL;
+    CHARSET_PROC_INT2CHAR int2char = NULL;
+    charset_getproc(obj->charset, &char2int, &int2char);
+    migemo_setproc_char2int(obj, (MIGEMO_PROC_CHAR2INT)char2int);
+    migemo_setproc_int2char(obj, (MIGEMO_PROC_INT2CHAR)int2char);
+    obj->char2int = char2int;
+
+    FILE *fp = fopen(dict_file, "rt");
+    if (!fp)
+        return NULL;
+    mtree *mt = mnode_load(obj->mtree, fp, char2int, int2char);
+    fclose(fp);
+    return mt;
 }
 
 // migemo interfaces
@@ -131,7 +119,7 @@ migemo_load(migemo *obj, int dict_id, const char *dict_file)
         // Load migemo dictionary
         mtree *mt;
 
-        if ((mt = load_mtree_dictionary2(obj, dict_file)) == NULL)
+        if ((mt = load_mtree_dictionary(obj, dict_file)) == NULL)
             return MIGEMO_DICTID_INVALID;
         obj->mtree = mt;
         obj->enable = 1;
@@ -163,7 +151,7 @@ migemo_load(migemo *obj, int dict_id, const char *dict_file)
                 dict = NULL;
                 break;
         }
-        if (dict && romaji_load(dict, dict_file) == 0)
+        if (dict && romaji_load(dict, dict_file, obj->char2int) == 0)
             return dict_id;
         else
             return MIGEMO_DICTID_INVALID;
@@ -201,13 +189,14 @@ migemo_open(const char *dict)
     if (!(obj = (migemo *)calloc(1, sizeof(migemo))))
         return obj;
     obj->enable = 0;
-    obj->mtree = mnode_open(NULL);
+    obj->mtree = mnode_open();
     obj->charset = CHARSET_NONE;
     obj->rx = rxgen_open();
     obj->roma2hira = romaji_open();
     obj->hira2kata = romaji_open();
     obj->han2zen = romaji_open();
     obj->zen2han = romaji_open();
+    obj->char2int = charset_none_char2int;
     if (!obj->mtree || !obj->rx || !obj->roma2hira || !obj->hira2kata
             || !obj->han2zen || !obj->zen2han)
     {
@@ -237,15 +226,15 @@ migemo_open(const char *dict)
         filename_join(h2z_dict, _MAX_PATH, tmp, DICT_HAN2ZEN);
         filename_join(z2h_dict, _MAX_PATH, tmp, DICT_ZEN2HAN);
 
-        mt = load_mtree_dictionary2(obj, dict);
+        mt = load_mtree_dictionary(obj, dict);
         if (mt)
         {
             obj->mtree = mt;
             obj->enable = 1;
-            romaji_load(obj->roma2hira, roma_dict);
-            romaji_load(obj->hira2kata, kata_dict);
-            romaji_load(obj->han2zen, h2z_dict);
-            romaji_load(obj->zen2han, z2h_dict);
+            romaji_load(obj->roma2hira, roma_dict, obj->char2int);
+            romaji_load(obj->hira2kata, kata_dict, obj->char2int);
+            romaji_load(obj->han2zen, h2z_dict, obj->char2int);
+            romaji_load(obj->zen2han, z2h_dict, obj->char2int);
         }
     }
     return obj;

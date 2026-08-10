@@ -20,7 +20,7 @@ profile:
 	cmake --build build --parallel --target profile
 
 format:
-	find . -type f \( -name "*.c" -o -name "*.h" \) | xargs clang-format -i
+	find src test include -type f \( -name "*.c" -o -name "*.h" \) | xargs clang-format -i
 
 package:
 	cmake -B build -DCMAKE_BUILD_TYPE=Release

@@ -109,13 +109,13 @@ main(int argc, char **argv)
     {
         int retval = 0;
 
-        retval = romaji_load(object, DICT_ROMA2HIRA);
+        retval = romaji_load(object, DICT_ROMA2HIRA, charset_utf8_char2int);
         printf("romaji_load(%s)=%d\n", DICT_ROMA2HIRA, retval);
-        retval = romaji_load(hira2kata, DICT_HIRA2KATA);
+        retval = romaji_load(hira2kata, DICT_HIRA2KATA, charset_utf8_char2int);
         printf("romaji_load(%s)=%d\n", DICT_HIRA2KATA, retval);
-        retval = romaji_load(han2zen, DICT_HAN2ZEN);
+        retval = romaji_load(han2zen, DICT_HAN2ZEN, charset_utf8_char2int);
         printf("romaji_load(%s)=%d\n", DICT_HAN2ZEN, retval);
-        retval = romaji_load(zen2han, DICT_ZEN2HAN);
+        retval = romaji_load(zen2han, DICT_ZEN2HAN, charset_utf8_char2int);
         printf("romaji_load(%s)=%d\n", DICT_HAN2ZEN, retval);
         if (word)
             query_one(object, hira2kata, han2zen, zen2han, word);

@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "migemo.h"
+#include "charset.h"
 #include "mnode.h"
 #include "wordbuf.h"
 #include "wordlist.h"
@@ -40,8 +40,8 @@ struct mtree
     mnode *rootnode;
     mnode_arena arena;
 
-    MIGEMO_PROC_CHAR2INT char2int;
-    MIGEMO_PROC_INT2CHAR int2char;
+    CHARSET_PROC_CHAR2INT char2int;
+    CHARSET_PROC_INT2CHAR int2char;
 };
 
 #if MNODE_DEBUG_STAT
@@ -262,7 +262,8 @@ search_or_new_mnode(mtree *mt, wordbuf *buf)
 
 // Batch add data from a file to existing nodes.
 mtree *
-mnode_load(mtree *mt, FILE *fp)
+mnode_load(mtree *mt, FILE *fp, CHARSET_PROC_CHAR2INT char2int,
+        CHARSET_PROC_INT2CHAR int2char)
 {
     mnode *pp = NULL;
     int mode = 0;
@@ -274,6 +275,9 @@ mnode_load(mtree *mt, FILE *fp)
     unsigned char cache[MNODE_BUFSIZE];
     unsigned char *cache_ptr = cache;
     unsigned char *cache_tail = cache;
+
+    mt->char2int = char2int;
+    mt->int2char = int2char;
 
     buf = wordbuf_open();
     prevlabel = wordbuf_open();
@@ -415,20 +419,12 @@ END_MNODE_LOAD:
 }
 
 mtree *
-mnode_open(FILE *fp)
+mnode_open(void)
 {
-    mtree *mt;
-
-    mt = (mtree *)calloc(1, sizeof(*mt));
-    if (!mt)
-        return NULL;
-    if (!fp)
-        return mt;
-    if (!mnode_load(mt, fp))
-    {
-        mnode_close(mt);
-        return NULL;
-    }
+    mtree *mt = (mtree *)calloc(1, sizeof(*mt));
+    // Set the default to UTF-8.
+    mt->char2int = charset_utf8_char2int;
+    mt->int2char = charset_utf8_int2char;
     return mt;
 }
 
