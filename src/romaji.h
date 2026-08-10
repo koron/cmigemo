@@ -32,6 +32,8 @@ void romaji_release(romaji *object, unsigned char *string);
 void romaji_setproc_char2int(romaji *object, ROMAJI_PROC_CHAR2INT proc);
 void romaji_set_verbose(romaji *object, int level);
 
+void romanode_print_stat(romaji *obj, const char *title);
+
 #ifdef __cplusplus
 }
 #endif

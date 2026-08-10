@@ -13,6 +13,7 @@
 
 #include "charset.h"
 #include "romaji.h"
+#include "trie.h"
 #include "wordbuf.h"
 
 #if defined(_MSC_VER) || defined(__GNUC__)
@@ -47,10 +48,10 @@
 typedef struct romanode romanode;
 struct romanode
 {
-    unsigned char key;
-    romanode *next;
+    romanode *low, *high;
     romanode *child;
 
+    unsigned char key;
     unsigned char *value;
 };
 
@@ -110,35 +111,37 @@ romanode_arena_free(romanode_arena *arena)
 
 static romanode **
 romanode_dig(
-        romanode_arena *arena, romanode **ref_node, const unsigned char *key)
+        romanode_arena *arena, romanode **pnode, const unsigned char *key)
 {
-    if (!ref_node || !key || key[0] == '\0')
+    if (!pnode || !key || key[0] == '\0')
         return NULL;
 
     while (1)
     {
-        if (!*ref_node)
-            if (!(*ref_node = romanode_arena_alloc(arena, *key)))
+        if (!*pnode)
+            if (!(*pnode = romanode_arena_alloc(arena, *key)))
                 return NULL;
 
-        if ((*ref_node)->key == *key)
+        if (*key < (*pnode)->key)
+            pnode = &(*pnode)->low;
+        else if (*key > (*pnode)->key)
+            pnode = &(*pnode)->high;
+        else
         {
-            (*ref_node)->value = NULL;
+            (*pnode)->value = NULL;
             if (!*++key)
                 break;
-            ref_node = &(*ref_node)->child;
+            pnode = &(*pnode)->child;
         }
-        else
-            ref_node = &(*ref_node)->next;
     }
 
     // If a key shorter than an existing Romaji conversion key is registered,
     // the node for the longer key is discarded as invalid.  The `value` field
     // of the existing node being detached here is deallocated precisely when
     // the arena is freed.
-    (*ref_node)->child = NULL;
+    (*pnode)->child = NULL;
 
-    return ref_node;
+    return pnode;
 }
 
 /// Search for and return the romanode corresponding to the key.
@@ -160,7 +163,7 @@ romanode_query(romanode *node, const unsigned char *key, int *skip,
         while (1)
         {
             if (*key != node->key)
-                node = node->next;
+                node = *key < node->key ? node->low : node->high;
             else
             {
                 ++nskip;
@@ -201,7 +204,7 @@ struct romaji
 {
     int verbose;
 
-    romanode *node;
+    romanode *rootnode;
     romanode_arena arena;
 
     unsigned char *fixvalue_xn;
@@ -252,7 +255,7 @@ romaji_add_table(
     if (value_length == 0)
         return 2; // Too short value string
 
-    if (!(ref_node = romanode_dig(&object->arena, &object->node, key)))
+    if (!(ref_node = romanode_dig(&object->arena, &object->rootnode, key)))
     {
         return 4; // Memory exhausted
     }
@@ -367,6 +370,64 @@ romaji_load_stub(romaji *object, FILE *fp)
     return 0;
 }
 
+static void
+romanode_stat_stub(
+        romanode *node, trie_stat *stat, int sib_depth, int total_cmp)
+{
+    if (!node)
+        return;
+
+    stat->total_nodes++;
+    stat->total_sibling_depth += sib_depth;
+    if (sib_depth > stat->max_sibling_depth)
+        stat->max_sibling_depth = sib_depth;
+
+    if (node->low)
+        stat->low_count++;
+    if (node->high)
+        stat->high_count++;
+    if (node->child)
+        stat->child_count++;
+
+    if (node->value)
+    {
+        stat->wordtail_count++;
+        stat->total_node_cmp_count += total_cmp;
+        if (total_cmp > stat->max_node_cmp_count)
+            stat->max_node_cmp_count = total_cmp;
+    }
+
+    // recursive calls for low, high, and child nodes.
+    if (node->low)
+        romanode_stat_stub(node->low, stat, sib_depth + 1, total_cmp + 1);
+    if (node->high)
+        romanode_stat_stub(node->high, stat, sib_depth + 1, total_cmp + 1);
+    if (node->child)
+        romanode_stat_stub(node->child, stat, 0, total_cmp + 1);
+}
+
+static void
+romanode_stat(romaji *obj, trie_stat *stat)
+{
+    if (!stat || !obj || !obj->rootnode)
+        return;
+    memset(stat, 0, sizeof(*stat));
+    romanode_stat_stub(obj->rootnode, stat, 0, 1);
+}
+
+void
+romanode_print_stat(romaji *obj, const char *title)
+{
+    if (!obj || !obj->rootnode)
+    {
+        printf("== INVALID romanode ===\n");
+        return;
+    }
+    trie_stat stat;
+    romanode_stat(obj, &stat);
+    trie_stat_print(&stat, title);
+}
+
 /// Load the Romaji dictionary.
 /// @param object Romaji object
 /// @param filename Dictionary filename
@@ -375,18 +436,15 @@ int
 romaji_load(romaji *object, const unsigned char *filename,
         CHARSET_PROC_CHAR2INT char2int)
 {
-    FILE *fp;
     if (!object || !filename)
         return -1;
     object->char2int = char2int;
-    if ((fp = fopen(filename, "rt")) != NULL)
-    {
-        int result = romaji_load_stub(object, fp);
-        fclose(fp);
-        return result;
-    }
-    else
+    FILE *fp = fopen(filename, "rt");
+    if (!fp)
         return -1;
+    int result = romaji_load_stub(object, fp);
+    fclose(fp);
+    return result;
 }
 
 unsigned char *
@@ -425,7 +483,7 @@ romaji_convert2(romaji *object, const unsigned char *string,
             }
 
             node = romanode_query(
-                    object->node, &input[i], &skip, object->char2int);
+                    object->rootnode, &input[i], &skip, object->char2int);
             VERBOSE(object, 1,
                     printf("key=%s value=%s skip=%d\n", &input[i],
                             node && node->value ? (char *)node->value : "null",
