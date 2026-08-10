@@ -19,13 +19,32 @@
 
 #define CLOCK2SEC(t) ((double)(t) / (double)CLOCKS_PER_SEC)
 
+static clock_t
+profile_queries(migemo *pmig, int trial)
+{
+    char key[2] = {'\0', '\0'};
+    clock_t dur = 0;
+    for (int i = 0; i < trial; ++i)
+    {
+        printf("[%d] Progress... ", i);
+        for (key[0] = 'a'; key[0] <= 'z'; ++key[0])
+        {
+            printf("%s", key);
+            fflush(stdout);
+            clock_t start = clock();
+            char *ans = migemo_query(pmig, key);
+            migemo_release(pmig, ans);
+            dur += clock() - start;
+        }
+        printf("\n");
+    }
+    return dur;
+}
+
 int
 main(int argc, char **argv)
 {
     migemo *pmig;
-    char *ans;
-    char key[2] = {'\0', '\0'};
-    int i;
     clock_t clock_load = 0, clock_query = 0, clock_tmp = 0;
 
     printf("Start\n");
@@ -35,21 +54,7 @@ main(int argc, char **argv)
     printf("Loaded\n");
     if (pmig != NULL)
     {
-        clock_query = 0;
-        for (i = 0; i < NUM_TRIAL; ++i)
-        {
-            printf("[%d] Progress... ", i);
-            for (key[0] = 'a'; key[0] <= 'z'; ++key[0])
-            {
-                printf("%s", key);
-                fflush(stdout);
-                clock_tmp = clock();
-                ans = migemo_query(pmig, key);
-                migemo_release(pmig, ans);
-                clock_query += clock() - clock_tmp;
-            }
-            printf("\n");
-        }
+        clock_query = profile_queries(pmig, NUM_TRIAL);
         migemo_close(pmig);
     }
     printf("\n");
