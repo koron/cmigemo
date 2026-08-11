@@ -7,8 +7,8 @@ target_include_directories(test1 PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_compile_definitions(
   test1
   PRIVATE
-  TEST_DICTDIR_MIGEMO="${CMAKE_CURRENT_SOURCE_DIR}/test1"
-  TEST_DICTDIR_ROMA2HIRA="${CMAKE_SOURCE_DIR}/dict")
+    TEST_DICTDIR_MIGEMO="${CMAKE_CURRENT_SOURCE_DIR}/test1"
+    TEST_DICTDIR_ROMA2HIRA="${CMAKE_SOURCE_DIR}/dict")
 
 #------------------------------------------------------------------------------
 
