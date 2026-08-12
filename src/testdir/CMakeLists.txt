@@ -1,9 +1,13 @@
 #------------------------------------------------------------------------------
 # romaji tool (use migemo shared object)
 add_executable(
-  romaji romaji_main.c ${CMAKE_SOURCE_DIR}/src/charset.c
-  ${CMAKE_SOURCE_DIR}/src/romaji.c ${CMAKE_SOURCE_DIR}/src/trie.c
-  ${CMAKE_SOURCE_DIR}/src/wordbuf.c)
+  romaji
+  romaji_main.c
+  ${CMAKE_SOURCE_DIR}/src/charset.c
+  ${CMAKE_SOURCE_DIR}/src/romaji.c
+  ${CMAKE_SOURCE_DIR}/src/trie.c
+  ${CMAKE_SOURCE_DIR}/src/wordbuf.c
+  ${CMAKE_SOURCE_DIR}/src/wordlist.c)
 target_include_directories(romaji PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_compile_definitions(
   romaji

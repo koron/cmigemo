@@ -31,38 +31,27 @@ void
 query_one(romaji *object, romaji *hira2kata, romaji *han2zen, romaji *zen2han,
         char *buf)
 {
-    unsigned char *stop;
-    unsigned char *hira;
-    unsigned char *zen;
-    unsigned char *han;
-    // Romaji -> Hiragana (display) -> Katakana (display)
-    if ((hira = romaji_convert(object, buf, &stop)) != NULL)
+    wordlist *hira = romaji_convert_all(object, buf);
+    for (wordlist *p = hira; p ; p = p->next)
     {
-        unsigned char *kata;
-
-        printf("  hira=%s, stop=%s\n", hira, stop);
-#if 1
-        if ((kata = romaji_convert2(hira2kata, hira, &stop, 0)) != NULL)
+        printf("  hira=%s\n", p->ptr);
+        wordlist *kata = romaji_convert_all(hira2kata, p->ptr);
+        for (wordlist *q = kata; q ; q = q->next)
         {
-            printf("  kata=%s, stop=%s\n", kata, stop);
-            if ((han = romaji_convert2(zen2han, kata, &stop, 0)) != NULL)
-            {
-                printf("  han=%s, stop=%s\n", han, stop);
-                romaji_release(zen2han, han);
-            }
-            romaji_release(hira2kata, kata);
+            printf("  kata=%s\n", q->ptr);
+            wordlist *han = romaji_convert_all(zen2han, q->ptr);
+            for (wordlist *r = han; r ; r = r->next)
+                printf("  han=%s\n", r->ptr);
+            wordlist_destroy(han);
         }
-#endif
-        romaji_release(object, hira);
+        wordlist_destroy(kata);
     }
-#if 1
-    if ((zen = romaji_convert2(han2zen, buf, &stop, 0)) != NULL)
-    {
-        printf("  zen=%s, stop=%s\n", zen, stop);
-        romaji_release(han2zen, zen);
-    }
-#endif
-    fflush(stdout);
+    wordlist_destroy(hira);
+
+    wordlist *zen = romaji_convert_all(han2zen, buf);
+    for (wordlist *p = zen; p; p = p->next)
+        printf("  zen=%s\n", p->ptr);
+    wordlist_destroy(zen);
 }
 
 void

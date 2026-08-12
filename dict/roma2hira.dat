@@ -1,15 +1,8 @@
-# vi:set ts=8 sts=8 sw=8 tw=0 noet:
+# vim:set ts=8 sts=8 sw=8 tw=0 noet:
 #
-# roma2hira.dat - ローマ字→平仮名変換表
+# roma2hira.dat - Table to convert ROMAJI to HIRAGANA in Japanese.
 #
-# Author:  MURAOKA Taro <koron.kaoriya@gmail.com>
-
-# こいつをカスタマイズすることでローマ字の入力方式が変わります。
-# 現在はMS-IME2000を参考に決定しています。
-# 漢字コードの違いを吸収する役割も果たします。
-# xnとxtuには「ん」と「っ」を指定する役割があります。
-# {from} {to}の形式です。
-# {from}と{to}の間は空白文字(isspace())で区切ります。
+# Format: {INPUT}\t{EMIT}[\t{REMAIN}]
 
 a	あ
 i	い
@@ -71,7 +64,6 @@ wu	う
 we	ゑ
 wo	を
 
-
 ga	が
 gi	ぎ
 gu	ぐ
@@ -101,7 +93,6 @@ pi	ぴ
 pu	ぷ
 pe	ぺ
 po	ぽ
-
 
 la	ぁ
 li	ぃ
@@ -187,13 +178,11 @@ tyu	ちゅ
 tye	ちぇ
 tyo	ちょ
 
-
 dha	でゃ
 dhi	でぃ
 dhu	でゅ
 dhe	でぇ
 dho	でょ
-
 
 nya	にゃ
 nyi	にぃ
@@ -230,7 +219,6 @@ ryi	りぃ
 ryu	りゅ
 rye	りぇ
 ryo	りょ
-
 
 ca	か
 ci	し
@@ -274,12 +262,6 @@ jyu	じゅ
 jye	じぇ
 jyo	じょ
 
-zya	じゃ
-zyi	じぃ
-zyu	じゅ
-zye	じぇ
-zyo	じょ
-
 qa	くぁ
 qi	くぃ
 qu	く
@@ -310,7 +292,6 @@ vyu	ヴゅ
 vye	ヴぇ
 vyo	ヴょ
 
-
 nn	ん
 n'	ん
 xn	ん
@@ -326,11 +307,6 @@ kwa	くぁ
 
 -	ー
 ~	～
-#,	、
-#.	。
-#[	「
-#]	」
-
 
 mba	んば
 mbi	んび
@@ -355,3 +331,45 @@ tchi	っち
 tchu	っちゅ
 tche	っちぇ
 tcho	っちょ
+
+bb	っ	b
+cc	っ	c
+dd	っ	d
+ff	っ	f
+gg	っ	g
+hh	っ	h
+jj	っ	j
+kk	っ	k
+ll	っ	l
+mm	っ	m
+pp	っ	p
+qq	っ	q
+rr	っ	r
+ss	っ	s
+tt	っ	t
+vv	っ	v
+ww	っ	w
+xx	っ	x
+yy	っ	y
+zz	っ	z
+
+nb	ん	b
+nc	ん	c
+nd	ん	d
+nf	ん	f
+ng	ん	g
+nh	ん	h
+nj	ん	j
+nk	ん	k
+nl	ん	l
+nm	ん	m
+np	ん	p
+nq	ん	q
+nr	ん	r
+ns	ん	s
+nt	ん	t
+nv	ん	v
+nw	ん	w
+nx	ん	x
+ny	ん	y
+nz	ん	z

@@ -84,6 +84,12 @@ wordbuf_last(wordbuf *p)
 }
 
 size_t
+wordbuf_append(wordbuf *p, wordbuf *q)
+{
+    return wordbuf_write_bytes(p, q->buf, q->last);
+}
+
+size_t
 wordbuf_cat(wordbuf *p, const unsigned char *sz)
 {
     size_t len = 0;
