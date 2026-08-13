@@ -596,20 +596,16 @@ romaji_convert_all(romaji *object, const unsigned char *src)
         wordbuf_write_bytes(pending, prev, curr - prev);
     }
 
-    // Output all entries under the pending node.
-    wordlist pendings = {0};
-    if (node && node != object->rootnode)
-        add_pending_node_all(&pendings, node, dstbuf);
-
-    if (pending->last > 0)
-        wordbuf_append(dstbuf, pending);
-    list = wordlist_new(dstbuf->buf, dstbuf->last);
-    if (!list)
+    if (pending->last == 0)
+        list = wordlist_new(dstbuf->buf, dstbuf->last);
+    else
     {
-        wordlist_destroy(pendings.next);
-        goto END;
+        // Output all entries under the pending node.
+        wordlist pendings = {0};
+        if (node && node != object->rootnode)
+            add_pending_node_all(&pendings, node, dstbuf);
+        list = pendings.next;
     }
-    list->next = pendings.next;
 
 END:
     free(srcbuf);
