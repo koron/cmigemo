@@ -187,7 +187,8 @@ function(add_dict_encoding_target ENCODING_NAME ICONV_ENCODING IGNORE_ERROR)
 
   install(
     DIRECTORY "${OUT_DIR}/"
-    DESTINATION "${CMAKE_INSTALL_DATADIR}/cmigemo/${ENCODING_NAME}")
+    DESTINATION "${CMAKE_INSTALL_DATADIR}/cmigemo/${ENCODING_NAME}"
+    COMPONENT dict)
 endfunction()
 
 #------------------------------------------------------------------------------
@@ -195,3 +196,5 @@ endfunction()
 add_dict_encoding_target("utf-8" "UTF-8" FALSE)
 add_dict_encoding_target("euc-jp" "EUC-JISX0213" FALSE)
 add_dict_encoding_target("cp932" "CP932" TRUE)
+
+add_custom_target(dictionaries DEPENDS dict_utf-8 dict_euc-jp dict_cp932)

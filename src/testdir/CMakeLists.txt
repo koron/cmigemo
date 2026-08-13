@@ -51,7 +51,9 @@ if(GPROF_EXECUTABLE AND CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
   target_compile_options(qspeed PRIVATE -O0 -pg)
   target_link_options(qspeed PRIVATE -O0 -pg)
 
-  add_dependencies(qspeed dict_utf-8)
+  if(BUILD_DICT)
+    add_dependencies(qspeed dict_utf-8)
+  endif()
 
   add_custom_target(
     profile

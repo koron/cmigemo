@@ -62,6 +62,44 @@ Or just `rm -rf build`.
 -   Profiling
     -   gperf
 
+## Build
+
+```
+$ cmake -B build
+$ cmake --build build
+```
+
+### Build Options & Packaging
+
+The following options and components are available for selective building and
+installation (e.g., for distribution packaging):
+
+-   `BUILD_DICT` (CMake Option, default: `ON`):
+
+    Set to `OFF` (`cmake -B build -DBUILD_DICT=OFF`) to skip dictionary
+    generation and its external build dependencies (`perl`, `iconv`, `gzip`,
+    etc.).
+
+-   Target `dictionaries`:
+
+    Builds all dictionary encodings at once:
+
+    ```bash
+    cmake --build build --target dictionaries
+    ```
+
+-   Install Components:
+
+    Allows installing core files or dictionary files separately:
+
+    ```bash
+    # Install core binary, library, and headers only
+    cmake --install build --component core
+
+    # Install generated dictionary files only
+    cmake --install build --component dict
+    ```
+
 ## Vim plugin
 
 If you want to use C/Migemo only as a vim plugin,

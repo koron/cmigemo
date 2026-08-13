@@ -19,6 +19,7 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
 endif()
 
+option(BUILD_DICT "Build dictionary files" ON)
 option(BUILD_TESTING "Build tests" ON)
 
 #------------------------------------------------------------------------------
@@ -59,7 +60,9 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 #------------------------------------------------------------------------------
 
 add_subdirectory(src)
-add_subdirectory(dict)
+if(BUILD_DICT)
+  add_subdirectory(dict)
+endif()
 if(BUILD_TESTING)
   enable_testing()
   add_subdirectory(test)
