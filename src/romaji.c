@@ -16,34 +16,17 @@
 #include "trie.h"
 #include "wordbuf.h"
 
-#if defined(_MSC_VER) || defined(__GNUC__)
-# define INLINE __inline
-#else
-# define INLINE
-#endif
-
-#ifdef _DEBUG
-// clang-format off
-# define VERBOSE(o,l,b)     if ((o)->verbose >= (l)) { b }
-// clang-format on
-#else
-# define VERBOSE(o, l, b)
-#endif
-
 #if defined(_MSC_VER)
 # define STRDUP _strdup
 #else
 # define STRDUP strdup
 #endif
 
-#define ROMAJI_FIXKEY_N      'n'
-#define ROMAJI_FIXKEY_XN     "xn"
-#define ROMAJI_FIXKEY_XTU    "xtu"
-#define ROMAJI_FIXKEY_NONXTU "aiueon"
+#define ROMAJI_READ_BUFSIZE     1024
+#define ROMAJI_PUSHBACK_BUFSIZE 1024
+#define ROMANODE_BLOCK_SIZE     1024
 
 // romanode interfaces
-
-#define ROMANODE_BLOCK_SIZE 1024
 
 typedef struct romanode romanode;
 struct romanode
@@ -52,7 +35,6 @@ struct romanode
     romanode *child;
 
     unsigned int code;
-    unsigned char key;
     unsigned char *value;
     unsigned char *remain;
 };
@@ -165,72 +147,7 @@ romanode_balance(romanode **pnode)
     // TODO: do same for descedants
 }
 
-/// Search for and return the romanode corresponding to the key.
-/// @return NULL if romanode is not found
-/// @param node root node
-/// @param key search key
-/// @param skip pointer to receive the number of bytes to skip in key
-static romanode *
-romanode_query(romanode *node, const unsigned char *key, int *skip,
-        ROMAJI_PROC_CHAR2INT char2int)
-{
-    int nskip = 0;
-    const unsigned char *key_start = key;
-
-    // printf("romanode_query: key=%s skip=%p char2int=%p\n", key, skip,
-    // char2int);
-    if (node && key && *key)
-    {
-        while (1)
-        {
-            if (*key != node->key)
-                node = *key < node->key ? node->low : node->high;
-            else
-            {
-                ++nskip;
-                if (node->value)
-                {
-                    // printf("  HERE 1\n");
-                    break;
-                }
-                if (!*++key)
-                {
-                    nskip = 0;
-                    // printf("  HERE 2\n");
-                    break;
-                }
-                node = node->child;
-            }
-            // If the next node to traverse is empty, advance the key and return
-            // NULL
-            if (!node)
-            {
-                // Advance by one character, not one byte
-                if (!char2int || (nskip = (*char2int)(key_start, NULL)) < 1)
-                    nskip = 1;
-                // printf("  HERE 3: nskip=%d\n", nskip);
-                break;
-            }
-        }
-    }
-
-    if (skip)
-        *skip = nskip;
-    return node;
-}
-
 // romaji interfaces
-
-static unsigned char *
-strdup_lower(const unsigned char *string)
-{
-    unsigned char *out = STRDUP(string), *tmp;
-
-    if (out)
-        for (tmp = out; *tmp; ++tmp)
-            *tmp = (unsigned char)tolower(*tmp);
-    return out;
-}
 
 romaji *
 romaji_open()
@@ -303,9 +220,6 @@ romaji_add_entry(romaji *object, const unsigned char *key,
 
     return 0;
 }
-
-#define ROMAJI_READ_BUFSIZE     1024
-#define ROMAJI_PUSHBACK_BUFSIZE 1024
 
 typedef enum {
     MODE_KEY_WAITING = 0,
@@ -538,100 +452,6 @@ romaji_load(romaji *object, const unsigned char *filename,
     return result;
 }
 
-unsigned char *
-romaji_convert2(romaji *object, const unsigned char *string,
-        unsigned char **ppstop, int ignorecase)
-{
-    // Argument "ppstop" receive conversion stoped position.
-    wordbuf *buf = NULL;
-    unsigned char *lower = NULL;
-    unsigned char *answer = NULL;
-    const unsigned char *input = string;
-    int stop = -1;
-
-    if (ignorecase)
-    {
-        lower = strdup_lower(string);
-        input = lower;
-    }
-
-    if (object && string && input && (buf = wordbuf_open()))
-    {
-        int i;
-
-        for (i = 0; string[i];)
-        {
-            romanode *node;
-            int skip;
-
-            // Detect "tsu" (small tsu: "っ")
-            if (object->fixvalue_xtu && input[i] == input[i + 1]
-                    && !strchr(ROMAJI_FIXKEY_NONXTU, input[i]))
-            {
-                ++i;
-                wordbuf_cat(buf, object->fixvalue_xtu);
-                continue;
-            }
-
-            node = romanode_query(
-                    object->rootnode, &input[i], &skip, object->char2int);
-            VERBOSE(object, 1,
-                    printf("key=%s value=%s skip=%d\n", &input[i],
-                            node && node->value ? (char *)node->value : "null",
-                            skip);)
-            if (skip == 0)
-            {
-                if (string[i])
-                {
-                    stop = (int)WORDBUF_LEN(buf);
-                    wordbuf_cat(buf, &string[i]);
-                }
-                break;
-            }
-            else if (!node)
-            {
-                // Convert "n + (consonant)" to "ん + (consant)"
-                if (skip == 1 && input[i] == ROMAJI_FIXKEY_N
-                        && object->fixvalue_xn)
-                {
-                    ++i;
-                    wordbuf_cat(buf, object->fixvalue_xn);
-                }
-                else
-                    while (skip--)
-                        wordbuf_add(buf, string[i++]);
-            }
-            else
-            {
-                i += skip;
-                wordbuf_cat(buf, node->value);
-            }
-        }
-        answer = STRDUP(WORDBUF_GET(buf));
-    }
-    if (ppstop)
-        *ppstop = (stop >= 0) ? answer + stop : NULL;
-
-    if (lower)
-        free(lower);
-    if (buf)
-        wordbuf_close(buf);
-    return answer;
-}
-
-unsigned char *
-romaji_convert(
-        romaji *object, const unsigned char *string, unsigned char **ppstop)
-{
-    return romaji_convert2(object, string, ppstop, 1);
-}
-
-void
-romaji_release(romaji *object, unsigned char *string)
-{
-    free(string);
-}
-
 void
 romaji_setproc_char2int(romaji *object, ROMAJI_PROC_CHAR2INT proc)
 {
@@ -703,7 +523,8 @@ add_pending_node_all(wordlist *tail, romanode *node, wordbuf *prefix)
     add_pending_node(tail, node->child, prefix);
 }
 
-wordlist *romaji_convert_all(romaji *object, const unsigned char *src)
+wordlist *
+romaji_convert_all(romaji *object, const unsigned char *src)
 {
     wordlist *list = NULL;
     unsigned char *srcbuf = NULL;

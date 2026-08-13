@@ -36,8 +36,6 @@
 # define EXPORTS
 #endif
 
-static const unsigned char VOWEL_CHARS[] = "aiueo";
-
 static int
 my_strlen(const char *s)
 {
@@ -289,89 +287,37 @@ add_mnode_query(migemo *object, unsigned char *query)
 }
 
 /// Convert input from Romaji to Kana and add it to the search keys.
-static int
+static void
 add_roma(migemo *object, unsigned char *query)
 {
-    unsigned char *stop, *hira, *kata, *han;
-    hira = romaji_convert(object->roma2hira, query, &stop);
-    if (!stop)
+    wordlist *hira_list = romaji_convert_all(object->roma2hira, query);
+    for (wordlist *hira_item = hira_list; hira_item;
+            hira_item = hira_item->next)
     {
+        unsigned char *hira = hira_item->ptr;
         migemo_addword(object, hira);
-        // Dictionary lookup using Hiragana
         add_mnode_query(object, hira);
-        // Generate Katakana string and add to candidates
-        kata = romaji_convert2(object->hira2kata, hira, NULL, 0);
-        migemo_addword(object, kata);
-        // Generate half-width Katakana and add to candidates
-        han = romaji_convert2(object->zen2han, kata, NULL, 0);
-        migemo_addword(object, han);
-        romaji_release(object->zen2han, han);
-        // Dictionary lookup using Katakana
-        add_mnode_query(object, kata);
-        romaji_release(object->hira2kata, kata); // Release Katakana
-    }
-    romaji_release(object->roma2hira, hira); // Release Hiragana
 
-    return stop ? 1 : 0;
-}
-
-/// Add vowels to the end of Romaji and add each to the search keys.
-static void
-add_dubious_vowels(migemo *object, unsigned char *buf, int index)
-{
-    const unsigned char *ptr;
-    for (ptr = VOWEL_CHARS; *ptr; ++ptr)
-    {
-        buf[index] = *ptr;
-        add_roma(object, buf);
-    }
-}
-
-// If Romaji conversion is incomplete, try adding [aiueo], "xn", and "xtu" to
-// the conversion.
-static void
-add_dubious_roma(migemo *object, rxgen *rx, unsigned char *query)
-{
-    int max;
-    int len;
-    char *buf;
-
-    if (!(len = my_strlen(query)))
-        return;
-    // Allocate a buffer for Romaji end arrangement. Details: original length,
-    // NUL, euphonic sounds (xtu), additional vowels ([aieuo])
-    max = len + 1 + 3 + 1;
-    buf = malloc(max);
-    if (buf == NULL)
-        return;
-    memcpy(buf, query, len);
-    memset(&buf[len], 0, max - len);
-
-    if (!strchr(VOWEL_CHARS, buf[len - 1]))
-    {
-        add_dubious_vowels(object, buf, len);
-        // If the length of the unconfirmed word is less than 2 or the character
-        // before the unconfirmed character is a vowel...
-        if (len < 2 || strchr(VOWEL_CHARS, buf[len - 2]))
+        wordlist *kata_list = romaji_convert_all(object->hira2kata, hira);
+        for (wordlist *kata_item = kata_list; kata_item;
+                kata_item = kata_item->next)
         {
-            if (buf[len - 1] == 'n')
-            {
-                // Try adding "n" (represented as "xn")
-                memcpy(&buf[len - 1], "xn", 2);
-                add_roma(object, buf);
-            }
-            else
-            {
-                // Try adding "っ{original consonant}{vowel}" (represented as
-                // "xtu")
-                buf[len + 2] = buf[len - 1];
-                memcpy(&buf[len - 1], "xtu", 3);
-                add_dubious_vowels(object, buf, len + 3);
-            }
-        }
-    }
+            unsigned char *kata = kata_item->ptr;
+            migemo_addword(object, kata);
+            add_mnode_query(object, kata);
 
-    free(buf);
+            wordlist *han_list = romaji_convert_all(object->zen2han, kata);
+            for (wordlist *han_item = han_list; han_item;
+                    han_item = han_item->next)
+            {
+                unsigned char *han = han_item->ptr;
+                migemo_addword(object, han);
+            }
+            wordlist_destroy(han_list);
+        }
+        wordlist_destroy(kata_list);
+    }
+    wordlist_destroy(hira_list);
 }
 
 /// Split the query into phrases. Phrases are typically separated by uppercase
@@ -417,12 +363,10 @@ parse_query(migemo *object, const unsigned char *query)
 }
 
 // Convert a single word using migemo. Does not perform argument checking.
-static int
+static void
 query_a_word(migemo *object, unsigned char *query)
 {
-    unsigned char *zen;
-    unsigned char *han;
-    unsigned char *lower;
+    unsigned char *lower = NULL;
     int len = my_strlen(query);
 
     // Naturally, add the query itself to the candidates
@@ -448,30 +392,24 @@ query_a_word(migemo *object, unsigned char *query)
             i += step;
         }
         add_mnode_query(object, lower);
-        free(lower);
     }
 
     // Convert query to full-width and add to candidates
-    zen = romaji_convert2(object->han2zen, query, NULL, 0);
-    if (zen != NULL)
-    {
-        migemo_addword(object, zen);
-        romaji_release(object->han2zen, zen);
-    }
+    wordlist *zen_list = romaji_convert_all(object->han2zen, query);
+    for (wordlist *zen = zen_list; zen; zen = zen->next)
+        migemo_addword(object, zen->ptr);
+    wordlist_destroy(zen_list);
 
     // Convert query to half-width and add to candidates
-    han = romaji_convert2(object->zen2han, query, NULL, 0);
-    if (han != NULL)
-    {
-        migemo_addword(object, han);
-        romaji_release(object->zen2han, han);
-    }
+    wordlist *han_list = romaji_convert_all(object->zen2han, query);
+    for (wordlist *han = han_list; han; han = han->next)
+        migemo_addword(object, han->ptr);
+    wordlist_destroy(han_list);
 
     // Add Hiragana, Katakana, and dictionary lookups using them
-    if (add_roma(object, query))
-        add_dubious_roma(object, object->rx, query);
+    add_roma(object, lower);
 
-    return 1;
+    free(lower);
 }
 
 /// Converts the given string (Romaji) into a regular expression for Japanese

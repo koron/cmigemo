@@ -32,15 +32,15 @@ query_one(romaji *object, romaji *hira2kata, romaji *han2zen, romaji *zen2han,
         char *buf)
 {
     wordlist *hira = romaji_convert_all(object, buf);
-    for (wordlist *p = hira; p ; p = p->next)
+    for (wordlist *p = hira; p; p = p->next)
     {
         printf("  hira=%s\n", p->ptr);
         wordlist *kata = romaji_convert_all(hira2kata, p->ptr);
-        for (wordlist *q = kata; q ; q = q->next)
+        for (wordlist *q = kata; q; q = q->next)
         {
             printf("  kata=%s\n", q->ptr);
             wordlist *han = romaji_convert_all(zen2han, q->ptr);
-            for (wordlist *r = han; r ; r = r->next)
+            for (wordlist *r = han; r; r = r->next)
                 printf("  han=%s\n", r->ptr);
             wordlist_destroy(han);
         }

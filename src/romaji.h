@@ -22,11 +22,6 @@ romaji *romaji_open();
 void romaji_close(romaji *object);
 int romaji_load(romaji *object, const unsigned char *filename,
         CHARSET_PROC_CHAR2INT char2int);
-unsigned char *romaji_convert(
-        romaji *object, const unsigned char *string, unsigned char **ppstop);
-unsigned char *romaji_convert2(romaji *object, const unsigned char *string,
-        unsigned char **ppstop, int ignorecase);
-void romaji_release(romaji *object, unsigned char *string);
 
 void romaji_setproc_char2int(romaji *object, ROMAJI_PROC_CHAR2INT proc);
 void romaji_set_verbose(romaji *object, int level);
