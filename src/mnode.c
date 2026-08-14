@@ -197,7 +197,7 @@ search_or_new_mnode(mtree *mt, wordbuf *buf)
     // Add to the search tree once the label word is determined
     mnode **res = NULL;
 
-    const unsigned char *word = WORDBUF_GET(buf);
+    const unsigned char *word = wordbuf_get(buf);
     if (!word)
         return NULL;
     unsigned int code = decode_rune(mt, &word);
@@ -414,7 +414,7 @@ mnode_load(mtree *mt, FILE *fp, CHARSET_PROC_CHAR2INT char2int,
                     case '\n':
                         // Store word
                         *ppword = wordlist_new(
-                                WORDBUF_GET(buf), WORDBUF_LEN(buf));
+                                wordbuf_get(buf), wordbuf_len(buf));
                         wordbuf_reset(buf);
 
                         if (ch == '\t')

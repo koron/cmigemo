@@ -457,7 +457,8 @@ migemo_query(migemo *object, const unsigned char *query)
 MIGEMO_QUERY_END:
     if (outbuf)
     {
-        retval = outbuf->buf;
+        retval = wordbuf_get(outbuf);
+        // Explicitly set to NULL to decouple it from `wordbuf` management.
         outbuf->buf = NULL;
         wordbuf_close(outbuf);
     }

@@ -16,9 +16,6 @@
 #define WORDBUF_DEFAULT_SIZE 64
 #define WORDBUF_MAX_SIZE     (8 * 1024 * 1024)
 
-int n_wordbuf_open = 0;  // for DEBUG
-int n_wordbuf_close = 0; // for DEBUG
-
 wordbuf *
 wordbuf_open()
 {
@@ -26,16 +23,15 @@ wordbuf_open()
     if (!p)
         return NULL;
 
-    p->len = WORDBUF_DEFAULT_SIZE;
-    p->buf = (unsigned char *)malloc(p->len);
+    p->cap = WORDBUF_DEFAULT_SIZE;
+    p->buf = (unsigned char *)malloc(p->cap);
     if (!p->buf)
     {
         free(p);
         return NULL;
     }
-    p->last = 0;
+    p->len = 0;
     p->buf[0] = '\0';
-    ++n_wordbuf_open; // for DEBUG
     return p;
 }
 
@@ -44,7 +40,6 @@ wordbuf_close(wordbuf *p)
 {
     if (p)
     {
-        ++n_wordbuf_close; // for DEBUG
         free(p->buf);
         free(p);
     }
@@ -59,7 +54,7 @@ wordbuf_extend(wordbuf *p, size_t req_len)
     if (req_len > WORDBUF_MAX_SIZE)
         return 0;
 
-    size_t newlen = p->len * 2;
+    size_t newlen = p->cap * 2;
     unsigned char *newbuf;
 
     while (req_len > newlen)
@@ -71,22 +66,16 @@ wordbuf_extend(wordbuf *p, size_t req_len)
     }
     else
     {
-        p->len = newlen;
+        p->cap = newlen;
         p->buf = newbuf;
         return req_len;
     }
 }
 
 size_t
-wordbuf_last(wordbuf *p)
-{
-    return p->last;
-}
-
-size_t
 wordbuf_append(wordbuf *p, wordbuf *q)
 {
-    return wordbuf_write_bytes(p, q->buf, q->last);
+    return wordbuf_write_bytes(p, q->buf, q->len);
 }
 
 size_t
@@ -102,14 +91,14 @@ wordbuf_cat(wordbuf *p, const unsigned char *sz)
 
     if (len > 0)
     {
-        size_t newlen = (size_t)p->last + len + 1;
+        size_t newlen = (size_t)p->len + len + 1;
 
-        if (newlen > p->len && !wordbuf_extend(p, newlen))
+        if (newlen > p->cap && !wordbuf_extend(p, newlen))
             return 0;
-        memcpy(&p->buf[p->last], sz, len + 1);
-        p->last += len;
+        memcpy(&p->buf[p->len], sz, len + 1);
+        p->len += len;
     }
-    return p->last;
+    return p->len;
 }
 
 size_t
@@ -117,18 +106,12 @@ wordbuf_write_bytes(wordbuf *buf, const unsigned char *p, size_t len)
 {
     if (p != NULL && len > 0)
     {
-        size_t newlen = buf->last + len + 1;
-        if (newlen > buf->len && !wordbuf_extend(buf, newlen))
+        size_t newlen = buf->len + len + 1;
+        if (newlen > buf->cap && !wordbuf_extend(buf, newlen))
             return 0;
-        memcpy(&buf->buf[buf->last], p, len);
-        buf->last += len;
-        buf->buf[buf->last] = '\0';
+        memcpy(&buf->buf[buf->len], p, len);
+        buf->len += len;
+        buf->buf[buf->len] = '\0';
     }
-    return buf->last;
-}
-
-unsigned char *
-wordbuf_get(wordbuf *p)
-{
-    return p->buf;
+    return buf->len;
 }

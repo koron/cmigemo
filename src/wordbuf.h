@@ -9,17 +9,10 @@
 typedef struct wordbuf wordbuf;
 struct wordbuf
 {
-    size_t len;  // amount of memory allocated to buf
-    size_t last; // length of the string actually stored in buf
+    size_t cap; // amount of memory allocated to buf
+    size_t len; // length of the string actually stored in buf
     unsigned char *buf;
 };
-
-extern int n_wordbuf_open;
-extern int n_wordbuf_close;
-
-#define wordbuf_len(w) wordbuf_last(w)
-#define WORDBUF_GET(w) ((w)->buf)
-#define WORDBUF_LEN(w) ((w)->last)
 
 #ifdef __cplusplus
 extern "C" {
@@ -27,33 +20,43 @@ extern "C" {
 
 wordbuf *wordbuf_open();
 void wordbuf_close(wordbuf *p);
-size_t wordbuf_extend(wordbuf *p, size_t len);
-size_t wordbuf_last(wordbuf *p);
+size_t wordbuf_extend(wordbuf *p, size_t req_len);
 size_t wordbuf_append(wordbuf *p, wordbuf *q);
 size_t wordbuf_cat(wordbuf *p, const unsigned char *sz);
 size_t wordbuf_write_bytes(wordbuf *buf, const unsigned char *p, size_t len);
-unsigned char *wordbuf_get(wordbuf *p);
 
 #ifdef __cplusplus
 }
 #endif
 
+static inline size_t
+wordbuf_len(wordbuf *p)
+{
+    return p->len;
+}
+
+static inline unsigned char *
+wordbuf_get(wordbuf *p)
+{
+    return p->buf;
+}
+
 static inline void
 wordbuf_reset(wordbuf *p)
 {
-    p->last = 0;
+    p->len = 0;
     p->buf[0] = '\0';
 }
 
 static inline size_t
 wordbuf_add(wordbuf *p, unsigned char ch)
 {
-    size_t newlen = p->last + 2;
-    if (newlen > p->len)
+    size_t newlen = p->len + 2;
+    if (newlen > p->cap)
         if (!wordbuf_extend(p, newlen))
             return 0;
 
-    p->buf[p->last++] = ch;
-    p->buf[p->last] = 0;
-    return p->last;
+    p->buf[p->len++] = ch;
+    p->buf[p->len] = 0;
+    return p->len;
 }

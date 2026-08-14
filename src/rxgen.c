@@ -456,7 +456,7 @@ rxgen_generate(rxgen *object)
 #endif
             rxgen_generate_stub(object, buf, object->root);
         }
-        answer = STRDUP(WORDBUF_GET(buf));
+        answer = STRDUP(wordbuf_get(buf));
         wordbuf_close(buf);
     }
     return answer;
