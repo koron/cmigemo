@@ -247,6 +247,64 @@ romaji_add_entry(romaji *rj, const unsigned char *key,
     return 0;
 }
 
+static void
+romanode_stat_stub(
+        romanode *node, trie_stat *stat, int sib_depth, int total_cmp)
+{
+    if (!node)
+        return;
+
+    stat->total_nodes++;
+    stat->total_sibling_depth += sib_depth;
+    if (sib_depth > stat->max_sibling_depth)
+        stat->max_sibling_depth = sib_depth;
+
+    if (node->low)
+        stat->low_count++;
+    if (node->high)
+        stat->high_count++;
+    if (node->child)
+        stat->child_count++;
+
+    if (node->value)
+    {
+        stat->wordtail_count++;
+        stat->total_node_cmp_count += total_cmp;
+        if (total_cmp > stat->max_node_cmp_count)
+            stat->max_node_cmp_count = total_cmp;
+    }
+
+    // recursive calls for low, high, and child nodes.
+    if (node->low)
+        romanode_stat_stub(node->low, stat, sib_depth + 1, total_cmp + 1);
+    if (node->high)
+        romanode_stat_stub(node->high, stat, sib_depth + 1, total_cmp + 1);
+    if (node->child)
+        romanode_stat_stub(node->child, stat, 0, total_cmp + 1);
+}
+
+static void
+romanode_stat(romaji *rj, trie_stat *stat)
+{
+    if (!stat || !rj || !rj->rootnode)
+        return;
+    memset(stat, 0, sizeof(*stat));
+    romanode_stat_stub(rj->rootnode, stat, 0, 1);
+}
+
+void
+romanode_print_stat(romaji *rj, const char *title)
+{
+    if (!rj || !rj->rootnode)
+    {
+        printf("== INVALID romanode ===\n");
+        return;
+    }
+    trie_stat stat;
+    romanode_stat(rj, &stat);
+    trie_stat_print(&stat, title);
+}
+
 typedef enum {
     MODE_KEY_WAITING = 0,
     MODE_KEY_READING = 1,
@@ -398,64 +456,6 @@ romaji_load_stub(romaji *rj, FILE *fp)
         }
     }
     return 0;
-}
-
-static void
-romanode_stat_stub(
-        romanode *node, trie_stat *stat, int sib_depth, int total_cmp)
-{
-    if (!node)
-        return;
-
-    stat->total_nodes++;
-    stat->total_sibling_depth += sib_depth;
-    if (sib_depth > stat->max_sibling_depth)
-        stat->max_sibling_depth = sib_depth;
-
-    if (node->low)
-        stat->low_count++;
-    if (node->high)
-        stat->high_count++;
-    if (node->child)
-        stat->child_count++;
-
-    if (node->value)
-    {
-        stat->wordtail_count++;
-        stat->total_node_cmp_count += total_cmp;
-        if (total_cmp > stat->max_node_cmp_count)
-            stat->max_node_cmp_count = total_cmp;
-    }
-
-    // recursive calls for low, high, and child nodes.
-    if (node->low)
-        romanode_stat_stub(node->low, stat, sib_depth + 1, total_cmp + 1);
-    if (node->high)
-        romanode_stat_stub(node->high, stat, sib_depth + 1, total_cmp + 1);
-    if (node->child)
-        romanode_stat_stub(node->child, stat, 0, total_cmp + 1);
-}
-
-static void
-romanode_stat(romaji *rj, trie_stat *stat)
-{
-    if (!stat || !rj || !rj->rootnode)
-        return;
-    memset(stat, 0, sizeof(*stat));
-    romanode_stat_stub(rj->rootnode, stat, 0, 1);
-}
-
-void
-romanode_print_stat(romaji *rj, const char *title)
-{
-    if (!rj || !rj->rootnode)
-    {
-        printf("== INVALID romanode ===\n");
-        return;
-    }
-    trie_stat stat;
-    romanode_stat(rj, &stat);
-    trie_stat_print(&stat, title);
 }
 
 /// Load the Romaji dictionary.
