@@ -28,10 +28,10 @@
 #endif
 
 void
-query_one(romaji *object, romaji *hira2kata, romaji *han2zen, romaji *zen2han,
+query_one(romaji *rj, romaji *hira2kata, romaji *han2zen, romaji *zen2han,
         char *buf)
 {
-    wordlist *hira = romaji_convert_all(object, buf);
+    wordlist *hira = romaji_convert_all(rj, buf);
     for (wordlist *p = hira; p; p = wordlist_next(p))
     {
         printf("  hira=%s\n", wordlist_word(p));
@@ -55,7 +55,7 @@ query_one(romaji *object, romaji *hira2kata, romaji *han2zen, romaji *zen2han,
 }
 
 void
-query_loop(romaji *object, romaji *hira2kata, romaji *han2zen, romaji *zen2han)
+query_loop(romaji *rj, romaji *hira2kata, romaji *han2zen, romaji *zen2han)
 {
     char buf[256], *ans;
 
@@ -70,21 +70,20 @@ query_loop(romaji *object, romaji *hira2kata, romaji *han2zen, romaji *zen2han)
         // Replace newline with NUL character
         if ((ans = strchr(buf, '\n')) != NULL)
             *ans = '\0';
-        query_one(object, hira2kata, han2zen, zen2han, buf);
+        query_one(rj, hira2kata, han2zen, zen2han, buf);
     }
 }
 
 int
 main(int argc, char **argv)
 {
-    romaji *object, *hira2kata, *han2zen, *zen2han;
+    romaji *rj, *hira2kata, *han2zen, *zen2han;
     char *word = NULL;
 
-    object = romaji_open();
+    rj = romaji_open();
     hira2kata = romaji_open();
     han2zen = romaji_open();
     zen2han = romaji_open();
-    romaji_set_verbose(zen2han, 1);
 
     while (*++argv)
     {
@@ -94,11 +93,11 @@ main(int argc, char **argv)
             word = *++argv;
     }
 
-    if (object && hira2kata && han2zen && zen2han)
+    if (rj && hira2kata && han2zen && zen2han)
     {
         int retval = 0;
 
-        retval = romaji_load(object, DICT_ROMA2HIRA, charset_utf8_char2int);
+        retval = romaji_load(rj, DICT_ROMA2HIRA, charset_utf8_char2int);
         printf("romaji_load(%s)=%d\n", DICT_ROMA2HIRA, retval);
         retval = romaji_load(hira2kata, DICT_HIRA2KATA, charset_utf8_char2int);
         printf("romaji_load(%s)=%d\n", DICT_HIRA2KATA, retval);
@@ -107,17 +106,17 @@ main(int argc, char **argv)
         retval = romaji_load(zen2han, DICT_ZEN2HAN, charset_utf8_char2int);
         printf("romaji_load(%s)=%d\n", DICT_HAN2ZEN, retval);
         if (word)
-            query_one(object, hira2kata, han2zen, zen2han, word);
+            query_one(rj, hira2kata, han2zen, zen2han, word);
         else
-            query_loop(object, hira2kata, han2zen, zen2han);
+            query_loop(rj, hira2kata, han2zen, zen2han);
     }
 
     if (han2zen)
         romaji_close(han2zen);
     if (hira2kata)
         romaji_close(hira2kata);
-    if (object)
-        romaji_close(object);
+    if (rj)
+        romaji_close(rj);
 
     return 0;
 }
