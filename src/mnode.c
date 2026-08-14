@@ -91,7 +91,7 @@ mnode_debug_stat(mnode *root, trie_stat *stat)
 }
 
 void
-mnode_print_stat(mtree *mt)
+mnode_print_stat(mtree *mt, const char *label)
 {
     if (!mt || !mt->rootnode)
     {
@@ -102,7 +102,7 @@ mnode_print_stat(mtree *mt)
     trie_stat stat;
     mnode_debug_stat(mt->rootnode, &stat);
 
-    trie_stat_print(&stat, "mnode statistics");
+    trie_stat_print(&stat, label);
 }
 
 static mnode *
@@ -120,7 +120,7 @@ mnode_arena_alloc(mnode_arena *arena, unsigned int code)
         arena->curr = block;
     }
     mnode *p = &arena->curr->nodes[arena->curr->used++];
-    p->attr = code;
+    p->code = code;
     return p;
 }
 
@@ -149,7 +149,7 @@ mnode_print_stub(mtree *mt, mnode *vp, unsigned char *p)
         return;
     if (!p)
         p = &buf[0];
-    int len = mt->int2char(vp->attr, p);
+    int len = mt->int2char(vp->code, p);
     p[len] = '\0';
     if (vp->list)
         printf("%s (list=%p)\n", buf, vp->list);
@@ -216,7 +216,7 @@ search_or_new_mnode(mtree *mt, wordbuf *buf)
         }
         else
         {
-            int pivot = (*res)->attr;
+            int pivot = (*res)->code;
             if (code < pivot)
             {
                 ppnext = &(*res)->low;
@@ -229,12 +229,69 @@ search_or_new_mnode(mtree *mt, wordbuf *buf)
             }
         }
         ppnext = &(*res)->child;
+        (*res)->weight++;
         code = decode_rune(mt, &word);
         if (code == 0)
             break;
     }
 
     return *res;
+}
+
+size_t
+mnode_count_siblings(mnode *node)
+{
+    if (!node)
+        return 0;
+    return mnode_count_siblings(node->low) + 1
+           + mnode_count_siblings(node->high);
+}
+
+mnode **
+mnode_collect_siblings(mnode *node, mnode **buf)
+{
+    if (!node)
+        return buf;
+    buf = mnode_collect_siblings(node->low, buf);
+    *buf++ = node;
+    return mnode_collect_siblings(node->high, buf);
+}
+
+static mnode *
+mnode_balanced_tree(mnode **nodes, size_t start, size_t end)
+{
+    if (start >= end)
+        return NULL;
+
+    int left = (int)start - 1, right = end;
+    unsigned int lsum = 0, rsum = 0;
+    while (left < right)
+        if (lsum < rsum
+                || (lsum == rsum && (left - start + 1) <= (end - 1 - right)))
+            lsum += nodes[++left]->weight;
+        else
+            rsum += nodes[--right]->weight;
+    size_t mid = left;
+
+    mnode *root = nodes[mid];
+    root->low = mnode_balanced_tree(nodes, start, mid);
+    root->high = mnode_balanced_tree(nodes, mid + 1, end);
+    return root;
+}
+
+static mnode *
+mnode_balance(mnode *root)
+{
+    if (!root)
+        return NULL;
+    size_t count = mnode_count_siblings(root);
+    mnode **nodes = calloc(count, sizeof(mnode *));
+    mnode_collect_siblings(root, nodes);
+    root = mnode_balanced_tree(nodes, 0, count);
+    for (size_t i = 0; i < count; i++)
+        nodes[i]->child = mnode_balance(nodes[i]->child);
+    free(nodes);
+    return root;
 }
 
 // Batch add data from a file to existing nodes.
@@ -381,6 +438,8 @@ mnode_load(mtree *mt, FILE *fp, CHARSET_PROC_CHAR2INT char2int,
     }
     while (ch != EOF);
 
+    mt->rootnode = mnode_balance(mt->rootnode);
+
 END_MNODE_LOAD:
     wordbuf_close(buf);
     wordbuf_close(prevlabel);
@@ -411,8 +470,8 @@ mnode_query(mtree *mt, const unsigned char *query)
     while (node)
     {
         // Search from siblings
-        while (node != NULL && code != node->attr)
-            node = code < node->attr ? node->low : node->high;
+        while (node != NULL && code != node->code)
+            node = code < node->code ? node->low : node->high;
         if (!node)
             break; // Not found the rune.
         // Proceed to the child node

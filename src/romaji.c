@@ -139,32 +139,33 @@ romanode_dig(romanode_arena *arena, romanode **pp, unsigned int code)
 }
 
 size_t
-count_siblings(romanode *node)
+romanode_count_siblings(romanode *node)
 {
     if (!node)
         return 0;
-    return count_siblings(node->low) + count_siblings(node->high) + 1;
+    return romanode_count_siblings(node->low) + 1
+           + romanode_count_siblings(node->high);
 }
 
 romanode **
-collect_siblings(romanode *node, romanode **buf)
+romanode_collect_siblings(romanode *node, romanode **buf)
 {
     if (!node)
         return buf;
-    buf = collect_siblings(node->low, buf);
+    buf = romanode_collect_siblings(node->low, buf);
     *buf++ = node;
-    return collect_siblings(node->high, buf);
+    return romanode_collect_siblings(node->high, buf);
 }
 
 static romanode *
-build_balanced_tree(romanode **nodes, size_t start, size_t end)
+romanode_balanced_tree(romanode **nodes, size_t start, size_t end)
 {
     if (start >= end)
         return NULL;
     size_t mid = (start + end) / 2;
     romanode *root = nodes[mid];
-    root->low = build_balanced_tree(nodes, start, mid);
-    root->high = build_balanced_tree(nodes, mid + 1, end);
+    root->low = romanode_balanced_tree(nodes, start, mid);
+    root->high = romanode_balanced_tree(nodes, mid + 1, end);
     return root;
 }
 
@@ -173,10 +174,10 @@ romanode_balance(romanode *root)
 {
     if (!root)
         return NULL;
-    size_t count = count_siblings(root);
+    size_t count = romanode_count_siblings(root);
     romanode **nodes = calloc(count, sizeof(romanode *));
-    collect_siblings(root, nodes);
-    root = build_balanced_tree(nodes, 0, count);
+    romanode_collect_siblings(root, nodes);
+    root = romanode_balanced_tree(nodes, 0, count);
     for (size_t i = 0; i < count; i++)
         nodes[i]->child = romanode_balance(nodes[i]->child);
     free(nodes);

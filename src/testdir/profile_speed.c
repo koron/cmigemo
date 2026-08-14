@@ -52,7 +52,7 @@ main(int argc, char **argv)
     clock_tmp = clock();
     pmig = migemo_open(DICTDIR "/migemo-dict");
     clock_load = clock() - clock_tmp;
-    mnode_print_stat(pmig->mtree);
+    mnode_print_stat(pmig->mtree, "mtree statistics");
     if (pmig != NULL)
     {
         printf("Quering\n");
