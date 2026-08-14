@@ -4,10 +4,16 @@ else()
   set(CMIGEMO_DEFAULT_DICTDIR "${CMAKE_INSTALL_FULL_DATADIR}/cmigemo/utf-8")
 endif()
 
+configure_file(
+  "${CMAKE_CURRENT_SOURCE_DIR}/migemo.rc.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/migemo.rc"
+  @ONLY)
+
 add_library(
   migemo
   SHARED
     migemo.def
+    "${CMAKE_CURRENT_BINARY_DIR}/migemo.rc"
     charset.c
     filename.c
     migemo.c

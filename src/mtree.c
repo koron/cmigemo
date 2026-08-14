@@ -187,7 +187,7 @@ mtree_ensure_node(mtree *mt, strbuf *buf)
         }
         else
         {
-            int pivot = (*res)->code;
+            unsigned int pivot = (*res)->code;
             if (code < pivot)
             {
                 ppnext = &(*res)->low;
@@ -234,7 +234,7 @@ mnode_balanced_tree(mnode **nodes, size_t start, size_t end)
     if (start >= end)
         return NULL;
 
-    int left = (int)start - 1, right = end;
+    int left = (int)start - 1, right = (int)end;
     unsigned int lsum = 0, rsum = 0;
     while (left < right)
         if (lsum < rsum

@@ -43,7 +43,7 @@ jobs:
     - name: Build
       run: |
         call "%VCVARSALL%" amd64
-        cmake -B build -DCMAKE_BUILD_TYPE=Release
+        cmake -B build -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release
         cmake --build build --parallel
 
     - name: Test
