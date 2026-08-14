@@ -309,7 +309,7 @@ rxgen_write_node_code(rxgen *object, strbuf *buf, rnode *node)
 {
     unsigned char bytes[6];
     int len = rxgen_call_int2char(object, node->code, bytes);
-    strbuf_write_bytes(buf, bytes, len);
+    strbuf_append_mem(buf, bytes, len);
 }
 
 static void
@@ -333,11 +333,11 @@ rxgen_write_node_has_children(
     {
         // Output OR if necessary
         if (*needOr)
-            strbuf_cat(buf, object->op_or);
+            strbuf_append_str(buf, object->op_or);
         rxgen_write_node_code(object, buf, node);
         // Insert a pattern that skips whitespace/newline
         if (object->op_newline[0])
-            strbuf_cat(buf, object->op_newline);
+            strbuf_append_str(buf, object->op_newline);
         rxgen_generate_stub(object, buf, node->child);
         *needOr = true;
     }
@@ -364,16 +364,16 @@ rxgen_generate_stub(rxgen *object, strbuf *buf, rnode *node)
 
     // Group using () if necessary
     if (needGroup)
-        strbuf_cat(buf, object->op_nest_in);
+        strbuf_append_str(buf, object->op_nest_in);
 
     // Group nodes without children first with []
     if (noChildrenCount > 0)
     {
         if (needClass)
         {
-            strbuf_cat(buf, object->op_select_in);
+            strbuf_append_str(buf, object->op_select_in);
             rxgen_write_node_no_children(object, buf, node);
-            strbuf_cat(buf, object->op_select_out);
+            strbuf_append_str(buf, object->op_select_out);
         }
         else
             rxgen_write_node_no_children(object, buf, node);
@@ -388,7 +388,7 @@ rxgen_generate_stub(rxgen *object, strbuf *buf, rnode *node)
 
     // Group using () if necessary
     if (needGroup)
-        strbuf_cat(buf, object->op_nest_out);
+        strbuf_append_str(buf, object->op_nest_out);
 }
 
 #if RXGEN_DEBUG_STAT

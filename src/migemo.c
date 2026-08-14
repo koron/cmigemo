@@ -449,7 +449,7 @@ migemo_query(migemo *object, const unsigned char *query)
             // Generate search pattern (regular expression)
             answer = rxgen_generate(object->rx);
             rxgen_reset(object->rx);
-            strbuf_cat(outbuf, answer);
+            strbuf_append_str(outbuf, answer);
             rxgen_release(object->rx, answer);
         }
     }

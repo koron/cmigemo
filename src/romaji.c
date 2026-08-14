@@ -542,7 +542,7 @@ add_pending_node(wordlist *tail, romanode *node, strbuf *prefix)
         if (w)
         {
             strbuf_append(w, prefix);
-            strbuf_cat(w, node->value);
+            strbuf_append_str(w, node->value);
             wordlist *item = wordlist_new(strbuf_get(w), strbuf_len(w));
             tail->next = item;
             tail = item;
@@ -589,11 +589,11 @@ romaji_convert_all(romaji *object, const unsigned char *src)
 
         if (!node)
         {
-            strbuf_write_bytes(pending, prev, curr - prev);
+            strbuf_append_mem(pending, prev, curr - prev);
             // Consume a code from the pending, add it to dstbuf.
             unsigned char *p = strbuf_get(pending);
             size_t len = decode_len(object->char2int, p);
-            strbuf_write_bytes(dstbuf, p, len);
+            strbuf_append_mem(dstbuf, p, len);
             // Push the pending remainder to the front of srcbuf.
             size_t rem_len = strbuf_len(pending) - len;
             if (curr < srcbuf + rem_len) // Check if srcbuf has underflowed.
@@ -608,7 +608,7 @@ romaji_convert_all(romaji *object, const unsigned char *src)
 
         if (node->value)
         {
-            strbuf_cat(dstbuf, node->value);
+            strbuf_append_str(dstbuf, node->value);
             // Push node->remain to front of curr.
             if (node->remain)
             {
@@ -625,7 +625,7 @@ romaji_convert_all(romaji *object, const unsigned char *src)
             continue;
         }
 
-        strbuf_write_bytes(pending, prev, curr - prev);
+        strbuf_append_mem(pending, prev, curr - prev);
     }
 
     if (strbuf_len(pending) == 0)

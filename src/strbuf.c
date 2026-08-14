@@ -19,107 +19,107 @@
 strbuf *
 strbuf_open()
 {
-    strbuf *p = (strbuf *)malloc(sizeof(strbuf));
-    if (!p)
+    strbuf *sb = (strbuf *)malloc(sizeof(strbuf));
+    if (!sb)
         return NULL;
 
-    p->cap = STRBUF_DEFAULT_SIZE;
-    p->buf = (unsigned char *)malloc(p->cap);
-    if (!p->buf)
+    sb->cap = STRBUF_DEFAULT_SIZE;
+    sb->buf = (unsigned char *)malloc(sb->cap);
+    if (!sb->buf)
     {
-        free(p);
+        free(sb);
         return NULL;
     }
-    p->len = 0;
-    p->buf[0] = '\0';
-    return p;
+    sb->len = 0;
+    sb->buf[0] = '\0';
+    return sb;
 }
 
 void
-strbuf_close(strbuf *p)
+strbuf_close(strbuf *sb)
 {
-    if (p)
+    if (sb)
     {
-        free(p->buf);
-        free(p);
+        free(sb->buf);
+        free(sb);
     }
 }
 
-// strbuf_extend(strbuf * p, int req_len);
+// strbuf_extend(strbuf * sb, int req_len);
 //	Expand the buffer. Returns 0 on error.
 //	The caller decides whether to expand for performance.
 size_t
-strbuf_extend(strbuf *p, size_t req_len)
+strbuf_extend(strbuf *sb, size_t req_len)
 {
     if (req_len > STRBUF_MAX_SIZE)
         return 0;
 
-    size_t newlen = p->cap * 2;
+    size_t newlen = sb->cap * 2;
     unsigned char *newbuf;
 
     while (req_len > newlen)
         newlen *= 2;
-    if (!(newbuf = (unsigned char *)realloc(p->buf, newlen)))
+    if (!(newbuf = (unsigned char *)realloc(sb->buf, newlen)))
     {
         // fprintf(stderr, "strbuf_add(): failed to extend buffer\n");
         return 0;
     }
     else
     {
-        p->cap = newlen;
-        p->buf = newbuf;
+        sb->cap = newlen;
+        sb->buf = newbuf;
         return req_len;
     }
 }
 
 size_t
-strbuf_append_ch(strbuf *p, unsigned char ch)
+strbuf_append_ch(strbuf *sb, unsigned char ch)
 {
-    if (!strbuf_extend(p, p->len + 2))
+    if (!strbuf_extend(sb, sb->len + 2))
         return 0;
-    return strbuf_add(p, ch);
+    return strbuf_add(sb, ch);
 }
 
 size_t
-strbuf_append(strbuf *p, strbuf *q)
+strbuf_append(strbuf *sb, strbuf *q)
 {
-    return strbuf_write_bytes(p, q->buf, q->len);
+    return strbuf_append_mem(sb, q->buf, q->len);
 }
 
 size_t
-strbuf_cat(strbuf *p, const unsigned char *sz)
+strbuf_append_str(strbuf *sb, const unsigned char *s)
 {
     size_t len = 0;
 
-    if (sz != NULL)
+    if (s != NULL)
     {
-        size_t l = strlen(sz);
+        size_t l = strlen(s);
         len = l < INT_MAX ? l : INT_MAX;
     }
 
     if (len > 0)
     {
-        size_t newlen = (size_t)p->len + len + 1;
+        size_t newlen = (size_t)sb->len + len + 1;
 
-        if (newlen > p->cap && !strbuf_extend(p, newlen))
+        if (newlen > sb->cap && !strbuf_extend(sb, newlen))
             return 0;
-        memcpy(&p->buf[p->len], sz, len + 1);
-        p->len += len;
+        memcpy(&sb->buf[sb->len], s, len + 1);
+        sb->len += len;
     }
-    return p->len;
+    return sb->len;
 }
 
 size_t
-strbuf_write_bytes(strbuf *buf, const unsigned char *p, size_t len)
+strbuf_append_mem(strbuf *sb, const unsigned char *p, size_t len)
 {
     if (p != NULL && len > 0)
     {
-        size_t newlen = buf->len + len + 1;
-        if (newlen > buf->cap && !strbuf_extend(buf, newlen))
+        size_t newlen = sb->len + len + 1;
+        if (newlen > sb->cap && !strbuf_extend(sb, newlen))
             return 0;
-        memcpy(&buf->buf[buf->len], p, len);
-        buf->len += len;
-        buf->buf[buf->len] = '\0';
+        memcpy(&sb->buf[sb->len], p, len);
+        sb->len += len;
+        sb->buf[sb->len] = '\0';
     }
-    return buf->len;
+    return sb->len;
 }
