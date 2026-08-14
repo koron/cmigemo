@@ -13,8 +13,8 @@
 
 #include "charset.h"
 #include "mnode.h"
+#include "strbuf.h"
 #include "trie.h"
-#include "wordbuf.h"
 #include "wordlist.h"
 
 #define MNODE_BUFSIZE    16384
@@ -192,12 +192,12 @@ decode_rune(mtree *mt, const unsigned char **pp)
 }
 
 static mnode *
-search_or_new_mnode(mtree *mt, wordbuf *buf)
+search_or_new_mnode(mtree *mt, strbuf *buf)
 {
     // Add to the search tree once the label word is determined
     mnode **res = NULL;
 
-    const unsigned char *word = wordbuf_get(buf);
+    const unsigned char *word = strbuf_get(buf);
     if (!word)
         return NULL;
     unsigned int code = decode_rune(mt, &word);
@@ -302,8 +302,8 @@ mnode_load(mtree *mt, FILE *fp, CHARSET_PROC_CHAR2INT char2int,
     mnode *pp = NULL;
     int mode = 0;
     int ch;
-    wordbuf *buf;
-    wordbuf *prevlabel;
+    strbuf *buf;
+    strbuf *prevlabel;
     wordlist **ppword = NULL; // To suppress warning for GCC
     // Variables for the input buffer
     unsigned char cache[MNODE_BUFSIZE];
@@ -313,8 +313,8 @@ mnode_load(mtree *mt, FILE *fp, CHARSET_PROC_CHAR2INT char2int,
     mt->char2int = char2int;
     mt->int2char = int2char;
 
-    buf = wordbuf_open();
-    prevlabel = wordbuf_open();
+    buf = strbuf_open();
+    prevlabel = strbuf_open();
     if (!fp || !buf || !prevlabel)
     {
         mt = NULL;
@@ -353,8 +353,8 @@ mnode_load(mtree *mt, FILE *fp, CHARSET_PROC_CHAR2INT char2int,
                 else
                 {
                     mode = 1; // Switch to mode for reading label words
-                    wordbuf_reset(buf);
-                    wordbuf_add(buf, (unsigned char)ch);
+                    strbuf_reset(buf);
+                    strbuf_add(buf, (unsigned char)ch);
                 }
                 break;
 
@@ -363,7 +363,7 @@ mnode_load(mtree *mt, FILE *fp, CHARSET_PROC_CHAR2INT char2int,
                 switch (ch)
                 {
                     default:
-                        wordbuf_add(buf, (unsigned char)ch);
+                        strbuf_add(buf, (unsigned char)ch);
                         break;
                     case '\t':
                         pp = search_or_new_mnode(mt, buf);
@@ -372,7 +372,7 @@ mnode_load(mtree *mt, FILE *fp, CHARSET_PROC_CHAR2INT char2int,
                             mt = NULL;
                             goto END_MNODE_LOAD;
                         }
-                        wordbuf_reset(buf);
+                        strbuf_reset(buf);
                         mode = 3; // Switch to mode for skipping whitespace
                                   // before words
                         break;
@@ -382,7 +382,7 @@ mnode_load(mtree *mt, FILE *fp, CHARSET_PROC_CHAR2INT char2int,
             case 2: // Mode that consumes until end of line
                 if (ch == '\n')
                 {
-                    wordbuf_reset(buf);
+                    strbuf_reset(buf);
                     mode = 0; // Return to label word search mode
                 }
                 break;
@@ -390,14 +390,14 @@ mnode_load(mtree *mt, FILE *fp, CHARSET_PROC_CHAR2INT char2int,
             case 3: // Mode for skipping whitespace before words
                 if (ch == '\n')
                 {
-                    wordbuf_reset(buf);
+                    strbuf_reset(buf);
                     mode = 0; // Return to label word search mode
                 }
                 else if (ch != '\t')
                 {
                     // Reset word buffer
-                    wordbuf_reset(buf);
-                    wordbuf_add(buf, (unsigned char)ch);
+                    strbuf_reset(buf);
+                    strbuf_add(buf, (unsigned char)ch);
                     // Search for the end of the word list (if multiple words
                     // for same label)
                     ppword = &pp->list;
@@ -413,9 +413,9 @@ mnode_load(mtree *mt, FILE *fp, CHARSET_PROC_CHAR2INT char2int,
                     case '\t':
                     case '\n':
                         // Store word
-                        *ppword = wordlist_new(
-                                wordbuf_get(buf), wordbuf_len(buf));
-                        wordbuf_reset(buf);
+                        *ppword =
+                                wordlist_new(strbuf_get(buf), strbuf_len(buf));
+                        strbuf_reset(buf);
 
                         if (ch == '\t')
                         {
@@ -430,7 +430,7 @@ mnode_load(mtree *mt, FILE *fp, CHARSET_PROC_CHAR2INT char2int,
                         }
                         break;
                     default:
-                        wordbuf_add(buf, (unsigned char)ch);
+                        strbuf_add(buf, (unsigned char)ch);
                         break;
                 }
                 break;
@@ -441,8 +441,8 @@ mnode_load(mtree *mt, FILE *fp, CHARSET_PROC_CHAR2INT char2int,
     mt->rootnode = mnode_balance(mt->rootnode);
 
 END_MNODE_LOAD:
-    wordbuf_close(buf);
-    wordbuf_close(prevlabel);
+    strbuf_close(buf);
+    strbuf_close(prevlabel);
     return mt;
 }
 

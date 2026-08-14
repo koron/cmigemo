@@ -6,7 +6,7 @@ add_executable(
   ${CMAKE_SOURCE_DIR}/src/charset.c
   ${CMAKE_SOURCE_DIR}/src/romaji.c
   ${CMAKE_SOURCE_DIR}/src/trie.c
-  ${CMAKE_SOURCE_DIR}/src/wordbuf.c
+  ${CMAKE_SOURCE_DIR}/src/strbuf.c
   ${CMAKE_SOURCE_DIR}/src/wordlist.c)
 target_include_directories(romaji PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_compile_definitions(
@@ -33,7 +33,7 @@ add_executable(
   ${CMAKE_SOURCE_DIR}/src/romaji.c
   ${CMAKE_SOURCE_DIR}/src/rxgen.c
   ${CMAKE_SOURCE_DIR}/src/trie.c
-  ${CMAKE_SOURCE_DIR}/src/wordbuf.c
+  ${CMAKE_SOURCE_DIR}/src/strbuf.c
   ${CMAKE_SOURCE_DIR}/src/wordlist.c)
 target_include_directories(qspeed PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_compile_definitions(

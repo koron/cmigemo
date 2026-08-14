@@ -12,8 +12,8 @@
 #include <string.h>
 
 #include "rxgen.h"
+#include "strbuf.h"
 #include "trie.h"
-#include "wordbuf.h"
 
 #if defined(_MSC_VER)
 # define STRDUP _strdup
@@ -302,18 +302,18 @@ rxgen_rnode_count(rnode *node, int *childrenCount, int *brotherCount)
     }
 }
 
-static void rxgen_generate_stub(rxgen *object, wordbuf *buf, rnode *node);
+static void rxgen_generate_stub(rxgen *object, strbuf *buf, rnode *node);
 
 static void
-rxgen_write_node_code(rxgen *object, wordbuf *buf, rnode *node)
+rxgen_write_node_code(rxgen *object, strbuf *buf, rnode *node)
 {
     unsigned char bytes[6];
     int len = rxgen_call_int2char(object, node->code, bytes);
-    wordbuf_write_bytes(buf, bytes, len);
+    strbuf_write_bytes(buf, bytes, len);
 }
 
 static void
-rxgen_write_node_no_children(rxgen *object, wordbuf *buf, rnode *node)
+rxgen_write_node_no_children(rxgen *object, strbuf *buf, rnode *node)
 {
     if (node->low)
         rxgen_write_node_no_children(object, buf, node->low);
@@ -325,7 +325,7 @@ rxgen_write_node_no_children(rxgen *object, wordbuf *buf, rnode *node)
 
 static void
 rxgen_write_node_has_children(
-        rxgen *object, wordbuf *buf, rnode *node, bool *needOr)
+        rxgen *object, strbuf *buf, rnode *node, bool *needOr)
 {
     if (node->low)
         rxgen_write_node_has_children(object, buf, node->low, needOr);
@@ -333,11 +333,11 @@ rxgen_write_node_has_children(
     {
         // Output OR if necessary
         if (*needOr)
-            wordbuf_cat(buf, object->op_or);
+            strbuf_cat(buf, object->op_or);
         rxgen_write_node_code(object, buf, node);
         // Insert a pattern that skips whitespace/newline
         if (object->op_newline[0])
-            wordbuf_cat(buf, object->op_newline);
+            strbuf_cat(buf, object->op_newline);
         rxgen_generate_stub(object, buf, node->child);
         *needOr = true;
     }
@@ -346,7 +346,7 @@ rxgen_write_node_has_children(
 }
 
 static void
-rxgen_generate_stub(rxgen *object, wordbuf *buf, rnode *node)
+rxgen_generate_stub(rxgen *object, strbuf *buf, rnode *node)
 {
     // Check characteristics of the current level (number of siblings, number of
     // children)
@@ -364,16 +364,16 @@ rxgen_generate_stub(rxgen *object, wordbuf *buf, rnode *node)
 
     // Group using () if necessary
     if (needGroup)
-        wordbuf_cat(buf, object->op_nest_in);
+        strbuf_cat(buf, object->op_nest_in);
 
     // Group nodes without children first with []
     if (noChildrenCount > 0)
     {
         if (needClass)
         {
-            wordbuf_cat(buf, object->op_select_in);
+            strbuf_cat(buf, object->op_select_in);
             rxgen_write_node_no_children(object, buf, node);
-            wordbuf_cat(buf, object->op_select_out);
+            strbuf_cat(buf, object->op_select_out);
         }
         else
             rxgen_write_node_no_children(object, buf, node);
@@ -388,7 +388,7 @@ rxgen_generate_stub(rxgen *object, wordbuf *buf, rnode *node)
 
     // Group using () if necessary
     if (needGroup)
-        wordbuf_cat(buf, object->op_nest_out);
+        strbuf_cat(buf, object->op_nest_out);
 }
 
 #if RXGEN_DEBUG_STAT
@@ -444,9 +444,9 @@ unsigned char *
 rxgen_generate(rxgen *object)
 {
     unsigned char *answer = NULL;
-    wordbuf *buf;
+    strbuf *buf;
 
-    if (object && (buf = wordbuf_open()))
+    if (object && (buf = strbuf_open()))
     {
 
         if (object->root)
@@ -456,8 +456,8 @@ rxgen_generate(rxgen *object)
 #endif
             rxgen_generate_stub(object, buf, object->root);
         }
-        answer = STRDUP(wordbuf_get(buf));
-        wordbuf_close(buf);
+        answer = STRDUP(strbuf_get(buf));
+        strbuf_close(buf);
     }
     return answer;
 }
