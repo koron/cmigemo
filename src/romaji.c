@@ -13,8 +13,8 @@
 
 #include "charset.h"
 #include "romaji.h"
+#include "strbuf.h"
 #include "trie.h"
-#include "wordbuf.h"
 
 #if defined(_MSC_VER)
 # define STRDUP _strdup
@@ -531,22 +531,22 @@ decode_len(CHARSET_PROC_CHAR2INT proc, const unsigned char *s)
 }
 
 static wordlist *
-add_pending_node(wordlist *tail, romanode *node, wordbuf *prefix)
+add_pending_node(wordlist *tail, romanode *node, strbuf *prefix)
 {
     if (!node)
         return tail;
     tail = add_pending_node(tail, node->low, prefix);
     if (node->value)
     {
-        wordbuf *w = wordbuf_open();
+        strbuf *w = strbuf_open();
         if (w)
         {
-            wordbuf_append(w, prefix);
-            wordbuf_cat(w, node->value);
-            wordlist *item = wordlist_new(w->buf, w->last);
+            strbuf_append(w, prefix);
+            strbuf_append_str(w, node->value);
+            wordlist *item = wordlist_new(strbuf_get(w), strbuf_len(w));
             tail->next = item;
             tail = item;
-            wordbuf_close(w);
+            strbuf_close(w);
         }
     }
     tail = add_pending_node(tail, node->child, prefix);
@@ -559,8 +559,8 @@ romaji_convert_all(romaji *object, const unsigned char *src)
 {
     wordlist *list = NULL;
     unsigned char *srcbuf = NULL;
-    wordbuf *dstbuf = NULL;
-    wordbuf *pending = NULL;
+    strbuf *dstbuf = NULL;
+    strbuf *pending = NULL;
 
     size_t srclen = strlen(src);
     srcbuf = calloc(1, ROMAJI_PUSHBACK_BUFSIZE + srclen + 1);
@@ -569,10 +569,10 @@ romaji_convert_all(romaji *object, const unsigned char *src)
     unsigned char *curr = srcbuf + ROMAJI_PUSHBACK_BUFSIZE;
     memcpy(curr, src, srclen + 1);
 
-    dstbuf = wordbuf_open();
+    dstbuf = strbuf_open();
     if (!dstbuf)
         goto END;
-    pending = wordbuf_open();
+    pending = strbuf_open();
     if (!pending)
         goto END;
 
@@ -589,17 +589,18 @@ romaji_convert_all(romaji *object, const unsigned char *src)
 
         if (!node)
         {
-            wordbuf_write_bytes(pending, prev, curr - prev);
+            strbuf_append_mem(pending, prev, curr - prev);
             // Consume a code from the pending, add it to dstbuf.
-            size_t len = decode_len(object->char2int, pending->buf);
-            wordbuf_write_bytes(dstbuf, pending->buf, len);
+            unsigned char *p = strbuf_get(pending);
+            size_t len = decode_len(object->char2int, p);
+            strbuf_append_mem(dstbuf, p, len);
             // Push the pending remainder to the front of srcbuf.
-            size_t rem_len = pending->last - len;
+            size_t rem_len = strbuf_len(pending) - len;
             if (curr < srcbuf + rem_len) // Check if srcbuf has underflowed.
                 goto END;
             curr -= rem_len;
-            memcpy(curr, pending->buf + len, rem_len);
-            wordbuf_reset(pending);
+            memcpy(curr, p + len, rem_len);
+            strbuf_reset(pending);
             // Start the next search from the root.
             node = NULL;
             continue;
@@ -607,7 +608,7 @@ romaji_convert_all(romaji *object, const unsigned char *src)
 
         if (node->value)
         {
-            wordbuf_cat(dstbuf, node->value);
+            strbuf_append_str(dstbuf, node->value);
             // Push node->remain to front of curr.
             if (node->remain)
             {
@@ -618,17 +619,17 @@ romaji_convert_all(romaji *object, const unsigned char *src)
                 curr -= len;
                 memcpy(curr, node->remain, len);
             }
-            wordbuf_reset(pending);
+            strbuf_reset(pending);
             // Start the next search from the root.
             node = NULL;
             continue;
         }
 
-        wordbuf_write_bytes(pending, prev, curr - prev);
+        strbuf_append_mem(pending, prev, curr - prev);
     }
 
-    if (pending->last == 0)
-        list = wordlist_new(dstbuf->buf, dstbuf->last);
+    if (strbuf_len(pending) == 0)
+        list = wordlist_new(strbuf_get(dstbuf), strbuf_len(dstbuf));
     else
     {
         // Output all entries under the pending node.
@@ -640,7 +641,7 @@ romaji_convert_all(romaji *object, const unsigned char *src)
 
 END:
     free(srcbuf);
-    wordbuf_close(dstbuf);
-    wordbuf_close(pending);
+    strbuf_close(dstbuf);
+    strbuf_close(pending);
     return list;
 }

@@ -15,7 +15,7 @@ add_library(
     romaji.c
     rxgen.c
     trie.c
-    wordbuf.c
+    strbuf.c
     wordlist.c)
 
 set_target_properties(

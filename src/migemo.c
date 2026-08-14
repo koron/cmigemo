@@ -19,7 +19,7 @@
 #include "mnode.h"
 #include "romaji.h"
 #include "rxgen.h"
-#include "wordbuf.h"
+#include "strbuf.h"
 #include "wordlist.h"
 
 #define DICT_MIGEMO    "migemo-dict"
@@ -423,7 +423,7 @@ migemo_query(migemo *object, const unsigned char *query)
 {
     unsigned char *retval = NULL;
     wordlist *querylist = NULL;
-    wordbuf *outbuf = NULL;
+    strbuf *outbuf = NULL;
 
     if (object && object->rx && query)
     {
@@ -432,7 +432,7 @@ migemo_query(migemo *object, const unsigned char *query)
         querylist = parse_query(object, query);
         if (querylist == NULL)
             goto MIGEMO_QUERY_END; // Error due to empty query
-        outbuf = wordbuf_open();
+        outbuf = strbuf_open();
         if (outbuf == NULL)
             goto MIGEMO_QUERY_END; // Error due to insufficient memory for
                                    // output
@@ -449,7 +449,7 @@ migemo_query(migemo *object, const unsigned char *query)
             // Generate search pattern (regular expression)
             answer = rxgen_generate(object->rx);
             rxgen_reset(object->rx);
-            wordbuf_cat(outbuf, answer);
+            strbuf_append_str(outbuf, answer);
             rxgen_release(object->rx, answer);
         }
     }
@@ -457,9 +457,10 @@ migemo_query(migemo *object, const unsigned char *query)
 MIGEMO_QUERY_END:
     if (outbuf)
     {
-        retval = outbuf->buf;
+        retval = strbuf_get(outbuf);
+        // Explicitly set to NULL to decouple it from `strbuf` management.
         outbuf->buf = NULL;
-        wordbuf_close(outbuf);
+        strbuf_close(outbuf);
     }
     if (querylist)
         wordlist_destroy(querylist);
