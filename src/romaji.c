@@ -22,10 +22,8 @@
 #endif
 
 #define ROMAJI_READ_BUFSIZE     1024
-#define ROMAJI_PUSHBACK_BUFSIZE 1024
-#define ROMANODE_BLOCK_SIZE     1024
-
-// romanode interfaces
+#define ROMAJI_BLOCK_SIZE       1024
+#define ROMAJI_PUSHBACK_BUFSIZE 256
 
 typedef struct romanode romanode;
 struct romanode
@@ -43,7 +41,7 @@ struct romanode_block
 {
     romanode_block *next;
     size_t used;
-    romanode nodes[ROMANODE_BLOCK_SIZE];
+    romanode nodes[ROMAJI_BLOCK_SIZE];
 };
 
 typedef struct romanode_arena romanode_arena;
@@ -64,7 +62,7 @@ struct romaji
 static romanode *
 romanode_arena_alloc(romanode_arena *arena, unsigned int code)
 {
-    if (!arena->curr || arena->curr->used >= ROMANODE_BLOCK_SIZE)
+    if (!arena->curr || arena->curr->used >= ROMAJI_BLOCK_SIZE)
     {
         romanode_block *block =
                 (romanode_block *)calloc(1, sizeof(romanode_block));
@@ -179,8 +177,6 @@ romanode_balance(romanode *root)
     return root;
 }
 
-// romaji interfaces
-
 romaji *
 romaji_open()
 {
@@ -262,7 +258,7 @@ typedef enum {
 } load_mode;
 
 static int
-isspace_u(unsigned int code)
+romaji_isspace_u(unsigned int code)
 {
     return code < 0x80 && isspace((int)code);
 }
@@ -348,7 +344,7 @@ romaji_load_stub(romaji *rj, FILE *fp)
                         p = next;
                         next = next2;
                     }
-                    if (!isspace_u(code))
+                    if (!romaji_isspace_u(code))
                     {
                         key = p;
                         mode = MODE_KEY_READING;
@@ -356,7 +352,7 @@ romaji_load_stub(romaji *rj, FILE *fp)
                     break;
 
                 case MODE_KEY_READING:
-                    if (isspace_u(code))
+                    if (romaji_isspace_u(code))
                     {
                         key_end = p;
                         mode = MODE_VALUE_WAITING;
@@ -364,7 +360,7 @@ romaji_load_stub(romaji *rj, FILE *fp)
                     break;
 
                 case MODE_VALUE_WAITING:
-                    if (!isspace_u(code))
+                    if (!romaji_isspace_u(code))
                     {
                         value = p;
                         mode = MODE_VALUE_READING;
@@ -372,7 +368,7 @@ romaji_load_stub(romaji *rj, FILE *fp)
                     break;
 
                 case MODE_VALUE_READING:
-                    if (isspace_u(code))
+                    if (romaji_isspace_u(code))
                     {
                         value_end = p;
                         mode = MODE_REMAIN_WAITING;
@@ -380,7 +376,7 @@ romaji_load_stub(romaji *rj, FILE *fp)
                     break;
 
                 case MODE_REMAIN_WAITING:
-                    if (!isspace_u(code))
+                    if (!romaji_isspace_u(code))
                     {
                         remain = p;
                         mode = MODE_REMAIN_READING;
@@ -388,7 +384,7 @@ romaji_load_stub(romaji *rj, FILE *fp)
                     break;
 
                 case MODE_REMAIN_READING:
-                    if (isspace_u(code))
+                    if (romaji_isspace_u(code))
                     {
                         remain_end = p;
                         mode = MODE_LINE_SKIP;
@@ -483,7 +479,7 @@ romaji_load(romaji *rj, const unsigned char *filename,
 }
 
 static romanode *
-find_siblings(romaji *rj, romanode *node, unsigned int code)
+romaji_find_siblings(romaji *rj, romanode *node, unsigned int code)
 {
     if (node && node->child)
         node = node->child;
@@ -503,18 +499,18 @@ find_siblings(romaji *rj, romanode *node, unsigned int code)
 }
 
 static inline size_t
-decode_len(CHARSET_PROC_CHAR2INT proc, const unsigned char *s)
+romaji_decode_len(CHARSET_PROC_CHAR2INT proc, const unsigned char *s)
 {
     int len = proc(s, NULL);
     return len > 0 ? (size_t)len : 1;
 }
 
 static wordlist *
-add_pending_node(wordlist *tail, romanode *node, strbuf *prefix)
+romaji_add_pending_node(wordlist *tail, romanode *node, strbuf *prefix)
 {
     if (!node)
         return tail;
-    tail = add_pending_node(tail, node->low, prefix);
+    tail = romaji_add_pending_node(tail, node->low, prefix);
     if (node->value)
     {
         strbuf *w = strbuf_open();
@@ -528,8 +524,8 @@ add_pending_node(wordlist *tail, romanode *node, strbuf *prefix)
             strbuf_close(w);
         }
     }
-    tail = add_pending_node(tail, node->child, prefix);
-    tail = add_pending_node(tail, node->high, prefix);
+    tail = romaji_add_pending_node(tail, node->child, prefix);
+    tail = romaji_add_pending_node(tail, node->high, prefix);
     return tail;
 }
 
@@ -564,14 +560,14 @@ romaji_convert_all(romaji *rj, const unsigned char *src)
         if (code == 0)
             break;
 
-        node = find_siblings(rj, node, code);
+        node = romaji_find_siblings(rj, node, code);
 
         if (!node)
         {
             strbuf_append_mem(pending, prev, curr - prev);
             // Consume a code from the pending, add it to dstbuf.
             unsigned char *p = strbuf_get(pending);
-            size_t len = decode_len(rj->char2int, p);
+            size_t len = romaji_decode_len(rj->char2int, p);
             strbuf_append_mem(dstbuf, p, len);
             // Push the pending remainder to the front of srcbuf.
             size_t rem_len = strbuf_len(pending) - len;
@@ -614,7 +610,7 @@ romaji_convert_all(romaji *rj, const unsigned char *src)
         // Output all entries under the pending node.
         wordlist pendings = {0};
         if (node)
-            add_pending_node(&pendings, node->child, dstbuf);
+            romaji_add_pending_node(&pendings, node->child, dstbuf);
         list = pendings.next;
     }
 
