@@ -32,8 +32,7 @@ mtree *mtree_open(void);
 void mtree_close(mtree *mt);
 
 // Load dictionary & query
-mtree *mtree_load(mtree *mt, FILE *fp, CHARSET_PROC_CHAR2INT char2int,
-        CHARSET_PROC_INT2CHAR int2char);
+mtree *mtree_load(mtree *mt, FILE *fp, CHARSET_PROC_CHAR2INT char2int);
 mnode *mtree_query(mtree *mt, const unsigned char *query);
 
 // Debug & maintenance

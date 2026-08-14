@@ -40,7 +40,6 @@ struct mtree
     mnode_arena arena;
 
     CHARSET_PROC_CHAR2INT char2int;
-    CHARSET_PROC_INT2CHAR int2char;
 };
 
 static void
@@ -268,8 +267,7 @@ mnode_balance(mnode *root)
 
 // Batch add data from a file to existing nodes.
 mtree *
-mtree_load(mtree *mt, FILE *fp, CHARSET_PROC_CHAR2INT char2int,
-        CHARSET_PROC_INT2CHAR int2char)
+mtree_load(mtree *mt, FILE *fp, CHARSET_PROC_CHAR2INT char2int)
 {
     mnode *pp = NULL;
     int mode = 0;
@@ -283,7 +281,6 @@ mtree_load(mtree *mt, FILE *fp, CHARSET_PROC_CHAR2INT char2int,
     unsigned char *cache_tail = cache;
 
     mt->char2int = char2int;
-    mt->int2char = int2char;
 
     buf = strbuf_open();
     prevlabel = strbuf_open();
@@ -424,7 +421,6 @@ mtree_open(void)
     mtree *mt = (mtree *)calloc(1, sizeof(*mt));
     // Set the default to UTF-8.
     mt->char2int = charset_utf8_char2int;
-    mt->int2char = charset_utf8_int2char;
     return mt;
 }
 

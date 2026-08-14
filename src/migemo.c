@@ -61,7 +61,7 @@ load_mtree_dictionary(migemo *obj, const char *dict_file)
     FILE *fp = fopen(dict_file, "rt");
     if (!fp)
         return NULL;
-    mtree *mt = mtree_load(obj->mtree, fp, char2int, int2char);
+    mtree *mt = mtree_load(obj->mtree, fp, char2int);
     fclose(fp);
     return mt;
 }
