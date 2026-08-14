@@ -62,8 +62,8 @@ struct rxgen
     rnode *root;
     rnode_arena arena;
 
-    RXGEN_PROC_CHAR2INT char2int;
-    RXGEN_PROC_INT2CHAR int2char;
+    CHARSET_PROC_CHAR2INT char2int;
+    CHARSET_PROC_INT2CHAR int2char;
 
     unsigned char op_or[RXGEN_OP_MAXLEN];
     unsigned char op_nest_in[RXGEN_OP_MAXLEN];
@@ -146,7 +146,7 @@ rnode_dig(rnode_arena *arena, rnode **pp, unsigned int code)
 // rxgen interfaces
 
 static int
-default_char2int(const unsigned char *in, unsigned int *out)
+rxgen_char2int_fallback(const unsigned char *in, unsigned int *out)
 {
     if (out)
         *out = *in;
@@ -154,7 +154,7 @@ default_char2int(const unsigned char *in, unsigned int *out)
 }
 
 static int
-default_int2char(unsigned int in, unsigned char *out)
+rxgen_int2char_fallback(unsigned int in, unsigned char *out)
 {
     int len = 0;
     // Assume that out has at least 16 bytes
@@ -179,73 +179,73 @@ default_int2char(unsigned int in, unsigned char *out)
 }
 
 void
-rxgen_setproc_char2int(rxgen *object, RXGEN_PROC_CHAR2INT proc)
+rxgen_setproc_char2int(rxgen *rx, CHARSET_PROC_CHAR2INT proc)
 {
-    if (object)
-        object->char2int = proc ? proc : default_char2int;
+    if (rx)
+        rx->char2int = proc ? proc : rxgen_char2int_fallback;
 }
 
 void
-rxgen_setproc_int2char(rxgen *object, RXGEN_PROC_INT2CHAR proc)
+rxgen_setproc_int2char(rxgen *rx, CHARSET_PROC_INT2CHAR proc)
 {
-    if (object)
-        object->int2char = proc ? proc : default_int2char;
+    if (rx)
+        rx->int2char = proc ? proc : rxgen_int2char_fallback;
 }
 
 static inline int
-rxgen_call_char2int(rxgen *object, const unsigned char *pch, unsigned int *code)
+rxgen_call_char2int(rxgen *rx, const unsigned char *pch, unsigned int *code)
 {
-    int len = object->char2int(pch, code);
-    return len ? len : default_char2int(pch, code);
+    int len = rx->char2int(pch, code);
+    return len ? len : rxgen_char2int_fallback(pch, code);
 }
 
 static int
-rxgen_call_int2char(rxgen *object, unsigned int code, unsigned char *buf)
+rxgen_call_int2char(rxgen *rx, unsigned int code, unsigned char *buf)
 {
-    int len = object->int2char(code, buf);
-    return len ? len : default_int2char(code, buf);
+    int len = rx->int2char(code, buf);
+    return len ? len : rxgen_int2char_fallback(code, buf);
 }
 
 rxgen *
 rxgen_open()
 {
-    rxgen *object = (rxgen *)calloc(1, sizeof(rxgen));
-    if (object)
+    rxgen *rx = (rxgen *)calloc(1, sizeof(rxgen));
+    if (rx)
     {
-        rxgen_setproc_char2int(object, NULL);
-        rxgen_setproc_int2char(object, NULL);
-        strcpy(object->op_or, RXGEN_OP_OR);
-        strcpy(object->op_nest_in, RXGEN_OP_NEST_IN);
-        strcpy(object->op_nest_out, RXGEN_OP_NEST_OUT);
-        strcpy(object->op_select_in, RXGEN_OP_SELECT_IN);
-        strcpy(object->op_select_out, RXGEN_OP_SELECT_OUT);
-        strcpy(object->op_newline, RXGEN_OP_NEWLINE);
+        rxgen_setproc_char2int(rx, NULL);
+        rxgen_setproc_int2char(rx, NULL);
+        strcpy(rx->op_or, RXGEN_OP_OR);
+        strcpy(rx->op_nest_in, RXGEN_OP_NEST_IN);
+        strcpy(rx->op_nest_out, RXGEN_OP_NEST_OUT);
+        strcpy(rx->op_select_in, RXGEN_OP_SELECT_IN);
+        strcpy(rx->op_select_out, RXGEN_OP_SELECT_OUT);
+        strcpy(rx->op_newline, RXGEN_OP_NEWLINE);
     }
-    return object;
+    return rx;
 }
 
 void
-rxgen_close(rxgen *object)
+rxgen_close(rxgen *rx)
 {
-    if (object)
+    if (rx)
     {
-        rnode_arena_free(&object->arena);
-        free(object);
+        rnode_arena_free(&rx->arena);
+        free(rx);
     }
 }
 
 int
-rxgen_add(rxgen *object, const unsigned char *word)
+rxgen_add(rxgen *rx, const unsigned char *word)
 {
     if (!word)
         return 0;
 
-    rnode **ppnode = &object->root;
+    rnode **ppnode = &rx->root;
     rnode *pnode = NULL;
     while (1)
     {
         unsigned int code;
-        int len = rxgen_call_char2int(object, word, &code);
+        int len = rxgen_call_char2int(rx, word, &code);
 
         // Terminate if the input pattern is exhausted
         if (code == 0)
@@ -267,7 +267,7 @@ rxgen_add(rxgen *object, const unsigned char *word)
 
         word += len;
 
-        pnode = rnode_dig(&object->arena, ppnode, code);
+        pnode = rnode_dig(&rx->arena, ppnode, code);
         if (!pnode)
             return 0; // allocation error.
         ppnode = &pnode->child;
@@ -302,51 +302,50 @@ rxgen_rnode_count(rnode *node, int *childrenCount, int *brotherCount)
     }
 }
 
-static void rxgen_generate_stub(rxgen *object, strbuf *buf, rnode *node);
+static void rxgen_generate_stub(rxgen *rx, strbuf *buf, rnode *node);
 
 static void
-rxgen_write_node_code(rxgen *object, strbuf *buf, rnode *node)
+rxgen_write_node_code(rxgen *rx, strbuf *buf, rnode *node)
 {
     unsigned char bytes[6];
-    int len = rxgen_call_int2char(object, node->code, bytes);
+    int len = rxgen_call_int2char(rx, node->code, bytes);
     strbuf_append_mem(buf, bytes, len);
 }
 
 static void
-rxgen_write_node_no_children(rxgen *object, strbuf *buf, rnode *node)
+rxgen_write_node_no_children(rxgen *rx, strbuf *buf, rnode *node)
 {
     if (node->low)
-        rxgen_write_node_no_children(object, buf, node->low);
+        rxgen_write_node_no_children(rx, buf, node->low);
     if (node->child == NULL)
-        rxgen_write_node_code(object, buf, node);
+        rxgen_write_node_code(rx, buf, node);
     if (node->high)
-        rxgen_write_node_no_children(object, buf, node->high);
+        rxgen_write_node_no_children(rx, buf, node->high);
 }
 
 static void
-rxgen_write_node_has_children(
-        rxgen *object, strbuf *buf, rnode *node, bool *needOr)
+rxgen_write_node_has_children(rxgen *rx, strbuf *buf, rnode *node, bool *needOr)
 {
     if (node->low)
-        rxgen_write_node_has_children(object, buf, node->low, needOr);
+        rxgen_write_node_has_children(rx, buf, node->low, needOr);
     if (node->child != NULL)
     {
         // Output OR if necessary
         if (*needOr)
-            strbuf_append_str(buf, object->op_or);
-        rxgen_write_node_code(object, buf, node);
+            strbuf_append_str(buf, rx->op_or);
+        rxgen_write_node_code(rx, buf, node);
         // Insert a pattern that skips whitespace/newline
-        if (object->op_newline[0])
-            strbuf_append_str(buf, object->op_newline);
-        rxgen_generate_stub(object, buf, node->child);
+        if (rx->op_newline[0])
+            strbuf_append_str(buf, rx->op_newline);
+        rxgen_generate_stub(rx, buf, node->child);
         *needOr = true;
     }
     if (node->high)
-        rxgen_write_node_has_children(object, buf, node->high, needOr);
+        rxgen_write_node_has_children(rx, buf, node->high, needOr);
 }
 
 static void
-rxgen_generate_stub(rxgen *object, strbuf *buf, rnode *node)
+rxgen_generate_stub(rxgen *rx, strbuf *buf, rnode *node)
 {
     // Check characteristics of the current level (number of siblings, number of
     // children)
@@ -364,31 +363,31 @@ rxgen_generate_stub(rxgen *object, strbuf *buf, rnode *node)
 
     // Group using () if necessary
     if (needGroup)
-        strbuf_append_str(buf, object->op_nest_in);
+        strbuf_append_str(buf, rx->op_nest_in);
 
     // Group nodes without children first with []
     if (noChildrenCount > 0)
     {
         if (needClass)
         {
-            strbuf_append_str(buf, object->op_select_in);
-            rxgen_write_node_no_children(object, buf, node);
-            strbuf_append_str(buf, object->op_select_out);
+            strbuf_append_str(buf, rx->op_select_in);
+            rxgen_write_node_no_children(rx, buf, node);
+            strbuf_append_str(buf, rx->op_select_out);
         }
         else
-            rxgen_write_node_no_children(object, buf, node);
+            rxgen_write_node_no_children(rx, buf, node);
     }
 
     // Output nodes with children
     if (childrenCount > 0)
     {
         bool needOr = noChildrenCount > 0;
-        rxgen_write_node_has_children(object, buf, node, &needOr);
+        rxgen_write_node_has_children(rx, buf, node, &needOr);
     }
 
     // Group using () if necessary
     if (needGroup)
-        strbuf_append_str(buf, object->op_nest_out);
+        strbuf_append_str(buf, rx->op_nest_out);
 }
 
 #if RXGEN_DEBUG_STAT
@@ -441,20 +440,20 @@ rnode_debug_stat(rnode *root)
 #endif
 
 unsigned char *
-rxgen_generate(rxgen *object)
+rxgen_generate(rxgen *rx)
 {
     unsigned char *answer = NULL;
     strbuf *buf;
 
-    if (object && (buf = strbuf_open()))
+    if (rx && (buf = strbuf_open()))
     {
 
-        if (object->root)
+        if (rx->root)
         {
 #if RXGEN_DEBUG_STAT
-            rnode_debug_stat(object->root);
+            rnode_debug_stat(rx->root);
 #endif
-            rxgen_generate_stub(object, buf, object->root);
+            rxgen_generate_stub(rx, buf, rx->root);
         }
         answer = STRDUP(strbuf_get(buf));
         strbuf_close(buf);
@@ -463,62 +462,61 @@ rxgen_generate(rxgen *object)
 }
 
 void
-rxgen_release(rxgen *object, unsigned char *string)
+rxgen_release(rxgen *rx, unsigned char *s)
 {
-    free(string);
+    free(s);
 }
 
 // Reset all patterns added via rxgen_add()
 void
-rxgen_reset(rxgen *object)
+rxgen_reset(rxgen *rx)
 {
-    if (object)
+    if (rx)
     {
-        rnode_arena_free(&object->arena);
-        object->root = NULL;
+        rnode_arena_free(&rx->arena);
+        rx->root = NULL;
     }
 }
 
 static unsigned char *
-rxgen_get_operator_stub(rxgen *object, int index)
+rxgen_get_operator_stub(rxgen *rx, int index)
 {
     switch (index)
     {
         case RXGEN_OPINDEX_OR:
-            return object->op_or;
+            return rx->op_or;
         case RXGEN_OPINDEX_NEST_IN:
-            return object->op_nest_in;
+            return rx->op_nest_in;
         case RXGEN_OPINDEX_NEST_OUT:
-            return object->op_nest_out;
+            return rx->op_nest_out;
         case RXGEN_OPINDEX_SELECT_IN:
-            return object->op_select_in;
+            return rx->op_select_in;
         case RXGEN_OPINDEX_SELECT_OUT:
-            return object->op_select_out;
+            return rx->op_select_out;
         case RXGEN_OPINDEX_NEWLINE:
-            return object->op_newline;
+            return rx->op_newline;
         default:
             return NULL;
     }
 }
 
 const unsigned char *
-rxgen_get_operator(rxgen *object, int index)
+rxgen_get_operator(rxgen *rx, int index)
 {
-    return (const unsigned char *)(object ? rxgen_get_operator_stub(
-                                                    object, index)
-                                          : NULL);
+    return (const unsigned char *)(rx ? rxgen_get_operator_stub(rx, index)
+                                      : NULL);
 }
 
 int
-rxgen_set_operator(rxgen *object, int index, const unsigned char *op)
+rxgen_set_operator(rxgen *rx, int index, const unsigned char *op)
 {
     unsigned char *dest;
 
-    if (!object)
-        return 1; // Invalid object
+    if (!rx)
+        return 1; // Invalid rx
     if (strlen(op) >= RXGEN_OP_MAXLEN)
         return 2; // Too long operator
-    if (!(dest = rxgen_get_operator_stub(object, index)))
+    if (!(dest = rxgen_get_operator_stub(rx, index)))
         return 3; // No such an operator
     strcpy(dest, op);
 

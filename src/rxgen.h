@@ -6,11 +6,9 @@
 
 #pragma once
 
+#include "charset.h"
+
 typedef struct rxgen rxgen;
-typedef int (*rxgen_proc_char2int)(const unsigned char *, unsigned int *);
-typedef int (*rxgen_proc_int2char)(unsigned int, unsigned char *);
-#define RXGEN_PROC_CHAR2INT rxgen_proc_char2int
-#define RXGEN_PROC_INT2CHAR rxgen_proc_int2char
 
 // for rxgen_set_operator
 #define RXGEN_OPINDEX_OR         0
@@ -20,24 +18,25 @@ typedef int (*rxgen_proc_int2char)(unsigned int, unsigned char *);
 #define RXGEN_OPINDEX_SELECT_OUT 4
 #define RXGEN_OPINDEX_NEWLINE    5
 
-extern int n_rnode_new;
-extern int n_rnode_delete;
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+// Life cycle management
 rxgen *rxgen_open();
-void rxgen_close(rxgen *object);
-int rxgen_add(rxgen *object, const unsigned char *word);
-unsigned char *rxgen_generate(rxgen *object);
-void rxgen_release(rxgen *object, unsigned char *string);
-void rxgen_reset(rxgen *object);
+void rxgen_close(rxgen *rx);
 
-void rxgen_setproc_char2int(rxgen *object, RXGEN_PROC_CHAR2INT proc);
-void rxgen_setproc_int2char(rxgen *object, RXGEN_PROC_INT2CHAR proc);
-int rxgen_set_operator(rxgen *object, int index, const unsigned char *op);
-const unsigned char *rxgen_get_operator(rxgen *object, int index);
+// Regexp pattern generation
+int rxgen_add(rxgen *rx, const unsigned char *word);
+unsigned char *rxgen_generate(rxgen *rx);
+void rxgen_release(rxgen *rx, unsigned char *s);
+void rxgen_reset(rxgen *rx);
+
+// Configuration
+void rxgen_setproc_char2int(rxgen *rx, CHARSET_PROC_CHAR2INT proc);
+void rxgen_setproc_int2char(rxgen *rx, CHARSET_PROC_INT2CHAR proc);
+int rxgen_set_operator(rxgen *rx, int index, const unsigned char *op);
+const unsigned char *rxgen_get_operator(rxgen *rx, int index);
 
 #ifdef __cplusplus
 }
