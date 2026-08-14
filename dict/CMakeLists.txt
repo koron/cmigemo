@@ -174,9 +174,13 @@ function(add_dict_encoding_target ENCODING_NAME ICONV_ENCODING IGNORE_ERROR)
     endif()
   endif()
 
+  set(DAT_PATHS ${DAT_FILES})
+  list(TRANSFORM DAT_PATHS PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/")
+
   add_custom_command(
     OUTPUT ${OUT_DICT} ${COMMANDS_LIST}
-    DEPENDS ${BASE_DICT_PATH}
+    DEPENDS
+      ${BASE_DICT_PATH} ${DAT_PATHS} ${CMAKE_CURRENT_SOURCE_DIR}/migemo-dict-zh
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMENT "Generating ${ENCODING_NAME} dictionary")
 
