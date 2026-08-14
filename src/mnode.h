@@ -16,6 +16,8 @@ struct mnode
     unsigned int attr;
     mnode *low, *high;
     mnode *child;
+
+    unsigned int weight;
     wordlist *list;
 };
 
@@ -43,7 +45,7 @@ void mnode_traverse(mnode *node, MNODE_TRAVERSE_PROC proc, void *data);
 // Mainly for debugging purposes
 void mnode_print(mtree *mt, unsigned char *p);
 
-void mnode_print_stat(mtree *mt);
+void mnode_print_stat(mtree *mt, const char *title);
 
 #ifdef __cplusplus
 }

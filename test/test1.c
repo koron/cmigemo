@@ -32,9 +32,7 @@ assert_query(migemo *p, const char *q, const char *ex)
 static int
 test_all(migemo *p)
 {
-    if (assert_query(
-                p, "ak", "([悪明朱秋紅赤]|ak|あ[かきくけこっ])")
-            != 0)
+    if (assert_query(p, "ak", "([悪明朱秋紅赤]|ak|あ[かきくけこっ])") != 0)
         return 1;
     if (assert_query(p, "n", "[nなにぬねのん]") != 0)
         return 1;
