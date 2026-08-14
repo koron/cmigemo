@@ -11,24 +11,21 @@
 
 typedef struct romaji romaji;
 
-typedef int (*romaji_proc_char2int)(const unsigned char *, unsigned int *);
-#define ROMAJI_PROC_CHAR2INT romaji_proc_char2int
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+// Life cycle management
 romaji *romaji_open();
-void romaji_close(romaji *object);
-int romaji_load(romaji *object, const unsigned char *filename,
+void romaji_close(romaji *rj);
+
+// Load and convert
+int romaji_load(romaji *rj, const unsigned char *filename,
         CHARSET_PROC_CHAR2INT char2int);
+wordlist *romaji_convert_all(romaji *rj, const unsigned char *src);
 
-void romaji_setproc_char2int(romaji *object, ROMAJI_PROC_CHAR2INT proc);
-void romaji_set_verbose(romaji *object, int level);
-
-void romanode_print_stat(romaji *obj, const char *title);
-
-wordlist *romaji_convert_all(romaji *object, const unsigned char *src);
+// Debug & maintenance
+void romanode_print_stat(romaji *rj, const char *title);
 
 #ifdef __cplusplus
 }

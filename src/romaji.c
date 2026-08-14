@@ -11,7 +11,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "charset.h"
 #include "romaji.h"
 #include "strbuf.h"
 #include "trie.h"
@@ -56,14 +55,10 @@ struct romanode_arena
 
 struct romaji
 {
-    int verbose;
-
     romanode *rootnode;
     romanode_arena arena;
 
-    unsigned char *fixvalue_xn;
-    unsigned char *fixvalue_xtu;
-    ROMAJI_PROC_CHAR2INT char2int;
+    CHARSET_PROC_CHAR2INT char2int;
 };
 
 static romanode *
@@ -193,27 +188,25 @@ romaji_open()
 }
 
 void
-romaji_close(romaji *object)
+romaji_close(romaji *rj)
 {
-    if (object)
+    if (rj)
     {
-        romanode_arena_free(&object->arena);
-        free(object->fixvalue_xn);
-        free(object->fixvalue_xtu);
-        free(object);
+        romanode_arena_free(&rj->arena);
+        free(rj);
     }
 }
 
 static int
-romaji_add_entry(romaji *object, const unsigned char *key,
+romaji_add_entry(romaji *rj, const unsigned char *key,
         const unsigned char *value, const unsigned char *remain)
 {
-    romanode **ppnode = &object->rootnode;
+    romanode **ppnode = &rj->rootnode;
     romanode *pnode = NULL;
     const unsigned char *p = key;
     while (1)
     {
-        unsigned int code = charset_decode(object->char2int, &p);
+        unsigned int code = charset_decode(rj->char2int, &p);
 
         if (code == 0)
         {
@@ -243,7 +236,7 @@ romaji_add_entry(romaji *object, const unsigned char *key,
             pnode->remain = dup_remain;
             break;
         }
-        pnode = romanode_dig(&object->arena, ppnode, code);
+        pnode = romanode_dig(&rj->arena, ppnode, code);
         if (!pnode)
             return 5; // Allocation error.
 
@@ -275,7 +268,7 @@ isspace_u(unsigned int code)
 }
 
 static int
-romaji_load_stub(romaji *object, FILE *fp)
+romaji_load_stub(romaji *rj, FILE *fp)
 {
     unsigned char buf[ROMAJI_READ_BUFSIZE];
     while (1)
@@ -305,8 +298,8 @@ romaji_load_stub(romaji *object, FILE *fp)
         for (unsigned char *p = buf; p < end; p = next)
         {
             next = p;
-            unsigned int code = charset_decode(
-                    object->char2int, (const unsigned char **)&next);
+            unsigned int code =
+                    charset_decode(rj->char2int, (const unsigned char **)&next);
 
             // End of the line.
             if (code == '\n' || code == 0)
@@ -329,7 +322,7 @@ romaji_load_stub(romaji *object, FILE *fp)
                 *value_end = '\0';
                 if (remain_end)
                     *remain_end = '\0';
-                int err = romaji_add_entry(object, key, value, remain);
+                int err = romaji_add_entry(rj, key, value, remain);
                 if (err > 1)
                     return err * 10 + 4;
                 break;
@@ -344,8 +337,8 @@ romaji_load_stub(romaji *object, FILE *fp)
                         // starting with `#`; if it starts with only `#`, it is
                         // treated as a comment line.
                         unsigned char *next2 = next;
-                        unsigned int code2 = charset_decode(object->char2int,
-                                (const unsigned char **)&next2);
+                        unsigned int code2 = charset_decode(
+                                rj->char2int, (const unsigned char **)&next2);
                         if (code2 != '#')
                         {
                             next = end;
@@ -448,68 +441,54 @@ romanode_stat_stub(
 }
 
 static void
-romanode_stat(romaji *obj, trie_stat *stat)
+romanode_stat(romaji *rj, trie_stat *stat)
 {
-    if (!stat || !obj || !obj->rootnode)
+    if (!stat || !rj || !rj->rootnode)
         return;
     memset(stat, 0, sizeof(*stat));
-    romanode_stat_stub(obj->rootnode, stat, 0, 1);
+    romanode_stat_stub(rj->rootnode, stat, 0, 1);
 }
 
 void
-romanode_print_stat(romaji *obj, const char *title)
+romanode_print_stat(romaji *rj, const char *title)
 {
-    if (!obj || !obj->rootnode)
+    if (!rj || !rj->rootnode)
     {
         printf("== INVALID romanode ===\n");
         return;
     }
     trie_stat stat;
-    romanode_stat(obj, &stat);
+    romanode_stat(rj, &stat);
     trie_stat_print(&stat, title);
 }
 
 /// Load the Romaji dictionary.
-/// @param object Romaji object
+/// @param rj Romaji object
 /// @param filename Dictionary filename
 /// @return 0 on success, non-zero on failure.
 int
-romaji_load(romaji *object, const unsigned char *filename,
+romaji_load(romaji *rj, const unsigned char *filename,
         CHARSET_PROC_CHAR2INT char2int)
 {
-    if (!object || !filename)
+    if (!rj || !filename)
         return -1;
-    object->char2int = char2int;
+    rj->char2int = char2int;
     FILE *fp = fopen(filename, "rt");
     if (!fp)
         return -1;
-    int result = romaji_load_stub(object, fp);
+    int result = romaji_load_stub(rj, fp);
     fclose(fp);
-    object->rootnode = romanode_balance(object->rootnode);
+    rj->rootnode = romanode_balance(rj->rootnode);
     return result;
 }
 
-void
-romaji_setproc_char2int(romaji *object, ROMAJI_PROC_CHAR2INT proc)
-{
-    if (object)
-        object->char2int = proc;
-}
-
-void
-romaji_set_verbose(romaji *object, int level)
-{
-    if (object)
-        object->verbose = level;
-}
-
 static romanode *
-find_siblings(romaji *object, romanode *node, unsigned int code)
+find_siblings(romaji *rj, romanode *node, unsigned int code)
 {
     if (node && node->child)
         node = node->child;
     if (!node)
-        node = object->rootnode;
+        node = rj->rootnode;
 
     while (node)
     {
@@ -555,7 +534,7 @@ add_pending_node(wordlist *tail, romanode *node, strbuf *prefix)
 }
 
 wordlist *
-romaji_convert_all(romaji *object, const unsigned char *src)
+romaji_convert_all(romaji *rj, const unsigned char *src)
 {
     wordlist *list = NULL;
     unsigned char *srcbuf = NULL;
@@ -581,18 +560,18 @@ romaji_convert_all(romaji *object, const unsigned char *src)
     {
         const unsigned char *prev = curr;
         unsigned int code =
-                charset_decode(object->char2int, (const unsigned char **)&curr);
+                charset_decode(rj->char2int, (const unsigned char **)&curr);
         if (code == 0)
             break;
 
-        node = find_siblings(object, node, code);
+        node = find_siblings(rj, node, code);
 
         if (!node)
         {
             strbuf_append_mem(pending, prev, curr - prev);
             // Consume a code from the pending, add it to dstbuf.
             unsigned char *p = strbuf_get(pending);
-            size_t len = decode_len(object->char2int, p);
+            size_t len = decode_len(rj->char2int, p);
             strbuf_append_mem(dstbuf, p, len);
             // Push the pending remainder to the front of srcbuf.
             size_t rem_len = strbuf_len(pending) - len;
