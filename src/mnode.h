@@ -23,29 +23,21 @@ struct mnode
 
 typedef struct mtree mtree;
 
-// for mnode_traverse()
-typedef void (*mnode_traverse_proc)(mnode *node, void *data);
-#define MNODE_TRAVERSE_PROC mnode_traverse_proc
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-mtree *mnode_open(void);
+// Life cycle management
+mtree *mtree_open(void);
+void mtree_close(mtree *mt);
 
-mtree *mnode_load(mtree *root, FILE *fp, CHARSET_PROC_CHAR2INT char2int,
+// Load dictionary & query
+mtree *mtree_load(mtree *mt, FILE *fp, CHARSET_PROC_CHAR2INT char2int,
         CHARSET_PROC_INT2CHAR int2char);
+mnode *mtree_query(mtree *mt, const unsigned char *query);
 
-void mnode_close(mtree *p);
-
-mnode *mnode_query(mtree *node, const unsigned char *query);
-
-void mnode_traverse(mnode *node, MNODE_TRAVERSE_PROC proc, void *data);
-
-// Mainly for debugging purposes
-void mnode_print(mtree *mt, unsigned char *p);
-
-void mnode_print_stat(mtree *mt, const char *title);
+// Debug & maintenance
+void mtree_print_stat(mtree *mt, const char *title);
 
 #ifdef __cplusplus
 }

@@ -61,7 +61,7 @@ load_mtree_dictionary(migemo *obj, const char *dict_file)
     FILE *fp = fopen(dict_file, "rt");
     if (!fp)
         return NULL;
-    mtree *mt = mnode_load(obj->mtree, fp, char2int, int2char);
+    mtree *mt = mtree_load(obj->mtree, fp, char2int, int2char);
     fclose(fp);
     return mt;
 }
@@ -173,7 +173,7 @@ migemo_open(const char *dict)
     if (!(obj = (migemo *)calloc(1, sizeof(migemo))))
         return obj;
     obj->enable = 0;
-    obj->mtree = mnode_open();
+    obj->mtree = mtree_open();
     obj->charset = CHARSET_NONE;
     obj->rx = rxgen_open();
     obj->roma2hira = romaji_open();
@@ -242,7 +242,7 @@ migemo_close(migemo *obj)
         if (obj->rx)
             rxgen_close(obj->rx);
         if (obj->mtree)
-            mnode_close(obj->mtree);
+            mtree_close(obj->mtree);
         free(obj);
     }
 }
@@ -275,9 +275,9 @@ add_mnode_siblings(migemo *object, mnode *pnode)
 }
 
 static void
-add_mnode_query(migemo *object, unsigned char *query)
+add_mtree_query(migemo *object, unsigned char *query)
 {
-    mnode *pnode = mnode_query(object->mtree, query);
+    mnode *pnode = mtree_query(object->mtree, query);
     if (pnode)
     {
         add_mnode_words(object, pnode->list);
@@ -296,7 +296,7 @@ add_roma(migemo *object, unsigned char *query)
     {
         unsigned char *hira = wordlist_word(hira_item);
         migemo_addword(object, hira);
-        add_mnode_query(object, hira);
+        add_mtree_query(object, hira);
 
         wordlist *kata_list = romaji_convert_all(object->hira2kata, hira);
         for (wordlist *kata_item = kata_list; kata_item;
@@ -304,7 +304,7 @@ add_roma(migemo *object, unsigned char *query)
         {
             unsigned char *kata = wordlist_word(kata_item);
             migemo_addword(object, kata);
-            add_mnode_query(object, kata);
+            add_mtree_query(object, kata);
 
             wordlist *han_list = romaji_convert_all(object->zen2han, kata);
             for (wordlist *han_item = han_list; han_item;
@@ -374,7 +374,7 @@ query_a_word(migemo *object, unsigned char *query)
     // Dictionary lookup with the query itself
     lower = malloc(len + 1);
     if (!lower)
-        add_mnode_query(object, query);
+        add_mtree_query(object, query);
     else
     {
         int i = 0, step;
@@ -391,7 +391,7 @@ query_a_word(migemo *object, unsigned char *query)
                 memcpy(&lower[i], &query[i], step);
             i += step;
         }
-        add_mnode_query(object, lower);
+        add_mtree_query(object, lower);
     }
 
     // Convert query to full-width and add to candidates
@@ -569,13 +569,3 @@ migemo_is_enable(migemo *obj)
 {
     return obj ? obj->enable : 0;
 }
-
-#if 1
-// Primarily a hidden function for debugging purposes
-EXPORTS void MIGEMO_CALLTYPE
-migemo_print(migemo *object)
-{
-    if (object)
-        mnode_print(object->mtree, NULL);
-}
-#endif
