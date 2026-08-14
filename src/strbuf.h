@@ -22,6 +22,7 @@ strbuf *strbuf_open();
 void strbuf_close(strbuf *p);
 size_t strbuf_extend(strbuf *p, size_t req_len);
 size_t strbuf_append(strbuf *p, strbuf *q);
+size_t strbuf_append_ch(strbuf *p, unsigned char ch);
 size_t strbuf_cat(strbuf *p, const unsigned char *sz);
 size_t strbuf_write_bytes(strbuf *buf, const unsigned char *p, size_t len);
 
@@ -51,12 +52,11 @@ strbuf_reset(strbuf *p)
 static inline size_t
 strbuf_add(strbuf *p, unsigned char ch)
 {
-    size_t newlen = p->len + 2;
-    if (newlen > p->cap)
-        if (!strbuf_extend(p, newlen))
-            return 0;
-
-    p->buf[p->len++] = ch;
-    p->buf[p->len] = 0;
-    return p->len;
+    if (p->len + 2 <= p->cap)
+    {
+        p->buf[p->len++] = ch;
+        p->buf[p->len] = 0;
+        return p->len;
+    }
+    return strbuf_append_ch(p, ch);
 }

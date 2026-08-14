@@ -73,6 +73,14 @@ strbuf_extend(strbuf *p, size_t req_len)
 }
 
 size_t
+strbuf_append_ch(strbuf *p, unsigned char ch)
+{
+    if (!strbuf_extend(p, p->len + 2))
+        return 0;
+    return strbuf_add(p, ch);
+}
+
+size_t
 strbuf_append(strbuf *p, strbuf *q)
 {
     return strbuf_write_bytes(p, q->buf, q->len);
