@@ -13,10 +13,10 @@
 typedef struct mnode mnode;
 struct mnode
 {
-    unsigned int attr;
     mnode *low, *high;
     mnode *child;
 
+    unsigned int code;
     unsigned int weight;
     wordlist *list;
 };

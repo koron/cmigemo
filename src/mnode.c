@@ -120,7 +120,7 @@ mnode_arena_alloc(mnode_arena *arena, unsigned int code)
         arena->curr = block;
     }
     mnode *p = &arena->curr->nodes[arena->curr->used++];
-    p->attr = code;
+    p->code = code;
     return p;
 }
 
@@ -149,7 +149,7 @@ mnode_print_stub(mtree *mt, mnode *vp, unsigned char *p)
         return;
     if (!p)
         p = &buf[0];
-    int len = mt->int2char(vp->attr, p);
+    int len = mt->int2char(vp->code, p);
     p[len] = '\0';
     if (vp->list)
         printf("%s (list=%p)\n", buf, vp->list);
@@ -216,7 +216,7 @@ search_or_new_mnode(mtree *mt, wordbuf *buf)
         }
         else
         {
-            int pivot = (*res)->attr;
+            int pivot = (*res)->code;
             if (code < pivot)
             {
                 ppnext = &(*res)->low;
@@ -266,7 +266,8 @@ mnode_balanced_tree(mnode **nodes, size_t start, size_t end)
     int left = (int)start - 1, right = end;
     unsigned int lsum = 0, rsum = 0;
     while (left < right)
-        if (lsum < rsum || (lsum == rsum && (left - start + 1) <= (end - 1 - right)))
+        if (lsum < rsum
+                || (lsum == rsum && (left - start + 1) <= (end - 1 - right)))
             lsum += nodes[++left]->weight;
         else
             rsum += nodes[--right]->weight;
@@ -469,8 +470,8 @@ mnode_query(mtree *mt, const unsigned char *query)
     while (node)
     {
         // Search from siblings
-        while (node != NULL && code != node->attr)
-            node = code < node->attr ? node->low : node->high;
+        while (node != NULL && code != node->code)
+            node = code < node->code ? node->low : node->high;
         if (!node)
             break; // Not found the rune.
         // Proceed to the child node
