@@ -18,9 +18,12 @@ struct strbuf
 extern "C" {
 #endif
 
+// Life cycle managements
 strbuf *strbuf_open();
 void strbuf_close(strbuf *sb);
 size_t strbuf_extend(strbuf *sb, size_t req_len);
+
+// Append functions
 size_t strbuf_append(strbuf *sb, strbuf *q);
 size_t strbuf_append_ch(strbuf *sb, unsigned char ch);
 size_t strbuf_append_str(strbuf *sb, const unsigned char *s);
