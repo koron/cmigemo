@@ -9,21 +9,30 @@
 typedef struct wordlist wordlist;
 struct wordlist
 {
-    unsigned char *ptr;
     wordlist *next;
+    unsigned char ptr[];
 };
-
-extern size_t n_wordlist_open;
-extern size_t n_wordlist_close;
-extern size_t n_wordlist_total;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+// Life cycle management
 wordlist *wordlist_new(const unsigned char *ptr, size_t len);
-void wordlist_destroy(wordlist *p);
+void wordlist_destroy(wordlist *wl);
 
 #ifdef __cplusplus
 }
 #endif
+
+static inline wordlist *
+wordlist_next(wordlist *wl)
+{
+    return wl->next;
+}
+
+static inline unsigned char *
+wordlist_word(wordlist *wl)
+{
+    return wl->ptr;
+}

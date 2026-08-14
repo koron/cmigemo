@@ -258,8 +258,8 @@ migemo_addword(migemo *object, unsigned char *word)
 static inline void
 add_mnode_words(migemo *object, wordlist *list)
 {
-    for (; list; list = list->next)
-        migemo_addword(object, list->ptr);
+    for (; list; list = wordlist_next(list))
+        migemo_addword(object, wordlist_word(list));
 }
 
 static void
@@ -292,25 +292,25 @@ add_roma(migemo *object, unsigned char *query)
 {
     wordlist *hira_list = romaji_convert_all(object->roma2hira, query);
     for (wordlist *hira_item = hira_list; hira_item;
-            hira_item = hira_item->next)
+            hira_item = wordlist_next(hira_item))
     {
-        unsigned char *hira = hira_item->ptr;
+        unsigned char *hira = wordlist_word(hira_item);
         migemo_addword(object, hira);
         add_mnode_query(object, hira);
 
         wordlist *kata_list = romaji_convert_all(object->hira2kata, hira);
         for (wordlist *kata_item = kata_list; kata_item;
-                kata_item = kata_item->next)
+                kata_item = wordlist_next(kata_item))
         {
-            unsigned char *kata = kata_item->ptr;
+            unsigned char *kata = wordlist_word(kata_item);
             migemo_addword(object, kata);
             add_mnode_query(object, kata);
 
             wordlist *han_list = romaji_convert_all(object->zen2han, kata);
             for (wordlist *han_item = han_list; han_item;
-                    han_item = han_item->next)
+                    han_item = wordlist_next(han_item))
             {
-                unsigned char *han = han_item->ptr;
+                unsigned char *han = wordlist_word(han_item);
                 migemo_addword(object, han);
             }
             wordlist_destroy(han_list);
@@ -396,14 +396,14 @@ query_a_word(migemo *object, unsigned char *query)
 
     // Convert query to full-width and add to candidates
     wordlist *zen_list = romaji_convert_all(object->han2zen, query);
-    for (wordlist *zen = zen_list; zen; zen = zen->next)
-        migemo_addword(object, zen->ptr);
+    for (wordlist *zen = zen_list; zen; zen = wordlist_next(zen))
+        migemo_addword(object, wordlist_word(zen));
     wordlist_destroy(zen_list);
 
     // Convert query to half-width and add to candidates
     wordlist *han_list = romaji_convert_all(object->zen2han, query);
-    for (wordlist *han = han_list; han; han = han->next)
-        migemo_addword(object, han->ptr);
+    for (wordlist *han = han_list; han; han = wordlist_next(han))
+        migemo_addword(object, wordlist_word(han));
     wordlist_destroy(han_list);
 
     // Add Hiragana, Katakana, and dictionary lookups using them
@@ -440,12 +440,12 @@ migemo_query(migemo *object, const unsigned char *query)
         // Input word groups into the rxgen object and obtain a regular
         // expression
         rxgen_reset(object->rx);
-        for (p = querylist; p; p = p->next)
+        for (p = querylist; p; p = wordlist_next(p))
         {
             unsigned char *answer;
 
-            // printf("query=%s\n", p->ptr);
-            query_a_word(object, p->ptr);
+            // printf("query=%s\n", wordlist_word(p));
+            query_a_word(object, wordlist_word(p));
             // Generate search pattern (regular expression)
             answer = rxgen_generate(object->rx);
             rxgen_reset(object->rx);

@@ -32,16 +32,16 @@ query_one(romaji *object, romaji *hira2kata, romaji *han2zen, romaji *zen2han,
         char *buf)
 {
     wordlist *hira = romaji_convert_all(object, buf);
-    for (wordlist *p = hira; p; p = p->next)
+    for (wordlist *p = hira; p; p = wordlist_next(p))
     {
-        printf("  hira=%s\n", p->ptr);
-        wordlist *kata = romaji_convert_all(hira2kata, p->ptr);
-        for (wordlist *q = kata; q; q = q->next)
+        printf("  hira=%s\n", wordlist_word(p));
+        wordlist *kata = romaji_convert_all(hira2kata, wordlist_word(p));
+        for (wordlist *q = kata; q; q = wordlist_next(q))
         {
-            printf("  kata=%s\n", q->ptr);
-            wordlist *han = romaji_convert_all(zen2han, q->ptr);
-            for (wordlist *r = han; r; r = r->next)
-                printf("  han=%s\n", r->ptr);
+            printf("  kata=%s\n", wordlist_word(q));
+            wordlist *han = romaji_convert_all(zen2han, wordlist_word(q));
+            for (wordlist *r = han; r; r = wordlist_next(r))
+                printf("  han=%s\n", wordlist_word(r));
             wordlist_destroy(han);
         }
         wordlist_destroy(kata);
@@ -49,8 +49,8 @@ query_one(romaji *object, romaji *hira2kata, romaji *han2zen, romaji *zen2han,
     wordlist_destroy(hira);
 
     wordlist *zen = romaji_convert_all(han2zen, buf);
-    for (wordlist *p = zen; p; p = p->next)
-        printf("  zen=%s\n", p->ptr);
+    for (wordlist *p = zen; p; p = wordlist_next(p))
+        printf("  zen=%s\n", wordlist_word(p));
     wordlist_destroy(zen);
 }
 
