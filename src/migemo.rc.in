@@ -1,6 +1,6 @@
 //Microsoft Developer Studio generated resource script.
 //
-#include "resource.h"
+//#include "resource.h"
 
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////
@@ -28,8 +28,8 @@ LANGUAGE LANG_JAPANESE, SUBLANG_DEFAULT
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,3,0,175
- PRODUCTVERSION 1,3,0,0
+ FILEVERSION @PROJECT_VERSION_MAJOR@,@PROJECT_VERSION_MINOR@,@PROJECT_VERSION_PATCH@,0
+ PRODUCTVERSION @PROJECT_VERSION_MAJOR@,@PROJECT_VERSION_MINOR@,@PROJECT_VERSION_PATCH@,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -46,15 +46,15 @@ BEGIN
         BEGIN
             VALUE "Comments", "ローマ字による日本語検索正規表現生成ライブラリ\0"
             VALUE "CompanyName", "KaoriYa\0"
-            VALUE "FileDescription", "Migemo written in C\0"
-            VALUE "FileVersion", "1, 3, 0, 175\0"
+            VALUE "FileDescription", "C/Migemo DLL\0"
+            VALUE "FileVersion", "@PROJECT_VERSION@\0"
             VALUE "InternalName", "CMigemo\0"
             VALUE "LegalCopyright", "2009 (C) MURAOKA Taro (KoRoN)/KaoriYa\0"
-            VALUE "LegalTrademarks", "C/Migemo library\0"
+            VALUE "LegalTrademarks", "C/Migemo\0"
             VALUE "OriginalFilename", "migemo.dll\0"
             VALUE "PrivateBuild", "\0"
-            VALUE "ProductName", "Migemo DLL\0"
-            VALUE "ProductVersion", "1, 3, 0, 0\0"
+            VALUE "ProductName", "C/Migemo\0"
+            VALUE "ProductVersion", "@PROJECT_VERSION@\0"
             VALUE "SpecialBuild", "\0"
         END
     END
