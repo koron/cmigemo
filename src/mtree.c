@@ -1,6 +1,6 @@
 // vim:set ts=8 sts=4 sw=4 tw=0 et:
 //
-// mnode.c - mnode interfaces.
+// mtree.c - Migemo tree (mtree) operations
 //
 // Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
 
@@ -12,7 +12,7 @@
 #include <string.h>
 
 #include "charset.h"
-#include "mnode.h"
+#include "mtree.h"
 #include "strbuf.h"
 #include "trie.h"
 #include "wordlist.h"

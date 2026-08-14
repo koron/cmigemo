@@ -49,7 +49,7 @@ Default dictionary search order (platform-dependent):
 ## Project Structure
 
 - `include/migemo.h` — Public C API (version 1.5)
-- `src/migemo.c`, `src/rxgen.c`, `src/romaji.c`, `src/charset.c`, `src/strbuf.c`, `src/wordlist.c`, `src/mnode.c`, `src/filename.c` — Core library (`migemo` shared lib)
+- `src/migemo.c`, `src/rxgen.c`, `src/romaji.c`, `src/charset.c`, `src/strbuf.c`, `src/wordlist.c`, `src/mtree.c`, `src/filename.c` — Core library (`migemo` shared lib)
 - `src/main.c` — CLI executable (`cmigemo`)
 - `src/testdir/romaji_main.c` — Romaji conversion tool
 - `src/testdir/profile_speed.c` — qspeed benchmark tool

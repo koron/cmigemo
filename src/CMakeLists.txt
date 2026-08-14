@@ -11,7 +11,7 @@ add_library(
     charset.c
     filename.c
     migemo.c
-    mnode.c
+    mtree.c
     romaji.c
     rxgen.c
     trie.c

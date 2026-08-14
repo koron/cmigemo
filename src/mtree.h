@@ -1,6 +1,6 @@
 // vim:set ts=8 sts=4 sw=4 tw=0 et:
 //
-// mnode.h -
+// mtree.h - Migemo tree (mtree) operations
 //
 // Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
 // Need to include <stdio.h>
@@ -8,6 +8,8 @@
 #pragma once
 
 #include "wordlist.h"
+
+typedef struct mtree mtree;
 
 // Tree object
 typedef struct mnode mnode;
@@ -20,8 +22,6 @@ struct mnode
     unsigned int weight;
     wordlist *list;
 };
-
-typedef struct mtree mtree;
 
 #ifdef __cplusplus
 extern "C" {

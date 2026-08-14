@@ -5,7 +5,7 @@
 #pragma once
 
 #include "charset.h"
-#include "mnode.h"
+#include "mtree.h"
 #include "romaji.h"
 #include "rxgen.h"
 

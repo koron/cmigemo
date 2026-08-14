@@ -29,7 +29,7 @@ add_executable(
   ${CMAKE_SOURCE_DIR}/src/charset.c
   ${CMAKE_SOURCE_DIR}/src/filename.c
   ${CMAKE_SOURCE_DIR}/src/migemo.c
-  ${CMAKE_SOURCE_DIR}/src/mnode.c
+  ${CMAKE_SOURCE_DIR}/src/mtree.c
   ${CMAKE_SOURCE_DIR}/src/romaji.c
   ${CMAKE_SOURCE_DIR}/src/rxgen.c
   ${CMAKE_SOURCE_DIR}/src/trie.c

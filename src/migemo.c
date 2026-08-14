@@ -16,7 +16,7 @@
 #include "filename.h"
 #include "migemo.h"
 #include "migemo_struct.h"
-#include "mnode.h"
+#include "mtree.h"
 #include "romaji.h"
 #include "rxgen.h"
 #include "strbuf.h"
