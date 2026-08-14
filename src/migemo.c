@@ -545,7 +545,7 @@ EXPORTS void MIGEMO_CALLTYPE
 migemo_setproc_char2int(migemo *object, MIGEMO_PROC_CHAR2INT proc)
 {
     if (object)
-        rxgen_setproc_char2int(object->rx, (RXGEN_PROC_CHAR2INT)proc);
+        rxgen_setproc_char2int(object->rx, (CHARSET_PROC_CHAR2INT)proc);
 }
 
 /// Sets a procedure for code conversion in the Migemo object. For details about
@@ -556,7 +556,7 @@ EXPORTS void MIGEMO_CALLTYPE
 migemo_setproc_int2char(migemo *object, MIGEMO_PROC_INT2CHAR proc)
 {
     if (object)
-        rxgen_setproc_int2char(object->rx, (RXGEN_PROC_INT2CHAR)proc);
+        rxgen_setproc_int2char(object->rx, (CHARSET_PROC_INT2CHAR)proc);
 }
 
 /// Checks whether the migemo_dict has been loaded into the Migemo object.
