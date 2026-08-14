@@ -138,13 +138,49 @@ romanode_dig(romanode_arena *arena, romanode **pp, unsigned int code)
     }
 }
 
-static void
-romanode_balance(romanode **pnode)
+size_t
+count_siblings(romanode *node)
 {
-    if (!pnode || !*pnode)
-        return;
-    // TODO: balance siblings
-    // TODO: do same for descedants
+    if (!node)
+        return 0;
+    return count_siblings(node->low) + count_siblings(node->high) + 1;
+}
+
+romanode **
+collect_siblings(romanode *node, romanode **buf)
+{
+    if (!node)
+        return buf;
+    buf = collect_siblings(node->low, buf);
+    *buf++ = node;
+    return collect_siblings(node->high, buf);
+}
+
+static romanode *
+build_balanced_tree(romanode **nodes, size_t start, size_t end)
+{
+    if (start >= end)
+        return NULL;
+    size_t mid = (start + end) / 2;
+    romanode *root = nodes[mid];
+    root->low = build_balanced_tree(nodes, start, mid);
+    root->high = build_balanced_tree(nodes, mid + 1, end);
+    return root;
+}
+
+static romanode *
+romanode_balance(romanode *root)
+{
+    if (!root)
+        return NULL;
+    size_t count = count_siblings(root);
+    romanode **nodes = calloc(count, sizeof(romanode *));
+    collect_siblings(root, nodes);
+    root = build_balanced_tree(nodes, 0, count);
+    for (size_t i = 0; i < count; i++)
+        nodes[i]->child = romanode_balance(nodes[i]->child);
+    free(nodes);
+    return root;
 }
 
 // romaji interfaces
@@ -448,7 +484,7 @@ romaji_load(romaji *object, const unsigned char *filename,
         return -1;
     int result = romaji_load_stub(object, fp);
     fclose(fp);
-    romanode_balance(&object->rootnode);
+    object->rootnode = romanode_balance(object->rootnode);
     return result;
 }
 
@@ -474,7 +510,7 @@ find_siblings(romaji *object, romanode *node, unsigned int code)
     if (!node)
         node = object->rootnode;
 
-    while (node != NULL)
+    while (node)
     {
         if (node->code == code)
             return node;
@@ -515,12 +551,6 @@ add_pending_node(wordlist *tail, romanode *node, wordbuf *prefix)
     tail = add_pending_node(tail, node->child, prefix);
     tail = add_pending_node(tail, node->high, prefix);
     return tail;
-}
-
-static void
-add_pending_node_all(wordlist *tail, romanode *node, wordbuf *prefix)
-{
-    add_pending_node(tail, node->child, prefix);
 }
 
 wordlist *
@@ -602,8 +632,8 @@ romaji_convert_all(romaji *object, const unsigned char *src)
     {
         // Output all entries under the pending node.
         wordlist pendings = {0};
-        if (node && node != object->rootnode)
-            add_pending_node_all(&pendings, node, dstbuf);
+        if (node)
+            add_pending_node(&pendings, node->child, dstbuf);
         list = pendings.next;
     }
 
