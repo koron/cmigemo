@@ -1,6 +1,6 @@
 // vim:set ts=8 sts=4 sw=4 tw=0 et:
 //
-// mnode.c - mnode interfaces.
+// mtree.c - Migemo tree (mtree) operations
 //
 // Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
 
@@ -12,7 +12,7 @@
 #include <string.h>
 
 #include "charset.h"
-#include "mnode.h"
+#include "mtree.h"
 #include "strbuf.h"
 #include "trie.h"
 #include "wordlist.h"
@@ -40,7 +40,6 @@ struct mtree
     mnode_arena arena;
 
     CHARSET_PROC_CHAR2INT char2int;
-    CHARSET_PROC_INT2CHAR int2char;
 };
 
 static void
@@ -91,7 +90,7 @@ mnode_debug_stat(mnode *root, trie_stat *stat)
 }
 
 void
-mnode_print_stat(mtree *mt, const char *label)
+mtree_print_stat(mtree *mt, const char *label)
 {
     if (!mt || !mt->rootnode)
     {
@@ -141,35 +140,7 @@ mnode_arena_free(mnode_arena *arena)
 }
 
 void
-mnode_print_stub(mtree *mt, mnode *vp, unsigned char *p)
-{
-    static unsigned char buf[256];
-
-    if (!vp)
-        return;
-    if (!p)
-        p = &buf[0];
-    int len = mt->int2char(vp->code, p);
-    p[len] = '\0';
-    if (vp->list)
-        printf("%s (list=%p)\n", buf, vp->list);
-    if (vp->child)
-        mnode_print_stub(mt, vp->child, p + len);
-    if (vp->low)
-        mnode_print_stub(mt, vp->low, p);
-    if (vp->high)
-        mnode_print_stub(mt, vp->high, p);
-}
-
-void
-mnode_print(mtree *mt, unsigned char *p)
-{
-    if (mt && mt->rootnode)
-        mnode_print_stub(mt, mt->rootnode, p);
-}
-
-void
-mnode_close(mtree *mt)
+mtree_close(mtree *mt)
 {
     if (mt)
     {
@@ -192,7 +163,7 @@ decode_rune(mtree *mt, const unsigned char **pp)
 }
 
 static mnode *
-search_or_new_mnode(mtree *mt, strbuf *buf)
+mtree_ensure_node(mtree *mt, strbuf *buf)
 {
     // Add to the search tree once the label word is determined
     mnode **res = NULL;
@@ -296,8 +267,7 @@ mnode_balance(mnode *root)
 
 // Batch add data from a file to existing nodes.
 mtree *
-mnode_load(mtree *mt, FILE *fp, CHARSET_PROC_CHAR2INT char2int,
-        CHARSET_PROC_INT2CHAR int2char)
+mtree_load(mtree *mt, FILE *fp, CHARSET_PROC_CHAR2INT char2int)
 {
     mnode *pp = NULL;
     int mode = 0;
@@ -311,7 +281,6 @@ mnode_load(mtree *mt, FILE *fp, CHARSET_PROC_CHAR2INT char2int,
     unsigned char *cache_tail = cache;
 
     mt->char2int = char2int;
-    mt->int2char = int2char;
 
     buf = strbuf_open();
     prevlabel = strbuf_open();
@@ -366,7 +335,7 @@ mnode_load(mtree *mt, FILE *fp, CHARSET_PROC_CHAR2INT char2int,
                         strbuf_add(buf, (unsigned char)ch);
                         break;
                     case '\t':
-                        pp = search_or_new_mnode(mt, buf);
+                        pp = mtree_ensure_node(mt, buf);
                         if (!pp)
                         {
                             mt = NULL;
@@ -447,17 +416,16 @@ END_MNODE_LOAD:
 }
 
 mtree *
-mnode_open(void)
+mtree_open(void)
 {
     mtree *mt = (mtree *)calloc(1, sizeof(*mt));
     // Set the default to UTF-8.
     mt->char2int = charset_utf8_char2int;
-    mt->int2char = charset_utf8_int2char;
     return mt;
 }
 
 mnode *
-mnode_query(mtree *mt, const unsigned char *query)
+mtree_query(mtree *mt, const unsigned char *query)
 {
     if (!mt || !mt->rootnode || !query)
         return NULL;
@@ -481,27 +449,4 @@ mnode_query(mtree *mt, const unsigned char *query)
         node = node->child;
     }
     return node;
-}
-
-static void
-mnode_traverse_stub(mnode *node, MNODE_TRAVERSE_PROC proc, void *data)
-{
-    if (node->low)
-        mnode_traverse_stub(node->low, proc, data);
-    proc(node, data);
-    if (node->child)
-        mnode_traverse_stub(node->child, proc, data);
-    if (node->high)
-        mnode_traverse_stub(node->high, proc, data);
-}
-
-void
-mnode_traverse(mnode *node, MNODE_TRAVERSE_PROC proc, void *data)
-{
-    if (node && proc)
-    {
-        proc(node, data);
-        if (node->child)
-            mnode_traverse_stub(node->child, proc, data);
-    }
 }
