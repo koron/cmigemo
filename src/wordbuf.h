@@ -29,6 +29,7 @@ wordbuf *wordbuf_open();
 void wordbuf_close(wordbuf *p);
 size_t wordbuf_extend(wordbuf *p, size_t len);
 size_t wordbuf_last(wordbuf *p);
+size_t wordbuf_append(wordbuf *p, wordbuf *q);
 size_t wordbuf_cat(wordbuf *p, const unsigned char *sz);
 size_t wordbuf_write_bytes(wordbuf *buf, const unsigned char *p, size_t len);
 unsigned char *wordbuf_get(wordbuf *p);
