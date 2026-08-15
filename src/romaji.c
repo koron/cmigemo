@@ -180,7 +180,10 @@ romanode_balance(romanode *root)
 romaji *
 romaji_open()
 {
-    return (romaji *)calloc(1, sizeof(romaji));
+    romaji *rj = (romaji *)calloc(1, sizeof(romaji));
+    if (rj)
+        rj->char2int = charset_none_char2int;
+    return rj;
 }
 
 void
@@ -501,7 +504,7 @@ romaji_find_siblings(romaji *rj, romanode *node, unsigned int code)
 static inline size_t
 romaji_decode_len(CHARSET_PROC_CHAR2INT proc, const unsigned char *s)
 {
-    int len = proc ? proc(s, NULL) : 0;
+    int len = proc(s, NULL);
     return len > 0 ? (size_t)len : 1;
 }
 

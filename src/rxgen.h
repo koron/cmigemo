@@ -6,8 +6,6 @@
 
 #pragma once
 
-#include <stdint.h>
-
 #include "charset.h"
 
 typedef struct rxgen rxgen;

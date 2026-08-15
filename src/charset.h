@@ -44,7 +44,7 @@ static inline unsigned int
 charset_decode(CHARSET_PROC_CHAR2INT proc, const unsigned char **pptr)
 {
     unsigned int code = 0;
-    int len = proc ? proc(*pptr, &code) : 0;
+    int len = proc(*pptr, &code);
     if (len == 0)
         len = charset_none_char2int(*pptr, &code);
     if (code)

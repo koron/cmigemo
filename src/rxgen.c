@@ -7,6 +7,7 @@
 #include "common.h"
 
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -65,7 +66,7 @@ struct rxgen
     CHARSET_PROC_CHAR2INT char2int;
     CHARSET_PROC_INT2CHAR int2char;
 
-    uint32_t bitmap[3];
+    uint32_t escapes_bitmap[3];
 
     unsigned char op_or[RXGEN_OP_MAXLEN];
     unsigned char op_nest_in[RXGEN_OP_MAXLEN];
@@ -156,14 +157,20 @@ rxgen_char2int_fallback(const unsigned char *in, unsigned int *out)
 }
 
 static int
+rxgen_int2char_none(unsigned int in, unsigned char *out)
+{
+    return 0;
+}
+
+static int
 rxgen_int2char_fallback(rxgen *rx, unsigned int in, unsigned char *out)
 {
     int len = 0;
     // Assume that out has at least 16 bytes
-    if (rx && in >= 32 && in <= 126)
+    if (in >= 32 && in <= 126)
     {
         unsigned int idx = in - 32;
-        if (rx->bitmap[idx / 32] & (1U << (idx % 32)))
+        if (rx->escapes_bitmap[idx / 32] & (1U << (idx % 32)))
         {
             if (out)
                 out[len] = '\\';
@@ -187,7 +194,7 @@ void
 rxgen_setproc_int2char(rxgen *rx, CHARSET_PROC_INT2CHAR proc)
 {
     if (rx)
-        rx->int2char = proc;
+        rx->int2char = proc ? proc : rxgen_int2char_none;
 }
 
 void
@@ -196,7 +203,7 @@ rxgen_set_escape_chars(rxgen *rx, const unsigned char *chars)
     if (!rx)
         return;
 
-    memset(rx->bitmap, 0, sizeof(rx->bitmap));
+    memset(rx->escapes_bitmap, 0, sizeof(rx->escapes_bitmap));
 
     if (chars == NULL)
         chars = (const unsigned char *)"\\.*+^$/";
@@ -207,7 +214,7 @@ rxgen_set_escape_chars(rxgen *rx, const unsigned char *chars)
         if (c >= 32 && c <= 126)
         {
             unsigned int idx = c - 32;
-            rx->bitmap[idx / 32] |= (1U << (idx % 32));
+            rx->escapes_bitmap[idx / 32] |= (1U << (idx % 32));
         }
     }
 }
@@ -222,7 +229,7 @@ rxgen_call_char2int(rxgen *rx, const unsigned char *pch, unsigned int *code)
 static int
 rxgen_call_int2char(rxgen *rx, unsigned int code, unsigned char *buf)
 {
-    int len = rx->int2char ? rx->int2char(code, buf) : 0;
+    int len = rx->int2char(code, buf);
     return len ? len : rxgen_int2char_fallback(rx, code, buf);
 }
 
