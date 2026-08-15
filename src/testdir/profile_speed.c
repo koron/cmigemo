@@ -21,7 +21,7 @@
 #define CLOCK2SEC(t) ((double)(t) / (double)CLOCKS_PER_SEC)
 
 static clock_t
-profile_queries(migemo *pmig, int trial)
+profile_queries(migemo *mo, int trial)
 {
     char key[2] = {'\0', '\0'};
     clock_t dur = 0;
@@ -33,8 +33,8 @@ profile_queries(migemo *pmig, int trial)
             printf("%s", key);
             fflush(stdout);
             clock_t start = clock();
-            char *ans = migemo_query(pmig, key);
-            migemo_release(pmig, ans);
+            char *ans = migemo_query(mo, key);
+            migemo_release(mo, ans);
             dur += clock() - start;
         }
         printf("\n");
@@ -45,19 +45,19 @@ profile_queries(migemo *pmig, int trial)
 int
 main(int argc, char **argv)
 {
-    migemo *pmig;
+    migemo *mo;
     clock_t clock_load = 0, clock_query = 0, clock_tmp = 0;
 
     printf("Loading\n");
     clock_tmp = clock();
-    pmig = migemo_open(DICTDIR "/migemo-dict");
+    mo = migemo_open(DICTDIR "/" MIGEMO_DICT_FILENAME);
     clock_load = clock() - clock_tmp;
-    mtree_print_stat(pmig->mtree, "mtree statistics");
-    if (pmig != NULL)
+    mtree_print_stat(mo->mtree, "mtree statistics");
+    if (mo != NULL)
     {
         printf("Quering\n");
-        clock_query = profile_queries(pmig, NUM_TRIAL);
-        migemo_close(pmig);
+        clock_query = profile_queries(mo, NUM_TRIAL);
+        migemo_close(mo);
     }
     printf("\n");
     printf("Results:\n");

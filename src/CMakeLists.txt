@@ -5,6 +5,11 @@ else()
 endif()
 
 configure_file(
+  "${PROJECT_SOURCE_DIR}/include/migemo.h.in"
+  "${CMAKE_CURRENT_BINARY_DIR}/include/migemo.h"
+  @ONLY)
+
+configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/migemo.rc.in"
   "${CMAKE_CURRENT_BINARY_DIR}/migemo.rc"
   @ONLY)
@@ -34,6 +39,7 @@ target_include_directories(
   migemo
   PUBLIC
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 add_executable(cmigemo main.c)
@@ -53,6 +59,6 @@ install(
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT core)
 
 install(
-  FILES ${PROJECT_SOURCE_DIR}/include/migemo.h
+  FILES ${CMAKE_CURRENT_BINARY_DIR}/include/migemo.h
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
   COMPONENT core)

@@ -1,0 +1,101 @@
+// vim:set ts=8 sts=4 sw=4 tw=0 et:
+//
+// migemo.h -
+//
+// Written By:  MURAOKA Taro <koron.kaoriya@gmail.com>
+
+#pragma once
+
+#if defined(_WIN32) && !defined(__MINGW32__) && !defined(__CYGWIN32__)
+# define MIGEMO_CALLTYPE __stdcall
+#else
+# define MIGEMO_CALLTYPE
+#endif
+
+#define MIGEMO_VERSION            "@PROJECT_VERSION@"
+#define MIGEMO_VERSION_MAJOR      @PROJECT_VERSION_MAJOR@
+#define MIGEMO_VERSION_MINOR      @PROJECT_VERSION_MINOR@
+#define MIGEMO_VERSION_PATCH      @PROJECT_VERSION_PATCH@
+#define MIGEMO_VERSION_PRERELEASE "@PROJECT_VERSION_PRERELEASE@"
+
+#define MIGEMO_DICT_FILENAME "migemo-dict"
+
+// for migemo_load()
+#define MIGEMO_DICTID_INVALID   0
+#define MIGEMO_DICTID_MIGEMO    1
+#define MIGEMO_DICTID_ROMA2HIRA 2
+#define MIGEMO_DICTID_HIRA2KATA 3
+#define MIGEMO_DICTID_HAN2ZEN   4
+#define MIGEMO_DICTID_ZEN2HAN   5
+
+// for migemo_set_operator()/migemo_get_operator().  see: rxgen.h
+#define MIGEMO_OPINDEX_OR         0
+#define MIGEMO_OPINDEX_NEST_IN    1
+#define MIGEMO_OPINDEX_NEST_OUT   2
+#define MIGEMO_OPINDEX_SELECT_IN  3
+#define MIGEMO_OPINDEX_SELECT_OUT 4
+#define MIGEMO_OPINDEX_NEWLINE    5
+
+// see: rxgen.h
+typedef int (*MIGEMO_PROC_CHAR2INT)(const unsigned char *, unsigned int *);
+typedef int (*MIGEMO_PROC_INT2CHAR)(unsigned int, unsigned char *);
+
+/// Migemo object. Created by migemo_open() and destroyed by migemo_close.
+typedef struct migemo migemo;
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+//////////////////////////////////////////////////////////////////////////////
+// Life cycle management
+
+/// Create a Migemo object.
+///
+/// Automatically loads standard conversion tables if present in the same
+/// directory as the specified dictionary.  Failure to load sub-dictionaries is
+/// ignored.
+///
+/// @param dict Path to dictionary file. If NULL, no dictionary is loaded.
+/// @return Pointer to created object, or NULL on failure.
+migemo *MIGEMO_CALLTYPE migemo_open(const char *dict);
+
+/// Destroy a Migemo object and free its resources.
+/// @param mo Object to destroy.
+void MIGEMO_CALLTYPE migemo_close(migemo *mo);
+
+//////////////////////////////////////////////////////////////////////////////
+// Query
+
+/// Generate a regular expression pattern from a Romaji query.
+///
+/// NOTE: The returned string is dynamically allocated. You MUST release it
+/// using migemo_release() after use to avoid memory leaks.
+/// @param mo Migemo object.
+/// @param query Query string in Romaji.
+/// @return Generated regex pattern string.
+unsigned char *MIGEMO_CALLTYPE migemo_query(
+        migemo *mo, const unsigned char *query);
+
+/// Free memory allocated by migemo_query().
+/// @param mo Migemo object.
+/// @param used_pattern Pointer to pattern string to free.
+void MIGEMO_CALLTYPE migemo_release(migemo *mo, unsigned char *used_pattern);
+
+//////////////////////////////////////////////////////////////////////////////
+// Configurations
+
+int MIGEMO_CALLTYPE migemo_set_operator(
+        migemo *mo, int index, const unsigned char *op);
+const unsigned char *MIGEMO_CALLTYPE migemo_get_operator(migemo *mo, int index);
+void MIGEMO_CALLTYPE migemo_setproc_char2int(
+        migemo *mo, MIGEMO_PROC_CHAR2INT proc);
+void MIGEMO_CALLTYPE migemo_setproc_int2char(
+        migemo *mo, MIGEMO_PROC_INT2CHAR proc);
+
+int MIGEMO_CALLTYPE migemo_load(migemo *mo, int dict_id, const char *dict_file);
+int MIGEMO_CALLTYPE migemo_is_enable(migemo *mo);
+
+#ifdef __cplusplus
+}
+#endif

@@ -9,7 +9,7 @@ build:
 	cmake --build build --parallel
 
 tags: src/*.c src/*.h
-	ctags src/*.c src/*.h
+	ctags src/*.c src/*.h --langmap=c:+.in include/migemo.h.in
 
 test:
 	cmake -B build
