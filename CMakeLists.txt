@@ -25,9 +25,9 @@ option(BUILD_TESTING "Build tests" ON)
 #------------------------------------------------------------------------------
 
 include(GNUInstallDirs)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_BINDIR})
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_BINDIR})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
 
 #------------------------------------------------------------------------------
 
@@ -54,8 +54,6 @@ if(MSVC)
   add_compile_options(/utf-8 /W3 /wd4710 /wd4711 /wd5045)
   add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 endif()
-
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 #------------------------------------------------------------------------------
 

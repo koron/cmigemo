@@ -3,17 +3,17 @@
 add_executable(
   romaji
   romaji_main.c
-  ${CMAKE_SOURCE_DIR}/src/charset.c
-  ${CMAKE_SOURCE_DIR}/src/romaji.c
-  ${CMAKE_SOURCE_DIR}/src/trie.c
-  ${CMAKE_SOURCE_DIR}/src/strbuf.c
-  ${CMAKE_SOURCE_DIR}/src/wordlist.c)
+  ${PROJECT_SOURCE_DIR}/src/charset.c
+  ${PROJECT_SOURCE_DIR}/src/romaji.c
+  ${PROJECT_SOURCE_DIR}/src/trie.c
+  ${PROJECT_SOURCE_DIR}/src/strbuf.c
+  ${PROJECT_SOURCE_DIR}/src/wordlist.c)
 target_include_directories(
   romaji
   PRIVATE ${PROJECT_SOURCE_DIR}/src ${PROJECT_BINARY_DIR}/src/include)
 target_compile_definitions(
   romaji
-  PRIVATE DICTDIR="${CMAKE_BINARY_DIR}/dict/utf-8" _DEBUG)
+  PRIVATE DICTDIR="${PROJECT_BINARY_DIR}/dict/utf-8" _DEBUG)
 
 if(MSVC)
   set_target_properties(
@@ -28,21 +28,21 @@ endif()
 add_executable(
   qspeed
   profile_speed.c
-  ${CMAKE_SOURCE_DIR}/src/charset.c
-  ${CMAKE_SOURCE_DIR}/src/filename.c
-  ${CMAKE_SOURCE_DIR}/src/migemo.c
-  ${CMAKE_SOURCE_DIR}/src/mtree.c
-  ${CMAKE_SOURCE_DIR}/src/romaji.c
-  ${CMAKE_SOURCE_DIR}/src/rxgen.c
-  ${CMAKE_SOURCE_DIR}/src/trie.c
-  ${CMAKE_SOURCE_DIR}/src/strbuf.c
-  ${CMAKE_SOURCE_DIR}/src/wordlist.c)
+  ${PROJECT_SOURCE_DIR}/src/charset.c
+  ${PROJECT_SOURCE_DIR}/src/filename.c
+  ${PROJECT_SOURCE_DIR}/src/migemo.c
+  ${PROJECT_SOURCE_DIR}/src/mtree.c
+  ${PROJECT_SOURCE_DIR}/src/romaji.c
+  ${PROJECT_SOURCE_DIR}/src/rxgen.c
+  ${PROJECT_SOURCE_DIR}/src/trie.c
+  ${PROJECT_SOURCE_DIR}/src/strbuf.c
+  ${PROJECT_SOURCE_DIR}/src/wordlist.c)
 target_include_directories(
   qspeed
   PRIVATE ${PROJECT_SOURCE_DIR}/src ${PROJECT_BINARY_DIR}/src/include)
 target_compile_definitions(
   qspeed
-  PRIVATE DICTDIR="${CMAKE_BINARY_DIR}/dict/utf-8" _DEBUG)
+  PRIVATE DICTDIR="${PROJECT_BINARY_DIR}/dict/utf-8" _DEBUG)
 
 if(MSVC)
   set_target_properties(
@@ -70,7 +70,7 @@ if(GPROF_EXECUTABLE AND CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
     COMMAND ${CMAKE_COMMAND} -E echo "Generating profile.log..."
     COMMAND ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_SOURCE_DIR}/copy_gmon.cmake"
     COMMAND ${GPROF_EXECUTABLE} $<TARGET_FILE:qspeed> gmon.out > profile.log
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
     DEPENDS qspeed
     COMMENT "Running qspeed benchmark and generating profile.log")
 endif()
