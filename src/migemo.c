@@ -27,12 +27,6 @@
 #define DICT_HAN2ZEN   "han2zen.dat"
 #define DICT_ZEN2HAN   "zen2han.dat"
 
-#ifdef __BORLANDC__
-# define EXPORTS __declspec(dllexport)
-#else
-# define EXPORTS
-#endif
-
 static int
 my_strlen(const char *s)
 {
@@ -81,7 +75,7 @@ load_mtree_dictionary(migemo *mo, const char *dict_file)
 /// @param dict_id Identifier specifying the type of dictionary/data.
 /// @param dict_file Path to the dictionary or data file to load.
 /// @return Non-zero on success, 0 on failure.
-EXPORTS int MIGEMO_CALLTYPE
+int MIGEMO_CALLTYPE
 migemo_load(migemo *mo, int dict_id, const char *dict_file)
 {
     if (!mo && dict_file)
@@ -131,7 +125,7 @@ migemo_load(migemo *mo, int dict_id, const char *dict_file)
     }
 }
 
-EXPORTS migemo *MIGEMO_CALLTYPE
+migemo *MIGEMO_CALLTYPE
 migemo_open(const char *dict)
 {
     migemo *mo;
@@ -191,7 +185,7 @@ migemo_open(const char *dict)
     return mo;
 }
 
-EXPORTS void MIGEMO_CALLTYPE
+void MIGEMO_CALLTYPE
 migemo_close(migemo *mo)
 {
     if (mo)
@@ -377,7 +371,7 @@ query_a_word(migemo *mo, unsigned char *query)
     free(lower);
 }
 
-EXPORTS unsigned char *MIGEMO_CALLTYPE
+unsigned char *MIGEMO_CALLTYPE
 migemo_query(migemo *mo, const unsigned char *query)
 {
     unsigned char *retval = NULL;
@@ -427,7 +421,7 @@ MIGEMO_QUERY_END:
     return retval;
 }
 
-EXPORTS void MIGEMO_CALLTYPE
+void MIGEMO_CALLTYPE
 migemo_release(migemo *p, unsigned char *used_pattern)
 {
     free(used_pattern);
@@ -450,7 +444,7 @@ migemo_release(migemo *p, unsigned char *used_pattern)
 /// @param index Metacharacter identifier (`MIGEMO_OPINDEX_*`).
 /// @param op Metacharacter string to set.
 /// @return Non-zero on success, 0 on failure.
-EXPORTS int MIGEMO_CALLTYPE
+int MIGEMO_CALLTYPE
 migemo_set_operator(migemo *mo, int index, const unsigned char *op)
 {
     if (mo)
@@ -470,7 +464,7 @@ migemo_set_operator(migemo *mo, int index, const unsigned char *op)
 /// @param index Metacharacter identifier (`MIGEMO_OPINDEX_*`).
 /// @return Pointer to the metacharacter string on success, or NULL if `mo`
 /// is NULL or `index` is invalid.
-EXPORTS const unsigned char *MIGEMO_CALLTYPE
+const unsigned char *MIGEMO_CALLTYPE
 migemo_get_operator(migemo *mo, int index)
 {
     return mo ? rxgen_get_operator(mo->rx, index) : NULL;
@@ -481,7 +475,7 @@ migemo_get_operator(migemo *mo, int index)
 ///
 /// @param mo Migemo object.
 /// @param proc Character conversion procedure.
-EXPORTS void MIGEMO_CALLTYPE
+void MIGEMO_CALLTYPE
 migemo_setproc_char2int(migemo *mo, MIGEMO_PROC_CHAR2INT proc)
 {
     if (mo)
@@ -493,7 +487,7 @@ migemo_setproc_char2int(migemo *mo, MIGEMO_PROC_CHAR2INT proc)
 ///
 /// @param mo Migemo object.
 /// @param proc Character conversion procedure.
-EXPORTS void MIGEMO_CALLTYPE
+void MIGEMO_CALLTYPE
 migemo_setproc_int2char(migemo *mo, MIGEMO_PROC_INT2CHAR proc)
 {
     if (mo)
@@ -504,7 +498,7 @@ migemo_setproc_int2char(migemo *mo, MIGEMO_PROC_INT2CHAR proc)
 ///
 /// @param mo Migemo object.
 /// @return Non-zero if enabled, 0 otherwise.
-EXPORTS int MIGEMO_CALLTYPE
+int MIGEMO_CALLTYPE
 migemo_is_enable(migemo *mo)
 {
     return mo ? mo->enable : 0;
