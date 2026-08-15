@@ -57,8 +57,8 @@ extern "C" {
 migemo *MIGEMO_CALLTYPE migemo_open(const char *dict);
 
 /// Destroy a Migemo object and free its resources.
-/// @param object Object to destroy.
-void MIGEMO_CALLTYPE migemo_close(migemo *object);
+/// @param mo Object to destroy.
+void MIGEMO_CALLTYPE migemo_close(migemo *mo);
 
 //////////////////////////////////////////////////////////////////////////////
 // Query
@@ -67,33 +67,30 @@ void MIGEMO_CALLTYPE migemo_close(migemo *object);
 ///
 /// NOTE: The returned string is dynamically allocated. You MUST release it
 /// using migemo_release() after use to avoid memory leaks.
-/// @param object Migemo object.
+/// @param mo Migemo object.
 /// @param query Query string in Romaji.
 /// @return Generated regex pattern string.
 unsigned char *MIGEMO_CALLTYPE migemo_query(
-        migemo *object, const unsigned char *query);
+        migemo *mo, const unsigned char *query);
 
 /// Free memory allocated by migemo_query().
-/// @param object Migemo object.
+/// @param mo Migemo object.
 /// @param used_pattern Pointer to pattern string to free.
-void MIGEMO_CALLTYPE migemo_release(
-        migemo *object, unsigned char *used_pattern);
+void MIGEMO_CALLTYPE migemo_release(migemo *mo, unsigned char *used_pattern);
 
 //////////////////////////////////////////////////////////////////////////////
 // Configurations
 
 int MIGEMO_CALLTYPE migemo_set_operator(
-        migemo *object, int index, const unsigned char *op);
-const unsigned char *MIGEMO_CALLTYPE migemo_get_operator(
-        migemo *object, int index);
+        migemo *mo, int index, const unsigned char *op);
+const unsigned char *MIGEMO_CALLTYPE migemo_get_operator(migemo *mo, int index);
 void MIGEMO_CALLTYPE migemo_setproc_char2int(
-        migemo *object, MIGEMO_PROC_CHAR2INT proc);
+        migemo *mo, MIGEMO_PROC_CHAR2INT proc);
 void MIGEMO_CALLTYPE migemo_setproc_int2char(
-        migemo *object, MIGEMO_PROC_INT2CHAR proc);
+        migemo *mo, MIGEMO_PROC_INT2CHAR proc);
 
-int MIGEMO_CALLTYPE migemo_load(
-        migemo *obj, int dict_id, const char *dict_file);
-int MIGEMO_CALLTYPE migemo_is_enable(migemo *obj);
+int MIGEMO_CALLTYPE migemo_load(migemo *mo, int dict_id, const char *dict_file);
+int MIGEMO_CALLTYPE migemo_is_enable(migemo *mo);
 
 #ifdef __cplusplus
 }
