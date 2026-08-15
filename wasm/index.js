@@ -1,20 +1,30 @@
-import createMigemoModule from './migemo_wasm.js';
-
 let moduleInstance = null;
 let migemoInstance = 0;
 
 /**
- * Gets the Emscripten module factory function.
- * @returns {Function}
+ * Gets the Emscripten module factory function dynamically.
+ * @returns {Promise<Function>}
  */
-function getModuleFactory() {
-  if (typeof createMigemoModule === 'function') {
-    return createMigemoModule;
-  }
+async function getModuleFactory() {
   if (typeof globalThis !== 'undefined' && typeof globalThis.createMigemoModule === 'function') {
     return globalThis.createMigemoModule;
   }
-  throw new Error("Unable to locate createMigemoModule factory function.");
+  try {
+    const mod = await import('./migemo_wasm.js');
+    return mod.default || mod.createMigemoModule || mod;
+  } catch (e) {
+    try {
+      const mod = await import('../build-wasm/bin/migemo_wasm.js');
+      return mod.default || mod.createMigemoModule || mod;
+    } catch (e2) {
+      try {
+        const mod = await import('../build/bin/migemo_wasm.js');
+        return mod.default || mod.createMigemoModule || mod;
+      } catch (e3) {
+        throw new Error("Unable to locate createMigemoModule factory function. Ensure migemo_wasm.js is built.");
+      }
+    }
+  }
 }
 
 /**
@@ -70,14 +80,12 @@ export async function init(options = {}) {
   if (!moduleInstance) {
     let factory = opts.createMigemoModule;
     if (!factory) {
-      factory = getModuleFactory();
+      factory = await getModuleFactory();
     }
     const defaultModuleOpts = {
       locateFile: (path, scriptDirectory) => {
-        if (typeof import.meta !== 'undefined' && import.meta.url) {
-          return new URL(path, import.meta.url).href;
-        }
-        return (scriptDirectory || '') + path;
+        if (scriptDirectory) return scriptDirectory + path;
+        return path;
       }
     };
     moduleInstance = await factory({ ...defaultModuleOpts, ...opts.moduleOpts });
