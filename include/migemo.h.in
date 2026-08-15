@@ -53,7 +53,9 @@ extern "C" {
 /// Create a Migemo object.
 ///
 /// Automatically loads standard conversion tables if present in the same
-/// directory as the specified dictionary.
+/// directory as the specified dictionary.  Failure to load sub-dictionaries is
+/// ignored.
+///
 /// @param dict Path to dictionary file. If NULL, no dictionary is loaded.
 /// @return Pointer to created object, or NULL on failure.
 migemo *MIGEMO_CALLTYPE migemo_open(const char *dict);

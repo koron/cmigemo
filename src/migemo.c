@@ -313,32 +313,26 @@ migemo_segment_query(migemo *mo, const unsigned char *query)
 static void
 migemo_process_word(migemo *mo, unsigned char *query)
 {
-    unsigned char *lower = NULL;
     int len = my_strlen(query);
+    unsigned char *lower = malloc(len + 1);
+    if (!lower)
+        return; // Error: memory allocation
 
     // Naturally, add the query itself to the candidates
     migemo_add_word(mo, query);
-    // Dictionary lookup with the query itself
-    lower = malloc(len + 1);
-    if (!lower)
-        migemo_add_mtree_matches(mo, query);
-    else
-    {
-        int i = 0, step;
 
+    // Dictionary search using a lowercase query.
+    for (int i = 0, step; i <= len; i += step)
+    {
         // Uppercase to lowercase conversion considering multi-byte characters
-        while (i <= len)
-        {
-            if (!mo->char2int || (step = mo->char2int(&query[i], NULL)) < 1)
-                step = 1;
-            if (step == 1 && isupper(query[i]))
-                lower[i] = (unsigned char)tolower(query[i]);
-            else
-                memcpy(&lower[i], &query[i], step);
-            i += step;
-        }
-        migemo_add_mtree_matches(mo, lower);
+        if (!mo->char2int || (step = mo->char2int(&query[i], NULL)) < 1)
+            step = 1;
+        if (step == 1 && isupper(query[i]))
+            lower[i] = (unsigned char)tolower(query[i]);
+        else
+            memcpy(&lower[i], &query[i], step);
     }
+    migemo_add_mtree_matches(mo, lower);
 
     // Convert query to full-width and add to candidates
     wordlist *zen_list = romaji_convert_all(mo->han2zen, query);
