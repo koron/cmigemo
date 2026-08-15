@@ -76,7 +76,7 @@ load_mtree_dictionary(migemo *mo, const char *dict_file)
 /// @param mo Migemo object.
 /// @param dict_id Identifier specifying the type of dictionary/data.
 /// @param dict_file Path to the dictionary or data file to load.
-/// @return Non-zero on success, 0 on failure.
+/// @return dict_id on success, 0 on failure.
 int MIGEMO_CALLTYPE
 migemo_load(migemo *mo, int dict_id, const char *dict_file)
 {
@@ -419,13 +419,13 @@ migemo_release(migemo *mo, unsigned char *used_pattern)
 /// @param mo Migemo object.
 /// @param index Metacharacter identifier (`MIGEMO_OPINDEX_*`).
 /// @param op Metacharacter string to set.
-/// @return Non-zero on success, 0 on failure.
+/// @return 1 on success, 0 on failure.
 int MIGEMO_CALLTYPE
 migemo_set_operator(migemo *mo, int index, const unsigned char *op)
 {
     if (!mo)
         return 0;
-    return rxgen_set_operator(mo->rx, index, op) ? 0 : 1;
+    return rxgen_set_operator(mo->rx, index, op) == 0 ? 1 : 0;
 }
 
 /// Retrieve the metacharacter (operator) string for the specified index.
