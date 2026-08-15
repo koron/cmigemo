@@ -32,3 +32,8 @@ jobs:
     name: Windows (MSYS2)
     uses: ./.github/workflows/ci-windows-msys2.yml
     secrets: inherit
+
+  wasm:
+    name: WebAssembly
+    uses: ./.github/workflows/ci-wasm.yml
+    secrets: inherit
