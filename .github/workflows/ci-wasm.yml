@@ -31,22 +31,25 @@ jobs:
     - name: Test
       run: node wasm/test/test.js
 
-    - name: List files in build
-      run: tree -Fh build-wasm
-
-    - name: Get Version
-      id: get_version
+    - name: Packaging
+      id: packaging
       run: |
         VERSION=$(grep -w MIGEMO_VERSION build-wasm/src/include/migemo.h | cut -d '"' -f 2)
         PRERELEASE=$(grep -w MIGEMO_VERSION_PRERELEASE build-wasm/src/include/migemo.h | cut -d '"' -f 2)
-        echo "version=${VERSION}${PRERELEASE}" >> $GITHUB_OUTPUT
+        FULL_VER="${VERSION}${PRERELEASE}"
+
+        PKG_NAME="cmigemo-${FULL_VER}-wasm"
+        PKG_DIR="build-wasm/${PKG_NAME}"
+        mkdir -p "$PKG_DIR"
+        cp build-wasm/bin/migemo_wasm.* "$PKG_DIR"
+        cp wasm/index.js wasm/library.js "$PKG_DIR"
+        ( cd build-wasm && zip -r "${PKG_NAME}.zip" "$PKG_NAME" )
+
+    - name: List files in build
+      run: tree -Fh build-wasm
 
     - name: Upload the package
       uses: actions/upload-artifact@v7
       with:
-        name: cmigemo-${{ steps.get_version.outputs.version }}-wasm
-        path: |
-          wasm/migemo_wasm.wasm
-          wasm/migemo_wasm.js
-          wasm/index.js
-          wasm/library.js
+        path: build-wasm/cmigemo-*.zip
+        archive: false
