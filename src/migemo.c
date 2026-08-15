@@ -22,13 +22,10 @@
 #include "strbuf.h"
 #include "wordlist.h"
 
-#define DICT_MIGEMO    "migemo-dict"
 #define DICT_ROMA2HIRA "roma2hira.dat"
 #define DICT_HIRA2KATA "hira2kata.dat"
 #define DICT_HAN2ZEN   "han2zen.dat"
 #define DICT_ZEN2HAN   "zen2han.dat"
-
-#define BUFLEN_DETECT_CHARSET 4096
 
 #ifdef __BORLANDC__
 # define EXPORTS __declspec(dllexport)

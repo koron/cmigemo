@@ -50,7 +50,7 @@ main(int argc, char **argv)
 
     printf("Loading\n");
     clock_tmp = clock();
-    mo = migemo_open(DICTDIR "/migemo-dict");
+    mo = migemo_open(DICTDIR "/" MIGEMO_DICT_FILENAME);
     clock_load = clock() - clock_tmp;
     mtree_print_stat(mo->mtree, "mtree statistics");
     if (mo != NULL)

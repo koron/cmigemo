@@ -14,8 +14,7 @@
 
 #include "migemo.h"
 
-#define MIGEMO_ABOUT    "cmigemo - C/Migemo Library " MIGEMO_VERSION " Driver"
-#define MIGEMODICT_NAME "migemo-dict"
+#define MIGEMO_ABOUT "cmigemo - C/Migemo Library " MIGEMO_VERSION " Driver"
 #define MIGEMO_SUBDICT_MAX 8
 
 #ifndef S_ISREG
@@ -95,19 +94,19 @@ open_first_migemo(const char **found, const char **dicts)
 
 static const char *default_dicts[] = {
 #if _WIN32
-        "./dict/cp932/" MIGEMODICT_NAME,
-        "../dict/cp932/" MIGEMODICT_NAME,
-        "./build/dict/cp932/" MIGEMODICT_NAME,
+        "./dict/cp932/" MIGEMO_DICT_FILENAME,
+        "../dict/cp932/" MIGEMO_DICT_FILENAME,
+        "./build/dict/cp932/" MIGEMO_DICT_FILENAME,
 #else
-        "./dict/utf-8/" MIGEMODICT_NAME,
-        "../dict/utf-8/" MIGEMODICT_NAME,
-        "./build/dict/utf-8/" MIGEMODICT_NAME,
+        "./dict/utf-8/" MIGEMO_DICT_FILENAME,
+        "../dict/utf-8/" MIGEMO_DICT_FILENAME,
+        "./build/dict/utf-8/" MIGEMO_DICT_FILENAME,
 #endif
-        "./dict/" MIGEMODICT_NAME,
-        "../dict/" MIGEMODICT_NAME,
-        "./build/dict/" MIGEMODICT_NAME,
+        "./dict/" MIGEMO_DICT_FILENAME,
+        "../dict/" MIGEMO_DICT_FILENAME,
+        "./build/dict/" MIGEMO_DICT_FILENAME,
 #ifdef CMIGEMO_DICTDIR
-        CMIGEMO_DICTDIR "/" MIGEMODICT_NAME,
+        CMIGEMO_DICTDIR "/" MIGEMO_DICT_FILENAME,
 #endif
         NULL,
 };
