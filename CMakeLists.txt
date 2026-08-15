@@ -66,6 +66,9 @@ if(BUILD_TESTING)
   add_subdirectory(test)
   add_subdirectory(src/testdir)
 endif()
+if(EMSCRIPTEN)
+  add_subdirectory(wasm)
+endif()
 
 #------------------------------------------------------------------------------
 
