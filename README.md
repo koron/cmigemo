@@ -60,7 +60,7 @@ Or just `rm -rf build`.
     [`SKK-JISYO.L`](https://skk-dev.github.io/dict/)
 
 -   Profiling
-    -   gperf
+    -   gprof
 
 ## Build
 
