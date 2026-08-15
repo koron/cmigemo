@@ -2,11 +2,11 @@ cmake_minimum_required(VERSION 3.16)
 
 project(
   cmigemo
-  VERSION 1.5.2
+  VERSION 1.6.0
   DESCRIPTION "C/Migemo library and tool"
   LANGUAGES C)
 
-set(PROJECT_VERSION_PRERELEASE "")
+set(PROJECT_VERSION_PRERELEASE "-beta.1")
 
 set(PROJECT_VERSION_FULL "${PROJECT_VERSION}${PROJECT_VERSION_PRERELEASE}")
 
