@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>C/Migemo WebAssembly Demo & Verification</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 0 20px;
+      line-height: 1.6;
+    }
+    .card {
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-size: 16px;
+      box-sizing: border-box;
+      margin-top: 8px;
+      margin-bottom: 8px;
+    }
+    pre {
+      background: #f4f4f4;
+      padding: 12px;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+    .status {
+      font-weight: bold;
+      color: #2b78e4;
+    }
+    .success {
+      color: #2e7d32;
+    }
+  </style>
+</head>
+<body>
+  <h1>C/Migemo WebAssembly Demo</h1>
+
+  <div class="card">
+    <h2>1. Initialization</h2>
+    <p>Status: <span id="status" class="status">Not Initialized</span></p>
+    <button id="initBufferBtn">Init with ArrayBuffer (dictData)</button>
+    <button id="initOpfsBtn">Init with OPFS / Virtual FS (dictPath)</button>
+  </div>
+
+  <div class="card">
+    <h2>2. Incremental Search Query</h2>
+    <label for="searchInput">Enter Romaji Query (e.g. <code>ak</code>, <code>tokyo</code>, <code>n</code>):</label>
+    <input type="text" id="searchInput" placeholder="Type query here..." disabled>
+
+    <h3>Generated RegExp:</h3>
+    <pre id="regexOutput">N/A</pre>
+
+    <h3>Test Matches:</h3>
+    <div id="matchOutput">-</div>
+  </div>
+
+  <script type="module">
+    import { init, query, isEnable, close, getModule } from '../index.js';
+
+    const statusEl = document.getElementById('status');
+    const searchInput = document.getElementById('searchInput');
+    const regexOutput = document.getElementById('regexOutput');
+    const matchOutput = document.getElementById('matchOutput');
+
+    // Minimal embedded dictionary for browser demo if external dict is not fetched
+    const sampleDictText = "あか\t赤\t紅\t朱\nあけ\t明\nあき\t秋\nあく\t悪\n";
+    const sampleDictBuffer = new TextEncoder().encode(sampleDictText);
+
+    document.getElementById('initBufferBtn').addEventListener('click', async () => {
+      try {
+        statusEl.textContent = 'Initializing with dictData Uint8Array...';
+        await init({
+          dictData: sampleDictBuffer,
+          dictPath: '/memfs/migemo-dict'
+        });
+        statusEl.textContent = 'Initialized successfully with ArrayBuffer!';
+        statusEl.className = 'status success';
+        searchInput.disabled = false;
+        runQuery();
+      } catch (err) {
+        statusEl.textContent = 'Init Error: ' + err.message;
+      }
+    });
+
+    document.getElementById('initOpfsBtn').addEventListener('click', async () => {
+      try {
+        statusEl.textContent = 'Initializing with OPFS / Virtual FS dictPath...';
+
+        // Write to Virtual FS / WASFS
+        const mod = getModule();
+        if (mod) {
+          try { mod.FS.mkdirTree('/opfs'); } catch(e){}
+          mod.FS.writeFile('/opfs/migemo-dict', sampleDictBuffer);
+        }
+
+        await init({ dictPath: '/opfs/migemo-dict' });
+        statusEl.textContent = 'Initialized successfully with dictPath (/opfs/migemo-dict)!';
+        statusEl.className = 'status success';
+        searchInput.disabled = false;
+        runQuery();
+      } catch (err) {
+        statusEl.textContent = 'Init Error: ' + err.message;
+      }
+    });
+
+    function runQuery() {
+      const val = searchInput.value || 'ak';
+      if (!isEnable()) return;
+      try {
+        const rx = query(val);
+        regexOutput.textContent = rx.toString();
+
+        const candidates = ['赤', '明', '秋', '悪', 'ak', 'tokyo', '東京'];
+        const matches = candidates.filter(c => rx.test(c));
+        matchOutput.innerHTML = `<strong>Candidates tested:</strong> ${candidates.join(', ')}<br><strong>Matched:</strong> ${matches.join(', ')}`;
+      } catch (e) {
+        regexOutput.textContent = 'Query Error: ' + e.message;
+      }
+    }
+
+    searchInput.addEventListener('input', runQuery);
+  </script>
+</body>
+</html>

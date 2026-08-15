@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 
 project(
   cmigemo
-  VERSION 1.5.2
+  VERSION 1.6.0
   DESCRIPTION "C/Migemo library and tool"
   LANGUAGES C)
 
@@ -65,6 +65,9 @@ if(BUILD_TESTING)
   enable_testing()
   add_subdirectory(test)
   add_subdirectory(src/testdir)
+endif()
+if(EMSCRIPTEN)
+  add_subdirectory(wasm)
 endif()
 
 #------------------------------------------------------------------------------
