@@ -501,7 +501,7 @@ romaji_find_siblings(romaji *rj, romanode *node, unsigned int code)
 static inline size_t
 romaji_decode_len(CHARSET_PROC_CHAR2INT proc, const unsigned char *s)
 {
-    int len = proc(s, NULL);
+    int len = proc ? proc(s, NULL) : 0;
     return len > 0 ? (size_t)len : 1;
 }
 

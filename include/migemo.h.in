@@ -92,6 +92,8 @@ void MIGEMO_CALLTYPE migemo_setproc_char2int(
         migemo *mo, MIGEMO_PROC_CHAR2INT proc);
 void MIGEMO_CALLTYPE migemo_setproc_int2char(
         migemo *mo, MIGEMO_PROC_INT2CHAR proc);
+int MIGEMO_CALLTYPE migemo_set_escape_chars(
+        migemo *mo, const unsigned char *chars);
 
 int MIGEMO_CALLTYPE migemo_load(migemo *mo, int dict_id, const char *dict_file);
 int MIGEMO_CALLTYPE migemo_is_enable(migemo *mo);

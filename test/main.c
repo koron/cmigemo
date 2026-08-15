@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 int test1(void);
+int test2(void);
 
 int
 main(int argc, char **argv)
@@ -10,6 +11,7 @@ main(int argc, char **argv)
     int r;
     if ((r = test1()) != 0)
         return r;
-    // FIXME: Future test cases (group) will be added here.
+    if ((r = test2()) != 0)
+        return r;
     return 0;
 }
