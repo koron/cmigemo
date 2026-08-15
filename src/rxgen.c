@@ -163,6 +163,7 @@ rxgen_int2char_fallback(unsigned int in, unsigned char *out)
         case '\\':
         case '.':
         case '*':
+        case '+':
         case '^':
         case '$':
         case '/':
