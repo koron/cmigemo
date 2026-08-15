@@ -27,6 +27,10 @@
 #define DICT_HAN2ZEN   "han2zen.dat"
 #define DICT_ZEN2HAN   "zen2han.dat"
 
+#ifndef _MAX_PATH
+# define _MAX_PATH 1024 // Placeholder value
+#endif
+
 static int
 my_strlen(const char *s)
 {
@@ -57,8 +61,6 @@ load_mtree_dictionary(migemo *mo, const char *dict_file)
     return mt;
 }
 
-// migemo interfaces
-
 /// Add a dictionary or data file to the Migemo object.
 ///
 /// Supported dictionary types (`dict_id`):
@@ -79,60 +81,52 @@ int MIGEMO_CALLTYPE
 migemo_load(migemo *mo, int dict_id, const char *dict_file)
 {
     if (!mo && dict_file)
-        return MIGEMO_DICTID_INVALID;
+        return 0;
 
+    // Load migemo dictionary
     if (dict_id == MIGEMO_DICTID_MIGEMO)
     {
-        // Load migemo dictionary
-        mtree *mt;
-
-        if ((mt = load_mtree_dictionary(mo, dict_file)) == NULL)
-            return MIGEMO_DICTID_INVALID;
+        mtree *mt = load_mtree_dictionary(mo, dict_file);
+        if (!mt)
+            return 0;
         mo->mtree = mt;
         mo->enable = 1;
         return dict_id; // Loaded successfully
     }
-    else
-    {
-        romaji *dict;
 
-        switch (dict_id)
-        {
-            case MIGEMO_DICTID_ROMA2HIRA:
-                // Load romaji dictionary
-                dict = mo->roma2hira;
-                break;
-            case MIGEMO_DICTID_HIRA2KATA:
-                // Load katakana dictionary
-                dict = mo->hira2kata;
-                break;
-            case MIGEMO_DICTID_HAN2ZEN:
-                // Load half-width to full-width dictionary
-                dict = mo->han2zen;
-                break;
-            case MIGEMO_DICTID_ZEN2HAN:
-                // Load half-width to full-width dictionary
-                dict = mo->zen2han;
-                break;
-            default:
-                dict = NULL;
-                break;
-        }
-        if (dict && romaji_load(dict, dict_file, mo->char2int) == 0)
-            return dict_id;
-        else
-            return MIGEMO_DICTID_INVALID;
+    romaji *dict;
+    switch (dict_id)
+    {
+        case MIGEMO_DICTID_ROMA2HIRA:
+            // Load romaji dictionary
+            dict = mo->roma2hira;
+            break;
+        case MIGEMO_DICTID_HIRA2KATA:
+            // Load katakana dictionary
+            dict = mo->hira2kata;
+            break;
+        case MIGEMO_DICTID_HAN2ZEN:
+            // Load half-width to full-width dictionary
+            dict = mo->han2zen;
+            break;
+        case MIGEMO_DICTID_ZEN2HAN:
+            // Load half-width to full-width dictionary
+            dict = mo->zen2han;
+            break;
+        default:
+            return 0;
     }
+
+    return romaji_load(dict, dict_file, mo->char2int) == 0 ? dict_id : 0;
 }
 
 migemo *MIGEMO_CALLTYPE
 migemo_open(const char *dict)
 {
-    migemo *mo;
-
+    migemo *mo = (migemo *)calloc(1, sizeof(migemo));
+    if (!mo)
+        return NULL;
     // Construct the Migemo object and its members
-    if (!(mo = (migemo *)calloc(1, sizeof(migemo))))
-        return mo;
     mo->enable = 0;
     mo->mtree = mtree_open();
     mo->charset = CHARSET_NONE;
@@ -146,32 +140,27 @@ migemo_open(const char *dict)
             || !mo->han2zen || !mo->zen2han)
     {
         migemo_close(mo);
-        return mo = NULL;
+        return NULL;
     }
 
     // If a default migemo dictionary is specified, also look for romaji and
     // katakana dictionaries
     if (dict)
     {
-#ifndef _MAX_PATH
-# define _MAX_PATH 1024 // Placeholder value
-#endif
         char dir[_MAX_PATH];
         char roma_dict[_MAX_PATH];
         char kata_dict[_MAX_PATH];
         char h2z_dict[_MAX_PATH];
         char z2h_dict[_MAX_PATH];
-        const char *tmp;
-        mtree *mt;
 
         filename_directory(dir, _MAX_PATH, dict);
-        tmp = strlen(dir) ? dir : ".";
+        const char *tmp = strlen(dir) ? dir : ".";
         filename_join(roma_dict, _MAX_PATH, tmp, DICT_ROMA2HIRA);
         filename_join(kata_dict, _MAX_PATH, tmp, DICT_HIRA2KATA);
         filename_join(h2z_dict, _MAX_PATH, tmp, DICT_HAN2ZEN);
         filename_join(z2h_dict, _MAX_PATH, tmp, DICT_ZEN2HAN);
 
-        mt = load_mtree_dictionary(mo, dict);
+        mtree *mt = load_mtree_dictionary(mo, dict);
         if (mt)
         {
             mo->mtree = mt;
@@ -206,71 +195,69 @@ migemo_close(migemo *mo)
     }
 }
 
-// query version 2
-
 static int
-migemo_addword(migemo *mo, unsigned char *word)
+migemo_add_word(migemo *mo, unsigned char *word)
 {
     return rxgen_add(mo->rx, word);
 }
 
 static inline void
-add_mnode_words(migemo *mo, wordlist *list)
+migemo_add_wordlist(migemo *mo, wordlist *list)
 {
     for (; list; list = wordlist_next(list))
-        migemo_addword(mo, wordlist_word(list));
+        migemo_add_word(mo, wordlist_word(list));
 }
 
 static void
-add_mnode_siblings(migemo *mo, mnode *pnode)
+migemo_add_mnode_siblings(migemo *mo, mnode *node)
 {
-    add_mnode_words(mo, pnode->list);
-    if (pnode->child)
-        add_mnode_siblings(mo, pnode->child);
-    if (pnode->low)
-        add_mnode_siblings(mo, pnode->low);
-    if (pnode->high)
-        add_mnode_siblings(mo, pnode->high);
+    migemo_add_wordlist(mo, node->list);
+    if (node->child)
+        migemo_add_mnode_siblings(mo, node->child);
+    if (node->low)
+        migemo_add_mnode_siblings(mo, node->low);
+    if (node->high)
+        migemo_add_mnode_siblings(mo, node->high);
 }
 
 static void
-add_mtree_query(migemo *mo, unsigned char *query)
+migemo_add_mtree_matches(migemo *mo, unsigned char *query)
 {
-    mnode *pnode = mtree_query(mo->mtree, query);
-    if (pnode)
+    mnode *node = mtree_query(mo->mtree, query);
+    if (node)
     {
-        add_mnode_words(mo, pnode->list);
-        if (pnode->child)
-            add_mnode_siblings(mo, pnode->child);
+        migemo_add_wordlist(mo, node->list);
+        if (node->child)
+            migemo_add_mnode_siblings(mo, node->child);
     }
 }
 
 /// Convert input from Romaji to Kana and add it to the search keys.
 static void
-add_roma(migemo *mo, unsigned char *query)
+migemo_add_roma_variants(migemo *mo, unsigned char *query)
 {
     wordlist *hira_list = romaji_convert_all(mo->roma2hira, query);
     for (wordlist *hira_item = hira_list; hira_item;
             hira_item = wordlist_next(hira_item))
     {
         unsigned char *hira = wordlist_word(hira_item);
-        migemo_addword(mo, hira);
-        add_mtree_query(mo, hira);
+        migemo_add_word(mo, hira);
+        migemo_add_mtree_matches(mo, hira);
 
         wordlist *kata_list = romaji_convert_all(mo->hira2kata, hira);
         for (wordlist *kata_item = kata_list; kata_item;
                 kata_item = wordlist_next(kata_item))
         {
             unsigned char *kata = wordlist_word(kata_item);
-            migemo_addword(mo, kata);
-            add_mtree_query(mo, kata);
+            migemo_add_word(mo, kata);
+            migemo_add_mtree_matches(mo, kata);
 
             wordlist *han_list = romaji_convert_all(mo->zen2han, kata);
             for (wordlist *han_item = han_list; han_item;
                     han_item = wordlist_next(han_item))
             {
                 unsigned char *han = wordlist_word(han_item);
-                migemo_addword(mo, han);
+                migemo_add_word(mo, han);
             }
             wordlist_destroy(han_list);
         }
@@ -284,11 +271,11 @@ add_roma(migemo *mo, unsigned char *query)
 /// Phrases are typically separated by uppercase letters. A phrase starting
 /// with multiple uppercase letters is separated by non-uppercase characters.
 static wordlist *
-parse_query(migemo *mo, const unsigned char *query)
+migemo_segment_query(migemo *mo, const unsigned char *query)
 {
     const unsigned char *curr = query;
     const unsigned char *start = NULL;
-    wordlist *querylist = NULL, **pp = &querylist;
+    wordlist *queries = NULL, **pp = &queries;
 
     while (1)
     {
@@ -319,22 +306,22 @@ parse_query(migemo *mo, const unsigned char *query)
         if (*curr == '\0')
             break;
     }
-    return querylist;
+    return queries;
 }
 
 // Convert a single word using migemo. Does not perform argument checking.
 static void
-query_a_word(migemo *mo, unsigned char *query)
+migemo_process_word(migemo *mo, unsigned char *query)
 {
     unsigned char *lower = NULL;
     int len = my_strlen(query);
 
     // Naturally, add the query itself to the candidates
-    migemo_addword(mo, query);
+    migemo_add_word(mo, query);
     // Dictionary lookup with the query itself
     lower = malloc(len + 1);
     if (!lower)
-        add_mtree_query(mo, query);
+        migemo_add_mtree_matches(mo, query);
     else
     {
         int i = 0, step;
@@ -350,23 +337,23 @@ query_a_word(migemo *mo, unsigned char *query)
                 memcpy(&lower[i], &query[i], step);
             i += step;
         }
-        add_mtree_query(mo, lower);
+        migemo_add_mtree_matches(mo, lower);
     }
 
     // Convert query to full-width and add to candidates
     wordlist *zen_list = romaji_convert_all(mo->han2zen, query);
     for (wordlist *zen = zen_list; zen; zen = wordlist_next(zen))
-        migemo_addword(mo, wordlist_word(zen));
+        migemo_add_word(mo, wordlist_word(zen));
     wordlist_destroy(zen_list);
 
     // Convert query to half-width and add to candidates
     wordlist *han_list = romaji_convert_all(mo->zen2han, query);
     for (wordlist *han = han_list; han; han = wordlist_next(han))
-        migemo_addword(mo, wordlist_word(han));
+        migemo_add_word(mo, wordlist_word(han));
     wordlist_destroy(han_list);
 
     // Add Hiragana, Katakana, and dictionary lookups using them
-    add_roma(mo, lower);
+    migemo_add_roma_variants(mo, lower);
 
     free(lower);
 }
@@ -374,55 +361,44 @@ query_a_word(migemo *mo, unsigned char *query)
 unsigned char *MIGEMO_CALLTYPE
 migemo_query(migemo *mo, const unsigned char *query)
 {
-    unsigned char *retval = NULL;
-    wordlist *querylist = NULL;
-    strbuf *outbuf = NULL;
+    if (!mo || !mo->rx || !query)
+        return NULL;
 
-    if (mo && mo->rx && query)
+    wordlist *queries = migemo_segment_query(mo, query);
+    if (queries == NULL)
     {
-        wordlist *p;
+        // Error: no queries
+        return NULL;
+    }
+    strbuf *patbuf = strbuf_open();
+    if (patbuf == NULL)
+    {
+        // Error: insufficient memory for output
+        wordlist_destroy(queries);
+        return NULL;
+    }
 
-        querylist = parse_query(mo, query);
-        if (querylist == NULL)
-            goto MIGEMO_QUERY_END; // Error due to empty query
-        outbuf = strbuf_open();
-        if (outbuf == NULL)
-            goto MIGEMO_QUERY_END; // Error due to insufficient memory for
-                                   // output
-
-        // Input word groups into the rxgen object and obtain a regular
-        // expression
+    rxgen_reset(mo->rx);
+    for (wordlist *wl = queries; wl; wl = wordlist_next(wl))
+    {
+        migemo_process_word(mo, wordlist_word(wl));
+        unsigned char *subpat = rxgen_generate(mo->rx);
         rxgen_reset(mo->rx);
-        for (p = querylist; p; p = wordlist_next(p))
-        {
-            unsigned char *answer;
-
-            // printf("query=%s\n", wordlist_word(p));
-            query_a_word(mo, wordlist_word(p));
-            // Generate search pattern (regular expression)
-            answer = rxgen_generate(mo->rx);
-            rxgen_reset(mo->rx);
-            strbuf_append_str(outbuf, answer);
-            rxgen_release(mo->rx, answer);
-        }
+        strbuf_append_str(patbuf, subpat);
+        rxgen_release(mo->rx, subpat);
     }
 
-MIGEMO_QUERY_END:
-    if (outbuf)
-    {
-        retval = strbuf_get(outbuf);
-        // Explicitly set to NULL to decouple it from `strbuf` management.
-        outbuf->buf = NULL;
-        strbuf_close(outbuf);
-    }
-    if (querylist)
-        wordlist_destroy(querylist);
+    unsigned char *pattern = strbuf_get(patbuf);
+    // Explicitly set to NULL to decouple it from `strbuf` management.
+    patbuf->buf = NULL;
+    strbuf_close(patbuf);
+    wordlist_destroy(queries);
 
-    return retval;
+    return pattern;
 }
 
 void MIGEMO_CALLTYPE
-migemo_release(migemo *p, unsigned char *used_pattern)
+migemo_release(migemo *mo, unsigned char *used_pattern)
 {
     free(used_pattern);
 }
@@ -447,13 +423,9 @@ migemo_release(migemo *p, unsigned char *used_pattern)
 int MIGEMO_CALLTYPE
 migemo_set_operator(migemo *mo, int index, const unsigned char *op)
 {
-    if (mo)
-    {
-        int retval = rxgen_set_operator(mo->rx, index, op);
-        return retval ? 0 : 1;
-    }
-    else
+    if (!mo)
         return 0;
+    return rxgen_set_operator(mo->rx, index, op) ? 0 : 1;
 }
 
 /// Retrieve the metacharacter (operator) string for the specified index.
