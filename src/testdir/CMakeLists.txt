@@ -8,7 +8,9 @@ add_executable(
   ${CMAKE_SOURCE_DIR}/src/trie.c
   ${CMAKE_SOURCE_DIR}/src/strbuf.c
   ${CMAKE_SOURCE_DIR}/src/wordlist.c)
-target_include_directories(romaji PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_include_directories(
+  romaji
+  PRIVATE ${PROJECT_SOURCE_DIR}/src ${PROJECT_BINARY_DIR}/src/include)
 target_compile_definitions(
   romaji
   PRIVATE DICTDIR="${CMAKE_BINARY_DIR}/dict/utf-8" _DEBUG)
@@ -35,7 +37,9 @@ add_executable(
   ${CMAKE_SOURCE_DIR}/src/trie.c
   ${CMAKE_SOURCE_DIR}/src/strbuf.c
   ${CMAKE_SOURCE_DIR}/src/wordlist.c)
-target_include_directories(qspeed PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_include_directories(
+  qspeed
+  PRIVATE ${PROJECT_SOURCE_DIR}/src ${PROJECT_BINARY_DIR}/src/include)
 target_compile_definitions(
   qspeed
   PRIVATE DICTDIR="${CMAKE_BINARY_DIR}/dict/utf-8" _DEBUG)
