@@ -439,9 +439,9 @@ MIGEMO_QUERY_END:
 }
 
 EXPORTS void MIGEMO_CALLTYPE
-migemo_release(migemo *p, unsigned char *string)
+migemo_release(migemo *p, unsigned char *used_pattern)
 {
-    free(string);
+    free(used_pattern);
 }
 
 /// Specifies the metacharacters (operators) used in the regular expression

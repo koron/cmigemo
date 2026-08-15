@@ -71,8 +71,9 @@ unsigned char *MIGEMO_CALLTYPE migemo_query(
 
 /// Free memory allocated by migemo_query().
 /// @param object Migemo object.
-/// @param string Pointer to string to free.
-void MIGEMO_CALLTYPE migemo_release(migemo *object, unsigned char *string);
+/// @param used_pattern Pointer to pattern string to free.
+void MIGEMO_CALLTYPE migemo_release(
+        migemo *object, unsigned char *used_pattern);
 
 //////////////////////////////////////////////////////////////////////////////
 // Configurations
