@@ -1,0 +1,41 @@
+name: CI on WebAssembly
+
+on:
+  workflow_call:
+
+jobs:
+
+  build:
+
+    name: Build
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - uses: actions/checkout@v4
+
+    - name: Set up Emscripten SDK
+      uses: mymindstorm/setup-emsdk@v14
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Build
+      run: |
+        emcmake cmake -B build-wasm -DBUILD_DICT=OFF -DCMAKE_BUILD_TYPE=Release
+        cmake --build build-wasm
+
+    - name: Test
+      run: node wasm/test/test.js
+
+    - name: Upload the package
+      uses: actions/upload-artifact@v4
+      with:
+        path: |
+          wasm/migemo_wasm.wasm
+          wasm/migemo_wasm.js
+          wasm/index.js
+          wasm/library.js
