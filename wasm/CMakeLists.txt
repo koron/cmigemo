@@ -12,7 +12,11 @@ add_executable(
   ${CMAKE_SOURCE_DIR}/src/strbuf.c
   ${CMAKE_SOURCE_DIR}/src/wordlist.c)
 
-target_include_directories(migemo_wasm PRIVATE ${CMAKE_SOURCE_DIR}/include)
+target_include_directories(
+  migemo_wasm
+  PRIVATE
+    ${CMAKE_SOURCE_DIR}/include
+    ${PROJECT_BINARY_DIR}/src/include)
 
 set_target_properties(
   migemo_wasm
