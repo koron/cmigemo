@@ -142,28 +142,6 @@ migemo_load(migemo *obj, int dict_id, const char *dict_file)
     }
 }
 
-/// Create a Migemo object. If successful, the object is returned as the return
-/// value, and if it fails, NULL is returned. The file specified in dict is
-/// loaded as the migemo-dict dictionary during object creation. If the
-/// following files exist in the same directory as the dictionary:
-///
-/// <dl>
-/// <dt>roma2hira.dat</dt>
-/// <dd>Romaji to Hiragana conversion table</dd>
-/// <dt>hira2kata.dat</dt>
-/// <dd>Hiragana to Katakana conversion table</dd>
-/// <dt>han2zen.dat</dt>
-/// <dd>Half-width to full-width conversion table</dd>
-/// </dl>
-///
-/// only the files that exist will be loaded. If NULL is specified for dict,
-/// no files, including the dictionary, will be loaded.
-/// Files can be additionally loaded after object creation using the
-/// migemo_load() function.
-///
-/// @param dict Path to the migemo-dict dictionary. If NULL, no dictionary is
-/// loaded.
-/// @returns The created Migemo object
 EXPORTS migemo *MIGEMO_CALLTYPE
 migemo_open(const char *dict)
 {
@@ -224,8 +202,6 @@ migemo_open(const char *dict)
     return obj;
 }
 
-/// Destroy the Migemo object and release used resources.
-/// @param obj Migemo object to destroy
 EXPORTS void MIGEMO_CALLTYPE
 migemo_close(migemo *obj)
 {
@@ -412,12 +388,6 @@ query_a_word(migemo *object, unsigned char *query)
     free(lower);
 }
 
-/// Converts the given string (Romaji) into a regular expression for Japanese
-/// search. The return value is the converted result (regular expression), which
-/// must be released using the #migemo_release() function.
-/// @param object Migemo object
-/// @param query Query string
-/// @returns Regular expression string. Must be released with #migemo_release().
 EXPORTS unsigned char *MIGEMO_CALLTYPE
 migemo_query(migemo *object, const unsigned char *query)
 {
@@ -468,10 +438,6 @@ MIGEMO_QUERY_END:
     return retval;
 }
 
-/// Frees the regular expression obtained with the migemo_query() function after
-/// use.
-/// @param p Migemo object
-/// @param string Regular expression string
 EXPORTS void MIGEMO_CALLTYPE
 migemo_release(migemo *p, unsigned char *string)
 {

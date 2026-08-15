@@ -41,11 +41,41 @@ typedef struct migemo migemo;
 extern "C" {
 #endif
 
+//////////////////////////////////////////////////////////////////////////////
+// Life cycle management
+
+/// Create a Migemo object.
+///
+/// Automatically loads standard conversion tables if present in the same
+/// directory as the specified dictionary.
+/// @param dict Path to dictionary file. If NULL, no dictionary is loaded.
+/// @return Pointer to created object, or NULL on failure.
 migemo *MIGEMO_CALLTYPE migemo_open(const char *dict);
+
+/// Destroy a Migemo object and free its resources.
+/// @param object Object to destroy.
 void MIGEMO_CALLTYPE migemo_close(migemo *object);
+
+//////////////////////////////////////////////////////////////////////////////
+// Query
+
+/// Generate a regular expression pattern from a Romaji query.
+///
+/// NOTE: The returned string is dynamically allocated. You MUST release it
+/// using migemo_release() after use to avoid memory leaks.
+/// @param object Migemo object.
+/// @param query Query string in Romaji.
+/// @return Generated regex pattern string.
 unsigned char *MIGEMO_CALLTYPE migemo_query(
         migemo *object, const unsigned char *query);
+
+/// Free memory allocated by migemo_query().
+/// @param object Migemo object.
+/// @param string Pointer to string to free.
 void MIGEMO_CALLTYPE migemo_release(migemo *object, unsigned char *string);
+
+//////////////////////////////////////////////////////////////////////////////
+// Configurations
 
 int MIGEMO_CALLTYPE migemo_set_operator(
         migemo *object, int index, const unsigned char *op);
