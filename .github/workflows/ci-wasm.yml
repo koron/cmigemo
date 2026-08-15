@@ -13,15 +13,15 @@ jobs:
 
     steps:
 
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
 
     - name: Set up Emscripten SDK
-      uses: mymindstorm/setup-emsdk@v14
+      uses: mymindstorm/setup-emsdk@v16
 
     - name: Set up Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v7
       with:
-        node-version: '20'
+        node-version: 'latest'
 
     - name: Build
       run: |
@@ -31,9 +31,20 @@ jobs:
     - name: Test
       run: node wasm/test/test.js
 
+    - name: List files in build
+      run: tree -Fh build-wasm
+
+    - name: Get Version
+      id: get_version
+      run: |
+        VERSION=$(grep -w MIGEMO_VERSION build-wasm/src/include/migemo.h | cut -d '"' -f 2)
+        PRERELEASE=$(grep -w MIGEMO_VERSION_PRERELEASE build-wasm/src/include/migemo.h | cut -d '"' -f 2)
+        echo "version=${VERSION}${PRERELEASE}" >> $GITHUB_OUTPUT
+
     - name: Upload the package
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
+        name: cmigemo-${{ steps.get_version.outputs.version }}-wasm
         path: |
           wasm/migemo_wasm.wasm
           wasm/migemo_wasm.js
