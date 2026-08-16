@@ -13,6 +13,9 @@ enum {
     CHARSET_UTF8 = 3,
 };
 
+// The maximum number of bytes into which a single code point can be expanded.
+#define CHARSET_MAX_BYTES 6
+
 typedef int (*charset_proc_char2int)(const unsigned char *, unsigned int *);
 typedef int (*charset_proc_int2char)(unsigned int, unsigned char *);
 #define CHARSET_PROC_CHAR2INT charset_proc_char2int

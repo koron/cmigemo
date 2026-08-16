@@ -152,6 +152,10 @@ export async function init(options = {}) {
     throw new Error(`Failed to initialize Migemo with dictPath: ${dictPath}`);
   }
 
+  const migemoSetEscapeChars = moduleInstance.cwrap('migemo_set_escape_chars', 'number', ['number', 'string']);
+  const jsEscapeChars = '\\.*+?^${}()|[]/';
+  migemoSetEscapeChars(migemoInstance, jsEscapeChars);
+
   return migemoInstance;
 }
 
@@ -215,6 +219,19 @@ export function load(dictId, dictPath) {
 }
 
 /**
+ * Sets custom characters to escape in generated regular expressions.
+ * @param {string|null} chars String of characters to escape, or null to restore default.
+ * @returns {number} 0 on success, non-zero on error.
+ */
+export function setEscapeChars(chars) {
+  if (!migemoInstance || !moduleInstance) {
+    throw new Error("Migemo is not initialized. Call init() first.");
+  }
+  const migemoSetEscapeChars = moduleInstance.cwrap('migemo_set_escape_chars', 'number', ['number', 'string']);
+  return migemoSetEscapeChars(migemoInstance, chars);
+}
+
+/**
  * Returns the underlying Emscripten module instance.
  * @returns {Object|null}
  */
@@ -236,6 +253,7 @@ export default {
   close,
   isEnable,
   load,
+  setEscapeChars,
   getModule,
   getInstance
 };

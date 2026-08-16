@@ -35,6 +35,7 @@ void rxgen_reset(rxgen *rx);
 // Configuration
 void rxgen_setproc_char2int(rxgen *rx, CHARSET_PROC_CHAR2INT proc);
 void rxgen_setproc_int2char(rxgen *rx, CHARSET_PROC_INT2CHAR proc);
+void rxgen_set_escape_chars(rxgen *rx, const unsigned char *chars);
 int rxgen_set_operator(rxgen *rx, int index, const unsigned char *op);
 const unsigned char *rxgen_get_operator(rxgen *rx, int index);
 

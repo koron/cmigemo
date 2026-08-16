@@ -3,12 +3,15 @@
 #include <stdio.h>
 
 int test1(void);
+int test_rxgen(void);
 
 int
 main(int argc, char **argv)
 {
     int r;
     if ((r = test1()) != 0)
+        return r;
+    if ((r = test_rxgen()) != 0)
         return r;
     // FIXME: Future test cases (group) will be added here.
     return 0;

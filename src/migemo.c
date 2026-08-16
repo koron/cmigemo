@@ -436,6 +436,18 @@ migemo_get_operator(migemo *mo, int index)
     return mo ? rxgen_get_operator(mo->rx, index) : NULL;
 }
 
+/// Set custom characters to escape in generated regular expressions.
+///
+/// @param mo Migemo object.
+/// @param chars String of characters to escape (ASCII 32-126). If NULL, default
+/// set ("\\.*+^$/") is used. If "", no characters are escaped.
+void MIGEMO_CALLTYPE
+migemo_set_escape_chars(migemo *mo, const unsigned char *chars)
+{
+    if (mo)
+        rxgen_set_escape_chars(mo->rx, chars);
+}
+
 /// Set a custom character conversion procedure (char -> int) for the Migemo
 /// object.
 ///

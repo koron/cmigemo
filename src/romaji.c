@@ -180,7 +180,11 @@ romanode_balance(romanode *root)
 romaji *
 romaji_open()
 {
-    return (romaji *)calloc(1, sizeof(romaji));
+    romaji *rj = (romaji *)calloc(1, sizeof(romaji));
+    if (!rj)
+        return NULL;
+    rj->char2int = charset_none_char2int;
+    return rj;
 }
 
 void

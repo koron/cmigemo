@@ -1,6 +1,6 @@
-add_executable(test1 main.c test1.c)
+add_executable(test1 main.c test1.c test_rxgen.c)
 
-target_link_libraries(test1 PRIVATE migemo)
+target_link_libraries(test1 PRIVATE migemo_static)
 
 target_include_directories(test1 PRIVATE ${PROJECT_SOURCE_DIR}/src)
 
