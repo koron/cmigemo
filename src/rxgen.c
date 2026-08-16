@@ -232,17 +232,17 @@ rxgen_add(rxgen *rx, const unsigned char *word)
         pnode = rnode_dig(&rx->arena, ppnode, code);
         if (!pnode)
             return 0; // allocation error.
-        ppnode = &pnode->child;
-
-        if (pnode && pnode->wordtail)
+        if (pnode->wordtail)
         {
             // If a shorter word is already registered than the one being
             // registered, discard the remaining characters. E.g.:
-            //      赤ちゃん + 赤   -> 赤
-            //      国際便   + 国際 -> 国際
+            //      赤   + 赤ちゃん -> 赤
+            //      国際 + 国際便   -> 国際
             return 2; // not registered a word, but found short one.
         }
+
         // Move the focus deeper by traversing child nodes
+        ppnode = &pnode->child;
     }
     return 1; // registered a word, some nodes.
 }
