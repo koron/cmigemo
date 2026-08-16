@@ -112,7 +112,7 @@ rnode_arena_free(rnode_arena *arena)
     arena->curr = NULL;
 }
 
-static rnode *
+static inline rnode *
 rnode_dig(rnode_arena *arena, rnode **pp, unsigned int code)
 {
     while (*pp)
