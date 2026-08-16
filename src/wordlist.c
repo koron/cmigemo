@@ -41,3 +41,12 @@ wordlist_destroy(wordlist *wl)
         wl = next;
     }
 }
+
+bool
+wordlist_contains(wordlist *wl, const unsigned char *str)
+{
+    for (; wl; wl = wl->next)
+        if (!strcmp(wl->ptr, str))
+            return true;
+    return false;
+}
