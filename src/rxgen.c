@@ -117,7 +117,7 @@ rnode_dig(rnode_arena *arena, rnode **pp, unsigned int code)
 {
     while (*pp)
     {
-        int pivot = (*pp)->code;
+        unsigned int pivot = (*pp)->code;
         if (code > pivot)
             pp = &(*pp)->high;
         else if (code < pivot)
