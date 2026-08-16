@@ -4,6 +4,7 @@
 
 #include <stdio.h>
 
+#include "common.h"
 #include "trie.h"
 
 void
