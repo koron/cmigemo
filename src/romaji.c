@@ -536,6 +536,9 @@ romaji_add_pending_node(wordlist *tail, romanode *node, strbuf *prefix)
 wordlist *
 romaji_convert_all(romaji *rj, const unsigned char *src)
 {
+    if (!rj->rootnode)
+        return NULL;
+
     wordlist *list = NULL;
     unsigned char *srcbuf = NULL;
     strbuf *dstbuf = NULL;
