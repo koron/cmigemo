@@ -115,34 +115,20 @@ rnode_arena_free(rnode_arena *arena)
 static rnode *
 rnode_dig(rnode_arena *arena, rnode **pp, unsigned int code)
 {
-    rnode *p = *pp;
-    if (p == NULL)
-    {
-        *pp = rnode_arena_alloc(arena, code);
-        return *pp;
-    }
     while (1)
     {
-        if (code == p->code)
-            return p;
-        if (code < p->code)
+        if (*pp == NULL)
         {
-            if (p->low == NULL)
-            {
-                p->low = rnode_arena_alloc(arena, code);
-                return p->low;
-            }
-            p = p->low;
+            *pp = rnode_arena_alloc(arena, code);
+            return *pp;
         }
+        int pivot = (*pp)->code;
+        if (code > pivot)
+            pp = &(*pp)->high;
+        else if (code < pivot)
+            pp = &(*pp)->low;
         else
-        {
-            if (p->high == NULL)
-            {
-                p->high = rnode_arena_alloc(arena, code);
-                return p->high;
-            }
-            p = p->high;
-        }
+            return *pp;
     }
 }
 
