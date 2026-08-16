@@ -7,7 +7,7 @@
 #include "rxgen.h"
 
 int
-test2(void)
+test_rxgen(void)
 {
     rxgen *rx = rxgen_open();
     if (!rx)
