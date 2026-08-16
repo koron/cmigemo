@@ -210,37 +210,30 @@ rxgen_add(rxgen *rx, const unsigned char *word)
 
         // Terminate if the input pattern is exhausted
         if (code == 0)
-        {
-            if (pnode)
-                pnode->wordtail = true;
-            if (*ppnode)
-            {
-                // If a longer word is already registered than the one being
-                // registered, discard the longer one. E.g.:
-                //      赤ちゃん + 赤   -> 赤
-                //      国際便   + 国際 -> 国際
-                *ppnode = NULL;
-                // FIXME: mark *ppnode here for future use when collecting
-                // statistical information or reusing reclaimed nodes.
-            }
             break;
-        }
 
         pnode = rnode_dig(&rx->arena, ppnode, code);
         if (!pnode)
             return 0; // allocation error.
         if (pnode->wordtail)
-        {
             // If a shorter word is already registered than the one being
             // registered, discard the remaining characters. E.g.:
             //      赤   + 赤ちゃん -> 赤
             //      国際 + 国際便   -> 国際
             return 2; // not registered a word, but found short one.
-        }
 
         // Move the focus deeper by traversing child nodes
         ppnode = &pnode->child;
     }
+
+    if (pnode)
+        pnode->wordtail = true;
+    if (*ppnode)
+        // If a longer word is already registered than the one being
+        // registered, discard the longer one. E.g.:
+        //      赤ちゃん + 赤   -> 赤
+        //      国際便   + 国際 -> 国際
+        *ppnode = NULL;
     return 1; // registered a word, some nodes.
 }
 
