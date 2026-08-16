@@ -264,7 +264,8 @@ rxgen_rnode_count(rnode *node, int *childrenCount, int *brotherCount)
     }
 }
 
-static inline void rxgen_append_ch(rxgen *rx, strbuf *buf, unsigned int code)
+static inline void
+rxgen_append_ch(rxgen *rx, strbuf *buf, unsigned int code)
 {
     unsigned char bytes[CHARSET_MAX_BYTES];
     int len = rx->int2char(code, bytes);

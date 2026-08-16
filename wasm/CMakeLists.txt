@@ -14,9 +14,7 @@ add_executable(
 
 target_include_directories(
   migemo_wasm
-  PRIVATE
-    ${CMAKE_SOURCE_DIR}/include
-    ${PROJECT_BINARY_DIR}/src/include)
+  PRIVATE ${CMAKE_SOURCE_DIR}/include ${PROJECT_BINARY_DIR}/src/include)
 
 set_target_properties(
   migemo_wasm

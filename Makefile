@@ -2,7 +2,7 @@
 #
 # C/Migemo Makefile
 
-.PHONY: build test profile tags format package clean distclean
+.PHONY: build test profile tags format format-cmake package clean distclean
 
 build:
 	cmake -B build
@@ -21,6 +21,9 @@ profile:
 
 format:
 	find src test include -type f \( -name "*.c" -o -name "*.h" \) | xargs clang-format -i
+
+format-cmake:
+	cmakefmt --in-place .
 
 package:
 	cmake -B build -DCMAKE_BUILD_TYPE=Release
