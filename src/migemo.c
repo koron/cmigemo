@@ -488,5 +488,5 @@ migemo_is_enable(migemo *mo)
 const char *MIGEMO_CALLTYPE
 migemo_version(void)
 {
-    return MIGEMO_VERSION;
+    return MIGEMO_VERSION MIGEMO_VERSION_PRERELEASE;
 }

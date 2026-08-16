@@ -48,10 +48,10 @@ test1(void)
     migemo *p;
 
     const char *ver = migemo_version();
-    if (ver == NULL || strcmp(ver, MIGEMO_VERSION) != 0)
+    if (ver == NULL || strcmp(ver, MIGEMO_VERSION MIGEMO_VERSION_PRERELEASE) != 0)
     {
         printf("Failed: migemo_version() returned \"%s\" (expected \"%s\")\n",
-                ver ? ver : "(null)", MIGEMO_VERSION);
+                ver ? ver : "(null)", MIGEMO_VERSION MIGEMO_VERSION_PRERELEASE);
         return 1;
     }
 
