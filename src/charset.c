@@ -104,11 +104,7 @@ int
 charset_utf8_char2int(const unsigned char *in, unsigned int *out)
 {
     if (!(in[0] & 0x80))
-    {
-        if (out)
-            *out = in[0];
-        return 1;
-    }
+        return charset_none_char2int(in, out);
 
     // Use LUT to determine number of continuation bytes in UTF-8.
     // clang-format off
@@ -135,14 +131,16 @@ charset_utf8_char2int(const unsigned char *in, unsigned int *out)
     // clang-format on
     int len = UTF8_LUT[in[0] - 128];
     if (!len)
-        return 0;
+        // Output an invalid byte as-is.
+        return charset_none_char2int(in, out);
 
     unsigned int code = in[0] & (0xff >> len);
     for (int i = 1; i < len; ++i)
     {
         // check invalid byte.
         if ((in[i] & 0xc0) != 0x80)
-            return 0;
+            // Output an invalid byte as-is.
+            return charset_none_char2int(in, out);
         code <<= 6;
         code += in[i] & 0x3f;
     }

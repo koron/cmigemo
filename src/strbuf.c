@@ -55,21 +55,15 @@ strbuf_extend(strbuf *sb, size_t req_len)
         return 0;
 
     size_t newlen = sb->cap * 2;
-    unsigned char *newbuf;
-
     while (req_len > newlen)
         newlen *= 2;
+
+    unsigned char *newbuf;
     if (!(newbuf = (unsigned char *)realloc(sb->buf, newlen)))
-    {
-        // fprintf(stderr, "strbuf_add(): failed to extend buffer\n");
         return 0;
-    }
-    else
-    {
-        sb->cap = newlen;
-        sb->buf = newbuf;
-        return req_len;
-    }
+    sb->cap = newlen;
+    sb->buf = newbuf;
+    return req_len;
 }
 
 size_t

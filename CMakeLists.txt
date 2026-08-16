@@ -45,11 +45,7 @@ if(COMPILER_SUPPORTS_WNO_POINTER_SIGN)
   add_compile_options(-Wno-pointer-sign)
 endif()
 
-# Optimization flags
-if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
-  add_compile_options($<$<CONFIG:Release>:-O2>)
-endif()
-
+# Disable MSVC warnings
 if(MSVC)
   add_compile_options(/utf-8 /W3 /wd4710 /wd4711 /wd5045)
   add_compile_definitions(_CRT_SECURE_NO_WARNINGS)

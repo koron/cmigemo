@@ -8,20 +8,14 @@ add_executable(
   ${PROJECT_SOURCE_DIR}/src/trie.c
   ${PROJECT_SOURCE_DIR}/src/strbuf.c
   ${PROJECT_SOURCE_DIR}/src/wordlist.c)
+
 target_include_directories(
   romaji
   PRIVATE ${PROJECT_SOURCE_DIR}/src ${PROJECT_BINARY_DIR}/src/include)
+
 target_compile_definitions(
   romaji
-  PRIVATE DICTDIR="${PROJECT_BINARY_DIR}/dict/utf-8" _DEBUG)
-
-if(MSVC)
-  set_target_properties(
-    romaji
-    PROPERTIES MSVC_RUNTIME_LIBRARY "MultiThreadedDebug")
-elseif(MINGW)
-  target_link_libraries(romaji PRIVATE ucrtbased)
-endif()
+  PRIVATE DICTDIR="${PROJECT_BINARY_DIR}/dict/utf-8")
 
 #------------------------------------------------------------------------------
 # qspeed: profiling tool
@@ -37,28 +31,22 @@ add_executable(
   ${PROJECT_SOURCE_DIR}/src/trie.c
   ${PROJECT_SOURCE_DIR}/src/strbuf.c
   ${PROJECT_SOURCE_DIR}/src/wordlist.c)
+
 target_include_directories(
   qspeed
   PRIVATE ${PROJECT_SOURCE_DIR}/src ${PROJECT_BINARY_DIR}/src/include)
+
 target_compile_definitions(
   qspeed
-  PRIVATE DICTDIR="${PROJECT_BINARY_DIR}/dict/utf-8" _DEBUG)
-
-if(MSVC)
-  set_target_properties(
-    qspeed
-    PROPERTIES MSVC_RUNTIME_LIBRARY "MultiThreadedDebug")
-elseif(MINGW)
-  target_link_libraries(qspeed PRIVATE ucrtbased)
-endif()
+  PRIVATE DICTDIR="${PROJECT_BINARY_DIR}/dict/utf-8")
 
 #------------------------------------------------------------------------------
 # Profiling target "profile": `cmake --build build --target profile`
 find_program(GPROF_EXECUTABLE gprof)
 
 if(GPROF_EXECUTABLE AND CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
-  target_compile_options(qspeed PRIVATE -O0 -pg)
-  target_link_options(qspeed PRIVATE -O0 -pg)
+  target_compile_options(qspeed PRIVATE -pg -fno-omit-frame-pointer)
+  target_link_options(qspeed PRIVATE -pg -fno-omit-frame-pointer)
 
   if(BUILD_DICT)
     add_dependencies(qspeed dict_utf-8)

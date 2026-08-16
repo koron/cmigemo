@@ -112,38 +112,21 @@ rnode_arena_free(rnode_arena *arena)
     arena->curr = NULL;
 }
 
-static rnode *
+static inline rnode *
 rnode_dig(rnode_arena *arena, rnode **pp, unsigned int code)
 {
-    rnode *p = *pp;
-    if (p == NULL)
+    while (*pp)
     {
-        *pp = rnode_arena_alloc(arena, code);
-        return *pp;
-    }
-    while (1)
-    {
-        if (code == p->code)
-            return p;
-        if (code < p->code)
-        {
-            if (p->low == NULL)
-            {
-                p->low = rnode_arena_alloc(arena, code);
-                return p->low;
-            }
-            p = p->low;
-        }
+        unsigned int pivot = (*pp)->code;
+        if (code > pivot)
+            pp = &(*pp)->high;
+        else if (code < pivot)
+            pp = &(*pp)->low;
         else
-        {
-            if (p->high == NULL)
-            {
-                p->high = rnode_arena_alloc(arena, code);
-                return p->high;
-            }
-            p = p->high;
-        }
+            return *pp;
     }
+    *pp = rnode_arena_alloc(arena, code);
+    return *pp;
 }
 
 // rxgen interfaces
@@ -223,44 +206,34 @@ rxgen_add(rxgen *rx, const unsigned char *word)
     rnode *pnode = NULL;
     while (1)
     {
-        unsigned int code;
-        int len = rx->char2int(word, &code);
+        unsigned int code = charset_decode(rx->char2int, &word);
 
         // Terminate if the input pattern is exhausted
         if (code == 0)
-        {
-            if (pnode)
-                pnode->wordtail = true;
-            if (*ppnode)
-            {
-                // If a longer word is already registered than the one being
-                // registered, discard the longer one. E.g.:
-                //      赤ちゃん + 赤   -> 赤
-                //      国際便   + 国際 -> 国際
-                *ppnode = NULL;
-                // FIXME: mark *ppnode here for future use when collecting
-                // statistical information or reusing reclaimed nodes.
-            }
             break;
-        }
-
-        word += len;
 
         pnode = rnode_dig(&rx->arena, ppnode, code);
         if (!pnode)
             return 0; // allocation error.
-        ppnode = &pnode->child;
-
-        if (pnode && pnode->wordtail)
-        {
+        if (pnode->wordtail)
             // If a shorter word is already registered than the one being
             // registered, discard the remaining characters. E.g.:
-            //      赤ちゃん + 赤   -> 赤
-            //      国際便   + 国際 -> 国際
+            //      赤   + 赤ちゃん -> 赤
+            //      国際 + 国際便   -> 国際
             return 2; // not registered a word, but found short one.
-        }
+
         // Move the focus deeper by traversing child nodes
+        ppnode = &pnode->child;
     }
+
+    if (pnode)
+        pnode->wordtail = true;
+    if (*ppnode)
+        // If a longer word is already registered than the one being
+        // registered, discard the longer one. E.g.:
+        //      赤ちゃん + 赤   -> 赤
+        //      国際便   + 国際 -> 国際
+        *ppnode = NULL;
     return 1; // registered a word, some nodes.
 }
 
@@ -281,7 +254,8 @@ rxgen_rnode_count(rnode *node, int *childrenCount, int *brotherCount)
     }
 }
 
-static inline void rxgen_append_ch(rxgen *rx, strbuf *buf, unsigned int code)
+static inline void
+rxgen_append_ch(rxgen *rx, strbuf *buf, unsigned int code)
 {
     unsigned char bytes[CHARSET_MAX_BYTES];
     int len = rx->int2char(code, bytes);
