@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <stdbool.h>
+
 typedef struct wordlist wordlist;
 struct wordlist
 {
@@ -20,6 +22,9 @@ extern "C" {
 // Life cycle management
 wordlist *wordlist_new(const unsigned char *ptr, size_t len);
 void wordlist_destroy(wordlist *wl);
+
+// Others
+bool wordlist_contains(wordlist *wl, const unsigned char *str);
 
 #ifdef __cplusplus
 }

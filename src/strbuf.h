@@ -29,6 +29,9 @@ size_t strbuf_append_ch(strbuf *sb, unsigned char ch);
 size_t strbuf_append_str(strbuf *sb, const unsigned char *s);
 size_t strbuf_append_mem(strbuf *sb, const unsigned char *p, size_t len);
 
+// Others
+size_t strbuf_truncate(strbuf *sb, size_t len);
+
 #ifdef __cplusplus
 }
 #endif

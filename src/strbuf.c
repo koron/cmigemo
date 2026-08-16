@@ -117,3 +117,13 @@ strbuf_append_mem(strbuf *sb, const unsigned char *p, size_t len)
     }
     return sb->len;
 }
+
+size_t
+strbuf_truncate(strbuf *sb, size_t len)
+{
+    if (len >= sb->len)
+        return sb->len;
+    sb->buf[len] = '\0';
+    sb->len = len;
+    return len;
+}

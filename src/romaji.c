@@ -510,32 +510,36 @@ romaji_decode_len(CHARSET_PROC_CHAR2INT proc, const unsigned char *s)
 }
 
 static wordlist *
-romaji_add_pending_node(wordlist *tail, romanode *node, strbuf *prefix)
+romaji_add_pending_node(
+        wordlist *head, wordlist *tail, romanode *node, strbuf *prefix)
 {
     if (!node)
         return tail;
-    tail = romaji_add_pending_node(tail, node->low, prefix);
+    tail = romaji_add_pending_node(head, tail, node->low, prefix);
     if (node->value)
     {
-        strbuf *w = strbuf_open();
-        if (w)
+        size_t len = strbuf_len(prefix);
+        strbuf_append_str(prefix, node->value);
+        if (!wordlist_contains(head, strbuf_get(prefix)))
         {
-            strbuf_append(w, prefix);
-            strbuf_append_str(w, node->value);
-            wordlist *item = wordlist_new(strbuf_get(w), strbuf_len(w));
+            wordlist *item =
+                    wordlist_new(strbuf_get(prefix), strbuf_len(prefix));
             tail->next = item;
             tail = item;
-            strbuf_close(w);
         }
+        strbuf_truncate(prefix, len);
     }
-    tail = romaji_add_pending_node(tail, node->child, prefix);
-    tail = romaji_add_pending_node(tail, node->high, prefix);
+    tail = romaji_add_pending_node(head, tail, node->child, prefix);
+    tail = romaji_add_pending_node(head, tail, node->high, prefix);
     return tail;
 }
 
 wordlist *
 romaji_convert_all(romaji *rj, const unsigned char *src)
 {
+    if (!rj->rootnode)
+        return NULL;
+
     wordlist *list = NULL;
     unsigned char *srcbuf = NULL;
     strbuf *dstbuf = NULL;
@@ -614,7 +618,7 @@ romaji_convert_all(romaji *rj, const unsigned char *src)
         // Output all entries under the pending node.
         wordlist pendings = {0};
         if (node)
-            romaji_add_pending_node(&pendings, node->child, dstbuf);
+            romaji_add_pending_node(&pendings, &pendings, node->child, dstbuf);
         list = pendings.next;
     }
 
