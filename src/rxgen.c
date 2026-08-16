@@ -148,53 +148,18 @@ rnode_dig(rnode_arena *arena, rnode **pp, unsigned int code)
 
 // rxgen interfaces
 
-static int
-rxgen_char2int_fallback(const unsigned char *in, unsigned int *out)
-{
-    if (out)
-        *out = *in;
-    return 1;
-}
-
-static int
-rxgen_int2char_none(unsigned int in, unsigned char *out)
-{
-    return 0;
-}
-
-static int
-rxgen_int2char_fallback(rxgen *rx, unsigned int in, unsigned char *out)
-{
-    int len = 0;
-    // Assume that "out" has at least 16 bytes
-    if (in >= 32 && in <= 126)
-    {
-        unsigned int idx = in - 32;
-        if (rx->escapes_bitmap[idx / 32] & (1U << (idx % 32)))
-        {
-            if (out)
-                out[len] = '\\';
-            ++len;
-        }
-    }
-    if (out)
-        out[len] = (unsigned char)(in & 0xFF);
-    ++len;
-    return len;
-}
-
 void
 rxgen_setproc_char2int(rxgen *rx, CHARSET_PROC_CHAR2INT proc)
 {
     if (rx)
-        rx->char2int = proc ? proc : rxgen_char2int_fallback;
+        rx->char2int = proc ? proc : charset_none_char2int;
 }
 
 void
 rxgen_setproc_int2char(rxgen *rx, CHARSET_PROC_INT2CHAR proc)
 {
     if (rx)
-        rx->int2char = proc ? proc : rxgen_int2char_none;
+        rx->int2char = proc ? proc : charset_none_int2char;
 }
 
 void
@@ -217,20 +182,6 @@ rxgen_set_escape_chars(rxgen *rx, const unsigned char *chars)
             rx->escapes_bitmap[idx / 32] |= (1U << (idx % 32));
         }
     }
-}
-
-static inline int
-rxgen_call_char2int(rxgen *rx, const unsigned char *pch, unsigned int *code)
-{
-    int len = rx->char2int(pch, code);
-    return len ? len : rxgen_char2int_fallback(pch, code);
-}
-
-static int
-rxgen_call_int2char(rxgen *rx, unsigned int code, unsigned char *buf)
-{
-    int len = rx->int2char(code, buf);
-    return len ? len : rxgen_int2char_fallback(rx, code, buf);
 }
 
 rxgen *
@@ -273,7 +224,7 @@ rxgen_add(rxgen *rx, const unsigned char *word)
     while (1)
     {
         unsigned int code;
-        int len = rxgen_call_char2int(rx, word, &code);
+        int len = rx->char2int(word, &code);
 
         // Terminate if the input pattern is exhausted
         if (code == 0)
@@ -330,14 +281,29 @@ rxgen_rnode_count(rnode *node, int *childrenCount, int *brotherCount)
     }
 }
 
-static void rxgen_generate_stub(rxgen *rx, strbuf *buf, rnode *node);
+static inline void rxgen_append_ch(rxgen *rx, strbuf *buf, unsigned int code)
+{
+    unsigned char bytes[CHARSET_MAX_BYTES];
+    int len = rx->int2char(code, bytes);
+    strbuf_append_mem(buf, bytes, len);
+}
+
+static inline bool
+rxgen_is_escape(rxgen *rx, unsigned int code)
+{
+    if (code < 32 || code > 126)
+        return false;
+    unsigned int idx = code - 32;
+    return rx->escapes_bitmap[idx / 32] & (1U << (idx % 32));
+}
 
 static void
 rxgen_write_node_code(rxgen *rx, strbuf *buf, rnode *node)
 {
-    unsigned char bytes[6];
-    int len = rxgen_call_int2char(rx, node->code, bytes);
-    strbuf_append_mem(buf, bytes, len);
+    unsigned int code = node->code;
+    if (rxgen_is_escape(rx, code))
+        rxgen_append_ch(rx, buf, '\\');
+    rxgen_append_ch(rx, buf, code);
 }
 
 static void
@@ -350,6 +316,8 @@ rxgen_write_node_no_children(rxgen *rx, strbuf *buf, rnode *node)
     if (node->high)
         rxgen_write_node_no_children(rx, buf, node->high);
 }
+
+static void rxgen_generate_stub(rxgen *rx, strbuf *buf, rnode *node);
 
 static void
 rxgen_write_node_has_children(rxgen *rx, strbuf *buf, rnode *node, bool *needOr)

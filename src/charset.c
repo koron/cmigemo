@@ -58,8 +58,9 @@ charset_cp932_int2char(unsigned int in, unsigned char *out)
         }
         return 2;
     }
-    else
-        return 0;
+    if (out)
+        out[0] = (unsigned char)(in & 0xFF);
+    return 1;
 }
 
 #define IS_EUC_RANGE(c) (0xa1 <= (c) && (c) <= 0xfe)
@@ -94,8 +95,9 @@ charset_eucjp_int2char(unsigned int in, unsigned char *out)
         }
         return 2;
     }
-    else
-        return 0;
+    if (out)
+        out[0] = (unsigned char)(in & 0xFF);
+    return 1;
 }
 
 int
@@ -153,7 +155,11 @@ int
 charset_utf8_int2char(unsigned int in, unsigned char *out)
 {
     if (in < 0x80)
-        return 0;
+    {
+        if (out)
+            out[0] = (unsigned char)(in & 0xFF);
+        return 1;
+    }
     if (in < 0x800)
     {
         if (out)
