@@ -8,12 +8,14 @@ add_executable(
   ${PROJECT_SOURCE_DIR}/src/trie.c
   ${PROJECT_SOURCE_DIR}/src/strbuf.c
   ${PROJECT_SOURCE_DIR}/src/wordlist.c)
+
 target_include_directories(
   romaji
   PRIVATE ${PROJECT_SOURCE_DIR}/src ${PROJECT_BINARY_DIR}/src/include)
+
 target_compile_definitions(
   romaji
-  PRIVATE DICTDIR="${PROJECT_BINARY_DIR}/dict/utf-8" _DEBUG)
+  PRIVATE DICTDIR="${PROJECT_BINARY_DIR}/dict/utf-8")
 
 if(MSVC)
   set_target_properties(
@@ -37,12 +39,14 @@ add_executable(
   ${PROJECT_SOURCE_DIR}/src/trie.c
   ${PROJECT_SOURCE_DIR}/src/strbuf.c
   ${PROJECT_SOURCE_DIR}/src/wordlist.c)
+
 target_include_directories(
   qspeed
   PRIVATE ${PROJECT_SOURCE_DIR}/src ${PROJECT_BINARY_DIR}/src/include)
+
 target_compile_definitions(
   qspeed
-  PRIVATE DICTDIR="${PROJECT_BINARY_DIR}/dict/utf-8" _DEBUG)
+  PRIVATE DICTDIR="${PROJECT_BINARY_DIR}/dict/utf-8")
 
 if(MSVC)
   set_target_properties(
@@ -57,8 +61,8 @@ endif()
 find_program(GPROF_EXECUTABLE gprof)
 
 if(GPROF_EXECUTABLE AND CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
-  target_compile_options(qspeed PRIVATE -O0 -pg)
-  target_link_options(qspeed PRIVATE -O0 -pg)
+  target_compile_options(qspeed PRIVATE -pg -fno-omit-frame-pointer)
+  target_link_options(qspeed PRIVATE -pg -fno-omit-frame-pointer)
 
   if(BUILD_DICT)
     add_dependencies(qspeed dict_utf-8)
