@@ -14,26 +14,35 @@ configure_file(
   "${CMAKE_CURRENT_BINARY_DIR}/migemo.rc"
   @ONLY)
 
+#------------------------------------------------------------------------------
+
+add_library(
+  migemo_objects
+  charset.c
+  filename.c
+  migemo.c
+  mtree.c
+  romaji.c
+  rxgen.c
+  trie.c
+  strbuf.c
+  wordlist.c)
+
+target_include_directories(
+  migemo_objects
+  PUBLIC
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>)
+
+set_target_properties(migemo_objects PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+#------------------------------------------------------------------------------
+
 add_library(
   migemo
   SHARED
-    migemo.def
-    "${CMAKE_CURRENT_BINARY_DIR}/migemo.rc"
-    charset.c
-    filename.c
-    migemo.c
-    mtree.c
-    romaji.c
-    rxgen.c
-    trie.c
-    strbuf.c
-    wordlist.c)
-
-set_target_properties(
-  migemo
-  PROPERTIES
-    OUTPUT_NAME "migemo" VERSION ${PROJECT_VERSION} SOVERSION
-    ${PROJECT_VERSION_MAJOR})
+    migemo.def "${CMAKE_CURRENT_BINARY_DIR}/migemo.rc"
+    $<TARGET_OBJECTS:migemo_objects>)
 
 target_include_directories(
   migemo
@@ -41,6 +50,24 @@ target_include_directories(
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+
+set_target_properties(
+  migemo
+  PROPERTIES
+    OUTPUT_NAME "migemo" VERSION ${PROJECT_VERSION} SOVERSION
+    ${PROJECT_VERSION_MAJOR})
+
+#------------------------------------------------------------------------------
+
+add_library(migemo_static STATIC $<TARGET_OBJECTS:migemo_objects>)
+
+target_include_directories(
+  migemo_static
+  PUBLIC
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>)
+
+#------------------------------------------------------------------------------
 
 add_executable(cmigemo main.c)
 
