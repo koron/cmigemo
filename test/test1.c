@@ -47,6 +47,14 @@ test1(void)
     int r;
     migemo *p;
 
+    const char *ver = migemo_version();
+    if (ver == NULL || strcmp(ver, MIGEMO_VERSION) != 0)
+    {
+        printf("Failed: migemo_version() returned \"%s\" (expected \"%s\")\n",
+                ver ? ver : "(null)", MIGEMO_VERSION);
+        return 1;
+    }
+
     p = migemo_open(TEST_DICTDIR_MIGEMO "/migemo-dict");
     if (p == NULL)
     {

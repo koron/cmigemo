@@ -232,6 +232,18 @@ export function setEscapeChars(chars) {
 }
 
 /**
+ * Returns the version string of the C/Migemo library.
+ * @returns {string} Version string (e.g., "1.6.1")
+ */
+export function version() {
+  if (!moduleInstance) {
+    throw new Error("Migemo is not initialized. Call init() first.");
+  }
+  const migemoVersion = moduleInstance.cwrap('migemo_version', 'string', []);
+  return migemoVersion();
+}
+
+/**
  * Returns the underlying Emscripten module instance.
  * @returns {Object|null}
  */
@@ -254,6 +266,7 @@ export default {
   isEnable,
   load,
   setEscapeChars,
+  version,
   getModule,
   getInstance
 };

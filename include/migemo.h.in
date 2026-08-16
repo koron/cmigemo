@@ -48,6 +48,13 @@ extern "C" {
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
+// Information
+
+/// Get version string of C/Migemo library.
+/// @return Pointer to a static version string (e.g. "1.6.1").
+const char *MIGEMO_CALLTYPE migemo_version(void);
+
+//////////////////////////////////////////////////////////////////////////////
 // Life cycle management
 
 /// Create a Migemo object.

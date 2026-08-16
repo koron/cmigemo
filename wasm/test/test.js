@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
-import { init, query, close, isEnable, load, getModule, getInstance } from '../index.js';
+import { init, query, close, isEnable, load, version, getModule, getInstance } from '../index.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -72,6 +72,11 @@ async function runTests() {
   assert.ok(typeof mod._migemo_query === 'function', '_migemo_query C API should be exported');
   assert.ok(typeof mod._migemo_release === 'function', '_migemo_release C API should be exported');
   assert.ok(typeof mod._migemo_load === 'function', '_migemo_load C API should be exported');
+  assert.ok(typeof mod._migemo_version === 'function', '_migemo_version C API should be exported');
+
+  const ver = version();
+  assert.ok(typeof ver === 'string' && ver.length > 0, 'version() should return a non-empty string');
+  console.log('Version:', ver);
 
   // Test 4: Re-initialization (Singleton Lifecycle & dictPath input)
   console.log('Test 4: Re-initialization & Virtual FS Path');
