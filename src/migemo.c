@@ -481,3 +481,12 @@ migemo_is_enable(migemo *mo)
 {
     return mo ? mo->enable : 0;
 }
+
+/// Retrieve the version string of the C/Migemo library.
+///
+/// @return Static version string (e.g., "1.6.1").
+const char *MIGEMO_CALLTYPE
+migemo_version(void)
+{
+    return MIGEMO_VERSION MIGEMO_VERSION_PRERELEASE;
+}

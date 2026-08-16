@@ -15,3 +15,4 @@ EXPORTS
 
 	migemo_load
 	migemo_is_enable
+	migemo_version
