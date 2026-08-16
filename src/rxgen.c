@@ -115,13 +115,8 @@ rnode_arena_free(rnode_arena *arena)
 static rnode *
 rnode_dig(rnode_arena *arena, rnode **pp, unsigned int code)
 {
-    while (1)
+    while (*pp)
     {
-        if (*pp == NULL)
-        {
-            *pp = rnode_arena_alloc(arena, code);
-            return *pp;
-        }
         int pivot = (*pp)->code;
         if (code > pivot)
             pp = &(*pp)->high;
@@ -130,6 +125,8 @@ rnode_dig(rnode_arena *arena, rnode **pp, unsigned int code)
         else
             return *pp;
     }
+    *pp = rnode_arena_alloc(arena, code);
+    return *pp;
 }
 
 // rxgen interfaces
