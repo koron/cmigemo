@@ -517,16 +517,12 @@ romaji_add_pending_node(wordlist *tail, romanode *node, strbuf *prefix)
     tail = romaji_add_pending_node(tail, node->low, prefix);
     if (node->value)
     {
-        strbuf *w = strbuf_open();
-        if (w)
-        {
-            strbuf_append(w, prefix);
-            strbuf_append_str(w, node->value);
-            wordlist *item = wordlist_new(strbuf_get(w), strbuf_len(w));
-            tail->next = item;
-            tail = item;
-            strbuf_close(w);
-        }
+        size_t len = strbuf_len(prefix);
+        strbuf_append_str(prefix, node->value);
+        wordlist *item = wordlist_new(strbuf_get(prefix), strbuf_len(prefix));
+        tail->next = item;
+        tail = item;
+        strbuf_truncate(prefix, len);
     }
     tail = romaji_add_pending_node(tail, node->child, prefix);
     tail = romaji_add_pending_node(tail, node->high, prefix);
