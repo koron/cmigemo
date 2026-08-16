@@ -206,8 +206,7 @@ rxgen_add(rxgen *rx, const unsigned char *word)
     rnode *pnode = NULL;
     while (1)
     {
-        unsigned int code;
-        int len = rx->char2int(word, &code);
+        unsigned int code = charset_decode(rx->char2int, &word);
 
         // Terminate if the input pattern is exhausted
         if (code == 0)
@@ -226,8 +225,6 @@ rxgen_add(rxgen *rx, const unsigned char *word)
             }
             break;
         }
-
-        word += len;
 
         pnode = rnode_dig(&rx->arena, ppnode, code);
         if (!pnode)
