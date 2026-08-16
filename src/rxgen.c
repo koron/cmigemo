@@ -66,7 +66,7 @@ struct rxgen
     CHARSET_PROC_CHAR2INT char2int;
     CHARSET_PROC_INT2CHAR int2char;
 
-    uint32_t escapes_bitmap[3];
+    uint32_t escapes_bitmap[3]; // 3 = (126 - 32 + 1 + 31) / 32
 
     unsigned char op_or[RXGEN_OP_MAXLEN];
     unsigned char op_nest_in[RXGEN_OP_MAXLEN];
@@ -166,7 +166,7 @@ static int
 rxgen_int2char_fallback(rxgen *rx, unsigned int in, unsigned char *out)
 {
     int len = 0;
-    // Assume that out has at least 16 bytes
+    // Assume that "out" has at least 16 bytes
     if (in >= 32 && in <= 126)
     {
         unsigned int idx = in - 32;

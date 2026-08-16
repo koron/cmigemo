@@ -436,6 +436,18 @@ migemo_get_operator(migemo *mo, int index)
     return mo ? rxgen_get_operator(mo->rx, index) : NULL;
 }
 
+/// Set custom characters to escape in generated regular expressions.
+///
+/// @param mo Migemo object.
+/// @param chars String of characters to escape (ASCII 32-126). If NULL, default
+/// set ("\\.*+^$/") is used. If "", no characters are escaped.
+void MIGEMO_CALLTYPE
+migemo_set_escape_chars(migemo *mo, const unsigned char *chars)
+{
+    if (mo)
+        rxgen_set_escape_chars(mo->rx, chars);
+}
+
 /// Set a custom character conversion procedure (char -> int) for the Migemo
 /// object.
 ///
@@ -458,20 +470,6 @@ migemo_setproc_int2char(migemo *mo, MIGEMO_PROC_INT2CHAR proc)
 {
     if (mo)
         rxgen_setproc_int2char(mo->rx, (CHARSET_PROC_INT2CHAR)proc);
-}
-
-/// Set custom characters to escape in generated regular expressions.
-///
-/// @param mo Migemo object.
-/// @param chars String of characters to escape (ASCII 32-126). If NULL, default set is used. If "", no characters are escaped.
-/// @return 0 on success, non-zero on error (e.g. NULL mo).
-int MIGEMO_CALLTYPE
-migemo_set_escape_chars(migemo *mo, const unsigned char *chars)
-{
-    if (!mo)
-        return 1;
-    rxgen_set_escape_chars(mo->rx, chars);
-    return 0;
 }
 
 /// Check whether the main dictionary is loaded and ready for queries.

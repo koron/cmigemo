@@ -69,11 +69,6 @@ test2(void)
     rxgen_close(rx);
 
     // Test migemo_set_escape_chars API
-    if (migemo_set_escape_chars(NULL, (const unsigned char *)"+") == 0)
-    {
-        printf("Failed: migemo_set_escape_chars(NULL, ...) should return non-zero\n");
-        return 1;
-    }
 
     migemo *mo = migemo_open(NULL);
     if (!mo)
@@ -81,13 +76,7 @@ test2(void)
         printf("Failed: migemo_open(NULL) returned NULL\n");
         return 1;
     }
-
-    if (migemo_set_escape_chars(mo, (const unsigned char *)"+?") != 0)
-    {
-        printf("Failed: migemo_set_escape_chars(mo, \"+?\") returned non-zero\n");
-        migemo_close(mo);
-        return 1;
-    }
+    migemo_set_escape_chars(mo, (const unsigned char *)"+?");
 
     unsigned char *qres = migemo_query(mo, (const unsigned char *)"a+b?c.d");
     if (!qres)

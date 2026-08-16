@@ -181,8 +181,9 @@ romaji *
 romaji_open()
 {
     romaji *rj = (romaji *)calloc(1, sizeof(romaji));
-    if (rj)
-        rj->char2int = charset_none_char2int;
+    if (!rj)
+        return NULL;
+    rj->char2int = charset_none_char2int;
     return rj;
 }
 
