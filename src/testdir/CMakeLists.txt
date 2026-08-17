@@ -10,6 +10,14 @@ target_include_directories(
   migemo_profile
   PUBLIC ${PROJECT_SOURCE_DIR}/src ${PROJECT_BINARY_DIR}/src/include)
 
+target_compile_definitions(
+  migemo_profile
+  PUBLIC DICTDIR="${PROJECT_BINARY_DIR}/dict/utf-8")
+
+if(BUILD_DICT)
+  add_dependencies(migemo_profile dict_utf-8)
+endif()
+
 find_program(GPROF_EXECUTABLE gprof)
 
 if(GPROF_EXECUTABLE AND CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
@@ -24,10 +32,6 @@ add_executable(romaji romaji_main.c)
 
 target_link_libraries(romaji PRIVATE migemo_profile)
 
-target_compile_definitions(
-  romaji
-  PRIVATE DICTDIR="${PROJECT_BINARY_DIR}/dict/utf-8")
-
 #------------------------------------------------------------------------------
 # qspeed: profiling tool
 
@@ -35,13 +39,6 @@ add_executable(qspeed profile_speed.c)
 
 target_link_libraries(qspeed PRIVATE migemo_profile)
 
-target_compile_definitions(
-  qspeed
-  PRIVATE DICTDIR="${PROJECT_BINARY_DIR}/dict/utf-8")
-
-if(BUILD_DICT)
-  add_dependencies(qspeed dict_utf-8)
-endif()
 
 #------------------------------------------------------------------------------
 
