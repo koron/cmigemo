@@ -49,6 +49,7 @@
 
 ## Project Structure
 
+- OKF Indexing: Each main directory contains an `index.md` (Open Knowledge Format) acting as a directory map. ALWAYS read the relevant `index.md` first to locate source files efficiently before performing broad searches.
 - `include/migemo.h.in` - public C API template; generated to `build/src/include/migemo.h` at configure time; version comes from `project(VERSION)` in top-level `CMakeLists.txt` (matches CMake project version)
 - `src/migemo.c`, `rxgen.c`, `romaji.c`, `charset.c`, `strbuf.c`, `wordlist.c`, `mtree.c`, `trie.c`, `filename.c` - core shared library (`migemo`)
 - `src/main.c` - CLI executable (`cmigemo`)
