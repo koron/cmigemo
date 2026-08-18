@@ -26,13 +26,6 @@ if(GPROF_EXECUTABLE AND CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
 endif()
 
 #------------------------------------------------------------------------------
-# romaji tool (use migemo shared object)
-
-add_executable(romaji romaji_main.c)
-
-target_link_libraries(romaji PRIVATE migemo_profile)
-
-#------------------------------------------------------------------------------
 # profile_char_query
 
 add_executable(profile_char_query profile_char_query.c)
@@ -46,7 +39,8 @@ add_custom_target(
   COMMAND $<TARGET_FILE:profile_char_query>
   COMMAND ${CMAKE_COMMAND} -E echo "Generating profile.log..."
   COMMAND ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_SOURCE_DIR}/copy_gmon.cmake"
-  COMMAND ${GPROF_EXECUTABLE} $<TARGET_FILE:profile_char_query> gmon.out > profile.log
+  COMMAND
+    ${GPROF_EXECUTABLE} $<TARGET_FILE:profile_char_query> gmon.out > profile.log
   WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
   DEPENDS profile_char_query
   COMMENT "Running profile_char_query benchmark and generating profile.log")

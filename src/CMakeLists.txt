@@ -58,7 +58,7 @@ add_library(migemo_static STATIC $<TARGET_OBJECTS:migemo_objects>)
 target_include_directories(
   migemo_static
   PUBLIC
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    ${PROJECT_SOURCE_DIR}/src $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>)
 
 #------------------------------------------------------------------------------

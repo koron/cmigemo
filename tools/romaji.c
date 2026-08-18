@@ -3,8 +3,6 @@
 // romaji_main.c - Romaji convert console.
 //
 // Author:  MURAOKA Taro <koron.kaoriya@gmail.com>
-//
-// gcc -o romaji romaji_main.c ../romaji.c ../strbuf.c
 
 #include <stdio.h>
 #include <string.h>
