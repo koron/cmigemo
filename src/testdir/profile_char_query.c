@@ -1,12 +1,12 @@
 // vim:set ts=8 sts=4 sw=4 tw=0 et:
 //
-// profile_speed.c - Query speed profiler.
+// profile_char_query.c - Profile single-character queries
 //
 // Author:  MURAOKA Taro <koron.kaoriya@gmail.com>
 
 #include "common.h"
 
-#define NUM_TRIAL 10
+#define NUM_TRIAL 50
 
 #include <stdio.h>
 #include <time.h>
@@ -21,7 +21,7 @@
 #define CLOCK2SEC(t) ((double)(t) / (double)CLOCKS_PER_SEC)
 
 static clock_t
-profile_queries(migemo *mo, int trial)
+profile_char_query(migemo *mo, int trial)
 {
     char key[2] = {'\0', '\0'};
     clock_t dur = 0;
@@ -56,7 +56,7 @@ main(int argc, char **argv)
     if (mo != NULL)
     {
         printf("Quering\n");
-        clock_query = profile_queries(mo, NUM_TRIAL);
+        clock_query = profile_char_query(mo, NUM_TRIAL);
         migemo_close(mo);
     }
     printf("\n");

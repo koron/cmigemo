@@ -33,21 +33,20 @@ add_executable(romaji romaji_main.c)
 target_link_libraries(romaji PRIVATE migemo_profile)
 
 #------------------------------------------------------------------------------
-# qspeed: profiling tool
+# profile_char_query
 
-add_executable(qspeed profile_speed.c)
+add_executable(profile_char_query profile_char_query.c)
 
-target_link_libraries(qspeed PRIVATE migemo_profile)
-
+target_link_libraries(profile_char_query PRIVATE migemo_profile)
 
 #------------------------------------------------------------------------------
 
 add_custom_target(
   profile
-  COMMAND $<TARGET_FILE:qspeed>
+  COMMAND $<TARGET_FILE:profile_char_query>
   COMMAND ${CMAKE_COMMAND} -E echo "Generating profile.log..."
   COMMAND ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_SOURCE_DIR}/copy_gmon.cmake"
-  COMMAND ${GPROF_EXECUTABLE} $<TARGET_FILE:qspeed> gmon.out > profile.log
+  COMMAND ${GPROF_EXECUTABLE} $<TARGET_FILE:profile_char_query> gmon.out > profile.log
   WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-  DEPENDS qspeed
-  COMMENT "Running qspeed benchmark and generating profile.log")
+  DEPENDS profile_char_query
+  COMMENT "Running profile_char_query benchmark and generating profile.log")
