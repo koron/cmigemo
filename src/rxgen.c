@@ -249,7 +249,8 @@ rnode_dig2balance(rnode_arena *arena, rnode **pp, unsigned int code)
     rnode **path[32];
     int path_top = 0;
 
-    while (*pp) {
+    while (*pp)
+    {
         path[path_top++] = pp;
         unsigned int pivot = (*pp)->code;
         pp = (code > pivot) ? &(*pp)->high : &(*pp)->low;
@@ -258,7 +259,8 @@ rnode_dig2balance(rnode_arena *arena, rnode **pp, unsigned int code)
     *pp = rnode_arena_alloc(arena, code);
     rnode *ret = *pp;
 
-    while (path_top > 0) {
+    while (path_top > 0)
+    {
         rnode **p = path[--path_top];
         *p = rnode_balance(arena, *p);
     }

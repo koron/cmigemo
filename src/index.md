@@ -13,7 +13,6 @@ This directory contains the C sources, headers, and CMake build scripts for the 
 
 | File / Path | Type | Description |
 | :--- | :--- | :--- |
-| [main.c](./main.c) | Source | Entry point of the `cmigemo` CLI binary that drives the migemo library. |
 | [migemo.c](./migemo.c) | Source | Core migemo public API implementation (library and dictionary loading). |
 | [migemo_struct.h](./migemo_struct.h) | Header | Internal struct definitions shared across the core library. |
 | [rxgen.c](./rxgen.c) | Source | Regular expression generator for matching input against the migemo dictionary. |
@@ -36,7 +35,6 @@ This directory contains the C sources, headers, and CMake build scripts for the 
 | [migemo.def](./migemo.def) | Build Support | MSVC module definition file controlling exported library symbols. |
 | [migemo.rc.in](./migemo.rc.in) | Build Support | CMake template generating the Windows resource file for the library. |
 | [CMakeLists.txt](./CMakeLists.txt) | Build | CMake build rules for the migemo library, cmigemo binary, and tools. |
-| [testdir/](./testdir/) | Directory Index | Auxiliary tools built from this directory: the `romaji` command, the `qspeed` benchmark driver, and gprof support. |
 
 # References
 - [Parent Directory](../index.md)
