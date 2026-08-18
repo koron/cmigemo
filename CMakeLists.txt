@@ -54,6 +54,7 @@ endif()
 #------------------------------------------------------------------------------
 
 add_subdirectory(src)
+add_subdirectory(tools)
 if(BUILD_DICT)
   add_subdirectory(dict)
 endif()
