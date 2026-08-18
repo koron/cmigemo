@@ -40,6 +40,8 @@ struct rnode
     rnode *low, *high;
     rnode *child;
 
+    uint8_t height;
+
     unsigned int code;
     bool wordtail;
 };
@@ -93,6 +95,7 @@ rnode_arena_alloc(rnode_arena *arena, unsigned code)
         arena->curr = block;
     }
     rnode *p = &arena->curr->nodes[arena->curr->used++];
+    p->height = 1;
     p->code = code;
     return p;
 }
@@ -110,23 +113,6 @@ rnode_arena_free(rnode_arena *arena)
     }
     arena->head = NULL;
     arena->curr = NULL;
-}
-
-static inline rnode *
-rnode_dig(rnode_arena *arena, rnode **pp, unsigned int code)
-{
-    while (*pp)
-    {
-        unsigned int pivot = (*pp)->code;
-        if (code > pivot)
-            pp = &(*pp)->high;
-        else if (code < pivot)
-            pp = &(*pp)->low;
-        else
-            return *pp;
-    }
-    *pp = rnode_arena_alloc(arena, code);
-    return *pp;
 }
 
 // rxgen interfaces
@@ -196,6 +182,112 @@ rxgen_close(rxgen *rx)
     }
 }
 
+static inline uint8_t
+rnode_height(rnode *node)
+{
+    return node ? node->height : 0;
+}
+
+static inline void
+rnode_update_height(rnode *p)
+{
+    uint8_t l = rnode_height(p->low);
+    uint8_t h = rnode_height(p->high);
+    p->height = 1 + (l > h ? l : h);
+}
+
+static inline rnode *
+rnode_rotate_left(rnode *node)
+{
+    rnode *r = node->high;
+    node->high = r->low;
+    r->low = node;
+    rnode_update_height(node);
+    rnode_update_height(r);
+    return r;
+}
+
+static inline rnode *
+rnode_rotate_right(rnode *node)
+{
+    rnode *l = node->low;
+    node->low = l->high;
+    l->high = node;
+    rnode_update_height(node);
+    rnode_update_height(l);
+    return l;
+}
+
+static inline rnode *
+rnode_balance(rnode_arena *arena, rnode *node)
+{
+    if (!node)
+        return NULL;
+    uint8_t l = rnode_height(node->low);
+    uint8_t r = rnode_height(node->high);
+
+    if (r > l + 1)
+    {
+        if (rnode_height(node->high->high) < rnode_height(node->high->low))
+            node->high = rnode_rotate_right(node->high);
+        return rnode_rotate_left(node);
+    }
+    else if (l > r + 1)
+    {
+        if (rnode_height(node->low->low) < rnode_height(node->low->high))
+            node->low = rnode_rotate_left(node->low);
+        return rnode_rotate_right(node);
+    }
+
+    rnode_update_height(node);
+    return node;
+}
+
+static inline rnode *
+rnode_dig2balance(rnode_arena *arena, rnode **pp, unsigned int code)
+{
+    rnode **path[32];
+    int path_top = 0;
+
+    while (*pp) {
+        path[path_top++] = pp;
+        unsigned int pivot = (*pp)->code;
+        pp = (code > pivot) ? &(*pp)->high : &(*pp)->low;
+    }
+
+    *pp = rnode_arena_alloc(arena, code);
+    rnode *ret = *pp;
+
+    while (path_top > 0) {
+        rnode **p = path[--path_top];
+        *p = rnode_balance(arena, *p);
+    }
+
+    return ret;
+}
+
+static inline rnode *
+rnode_dig2(rnode_arena *arena, rnode **pp, unsigned int code, bool balance)
+{
+    rnode **root = pp;
+    while (*pp)
+    {
+        unsigned int pivot = (*pp)->code;
+        if (code > pivot)
+            pp = &(*pp)->high;
+        else if (code < pivot)
+            pp = &(*pp)->low;
+        else
+            return *pp;
+    }
+    if (!balance)
+    {
+        *pp = rnode_arena_alloc(arena, code);
+        return *pp;
+    }
+    return rnode_dig2balance(arena, root, code);
+}
+
 int
 rxgen_add(rxgen *rx, const unsigned char *word)
 {
@@ -204,6 +296,8 @@ rxgen_add(rxgen *rx, const unsigned char *word)
 
     rnode **ppnode = &rx->root;
     rnode *pnode = NULL;
+
+    bool balance = true;
     while (1)
     {
         unsigned int code = charset_decode(rx->char2int, &word);
@@ -212,7 +306,7 @@ rxgen_add(rxgen *rx, const unsigned char *word)
         if (code == 0)
             break;
 
-        pnode = rnode_dig(&rx->arena, ppnode, code);
+        pnode = rnode_dig2(&rx->arena, ppnode, code, balance);
         if (!pnode)
             return 0; // allocation error.
         if (pnode->wordtail)
@@ -224,6 +318,7 @@ rxgen_add(rxgen *rx, const unsigned char *word)
 
         // Move the focus deeper by traversing child nodes
         ppnode = &pnode->child;
+        balance = false;
     }
 
     if (pnode)
