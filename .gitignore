@@ -2,3 +2,5 @@
 /build-*/
 /tags
 /tmp/
+
+gmon.out

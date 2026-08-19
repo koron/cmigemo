@@ -29,8 +29,10 @@ endif()
 # profile_char_query
 
 add_executable(profile_char_query profile_char_query.c)
-
 target_link_libraries(profile_char_query PRIVATE migemo_profile)
+
+add_executable(profile_migemo_open profile_migemo_open.c)
+target_link_libraries(profile_migemo_open PRIVATE migemo_profile)
 
 #------------------------------------------------------------------------------
 
