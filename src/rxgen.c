@@ -120,8 +120,9 @@ rnode_arena_free(rnode_arena *arena)
 void
 rxgen_setproc_char2int(rxgen *rx, CHARSET_PROC_CHAR2INT proc)
 {
-    if (rx)
-        rx->char2int = proc ? proc : charset_none_char2int;
+    if (!rx)
+        return;
+    rx->char2int = proc && proc != charset_utf8_char2int ? proc : NULL;
 }
 
 void

@@ -47,6 +47,6 @@ static inline unsigned int
 charset_decode(CHARSET_PROC_CHAR2INT proc, const unsigned char **pptr)
 {
     unsigned int code = 0;
-    *pptr += proc(*pptr, &code);
+    *pptr += proc ? proc(*pptr, &code) : charset_utf8_char2int(*pptr, &code);
     return code;
 }
