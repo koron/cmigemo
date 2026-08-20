@@ -321,17 +321,24 @@ migemo_process_word(migemo *mo, unsigned char *query)
     // Naturally, add the query itself to the candidates
     migemo_add_word(mo, query);
 
-    // Dictionary search using a lowercase query.
-    for (int i = 0, step; i <= len; i += step)
+    // Convert the query string to lowercase.
+    const unsigned char *r = query;
+    unsigned char *w = lower;
+    while (1)
     {
-        // Uppercase to lowercase conversion considering multi-byte characters
-        if (!mo->char2int || (step = mo->char2int(&query[i], NULL)) < 1)
-            step = 1;
-        if (step == 1 && isupper(query[i]))
-            lower[i] = (unsigned char)tolower(query[i]);
+        const unsigned char *prev = r;
+        int code = charset_decode(mo->char2int, &r);
+        off_t step = r - prev;
+        if (step == 1 && code < 0x80 && isupper(code))
+            *w = (unsigned char)tolower(code);
         else
-            memcpy(&lower[i], &query[i], step);
+            memcpy(w, prev, step);
+        if (code == 0)
+            break;
+        w += step;
     }
+
+    // Dictionary search using a lowercase query.
     migemo_add_mtree_matches(mo, lower);
 
     // Convert query to full-width and add to candidates
