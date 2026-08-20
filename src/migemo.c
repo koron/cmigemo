@@ -8,6 +8,7 @@
 
 #include <ctype.h>
 #include <limits.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -51,7 +52,8 @@ load_mtree_dictionary(migemo *mo, const char *dict_file)
     charset_getproc(mo->charset, &char2int, &int2char);
     migemo_setproc_char2int(mo, (MIGEMO_PROC_CHAR2INT)char2int);
     migemo_setproc_int2char(mo, (MIGEMO_PROC_INT2CHAR)int2char);
-    mo->char2int = char2int;
+    mo->char2int =
+            char2int && char2int != charset_utf8_char2int ? char2int : NULL;
 
     FILE *fp = fopen(dict_file, "rt");
     if (!fp)
@@ -135,7 +137,7 @@ migemo_open(const char *dict)
     mo->hira2kata = romaji_open();
     mo->han2zen = romaji_open();
     mo->zen2han = romaji_open();
-    mo->char2int = charset_none_char2int;
+    mo->char2int = NULL;
     if (!mo->mtree || !mo->rx || !mo->roma2hira || !mo->hira2kata
             || !mo->han2zen || !mo->zen2han)
     {
@@ -273,38 +275,47 @@ migemo_add_roma_variants(migemo *mo, unsigned char *query)
 static wordlist *
 migemo_segment_query(migemo *mo, const unsigned char *query)
 {
-    const unsigned char *curr = query;
-    const unsigned char *start = NULL;
-    wordlist *queries = NULL, **pp = &queries;
-
-    while (1)
+    wordlist *queries = NULL, **pnext = &queries;
+    const unsigned char *r = query;
+    for (bool loop = true; loop;)
     {
-        int len, upper;
-        int sum = 0;
+        const unsigned char *start = r;
 
-        if (!mo->char2int || (len = mo->char2int(curr, NULL)) < 1)
-            len = 1;
-        start = curr;
-        upper = (len == 1 && isupper(*curr) && isupper(curr[1]));
-        curr += len;
-        sum += len;
+        // Determine how to identify query boundaries.
+        bool upper_mode = false;
+        int first = charset_decode(mo->char2int, &r);
+        if (first < 0x80 && isupper(first))
+        {
+            // Look ahead to the second character.
+            const unsigned char *r2 = r;
+            int second = charset_decode(mo->char2int, &r2);
+            upper_mode = second < 0x80 && isupper(second);
+        }
+
+        // Locate the boundary where the case switches. In "upper mode," the
+        // first lowercase letter marks the boundary; in "lower mode," the
+        // first uppercase letter marks the boundary.
+        const unsigned char *prev = NULL;
         while (1)
         {
-            if (!mo->char2int || (len = mo->char2int(curr, NULL)) < 1)
-                len = 1;
-            if (*curr == '\0' || (len == 1 && (isupper(*curr) != 0) != upper))
+            prev = r;
+            int code = charset_decode(mo->char2int, &r);
+            if (code == 0)
+            {
+                loop = false;
                 break;
-            curr += len;
-            sum += len;
+            }
+            if (code < 0x80 && (isupper(code) != 0) != upper_mode)
+                break;
         }
+
         // Register a phrase
-        if (start && start < curr)
+        if (prev)
         {
-            *pp = wordlist_new(start, sum);
-            pp = &(*pp)->next;
+            *pnext = wordlist_new(start, prev - start);
+            pnext = &(*pnext)->next;
+            r = prev;
         }
-        if (*curr == '\0')
-            break;
     }
     return queries;
 }
@@ -321,17 +332,24 @@ migemo_process_word(migemo *mo, unsigned char *query)
     // Naturally, add the query itself to the candidates
     migemo_add_word(mo, query);
 
-    // Dictionary search using a lowercase query.
-    for (int i = 0, step; i <= len; i += step)
+    // Convert the query string to lowercase.
+    const unsigned char *r = query;
+    unsigned char *w = lower;
+    while (1)
     {
-        // Uppercase to lowercase conversion considering multi-byte characters
-        if (!mo->char2int || (step = mo->char2int(&query[i], NULL)) < 1)
-            step = 1;
-        if (step == 1 && isupper(query[i]))
-            lower[i] = (unsigned char)tolower(query[i]);
+        const unsigned char *prev = r;
+        int code = charset_decode(mo->char2int, &r);
+        ptrdiff_t step = r - prev;
+        if (step == 1 && code < 0x80 && isupper(code))
+            *w = (unsigned char)tolower(code);
         else
-            memcpy(&lower[i], &query[i], step);
+            memcpy(w, prev, step);
+        if (code == 0)
+            break;
+        w += step;
     }
+
+    // Dictionary search using a lowercase query.
     migemo_add_mtree_matches(mo, lower);
 
     // Convert query to full-width and add to candidates

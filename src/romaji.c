@@ -183,7 +183,7 @@ romaji_open()
     romaji *rj = (romaji *)calloc(1, sizeof(romaji));
     if (!rj)
         return NULL;
-    rj->char2int = charset_none_char2int;
+    rj->char2int = NULL;
     return rj;
 }
 
@@ -472,7 +472,7 @@ romaji_load(romaji *rj, const unsigned char *filename,
 {
     if (!rj || !filename)
         return -1;
-    rj->char2int = char2int;
+    rj->char2int = char2int && char2int != charset_utf8_char2int ? char2int : NULL;
     FILE *fp = fopen(filename, "rt");
     if (!fp)
         return -1;
@@ -505,8 +505,9 @@ romaji_find_siblings(romaji *rj, romanode *node, unsigned int code)
 static inline size_t
 romaji_decode_len(CHARSET_PROC_CHAR2INT proc, const unsigned char *s)
 {
-    int len = proc(s, NULL);
-    return len > 0 ? (size_t)len : 1;
+    const unsigned char *p = s;
+    charset_decode(proc, &p);
+    return p - s;
 }
 
 static wordlist *

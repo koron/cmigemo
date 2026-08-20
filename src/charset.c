@@ -14,14 +14,6 @@
 #include "charset.h"
 
 int
-charset_none_char2int(const unsigned char *in, unsigned int *out)
-{
-    if (out)
-        *out = *in;
-    return 1;
-}
-
-int
 charset_none_int2char(unsigned int in, unsigned char *out)
 {
     if (out)
@@ -100,53 +92,34 @@ charset_eucjp_int2char(unsigned int in, unsigned char *out)
     return 1;
 }
 
+// Use LUT to determine number of continuation bytes in UTF-8.
+// clang-format off
+const unsigned char CHARSET_UTF8_LUT[128] = {
+        // 0x80 - 0xBF: invalid sequence (continuation byte without leader)
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        // 0xC0 - 0xC1: invalid (overlong encoding)
+        0, 0,
+        // 0xC2 - 0xDF (110xxxxx): 2 bytes character
+              2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+        2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+        // 0xE0 - 0xEF (1110xxxx): 3 bytes character
+        3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+        // 0xF0 - 0xF7 (11110xxx): 4 bytes character
+        4, 4, 4, 4, 4,
+        // 0xF5 - 0xF7: invalid (exceeding Unicode max value of U+10FFFF)
+                       0, 0, 0,
+        // 0xF8 - 0xFF (11111xxx or greater): invalid values.
+                                0, 0, 0, 0, 0, 0, 0, 0,
+};
+// clang-format on
+
 int
 charset_utf8_char2int(const unsigned char *in, unsigned int *out)
 {
-    if (!(in[0] & 0x80))
-        return charset_none_char2int(in, out);
-
-    // Use LUT to determine number of continuation bytes in UTF-8.
-    // clang-format off
-    static const unsigned char UTF8_LUT[128] = {
-            // 0x80 - 0xBF: invalid sequence (continuation byte without leader)
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            // 0xC0 - 0xC1: invalid (overlong encoding)
-            0, 0,
-            // 0xC2 - 0xDF (110xxxxx): 2 bytes character
-                  2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-            2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-            // 0xE0 - 0xEF (1110xxxx): 3 bytes character
-            3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-            // 0xF0 - 0xF7 (11110xxx): 4 bytes character
-            4, 4, 4, 4, 4,
-            // 0xF5 - 0xF7: invalid (exceeding Unicode max value of U+10FFFF)
-                           0, 0, 0,
-            // 0xF8 - 0xFF (11111xxx or greater): invalid values.
-                                    0, 0, 0, 0, 0, 0, 0, 0,
-    };
-    // clang-format on
-    int len = UTF8_LUT[in[0] - 128];
-    if (!len)
-        // Output an invalid byte as-is.
-        return charset_none_char2int(in, out);
-
-    unsigned int code = in[0] & (0xff >> len);
-    for (int i = 1; i < len; ++i)
-    {
-        // check invalid byte.
-        if ((in[i] & 0xc0) != 0x80)
-            // Output an invalid byte as-is.
-            return charset_none_char2int(in, out);
-        code <<= 6;
-        code += in[i] & 0x3f;
-    }
-    if (out)
-        *out = code;
-    return len;
+    return charset_utf8_char2int_inner(in, out);
 }
 
 int

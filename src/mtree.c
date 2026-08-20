@@ -149,25 +149,12 @@ mtree_close(mtree *mt)
     }
 }
 
-// decode_rune decodes a single rune from a string. Returns the number of bytes
-// consumed. Always consumes one byte, even for invalid byte sequences.
-static inline int
-decode_rune(mtree *mt, const unsigned char **pp)
-{
-    unsigned int code = 0;
-    int len = mt->char2int(*pp, &code);
-    if (len == 0)
-        len = charset_none_char2int(*pp, &code);
-    *pp += len;
-    return code;
-}
-
 static inline mnode *
 mtree_ensure_node(mtree *mt, const unsigned char *key)
 {
     if (!key)
         return NULL;
-    unsigned int code = decode_rune(mt, &key);
+    unsigned int code = charset_decode(mt->char2int, &key);
     if (code == 0)
         return NULL;
 
@@ -198,7 +185,7 @@ mtree_ensure_node(mtree *mt, const unsigned char *key)
         }
         ppnext = &(*res)->child;
         (*res)->weight++;
-        code = decode_rune(mt, &key);
+        code = charset_decode(mt->char2int, &key);
         if (code == 0)
             break;
     }
@@ -353,8 +340,8 @@ mtree_readline(mtree_file *mf, size_t *line_len)
 mtree *
 mtree_load(mtree *mt, FILE *fp, CHARSET_PROC_CHAR2INT char2int)
 {
-    if (char2int)
-        mt->char2int = char2int;
+    mt->char2int =
+            char2int && char2int != charset_utf8_char2int ? char2int : NULL;
 
     mtree_file mf = {.fp = fp, .read_request = true};
     while (1)
@@ -432,7 +419,7 @@ mtree_open(void)
 {
     mtree *mt = (mtree *)calloc(1, sizeof(*mt));
     // Set the default to UTF-8.
-    mt->char2int = charset_utf8_char2int;
+    mt->char2int = NULL;
     return mt;
 }
 
@@ -442,7 +429,7 @@ mtree_query(mtree *mt, const unsigned char *query)
     if (!mt || !mt->rootnode || !query)
         return NULL;
 
-    unsigned int code = decode_rune(mt, &query);
+    unsigned int code = charset_decode(mt->char2int, &query);
     if (code == 0)
         return NULL;
     mnode *node = mt->rootnode;
@@ -455,7 +442,7 @@ mtree_query(mtree *mt, const unsigned char *query)
         if (!node)
             break; // Not found the rune.
         // Proceed to the child node
-        code = decode_rune(mt, &query);
+        code = charset_decode(mt->char2int, &query);
         if (code == 0)
             break; // Found the node.
         node = node->child;
