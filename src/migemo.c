@@ -8,6 +8,7 @@
 
 #include <ctype.h>
 #include <limits.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -338,7 +339,7 @@ migemo_process_word(migemo *mo, unsigned char *query)
     {
         const unsigned char *prev = r;
         int code = charset_decode(mo->char2int, &r);
-        off_t step = r - prev;
+        ptrdiff_t step = r - prev;
         if (step == 1 && code < 0x80 && isupper(code))
             *w = (unsigned char)tolower(code);
         else
