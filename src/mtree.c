@@ -162,19 +162,16 @@ decode_rune(mtree *mt, const unsigned char **pp)
     return code;
 }
 
-static mnode *
-mtree_ensure_node(mtree *mt, strbuf *buf)
+static inline mnode *
+mtree_ensure_node(mtree *mt, const unsigned char *key)
 {
-    // Add to the search tree once the label word is determined
-    mnode **res = NULL;
-
-    const unsigned char *word = strbuf_get(buf);
-    if (!word)
+    if (!key)
         return NULL;
-    unsigned int code = decode_rune(mt, &word);
+    unsigned int code = decode_rune(mt, &key);
     if (code == 0)
         return NULL;
 
+    mnode **res = NULL;
     mnode **ppnext = &mt->rootnode;
     while (1)
     {
@@ -201,7 +198,7 @@ mtree_ensure_node(mtree *mt, strbuf *buf)
         }
         ppnext = &(*res)->child;
         (*res)->weight++;
-        code = decode_rune(mt, &word);
+        code = decode_rune(mt, &key);
         if (code == 0)
             break;
     }
@@ -265,153 +262,168 @@ mnode_balance(mnode *root)
     return root;
 }
 
+static inline int
+mtree_scan_to_next_break(
+        unsigned char **start, unsigned char **end, unsigned char **in)
+{
+    for (unsigned char *p = *in; *p; p++)
+    {
+        if (*p < 0x80 && isspace(*p))
+            continue;
+        *start = p;
+        for (; *p; p++)
+        {
+            if (*p == '\t')
+            {
+                *p = '\0';
+                *end = p;
+                *in = p + 1;
+                return 0;
+            }
+        }
+        *end = p;
+        *in = p;
+        return 2; // EOL
+    }
+    return 1; // SKIP: empty line.
+}
+
+typedef struct
+{
+    FILE *fp;
+    size_t avail;
+    size_t head;
+    int err;
+    bool eof;
+    bool read_request;
+    unsigned char buf[MNODE_BUFSIZE];
+} mtree_file;
+
+static inline unsigned char *
+mtree_readline(mtree_file *mf, size_t *line_len)
+{
+    while (1)
+    {
+        if (mf->read_request)
+        {
+            size_t len = fread(mf->buf + mf->avail, 1,
+                    sizeof(mf->buf) - mf->avail - 1, mf->fp);
+            mf->err = ferror(mf->fp);
+            mf->eof = feof(mf->fp);
+            if (len == 0 || mf->err != 0)
+                return NULL;
+            mf->head = 0;
+            mf->avail += len;
+            mf->read_request = false;
+        }
+
+        unsigned char *start = mf->buf + mf->head;
+
+        unsigned char *tail = memchr(start, '\n', mf->avail - mf->head);
+        if (tail)
+        {
+            size_t len = tail - start + 1;
+            mf->head += len;
+            *line_len = len;
+            return start;
+        }
+
+        if (mf->eof)
+        {
+            // Reached EOF.
+            size_t len = mf->avail - mf->head;
+            mf->head = mf->avail;
+            *line_len = len;
+            mf->buf[mf->avail] = '\0';
+            return len != 0 ? start : NULL;
+        }
+
+        // Shift remaining data to the front to read more.
+        size_t len = mf->avail - mf->head;
+        memmove(mf->buf, mf->buf + mf->head, len);
+        mf->avail = len;
+        mf->head = 0;
+        mf->read_request = true;
+    }
+
+    return NULL;
+}
+
 // Batch add data from a file to existing nodes.
 mtree *
 mtree_load(mtree *mt, FILE *fp, CHARSET_PROC_CHAR2INT char2int)
 {
-    mnode *pp = NULL;
-    int mode = 0;
-    int ch;
-    strbuf *buf;
-    strbuf *prevlabel;
-    wordlist **ppword = NULL; // To suppress warning for GCC
-    // Variables for the input buffer
-    unsigned char cache[MNODE_BUFSIZE];
-    unsigned char *cache_ptr = cache;
-    unsigned char *cache_tail = cache;
+    if (char2int)
+        mt->char2int = char2int;
 
-    mt->char2int = char2int;
-
-    buf = strbuf_open();
-    prevlabel = strbuf_open();
-    if (!fp || !buf || !prevlabel)
+    mtree_file mf = {.fp = fp, .read_request = true};
+    while (1)
     {
-        mt = NULL;
-        goto END_MNODE_LOAD;
-    }
-
-    // EOF handling is ambiguous and doesn't account for malformed files. While
-    // it wouldn't be correct without providing a path to EOF from each mode,
-    // it's omitted for simplicity. We assume the data file is always
-    // well-formed.
-    do
-    {
-        if (cache_ptr >= cache_tail)
+        // Read a line from the file.
+        size_t len = 0;
+        unsigned char *p = mtree_readline(&mf, &len);
+        if (!p)
         {
-            cache_ptr = cache;
-            cache_tail = cache + fread(cache, 1, MNODE_BUFSIZE, fp);
-            ch = (cache_tail <= cache && feof(fp)) ? EOF : *cache_ptr;
+            if (mf.eof)
+                break;
+            // ERROR: File read error.
+            return NULL;
         }
-        else
-            ch = *cache_ptr;
-        ++cache_ptr;
-
-        // Automaton for state 'mode'
-        switch (mode)
+        if (len > 0 && p[len - 1] != '\n' && !mf.eof)
         {
-            case 0: // Label word search mode
-                // Whitespace cannot be a label word
-                if (isspace(ch) || ch == EOF)
-                    continue;
-                // Check for comment line
-                else if (ch == ';')
-                {
-                    mode = 2; // Switch to mode that consumes until end of line
-                    continue;
-                }
-                else
-                {
-                    mode = 1; // Switch to mode for reading label words
-                    strbuf_reset(buf);
-                    strbuf_add(buf, (unsigned char)ch);
-                }
+            // ERROR: Line is too long.
+            return NULL;
+        }
+        // Trim last LF ('\n').
+        if (len > 0 && p[len - 1] == '\n')
+            p[len - 1] = '\0';
+
+        // Skip the comment line
+        if (*p == ';')
+            continue;
+
+        unsigned char *key = NULL, *kend = NULL;
+        switch (mtree_scan_to_next_break(&key, &kend, &p))
+        {
+            case 0: // found a key, forward to the values.
                 break;
+            case 1: // skip empty line, forward to the next line.
+                continue;
+            case 2: // error
+                return NULL;
+        }
 
-            case 1: // Label word loading mode
-                // Detect end of label
-                switch (ch)
-                {
-                    default:
-                        strbuf_add(buf, (unsigned char)ch);
-                        break;
-                    case '\t':
-                        pp = mtree_ensure_node(mt, buf);
-                        if (!pp)
-                        {
-                            mt = NULL;
-                            goto END_MNODE_LOAD;
-                        }
-                        strbuf_reset(buf);
-                        mode = 3; // Switch to mode for skipping whitespace
-                                  // before words
-                        break;
-                }
-                break;
-
-            case 2: // Mode that consumes until end of line
-                if (ch == '\n')
-                {
-                    strbuf_reset(buf);
-                    mode = 0; // Return to label word search mode
-                }
-                break;
-
-            case 3: // Mode for skipping whitespace before words
-                if (ch == '\n')
-                {
-                    strbuf_reset(buf);
-                    mode = 0; // Return to label word search mode
-                }
-                else if (ch != '\t')
-                {
-                    // Reset word buffer
-                    strbuf_reset(buf);
-                    strbuf_add(buf, (unsigned char)ch);
-                    // Search for the end of the word list (if multiple words
-                    // for same label)
-                    ppword = &pp->list;
-                    while (*ppword)
-                        ppword = &(*ppword)->next;
-                    mode = 4; // Switch to mode for reading words
-                }
-                break;
-
-            case 4: // Mode for reading words
-                switch (ch)
-                {
-                    case '\t':
-                    case '\n':
-                        // Store word
-                        *ppword =
-                                wordlist_new(strbuf_get(buf), strbuf_len(buf));
-                        strbuf_reset(buf);
-
-                        if (ch == '\t')
-                        {
-                            ppword = &(*ppword)->next;
-                            mode = 3; // Return to mode for skipping whitespace
-                                      // before words
-                        }
-                        else
-                        {
-                            ppword = NULL;
-                            mode = 0; // Return to label word search mode
-                        }
-                        break;
-                    default:
-                        strbuf_add(buf, (unsigned char)ch);
-                        break;
-                }
+        wordlist *values = NULL, **tail = &values;
+        while (1)
+        {
+            unsigned char *value = NULL, *vend = NULL;
+            int ret = mtree_scan_to_next_break(&value, &vend, &p);
+            if (value)
+            {
+                *tail = wordlist_new(value, vend - value);
+                tail = &(*tail)->next;
+            }
+            // Cases where the loop is exited
+            //   ret == 1: couldn't found any values.
+            //   ret == 2: EOL, found values.
+            if (ret != 0)
                 break;
         }
+        if (!values)
+            continue;
+
+        // Register a key with values.
+        mnode *node = mtree_ensure_node(mt, key);
+        if (!node)
+        {
+            wordlist_destroy(values);
+            return NULL;
+        }
+        *tail = node->list;
+        node->list = values;
     }
-    while (ch != EOF);
 
     mt->rootnode = mnode_balance(mt->rootnode);
-
-END_MNODE_LOAD:
-    strbuf_close(buf);
-    strbuf_close(prevlabel);
     return mt;
 }
 
