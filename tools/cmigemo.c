@@ -24,10 +24,9 @@
 int
 query_loop(migemo *mo, int quiet)
 {
+    unsigned char buf[256];
     while (!feof(stdin))
     {
-        unsigned char buf[256], *ans;
-
         if (!quiet)
             printf("QUERY: ");
         // Changed from gets() to fgets()
@@ -37,11 +36,14 @@ query_loop(migemo *mo, int quiet)
                 printf("\n");
             break;
         }
-        // Replace newline with NULL character
-        if ((ans = strchr(buf, '\n')) != NULL)
-            *ans = '\0';
+        // Replace LF with '\0'. If no LF is present, set the end of the buffer
+        // to '\0' to ensure the string is null-terminated.
+        int i = 0;
+        while (i < sizeof(buf) - 1 && buf[i] != '\n' && buf[i] != '\0')
+            i++;
+        buf[i] = '\0';
 
-        ans = migemo_query(mo, buf);
+        unsigned char *ans = migemo_query(mo, buf);
         if (ans)
             printf(quiet ? "%s\n" : "PATTERN: %s\n", ans);
         fflush(stdout);
@@ -118,13 +120,12 @@ main(int argc, char **argv)
     int mode_nonewline = 0;
     int mode_quiet = 0;
     char *dict = NULL;
-    char *subdict[MIGEMO_SUBDICT_MAX];
+    char *subdict[MIGEMO_SUBDICT_MAX] = {0};
     int subdict_count = 0;
     migemo *mo;
     char *word = NULL;
     char *prgname = argv[0];
 
-    memset(subdict, 0, sizeof(subdict));
     while (*++argv)
     {
         if (0)
@@ -179,58 +180,52 @@ main(int argc, char **argv)
     // Load sub-dictionaries
     if (subdict_count > 0)
     {
-        int i;
-
-        for (i = 0; i < subdict_count; ++i)
+        for (int i = 0; i < subdict_count; ++i)
         {
-            int result;
-
             if (subdict[i] == NULL || subdict[i][0] == '\0')
                 continue;
-            result = migemo_load(mo, MIGEMO_DICTID_MIGEMO, subdict[i]);
+            int result = migemo_load(mo, MIGEMO_DICTID_MIGEMO, subdict[i]);
             if (!word && !mode_quiet)
                 printf("migemo_load(%p, %d, \"%s\")=%d\n", mo,
                         MIGEMO_DICTID_MIGEMO, subdict[i], result);
         }
     }
 
-    if (!mo)
-        return 1;
+    // Configure operators for each editor.
+    if (mode_vim)
+    {
+        migemo_set_operator(mo, MIGEMO_OPINDEX_OR, "\\|");
+        migemo_set_operator(mo, MIGEMO_OPINDEX_NEST_IN, "\\%(");
+        migemo_set_operator(mo, MIGEMO_OPINDEX_NEST_OUT, "\\)");
+        if (!mode_nonewline)
+            migemo_set_operator(mo, MIGEMO_OPINDEX_NEWLINE, "\\_s*");
+    }
+    else if (mode_emacs)
+    {
+        migemo_set_operator(mo, MIGEMO_OPINDEX_OR, "\\|");
+        migemo_set_operator(mo, MIGEMO_OPINDEX_NEST_IN, "\\(");
+        migemo_set_operator(mo, MIGEMO_OPINDEX_NEST_OUT, "\\)");
+        if (!mode_nonewline)
+            migemo_set_operator(mo, MIGEMO_OPINDEX_NEWLINE, "\\s-*");
+    }
+
+    if (word)
+    {
+        unsigned char *ans;
+
+        ans = migemo_query(mo, word);
+        if (ans)
+            printf(mode_vim ? "%s" : "%s\n", ans);
+        migemo_release(mo, ans);
+    }
     else
     {
-        if (mode_vim)
-        {
-            migemo_set_operator(mo, MIGEMO_OPINDEX_OR, "\\|");
-            migemo_set_operator(mo, MIGEMO_OPINDEX_NEST_IN, "\\%(");
-            migemo_set_operator(mo, MIGEMO_OPINDEX_NEST_OUT, "\\)");
-            if (!mode_nonewline)
-                migemo_set_operator(mo, MIGEMO_OPINDEX_NEWLINE, "\\_s*");
-        }
-        else if (mode_emacs)
-        {
-            migemo_set_operator(mo, MIGEMO_OPINDEX_OR, "\\|");
-            migemo_set_operator(mo, MIGEMO_OPINDEX_NEST_IN, "\\(");
-            migemo_set_operator(mo, MIGEMO_OPINDEX_NEST_OUT, "\\)");
-            if (!mode_nonewline)
-                migemo_set_operator(mo, MIGEMO_OPINDEX_NEWLINE, "\\s-*");
-        }
-        if (word)
-        {
-            unsigned char *ans;
-
-            ans = migemo_query(mo, word);
-            if (ans)
-                printf(mode_vim ? "%s" : "%s\n", ans);
-            migemo_release(mo, ans);
-        }
-        else
-        {
-            if (!mode_quiet)
-                printf("clock()=%f\n", (float)clock() / CLOCKS_PER_SEC);
-            query_loop(mo, mode_quiet);
-        }
-        migemo_close(mo);
+        if (!mode_quiet)
+            printf("clock()=%f\n", (float)clock() / CLOCKS_PER_SEC);
+        query_loop(mo, mode_quiet);
     }
+
+    migemo_close(mo);
 
     return 0;
 }
