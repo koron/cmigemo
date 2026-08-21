@@ -26,7 +26,7 @@
 
 #define ROMAJI_BLOCK_BYTES       (16 * 1024)
 #define ROMAJI_BLOCK_HEADER_SIZE (sizeof(void *) + sizeof(size_t))
-#define ROMAJI_BLOCK_SIZE                                                       \
+#define ROMAJI_BLOCK_SIZE                                                      \
     ((ROMAJI_BLOCK_BYTES - ROMAJI_BLOCK_HEADER_SIZE) / sizeof(romanode))
 
 typedef struct romanode romanode;
@@ -476,7 +476,8 @@ romaji_load(romaji *rj, const unsigned char *filename,
 {
     if (!rj || !filename)
         return -1;
-    rj->char2int = char2int && char2int != charset_utf8_char2int ? char2int : NULL;
+    rj->char2int =
+            char2int && char2int != charset_utf8_char2int ? char2int : NULL;
     FILE *fp = fopen(filename, "rt");
     if (!fp)
         return -1;
