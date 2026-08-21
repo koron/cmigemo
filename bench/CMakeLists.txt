@@ -27,29 +27,32 @@ endif()
 
 #------------------------------------------------------------------------------
 
-add_executable(bench_char_query char_query.c)
-target_link_libraries(bench_char_query PRIVATE migemo_profile)
-
-add_executable(bench_migemo_open migemo_open.c)
-target_link_libraries(bench_migemo_open PRIVATE migemo_profile)
-
-#------------------------------------------------------------------------------
-
 function(add_profile_target target_name)
-    add_custom_target(profile_${target_name}
-        COMMAND $<TARGET_FILE:bench_${target_name}>
-        COMMAND ${GPROF_EXECUTABLE} $<TARGET_FILE:bench_${target_name}> gmon.out > profile_${target_name}.log
+    set(bench_target "bench_${target_name}")
+    set(profile_target "profile_${target_name}")
+
+    add_executable(${bench_target} "${target_name}.c")
+    target_link_libraries(${bench_target} PRIVATE migemo_profile)
+
+    add_custom_target(${profile_target}
+        COMMAND $<TARGET_FILE:${bench_target}>
+        COMMAND ${GPROF_EXECUTABLE} $<TARGET_FILE:${bench_target}> gmon.out > ${profile_target}.log
         COMMAND ${CMAKE_COMMAND} -E remove gmon.out
         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
-        DEPENDS bench_${target_name}
-        COMMENT "Profiling ${target_name} -> profile_${target_name}.log"
+        DEPENDS ${bench_target}
+        COMMENT "Profiling ${target_name} -> ${profile_target}.log"
     )
+
+    set_property(DIRECTORY APPEND PROPERTY ALL_PROFILE_TARGETS ${profile_target})
 endfunction()
 
 add_profile_target(char_query)
 add_profile_target(migemo_open)
+# Add it here when adding a benchmark target.
+
+get_property(all_profiles DIRECTORY PROPERTY ALL_PROFILE_TARGETS)
 
 add_custom_target(profile
-    DEPENDS profile_char_query profile_migemo_open
+    DEPENDS ${all_profiles}
     COMMENT "Running all profiles"
 )
