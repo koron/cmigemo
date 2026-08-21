@@ -1,21 +1,20 @@
 ---
 type: Directory Index
 title: "tools Index"
-description: "Command-line tools (cmigemo and romaji) that exercise the migemo library, built and installed by CMake."
+description: "Console driver tools and their CMake build rules for the cmigemo project."
 tags: [index]
 ---
 
 # Overview
-
-This directory contains the command-line driver programs of the project: the `cmigemo` migemo query driver and the `romaji` romaji-conversion console, along with the CMake rules that build and install them.
+This directory holds standalone console tools (the `cmigemo` query driver and the `romaji` romaji-conversion console) together with the CMake rules that build and install them.
 
 # Directory Contents
 
 | File / Path | Type | Description |
 | :--- | :--- | :--- |
-| [CMakeLists.txt](./CMakeLists.txt) | Build | CMake rules that build the cmigemo and romaji executables, set dictionary paths, and install cmigemo. |
-| [cmigemo.c](./cmigemo.c) | Source | Main driver of the cmigemo executable that interactively queries the migemo library from standard input. |
-| [romaji.c](./romaji.c) | Source | Console tool that demonstrates romaji conversion through hira2kata, han2zen, and zen2han sub-dictionaries. |
+| [CMakeLists.txt](./CMakeLists.txt) | Build Script | Defines CMake targets that build the `cmigemo` and `romaji` executables and install `cmigemo` into the binary directory. |
+| [cmigemo.c](./cmigemo.c) | Source | CLI driver that opens a migemo dictionary and runs interactive regex queries with vim/emacs regexp options. |
+| [romaji.c](./romaji.c) | Source | Romaji conversion console tool that interactively expands queries through romaji-to-hiragana, hiragana-to-katakana, and kana conversion tables. |
 
 # References
 - [Parent Directory](../index.md)
