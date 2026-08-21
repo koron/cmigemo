@@ -121,7 +121,6 @@ main(int argc, char **argv)
     char *subdict[MIGEMO_SUBDICT_MAX];
     int subdict_count = 0;
     migemo *mo;
-    FILE *fplog = stdout;
     char *word = NULL;
     char *prgname = argv[0];
 
@@ -152,25 +151,22 @@ main(int argc, char **argv)
             help(prgname);
     }
 
-#ifdef _PROFILE
-    fplog = fopen("exe.log", "wt");
-#endif
-
     // Search for dictionaries in the current directory and the parent directory
     if (!dict)
     {
         const char *found = NULL;
         mo = open_first_migemo(&found, default_dicts);
         if (!word && !mode_quiet)
-            fprintf(fplog, "migemo_open(\"%s\")=%p\n", found ? found : "(N/A)",
+            fprintf(stdout, "migemo_open(\"%s\")=%p\n", found ? found : "(N/A)",
                     mo);
     }
     else
     {
         mo = migemo_open(dict);
         if (!word && !mode_quiet)
-            fprintf(fplog, "migemo_open(\"%s\")=%p\n", dict, mo);
+            fprintf(stdout, "migemo_open(\"%s\")=%p\n", dict, mo);
     }
+
     // Load sub-dictionaries
     if (subdict_count > 0)
     {
@@ -184,7 +180,7 @@ main(int argc, char **argv)
                 continue;
             result = migemo_load(mo, MIGEMO_DICTID_MIGEMO, subdict[i]);
             if (!word && !mode_quiet)
-                fprintf(fplog, "migemo_load(%p, %d, \"%s\")=%d\n", mo,
+                fprintf(stdout, "migemo_load(%p, %d, \"%s\")=%d\n", mo,
                         MIGEMO_DICTID_MIGEMO, subdict[i], result);
         }
     }
@@ -209,14 +205,13 @@ main(int argc, char **argv)
             if (!mode_nonewline)
                 migemo_set_operator(mo, MIGEMO_OPINDEX_NEWLINE, "\\s-*");
         }
-#ifndef _PROFILE
         if (word)
         {
             unsigned char *ans;
 
             ans = migemo_query(mo, word);
             if (ans)
-                fprintf(fplog, mode_vim ? "%s" : "%s\n", ans);
+                fprintf(stdout, mode_vim ? "%s" : "%s\n", ans);
             migemo_release(mo, ans);
         }
         else
@@ -225,26 +220,8 @@ main(int argc, char **argv)
                 printf("clock()=%f\n", (float)clock() / CLOCKS_PER_SEC);
             query_loop(mo, mode_quiet);
         }
-#else
-        // For profiling
-        {
-            unsigned char *ans;
-
-            ans = migemo_query(mo, "a");
-            if (ans)
-                fprintf(fplog, "  [%s]\n", ans);
-            migemo_release(mo, ans);
-
-            ans = migemo_query(mo, "k");
-            if (ans)
-                fprintf(fplog, "  [%s]\n", ans);
-            migemo_release(mo, ans);
-        }
-#endif
         migemo_close(mo);
     }
 
-    if (fplog != stdout)
-        fclose(fplog);
     return 0;
 }
