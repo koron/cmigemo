@@ -5,9 +5,12 @@
 // Author:  MURAOKA Taro <koron.kaoriya@gmail.com>
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "romaji.h"
+
+#define ABOUT "romaji - Romaji converter"
 
 #ifndef DICTDIR
 # define DICTDIR "../../dict"
@@ -55,9 +58,8 @@ query_one(romaji *rj, romaji *hira2kata, romaji *han2zen, romaji *zen2han,
 void
 query_loop(romaji *rj, romaji *hira2kata, romaji *han2zen, romaji *zen2han)
 {
-    char buf[256], *ans;
-
-    while (1)
+    unsigned char buf[256];
+    while (!feof(stdin))
     {
         printf("QUERY: ");
         if (!fgets(buf, sizeof(buf), stdin))
@@ -65,23 +67,49 @@ query_loop(romaji *rj, romaji *hira2kata, romaji *han2zen, romaji *zen2han)
             printf("\n");
             break;
         }
-        // Replace newline with NUL character
-        if ((ans = strchr(buf, '\n')) != NULL)
-            *ans = '\0';
+        // Replace LF with '\0'. If no LF is present, set the end of the buffer
+        // to '\0' to ensure the string is null-terminated.
+        int i = 0;
+        while (i < sizeof(buf) - 1 && buf[i] != '\n' && buf[i] != '\0')
+            i++;
+        buf[i] = '\0';
+
         query_one(rj, hira2kata, han2zen, zen2han, buf);
     }
+}
+
+static void
+help(char *prgname)
+{
+    printf("\
+%s \n\
+\n\
+USAGE: %s [OPTIONS]\n\
+\n\
+OPTIONS:\n\
+  -w --word <word>      Expand a <word> and soon exit.\n\
+  -h --help             Show this message.\n\
+",
+            ABOUT, prgname);
+    exit(0);
 }
 
 int
 main(int argc, char **argv)
 {
-    romaji *rj, *hira2kata, *han2zen, *zen2han;
     char *word = NULL;
+    char *prgname = argv[0];
 
-    rj = romaji_open();
-    hira2kata = romaji_open();
-    han2zen = romaji_open();
-    zen2han = romaji_open();
+    romaji *rj = romaji_open();
+    romaji *hira2kata = romaji_open();
+    romaji *han2zen = romaji_open();
+    romaji *zen2han = romaji_open();
+
+    if (!rj || !hira2kata || !han2zen || !zen2han)
+    {
+        printf("failed to allocate memory for romaji\n");
+        return 1;
+    }
 
     while (*++argv)
     {
@@ -89,26 +117,28 @@ main(int argc, char **argv)
             ;
         else if (argv[1] && (!strcmp("--word", *argv) || !strcmp("-w", *argv)))
             word = *++argv;
+        else if (!strcmp("--help", *argv) || !strcmp("-h", *argv))
+            help(prgname);
     }
 
-    if (rj && hira2kata && han2zen && zen2han)
-    {
-        int retval = 0;
+    // Load romaji dictionaries.
+    int retval = 0;
+    retval = romaji_load(rj, DICT_ROMA2HIRA, charset_utf8_char2int);
+    printf("romaji_load(%s)=%d\n", DICT_ROMA2HIRA, retval);
+    retval = romaji_load(hira2kata, DICT_HIRA2KATA, charset_utf8_char2int);
+    printf("romaji_load(%s)=%d\n", DICT_HIRA2KATA, retval);
+    retval = romaji_load(han2zen, DICT_HAN2ZEN, charset_utf8_char2int);
+    printf("romaji_load(%s)=%d\n", DICT_HAN2ZEN, retval);
+    retval = romaji_load(zen2han, DICT_ZEN2HAN, charset_utf8_char2int);
+    printf("romaji_load(%s)=%d\n", DICT_HAN2ZEN, retval);
 
-        retval = romaji_load(rj, DICT_ROMA2HIRA, charset_utf8_char2int);
-        printf("romaji_load(%s)=%d\n", DICT_ROMA2HIRA, retval);
-        retval = romaji_load(hira2kata, DICT_HIRA2KATA, charset_utf8_char2int);
-        printf("romaji_load(%s)=%d\n", DICT_HIRA2KATA, retval);
-        retval = romaji_load(han2zen, DICT_HAN2ZEN, charset_utf8_char2int);
-        printf("romaji_load(%s)=%d\n", DICT_HAN2ZEN, retval);
-        retval = romaji_load(zen2han, DICT_ZEN2HAN, charset_utf8_char2int);
-        printf("romaji_load(%s)=%d\n", DICT_HAN2ZEN, retval);
-        if (word)
-            query_one(rj, hira2kata, han2zen, zen2han, word);
-        else
-            query_loop(rj, hira2kata, han2zen, zen2han);
-    }
+    if (word)
+        query_one(rj, hira2kata, han2zen, zen2han, word);
+    else
+        query_loop(rj, hira2kata, han2zen, zen2han);
 
+    if (zen2han)
+        romaji_close(zen2han);
     if (han2zen)
         romaji_close(han2zen);
     if (hira2kata)
