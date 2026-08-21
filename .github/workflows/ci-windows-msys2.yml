@@ -48,7 +48,8 @@ jobs:
       shell: msys2 {0}
       run: |
         cmake --build build --target profile
-        mv build/profile.log build/profile-windows-msys-amd64.log
+        mkdir -p tmp/profile-windows-msys-amd64
+        mv build/profile*.log tmp/profile-windows-msys-amd64
 
     - name: Packaging
       shell: msys2 {0}
@@ -59,11 +60,11 @@ jobs:
       shell: msys2 {0}
       run: tree -Fh build
 
-    - name: Upload profile.log
+    - name: Upload profiling logs
       uses: actions/upload-artifact@v7
       with:
-        path: build/profile-windows-*.log
-        archive: false
+        name: profile-windows-msys-amd64
+        path: tmp/profile-windows-msys-amd64
 
     - name: Upload the package
       uses: actions/upload-artifact@v7
