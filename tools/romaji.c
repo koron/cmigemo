@@ -130,7 +130,7 @@ main(int argc, char **argv)
     retval = romaji_load(han2zen, DICT_HAN2ZEN, charset_utf8_char2int);
     printf("romaji_load(%s)=%d\n", DICT_HAN2ZEN, retval);
     retval = romaji_load(zen2han, DICT_ZEN2HAN, charset_utf8_char2int);
-    printf("romaji_load(%s)=%d\n", DICT_HAN2ZEN, retval);
+    printf("romaji_load(%s)=%d\n", DICT_ZEN2HAN, retval);
 
     if (word)
         query_one(rj, hira2kata, han2zen, zen2han, word);
