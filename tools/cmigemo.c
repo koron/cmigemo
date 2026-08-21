@@ -59,14 +59,15 @@ help(char *prgname)
 USAGE: %s [OPTIONS]\n\
 \n\
 OPTIONS:\n\
-  -d --dict <dict>	Use a file <dict> for dictionary.\n\
-  -s --subdict <dict>	Sub dictionary files. (MAX %d times)\n\
-  -q --quiet		Show no message except results.\n\
-  -v --vim		Use vim style regexp.\n\
-  -e --emacs		Use emacs style regexp.\n\
-  -n --nonewline	Don't use newline match.\n\
-  -w --word <word>	Expand a <word> and soon exit.\n\
-  -h --help		Show this message.\n\
+  -d --dict <dict>      Use a file <dict> for dictionary.\n\
+  -s --subdict <dict>   Sub dictionary files. (MAX %d times)\n\
+  -u --userdict <dict>  Alias for -s/--subdict\n\
+  -q --quiet            Show no message except results.\n\
+  -v --vim              Use vim style regexp.\n\
+  -e --emacs            Use emacs style regexp.\n\
+  -n --nonewline        Don't use newline match.\n\
+  -w --word <word>      Expand a <word> and soon exit.\n\
+  -h --help             Show this message.\n\
 ",
             MIGEMO_ABOUT, prgname, MIGEMO_SUBDICT_MAX);
     exit(0);
@@ -138,7 +139,9 @@ main(int argc, char **argv)
         else if (argv[1] && (!strcmp("--dict", *argv) || !strcmp("-d", *argv)))
             dict = *++argv;
         else if (argv[1]
-                 && (!strcmp("--subdict", *argv) || !strcmp("-s", *argv))
+                 && (!strcmp("--subdict", *argv) || !strcmp("-s", *argv)
+                         || !strcmp("--userdict", *argv)
+                         || !strcmp("-u", *argv))
                  && subdict_count < MIGEMO_SUBDICT_MAX)
             subdict[subdict_count++] = *++argv;
         else if (argv[1] && (!strcmp("--word", *argv) || !strcmp("-w", *argv)))
