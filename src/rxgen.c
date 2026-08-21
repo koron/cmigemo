@@ -32,7 +32,10 @@
 
 #define RXGEN_DEBUG_STAT 0
 
-#define RNODE_BLOCK_SIZE 1024
+#define RNODE_BLOCK_BYTES       (64 * 1024)
+#define RNODE_BLOCK_HEADER_SIZE (sizeof(void *) + sizeof(size_t))
+#define RNODE_BLOCK_SIZE                                                       \
+    ((RNODE_BLOCK_BYTES - RNODE_BLOCK_HEADER_SIZE) / sizeof(rnode))
 
 typedef struct rnode rnode;
 struct rnode

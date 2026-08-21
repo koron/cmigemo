@@ -22,8 +22,12 @@
 #endif
 
 #define ROMAJI_READ_BUFSIZE     1024
-#define ROMAJI_BLOCK_SIZE       1024
 #define ROMAJI_PUSHBACK_BUFSIZE 256
+
+#define ROMAJI_BLOCK_BYTES       (16 * 1024)
+#define ROMAJI_BLOCK_HEADER_SIZE (sizeof(void *) + sizeof(size_t))
+#define ROMAJI_BLOCK_SIZE                                                       \
+    ((ROMAJI_BLOCK_BYTES - ROMAJI_BLOCK_HEADER_SIZE) / sizeof(romanode))
 
 typedef struct romanode romanode;
 struct romanode
