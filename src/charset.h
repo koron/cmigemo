@@ -52,7 +52,6 @@ charset_none_char2int(const unsigned char *in, unsigned int *out)
     return 1;
 }
 
-
 static inline int
 charset_utf8_char2int_inner(const unsigned char *in, unsigned int *out)
 {
@@ -83,6 +82,7 @@ static inline unsigned int
 charset_decode(CHARSET_PROC_CHAR2INT proc, const unsigned char **pptr)
 {
     unsigned int code = 0;
-    *pptr += proc ? proc(*pptr, &code) : charset_utf8_char2int_inner(*pptr, &code);
+    *pptr += proc ? proc(*pptr, &code)
+                  : charset_utf8_char2int_inner(*pptr, &code);
     return code;
 }

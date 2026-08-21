@@ -1,21 +1,20 @@
 ---
 type: Directory Index
-title: "bench Index"
-description: "Benchmark and profiling tools for measuring migemo dictionary load and query performance."
+title: "Bench Index"
+description: "Benchmark and profiling tools that measure migemo dictionary load and query performance via gprof."
 tags: [index]
 ---
 
 # Overview
-Contains CMake build rules and C benchmark programs for profiling the migemo library's dictionary loading (`migemo_open`) and single-character query performance, with `gprof` integration for call-graph analysis.
+This directory contains C benchmark programs (`char_query`, `migemo_open`) that time `migemo_open` dictionary loading and character queries, plus CMake rules that build them with gprof instrumentation and produce `profile_*.log` reports.
 
 # Directory Contents
 
 | File / Path | Type | Description |
 | :--- | :--- | :--- |
-| [CMakeLists.txt](./CMakeLists.txt) | Build Script | Defines the `migemo_profile` static library and `profile_char_query`/`profile_migemo_open` executables with gprof instrumentation. |
-| [copy_gmon.cmake](./copy_gmon.cmake) | Build Script | CMake policy script that copies `qspeed.gmon` to `gmon.out` for gprof consumption. |
-| [profile_char_query.c](./profile_char_query.c) | Benchmark | Measures the time for single-character `migemo_query` calls across the alphabet over multiple trials. |
-| [profile_migemo_open.c](./profile_migemo_open.c) | Benchmark | Measures the time for repeated `migemo_open`/`migemo_close` dictionary load cycles. |
+| [CMakeLists.txt](./CMakeLists.txt) | Build Script | CMake rules building the profiled migemo static library and per-benchmark `bench_*`/`profile_*` targets. |
+| [char_query.c](./char_query.c) | Source Code | Benchmark that profiles single-character `migemo_query` lookups across the alphabet. |
+| [migemo_open.c](./migemo_open.c) | Source Code | Benchmark that profiles repeated `migemo_open`/`migemo_close` dictionary load cycles. |
 
 # References
 - [Parent Directory](../index.md)

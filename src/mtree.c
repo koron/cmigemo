@@ -17,13 +17,12 @@
 #include "trie.h"
 #include "wordlist.h"
 
-#define MNODE_BUFSIZE    16384
+#define MNODE_BUFSIZE 16384
 
 #define MNODE_BLOCK_BYTES       (64 * 1024)
 #define MNODE_BLOCK_HEADER_SIZE (sizeof(void *) + sizeof(size_t))
 #define MNODE_BLOCK_SIZE                                                       \
     ((MNODE_BLOCK_BYTES - MNODE_BLOCK_HEADER_SIZE) / sizeof(mnode))
-
 
 typedef struct mnode_block mnode_block;
 struct mnode_block
