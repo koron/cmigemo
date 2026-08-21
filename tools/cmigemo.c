@@ -157,14 +157,23 @@ main(int argc, char **argv)
         const char *found = NULL;
         mo = open_first_migemo(&found, default_dicts);
         if (!word && !mode_quiet)
-            fprintf(stdout, "migemo_open(\"%s\")=%p\n", found ? found : "(N/A)",
-                    mo);
+            printf("migemo_open(\"%s\")=%p\n", found ? found : "(N/A)", mo);
+        if (!mo)
+        {
+            printf("failed to load default dictionaries\n");
+            return 1;
+        }
     }
     else
     {
         mo = migemo_open(dict);
         if (!word && !mode_quiet)
-            fprintf(stdout, "migemo_open(\"%s\")=%p\n", dict, mo);
+            printf("migemo_open(\"%s\")=%p\n", dict, mo);
+        if (!mo)
+        {
+            printf("failed to load dictionary: %s\n", dict);
+            return 1;
+        }
     }
 
     // Load sub-dictionaries
@@ -180,7 +189,7 @@ main(int argc, char **argv)
                 continue;
             result = migemo_load(mo, MIGEMO_DICTID_MIGEMO, subdict[i]);
             if (!word && !mode_quiet)
-                fprintf(stdout, "migemo_load(%p, %d, \"%s\")=%d\n", mo,
+                printf("migemo_load(%p, %d, \"%s\")=%d\n", mo,
                         MIGEMO_DICTID_MIGEMO, subdict[i], result);
         }
     }
@@ -211,7 +220,7 @@ main(int argc, char **argv)
 
             ans = migemo_query(mo, word);
             if (ans)
-                fprintf(stdout, mode_vim ? "%s" : "%s\n", ans);
+                printf(mode_vim ? "%s" : "%s\n", ans);
             migemo_release(mo, ans);
         }
         else
