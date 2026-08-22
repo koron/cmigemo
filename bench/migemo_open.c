@@ -7,8 +7,8 @@
 #define NUM_TRIAL 25
 
 #include <stdio.h>
-#include <time.h>
 
+#include "bench_common.h"
 #include "migemo.h"
 
 #ifndef DICTDIR
@@ -22,19 +22,17 @@ main(int argc, char **argv)
 {
     int trial = NUM_TRIAL;
     migemo *mo;
-    clock_t sum_open = 0, sum_close = 0;
+    bench_time_t sum_open = 0, sum_close = 0;
     for (int i = 0; i < trial; i++)
     {
-        clock_t t0 = clock();
-        mo = migemo_open(DICTDIR "/" MIGEMO_DICT_FILENAME);
-        clock_t t1 = clock();
-        migemo_close(mo);
-        clock_t t2 = clock();
-        sum_open += t1 - t0;
-        sum_close += t2 - t1;
+        TIME_MEASURE_ADD(sum_open)
+        {
+            mo = migemo_open(DICTDIR "/" MIGEMO_DICT_FILENAME);
+        }
+        TIME_MEASURE_ADD(sum_close) { migemo_close(mo); }
     }
     printf("Results:\n");
-    printf("  migemo_open:  %.3f secs\n", CLOCK2SEC(sum_open));
-    printf("  migemo_close: %.3f secs\n", CLOCK2SEC(sum_close));
+    printf("  migemo_open:  %.3f secs\n", time_to_sec(sum_open));
+    printf("  migemo_close: %.3f secs\n", time_to_sec(sum_close));
     return 0;
 }
