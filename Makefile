@@ -20,7 +20,7 @@ profile:
 	cmake --build build --parallel --target profile
 
 format:
-	find src test include -type f \( -name "*.c" -o -name "*.h" \) | xargs clang-format -i
+	find src test include bench -type f \( -name "*.c" -o -name "*.h" \) | xargs clang-format -i
 
 format-cmake:
 	cmakefmt --in-place .

@@ -9,8 +9,8 @@
 #define NUM_TRIAL 50
 
 #include <stdio.h>
-#include <time.h>
 
+#include "bench_common.h"
 #include "migemo.h"
 #include "migemo_struct.h"
 
@@ -18,26 +18,22 @@
 # define DICTDIR "../../dict"
 #endif
 
-#define CLOCK2SEC(t) ((double)(t) / (double)CLOCKS_PER_SEC)
-
-static clock_t
+static bench_time_t
 profile_char_query(migemo *mo, int trial)
 {
     char key[2] = {'\0', '\0'};
-    clock_t dur = 0;
+    bench_time_t dur = 0;
+
     for (int i = 0; i < trial; ++i)
     {
-        printf("[%d] Progress... ", i);
         for (key[0] = 'a'; key[0] <= 'z'; ++key[0])
         {
-            printf("%s", key);
-            fflush(stdout);
-            clock_t start = clock();
-            char *ans = migemo_query(mo, key);
-            migemo_release(mo, ans);
-            dur += clock() - start;
+            TIME_MEASURE_ADD(dur)
+            {
+                char *ans = migemo_query(mo, key);
+                migemo_release(mo, ans);
+            }
         }
-        printf("\n");
     }
     return dur;
 }
@@ -46,22 +42,24 @@ int
 main(int argc, char **argv)
 {
     migemo *mo;
-    clock_t clock_load = 0, clock_query = 0, clock_tmp = 0;
+    bench_time_t dur_load = 0, dur_query = 0;
 
     printf("Loading\n");
-    clock_tmp = clock();
-    mo = migemo_open(DICTDIR "/" MIGEMO_DICT_FILENAME);
-    clock_load = clock() - clock_tmp;
+    TIME_MEASURE_ADD(dur_load)
+    {
+        mo = migemo_open(DICTDIR "/" MIGEMO_DICT_FILENAME);
+    }
     mtree_print_stat(mo->mtree, "mtree statistics");
+
     if (mo != NULL)
     {
         printf("Quering\n");
-        clock_query = profile_char_query(mo, NUM_TRIAL);
+        dur_query = profile_char_query(mo, NUM_TRIAL);
         migemo_close(mo);
     }
     printf("\n");
     printf("Results:\n");
-    printf("  load: %.3f secs\n", CLOCK2SEC(clock_load));
-    printf("  query: %.3f secs\n", CLOCK2SEC(clock_query));
+    printf("  load: %.9f secs\n", time_to_sec(dur_load));
+    printf("  query: %.9f secs\n", time_to_sec(dur_query));
     return 0;
 }
