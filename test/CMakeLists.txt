@@ -1,4 +1,4 @@
-add_executable(test1 main.c test1.c test_rxgen.c)
+add_executable(test1 main.c test1.c test_romaji.c test_rxgen.c)
 
 target_link_libraries(test1 PRIVATE migemo_static)
 
