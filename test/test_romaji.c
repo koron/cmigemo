@@ -19,7 +19,7 @@ count_list(wordlist *list)
 }
 
 static int
-check_convert(romaji *rj, const unsigned char *src, const unsigned char **want)
+check_all(romaji *rj, const unsigned char *src, const unsigned char **want)
 {
     int result = 1;
     wordlist *list = romaji_convert_all(rj, src);
@@ -67,8 +67,14 @@ END:
     return result;
 }
 
-int
-test_romaji(void)
+static int
+check_one(romaji *rj, const unsigned char *src, const unsigned char *want)
+{
+    return check_all(rj, src, (const unsigned char *[]){ want, NULL });
+}
+
+static int
+test_roma2hira(void)
 {
     romaji *rj = romaji_open();
     int has_error = 1;
@@ -86,17 +92,33 @@ test_romaji(void)
         goto END;
     }
 
-    r = check_convert(rj, "a", (const unsigned char *[]){"あ", NULL});
+    r = check_all(rj, "a", (const unsigned char *[]){"あ", NULL});
     if (r != 0)
         goto END;
 
-    r = check_convert(rj, "aki", (const unsigned char *[]){"あき", NULL});
+    r = check_all(rj, "aki", (const unsigned char *[]){"あき", NULL});
     if (r != 0)
         goto END;
 
-    r = check_convert(rj, "k",
+    r = check_all(rj, "k",
             (const unsigned char *[]){"か", "け", "き", "っ", "こ", "く",
                     "くぁ", "きゃ", "きぇ", "きぃ", "きょ", "きゅ", NULL});
+    if (r != 0)
+        goto END;
+
+    r = check_all(rj, "nya", (const unsigned char *[]){"にゃ", NULL});
+    if (r != 0)
+        goto END;
+
+    r = check_all(rj, "ny",
+            (const unsigned char *[]){
+                    "にゃ", "にぇ", "にぃ", "にょ", "にゅ", NULL});
+    if (r != 0)
+        goto END;
+
+    r = check_all(rj, "n",
+            (const unsigned char *[]){"ん", "な", "ね", "に", "の", "ぬ",
+                    "にゃ", "にぇ", "にぃ", "にょ", "にゅ", NULL});
     if (r != 0)
         goto END;
 
@@ -105,4 +127,53 @@ END:
     if (rj)
         romaji_close(rj);
     return has_error;
+}
+
+static int
+test_hira2kana(void)
+{
+    romaji *rj = romaji_open();
+    int has_error = 1;
+    if (!rj)
+    {
+        printf("Failed: romaji_open() returned NULL\n");
+        goto END;
+    }
+
+    int r;
+    r = romaji_load(rj, TEST_DICTDIR_ROMA2HIRA "/hira2kata.dat", NULL);
+    if (r != 0)
+    {
+        printf("Failed: romaji_load() returned non zero: %d", r);
+        goto END;
+    }
+
+    r = check_one(rj, "あ", "ア");
+    if (r != 0)
+        goto END;
+
+    r = check_one(rj, "にゃ", "ニャ");
+    if (r != 0)
+        goto END;
+
+    r = check_one(rj, "きゃんでぃ", "キャンディ");
+    if (r != 0)
+        goto END;
+
+    has_error = 0; // Passed all cases.
+END:
+    if (rj)
+        romaji_close(rj);
+    return has_error;
+}
+
+int
+test_romaji(void)
+{
+    int r;
+    if ((r = test_roma2hira()) != 0)
+        return r;
+    if ((r = test_hira2kana()) != 0)
+        return r;
+    return 0;
 }
