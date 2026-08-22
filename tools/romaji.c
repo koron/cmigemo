@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "charset.h"
 #include "romaji.h"
 
 #define ABOUT "romaji - Romaji converter"
@@ -121,15 +122,20 @@ main(int argc, char **argv)
             help(prgname);
     }
 
+    CHARSET_PROC_CHAR2INT char2int = charset_utf8_char2int;
+    // Detect charset
+    if (strstr(DICT_ROMA2HIRA, "cp932"))
+        char2int = charset_cp932_char2int;
+
     // Load romaji dictionaries.
     int retval = 0;
-    retval = romaji_load(rj, DICT_ROMA2HIRA, charset_utf8_char2int);
+    retval = romaji_load(rj, DICT_ROMA2HIRA, char2int);
     printf("romaji_load(%s)=%d\n", DICT_ROMA2HIRA, retval);
-    retval = romaji_load(hira2kata, DICT_HIRA2KATA, charset_utf8_char2int);
+    retval = romaji_load(hira2kata, DICT_HIRA2KATA, char2int);
     printf("romaji_load(%s)=%d\n", DICT_HIRA2KATA, retval);
-    retval = romaji_load(han2zen, DICT_HAN2ZEN, charset_utf8_char2int);
+    retval = romaji_load(han2zen, DICT_HAN2ZEN, char2int);
     printf("romaji_load(%s)=%d\n", DICT_HAN2ZEN, retval);
-    retval = romaji_load(zen2han, DICT_ZEN2HAN, charset_utf8_char2int);
+    retval = romaji_load(zen2han, DICT_ZEN2HAN, char2int);
     printf("romaji_load(%s)=%d\n", DICT_ZEN2HAN, retval);
 
     if (word)
