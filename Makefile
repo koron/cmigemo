@@ -4,14 +4,14 @@
 
 .PHONY: build test profile tags format format-cmake package clean distclean
 
-TEST_TARGETS = src/*.c src/*.h test/*.c bench/*.c bench/*.h
+TAGS_TARGETS = src/*.c src/*.h test/*.c test/*.h bench/*.c bench/*.h
 
 build:
 	cmake -B build
 	cmake --build build --parallel
 
-tags: $(TEST_TARGETS)
-	ctags $(TEST_TARGETS) --langmap=c:+.in include/migemo.h.in
+tags: $(TAGS_TARGETS)
+	ctags $(TAGS_TARGETS) --langmap=c:+.in include/migemo.h.in
 
 test:
 	cmake -B build
