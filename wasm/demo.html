@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+<h1>C/Migemo WASM</h1>
+
+<blockquote style="background: #f8f9fa; border-left: 4px solid #0366d6; padding: 8px 12px; margin: 10px 0;">
+  <strong>Notice:</strong> Load this page via an HTTP server (e.g., <code>npx serve .</code>, or <code>python -m http.server</code>). Fetching dictionary files directly via <code>file://</code> protocol will fail due to browser security restrictions.
+</blockquote>
+
+<ol>
+  <li>Open developer's console (<key>Ctrl</key> + <key>Shift</key> + <key>j</key>)</li>
+  <li>Run <code>migemo.version()</code>, then you'll get version of C/Migemo</li>
+  <li>
+    Run <code>migemo.query('akas')</code>, then you'll get a RegExp object:<br>
+    <code>/([暴灯証證]|akas|あか[さしすせそっ]|アカ[サシスセソッ]|垢擦り|明[石科]|絳し|赤([司坂崎潮白碕線芝錆]|っ恥|信号|新聞|水晶|瀬川)|ａｋａｓ|ｱｶ[ｯｻｼｽｾｿ])/</code>
+  </li>
+  <li>
+    Run <code>migemo.query('asak')</code>, then you'll get a RegExp object:<br>
+    <code>/(asak|あさ[かきくけこっ子]|アサ[カキクケコッ]|亜抄子|安(積|佐北)|明後日|朝([倉加子川影明霞風]|っ(腹|ぱら)|香宮)|浅[倉口子川草香]|麻[倉子木]|ａｓａｋ|ｱｻ[ｯｶｷｸｹｺ])/</code>
+  </li>
+</ol>
+
+<script type="module">
+
+import migemo from './index.js';
+
+const dictroot = './dict';
+
+const [mainDict, roma2hira, hira2kata, han2zen, zen2han] = await Promise.all([
+  fetch(`${dictroot}/migemo-dict`).then(r => r.arrayBuffer()),
+  fetch(`${dictroot}/roma2hira.dat`).then(r => r.arrayBuffer()),
+  fetch(`${dictroot}/hira2kata.dat`).then(r => r.arrayBuffer()),
+  fetch(`${dictroot}/han2zen.dat`).then(r => r.arrayBuffer()),
+  fetch(`${dictroot}/zen2han.dat`).then(r => r.arrayBuffer()),
+]);
+
+await migemo.init({
+  dictData: mainDict,
+  subdicts: {
+    roma2hira,
+    hira2kata,
+    han2zen,
+    zen2han,
+  },
+});
+
+window.migemo = migemo;
+
+</script>
+</body>
+</html>

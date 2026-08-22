@@ -25,7 +25,7 @@ jobs:
 
     - name: Build
       run: |
-        emcmake cmake -B build-wasm -DBUILD_DICT=OFF -DCMAKE_BUILD_TYPE=Release
+        emcmake cmake -B build-wasm -DBUILD_DICT=ON -DCMAKE_BUILD_TYPE=Release
         cmake --build build-wasm
 
     - name: Test
@@ -42,7 +42,9 @@ jobs:
         PKG_DIR="build-wasm/${PKG_NAME}"
         mkdir -p "$PKG_DIR"
         cp build-wasm/bin/migemo_wasm.* "$PKG_DIR"
-        cp wasm/index.js wasm/library.js "$PKG_DIR"
+        cp wasm/index.js wasm/library.js wasm/demo.html "$PKG_DIR"
+        mkdir -p "$PKG_DIR/dict"
+        cp -r build-wasm/dict/utf-8/. "$PKG_DIR/dict/"
         ( cd build-wasm && zip -r "${PKG_NAME}.zip" "$PKG_NAME" )
 
     - name: List files in build
