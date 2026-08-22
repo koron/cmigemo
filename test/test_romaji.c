@@ -122,6 +122,45 @@ test_roma2hira(void)
     if (r != 0)
         goto END;
 
+    r = check_all(rj, "", (const unsigned char *[]){ "", NULL });
+    if (r != 0)
+        goto END;
+
+    r = check_one(rj, "nn", "ん");
+    if (r != 0)
+        goto END;
+
+    r = check_one(rj, "n'", "ん");
+    if (r != 0)
+        goto END;
+
+    r = check_one(rj, "ltu", "っ");
+    if (r != 0)
+        goto END;
+
+    r = check_all(rj, "nk",
+            (const unsigned char *[]){"んか", "んけ", "んき", "んっ", "んこ",
+                    "んく", "んくぁ", "んきゃ", "んきぇ", "んきぃ",
+                    "んきょ", "んきゅ", NULL});
+    if (r != 0)
+        goto END;
+
+    r = check_one(rj, "nba", "んば");
+    if (r != 0)
+        goto END;
+
+    r = check_one(rj, "bba", "っば");
+    if (r != 0)
+        goto END;
+
+    r = check_one(rj, "ai", "あい");
+    if (r != 0)
+        goto END;
+
+    r = check_one(rj, "kate", "かて");
+    if (r != 0)
+        goto END;
+
     has_error = 0; // Passed all cases.
 END:
     if (rj)
@@ -157,6 +196,22 @@ test_hira2kana(void)
         goto END;
 
     r = check_one(rj, "きゃんでぃ", "キャンディ");
+    if (r != 0)
+        goto END;
+
+    r = check_one(rj, "っ", "ッ");
+    if (r != 0)
+        goto END;
+
+    r = check_one(rj, "しゃ", "シャ");
+    if (r != 0)
+        goto END;
+
+    r = check_one(rj, "きゃ", "キャ");
+    if (r != 0)
+        goto END;
+
+    r = check_one(rj, "きゃんでいー", "キャンデイー");
     if (r != 0)
         goto END;
 
