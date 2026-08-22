@@ -4,12 +4,10 @@
 #include <string.h>
 
 #include "migemo.h"
+#include "test_common.h"
 
 #ifndef TEST_DICTDIR_MIGEMO
 # define TEST_DICTDIR_MIGEMO "test1"
-#endif
-#ifndef TEST_DICTDIR_ROMA2HIRA
-# define TEST_DICTDIR_ROMA2HIRA "../dict"
 #endif
 
 static int
