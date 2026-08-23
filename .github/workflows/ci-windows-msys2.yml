@@ -49,7 +49,7 @@ jobs:
       run: |
         cmake --build build --target profile
         mkdir -p tmp/profile-windows-msys-amd64
-        mv build/profile*.log tmp/profile-windows-msys-amd64
+        cp build/bench/profile*.log tmp/profile-windows-msys-amd64
 
     - name: Packaging
       shell: msys2 {0}
