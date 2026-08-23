@@ -33,7 +33,7 @@ jobs:
       run: |
         cmake --build build --target profile
         mkdir -p tmp/profile-linux-${{ matrix.arch }}
-        cp build/profile*.log tmp/profile-linux-${{ matrix.arch }}
+        cp build/bench/profile*.log tmp/profile-linux-${{ matrix.arch }}
 
     - name: Packaging
       run: |
