@@ -1,45 +1,37 @@
-add_executable(migemo_test migemo.c)
+set(ALL_TEST_TARGETS "")
 
-target_link_libraries(migemo_test PRIVATE migemo_static)
+function(add_migemo_test name src)
+  set(target "${name}_test")
 
-target_include_directories(migemo_test PRIVATE ${PROJECT_SOURCE_DIR}/src)
+  add_executable(${target} ${src})
 
-target_compile_definitions(
-  migemo_test
-  PRIVATE
-    TEST_DICTDIR_MIGEMO="${CMAKE_CURRENT_SOURCE_DIR}/_testdata"
-    TEST_DICTDIR_ROMA2HIRA="${PROJECT_SOURCE_DIR}/dict")
+  target_link_libraries(${target} PRIVATE migemo_static)
 
-add_test(NAME test_migemo COMMAND migemo_test)
+  target_include_directories(${target} PRIVATE ${PROJECT_SOURCE_DIR}/src)
 
-#------------------------------------------------------------------------------
+  if(ARGN)
+    target_compile_definitions(${target} PRIVATE ${ARGN})
+  endif()
 
-add_executable(romaji_test romaji.c)
+  add_test(NAME "test_${name}" COMMAND ${target})
 
-target_link_libraries(romaji_test PRIVATE migemo_static)
-
-target_include_directories(romaji_test PRIVATE ${PROJECT_SOURCE_DIR}/src)
-
-target_compile_definitions(
-  romaji_test
-  PRIVATE
-    TEST_DICTDIR_ROMA2HIRA="${PROJECT_SOURCE_DIR}/dict")
-
-add_test(NAME test_romaji COMMAND romaji_test)
+  set(ALL_TEST_TARGETS ${ALL_TEST_TARGETS} ${target} PARENT_SCOPE)
+endfunction()
 
 #------------------------------------------------------------------------------
 
-add_executable(rxgen_test rxgen.c)
+add_migemo_test(
+  migemo migemo.c TEST_DICTDIR_MIGEMO="${CMAKE_CURRENT_SOURCE_DIR}/_testdata"
+  TEST_DICTDIR_ROMA2HIRA="${PROJECT_SOURCE_DIR}/dict")
 
-target_link_libraries(rxgen_test PRIVATE migemo_static)
+add_migemo_test(romaji romaji.c
+                TEST_DICTDIR_ROMA2HIRA="${PROJECT_SOURCE_DIR}/dict")
 
-target_include_directories(rxgen_test PRIVATE ${PROJECT_SOURCE_DIR}/src)
-
-add_test(NAME test_rxgen COMMAND rxgen_test)
+add_migemo_test(rxgen rxgen.c)
 
 #------------------------------------------------------------------------------
 
 add_custom_target(
   check
   COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
-  DEPENDS migemo_test romaji_test rxgen_test)
+  DEPENDS ${ALL_TEST_TARGETS})
