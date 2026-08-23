@@ -37,6 +37,7 @@ function(add_profile_target target_name)
   add_custom_target(
     ${profile_target}
     COMMAND $<TARGET_FILE:${bench_target}>
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE_NAME:${bench_target}>.gmon" gmon.out
     COMMAND
       ${GPROF_EXECUTABLE} $<TARGET_FILE:${bench_target}> gmon.out >
       ${profile_target}.log
