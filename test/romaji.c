@@ -223,7 +223,7 @@ END:
 }
 
 int
-test_romaji(void)
+main(int argc, char **argv)
 {
     int r;
     if ((r = test_roma2hira()) != 0)

@@ -40,7 +40,7 @@ test_all(migemo *p)
 }
 
 int
-test1(void)
+main(int argc, char **argv)
 {
     int r;
     migemo *p;

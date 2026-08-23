@@ -12,7 +12,7 @@ async function runTests() {
   console.log('--- Starting WASM Migemo Tests ---');
 
   // Load sample dictionary files
-  const dictDataPath = path.join(rootDir, 'test/test1/migemo-dict');
+  const dictDataPath = path.join(rootDir, 'test/_testdata/migemo-dict');
   const roma2hiraPath = path.join(rootDir, 'dict/roma2hira.dat');
   const hira2kataPath = path.join(rootDir, 'dict/hira2kata.dat');
   const han2zenPath = path.join(rootDir, 'dict/han2zen.dat');
