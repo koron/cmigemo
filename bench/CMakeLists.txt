@@ -40,11 +40,15 @@ function(add_profile_target target_name)
   add_custom_target(
     ${profile_target}
     COMMAND $<TARGET_FILE:${bench_target}>
-    COMMAND ${CMAKE_COMMAND} -DSRC="$<TARGET_FILE_NAME:${bench_target}>.gmon" -DDST=gmon.out -P "${CMAKE_CURRENT_SOURCE_DIR}/copy_if_exists.cmake"
+    COMMAND
+      ${CMAKE_COMMAND} -DSRC="$<TARGET_FILE_NAME:${bench_target}>.gmon"
+      -DDST=gmon.out -P "${CMAKE_CURRENT_SOURCE_DIR}/copy_if_exists.cmake"
     COMMAND
       ${GPROF_EXECUTABLE} $<TARGET_FILE:${bench_target}> gmon.out >
       "${PROJECT_BINARY_DIR}/bench/${profile_target}.log"
-    COMMAND ${CMAKE_COMMAND} -E remove gmon.out "$<TARGET_FILE_NAME:${bench_target}>.gmon"
+    COMMAND
+      ${CMAKE_COMMAND} -E remove gmon.out
+      "$<TARGET_FILE_NAME:${bench_target}>.gmon"
     WORKING_DIRECTORY ${work_dir}
     DEPENDS ${bench_target}
     COMMENT "Profiling ${target_name} -> ${profile_target}.log")
