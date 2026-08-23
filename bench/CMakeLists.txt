@@ -34,15 +34,18 @@ function(add_profile_target target_name)
   add_executable(${bench_target} "${target_name}.c")
   target_link_libraries(${bench_target} PRIVATE migemo_profile)
 
+  set(work_dir "${PROJECT_BINARY_DIR}/bench/${target_name}")
+  file(MAKE_DIRECTORY "${work_dir}")
+
   add_custom_target(
     ${profile_target}
     COMMAND $<TARGET_FILE:${bench_target}>
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE_NAME:${bench_target}>.gmon" gmon.out
+    COMMAND ${CMAKE_COMMAND} -DSRC="$<TARGET_FILE_NAME:${bench_target}>.gmon" -DDST=gmon.out -P "${CMAKE_CURRENT_SOURCE_DIR}/copy_if_exists.cmake"
     COMMAND
       ${GPROF_EXECUTABLE} $<TARGET_FILE:${bench_target}> gmon.out >
-      ${profile_target}.log
-    COMMAND ${CMAKE_COMMAND} -E remove gmon.out
-    WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
+      "${PROJECT_BINARY_DIR}/bench/${profile_target}.log"
+    COMMAND ${CMAKE_COMMAND} -E remove gmon.out "$<TARGET_FILE_NAME:${bench_target}>.gmon"
+    WORKING_DIRECTORY ${work_dir}
     DEPENDS ${bench_target}
     COMMENT "Profiling ${target_name} -> ${profile_target}.log")
 
