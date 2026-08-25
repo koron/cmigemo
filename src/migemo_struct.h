@@ -6,6 +6,7 @@
 
 #include "charset.h"
 #include "mtree.h"
+#include "stree.h"
 #include "romaji.h"
 #include "rxgen.h"
 
@@ -13,7 +14,10 @@
 struct migemo
 {
     int enable;
+
     mtree *mtree;
+    stree *stree;
+
     int charset;
     romaji *roma2hira;
     romaji *hira2kata;

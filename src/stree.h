@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <stdint.h>
+
 #include "charset.h"
 #include "mtree.h"
 
@@ -34,6 +36,8 @@ int stree_save(stree *st, const char *filename);
 // Query
 uint32_t stree_query(
         stree *st, const unsigned char *query, CHARSET_PROC_CHAR2INT char2int);
+const uint8_t * stree_get_words(stree *st, uint32_t node_idx);
+void stree_get_children(stree *st, uint32_t node_idx, uint32_t *start, uint32_t *end);
 
 #ifdef __cplusplus
 }

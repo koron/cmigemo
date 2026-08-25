@@ -4,7 +4,6 @@
 
 #include "common.h"
 
-#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -301,4 +300,24 @@ stree_query(
     return curr;
 }
 
-// TODO: Add other methods
+const uint8_t *
+stree_get_words(stree *st, uint32_t node_idx)
+{
+    if (node_idx >= st->head.node_count)
+        return NULL;
+    uint32_t word_id = st->nodes[node_idx].word_id;
+    if (word_id == STREE_INVALID_WORD_ID)
+        return NULL;
+    if (word_id >= st->head.word_count)
+        return NULL;
+    return &st->word_buf[st->word_off[word_id]];
+}
+
+void
+stree_get_children(stree *st, uint32_t node_idx, uint32_t *start, uint32_t *end)
+{
+    if (node_idx >= st->head.node_count)
+        return;
+    *start = st->nodes[node_idx].start;
+    *end = st->nodes[node_idx].end;
+}
