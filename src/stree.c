@@ -53,7 +53,7 @@ stree_count_mnode(stree_header *head, mnode *node)
     {
         head->word_count++;
         for (wordlist *list = node->list; list; list = wordlist_next(list))
-            head->word_buf_size += strlen(wordlist_word(list)) + 1;
+            head->word_buf_size += (uint32_t)strlen(wordlist_word(list)) + 1;
         head->word_buf_size++; // for terminal '\0'
     }
     if (node->child)
@@ -107,7 +107,7 @@ stree_fill_mnode(stree_converter *cnv, mnode *node, uint32_t curr)
             unsigned char *word = wordlist_word(list);
             size_t len = strlen(word);
             memcpy(cnv->st->word_buf + cnv->word_buf_next, word, len);
-            cnv->word_buf_next += len;
+            cnv->word_buf_next += (uint32_t)len;
             cnv->st->word_buf[cnv->word_buf_next++] = '\0';
         }
         cnv->st->word_buf[cnv->word_buf_next++] = '\0';
