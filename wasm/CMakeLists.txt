@@ -1,16 +1,10 @@
-cmake_minimum_required(VERSION 3.16)
+get_target_property(MIGEMO_SOURCES migemo_objects SOURCES)
+get_target_property(MIGEMO_DIR migemo_objects SOURCE_DIR)
+list(TRANSFORM MIGEMO_SOURCES PREPEND "${MIGEMO_DIR}/" REGEX "^[^/]")
 
-add_executable(
-  migemo_wasm
-  ${CMAKE_SOURCE_DIR}/src/charset.c
-  ${CMAKE_SOURCE_DIR}/src/filename.c
-  ${CMAKE_SOURCE_DIR}/src/migemo.c
-  ${CMAKE_SOURCE_DIR}/src/mtree.c
-  ${CMAKE_SOURCE_DIR}/src/romaji.c
-  ${CMAKE_SOURCE_DIR}/src/rxgen.c
-  ${CMAKE_SOURCE_DIR}/src/trie.c
-  ${CMAKE_SOURCE_DIR}/src/strbuf.c
-  ${CMAKE_SOURCE_DIR}/src/wordlist.c)
+#------------------------------------------------------------------------------
+
+add_executable(migemo_wasm ${MIGEMO_SOURCES})
 
 target_include_directories(
   migemo_wasm
