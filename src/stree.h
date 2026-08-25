@@ -9,9 +9,9 @@
 #include "charset.h"
 #include "mtree.h"
 
-#define STREE_HEAD_ID_V1      "MGS1"
-#define STREE_INVALID_WORD_ID 0xffffffff
-#define STREE_INVALID_NODE_ID 0xffffffff
+#define STREE_HEAD_ID_V1       "MGS1"
+#define STREE_INVALID_NODE_ID  0xffffffff
+#define STREE_INVALID_WORD_IDX 0xffffffff
 
 typedef struct stree stree;
 
@@ -20,14 +20,13 @@ typedef struct snode
     uint32_t code;
     uint32_t start;
     uint32_t end;
-    uint32_t word_id;
+    uint32_t word_idx;
 } snode;
 
 typedef struct stree_header
 {
     uint8_t id[4];
     uint32_t node_count;
-    uint32_t word_count;
     uint32_t word_buf_size;
 } stree_header;
 
@@ -36,7 +35,6 @@ typedef struct stree
     stree_header head;
 
     snode *nodes;
-    uint32_t *word_off;
     uint8_t *word_buf;
 } stree;
 
@@ -63,12 +61,12 @@ uint32_t stree_query(
 static inline const uint8_t *
 stree_get_words(stree *st, uint32_t node_idx)
 {
-    if (node_idx >= st->head.node_count)
+    if (node_idx == STREE_INVALID_NODE_ID)
         return NULL;
-    uint32_t word_id = st->nodes[node_idx].word_id;
-    if (word_id >= st->head.word_count)
+    uint32_t word_idx = st->nodes[node_idx].word_idx;
+    if (word_idx == STREE_INVALID_WORD_IDX)
         return NULL;
-    return &st->word_buf[st->word_off[word_id]];
+    return st->word_buf + word_idx;
 }
 
 static inline void

@@ -22,9 +22,8 @@ stree_alloc(stree_header *head)
         goto FAIL;
     st->head = *head;
     st->nodes = calloc(head->node_count, sizeof(snode));
-    st->word_off = calloc(head->word_count, sizeof(uint32_t));
     st->word_buf = calloc(head->word_buf_size, sizeof(uint8_t));
-    if (!st->nodes || !st->word_off || !st->word_buf)
+    if (!st->nodes || !st->word_buf)
         goto FAIL;
     return st;
 FAIL:
@@ -38,7 +37,6 @@ stree_destroy(stree *st)
     if (!st)
         return;
     free(st->nodes);
-    free(st->word_off);
     free(st->word_buf);
     free(st);
 }
@@ -51,7 +49,6 @@ stree_count_mnode(stree_header *head, mnode *node)
         stree_count_mnode(head, node->low);
     if (node->list)
     {
-        head->word_count++;
         for (wordlist *list = node->list; list; list = wordlist_next(list))
             head->word_buf_size += (uint32_t)strlen(wordlist_word(list)) + 1;
         head->word_buf_size++; // for terminal '\0'
@@ -66,7 +63,6 @@ typedef struct stree_converter
 {
     stree *st;
     uint32_t node_next;
-    uint32_t word_next;
     uint32_t word_buf_next;
 } stree_converter;
 
@@ -94,14 +90,12 @@ stree_fill_mnode(stree_converter *cnv, mnode *node, uint32_t curr)
             .code = node->code,
             .start = start,
             .end = end,
-            .word_id = STREE_INVALID_WORD_ID,
+            .word_idx = STREE_INVALID_WORD_IDX,
     };
     cnv->node_next = end;
     if (node->list)
     {
-        dst.word_id = cnv->word_next;
-        cnv->st->word_off[cnv->word_next] = cnv->word_buf_next;
-        cnv->word_next++;
+        dst.word_idx = cnv->word_buf_next;
         for (wordlist *list = node->list; list; list = wordlist_next(list))
         {
             unsigned char *word = wordlist_word(list);
@@ -179,9 +173,6 @@ stree_load(const char *filename)
     // Load buffers
     if (fread(st->nodes, sizeof(snode), head.node_count, fp) != head.node_count)
         goto END;
-    if (fread(st->word_off, sizeof(uint32_t), head.word_count, fp)
-            != head.word_count)
-        goto END;
     if (fread(st->word_buf, sizeof(uint8_t), head.word_buf_size, fp)
             != head.word_buf_size)
         goto END;
@@ -212,9 +203,6 @@ stree_save(stree *st, const char *filename)
 
     if (fwrite(st->nodes, sizeof(snode), head.node_count, fp)
             != head.node_count)
-        goto END;
-    if (fwrite(st->word_off, sizeof(uint32_t), head.word_count, fp)
-            != head.word_count)
         goto END;
     if (fwrite(st->word_buf, sizeof(uint8_t), head.word_buf_size, fp)
             != head.word_buf_size)
