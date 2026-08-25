@@ -59,6 +59,9 @@ load_mtree_dictionary(migemo *mo, const char *dict_file)
         return NULL;
     mtree *mt = mtree_load(mo->mtree, fp, char2int);
     fclose(fp);
+#if 0
+    mo->stree = stree_from_mtree(mo->mtree);
+#endif
     return mt;
 }
 
