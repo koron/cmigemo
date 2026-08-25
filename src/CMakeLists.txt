@@ -16,6 +16,7 @@ add_library(
   filename.c
   migemo.c
   mtree.c
+  stree.c
   romaji.c
   rxgen.c
   trie.c

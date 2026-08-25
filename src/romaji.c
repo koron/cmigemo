@@ -476,8 +476,7 @@ romaji_load(romaji *rj, const unsigned char *filename,
 {
     if (!rj || !filename)
         return -1;
-    rj->char2int =
-            char2int && char2int != charset_utf8_char2int ? char2int : NULL;
+    rj->char2int = charset_regulate_char2int(char2int);
     FILE *fp = fopen(filename, "rt");
     if (!fp)
         return -1;

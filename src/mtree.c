@@ -344,8 +344,7 @@ mtree_readline(mtree_file *mf, size_t *line_len)
 mtree *
 mtree_load(mtree *mt, FILE *fp, CHARSET_PROC_CHAR2INT char2int)
 {
-    mt->char2int =
-            char2int && char2int != charset_utf8_char2int ? char2int : NULL;
+    mt->char2int = charset_regulate_char2int(char2int);
 
     mtree_file mf = {.fp = fp, .read_request = true};
     while (1)
@@ -452,4 +451,10 @@ mtree_query(mtree *mt, const unsigned char *query)
         node = node->child;
     }
     return node;
+}
+
+mnode *
+mtree_rootnode(mtree *mt)
+{
+    return mt->rootnode;
 }

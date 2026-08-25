@@ -7,11 +7,13 @@
 
 #pragma once
 
+#include <stdio.h>
+
+#include "charset.h"
 #include "wordlist.h"
 
 typedef struct mtree mtree;
 
-// Tree object
 typedef struct mnode mnode;
 struct mnode
 {
@@ -34,6 +36,9 @@ void mtree_close(mtree *mt);
 // Load dictionary & query
 mtree *mtree_load(mtree *mt, FILE *fp, CHARSET_PROC_CHAR2INT char2int);
 mnode *mtree_query(mtree *mt, const unsigned char *query);
+
+// Other operations
+mnode *mtree_rootnode(mtree *mt);
 
 // Debug & maintenance
 void mtree_print_stat(mtree *mt, const char *title);
