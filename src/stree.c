@@ -229,28 +229,28 @@ stree_find_siblings(stree *st, uint32_t start, uint32_t end, unsigned int code)
     {
         uint32_t mid = (start + end) / 2;
         uint32_t pivot = st->nodes[mid].code;
-        if (code == pivot)
-            return mid;
-        else if (code < pivot)
+        if (code < pivot)
             end = mid;
-        else
+        else if (code > pivot)
             start = mid + 1;
+        else
+            return mid;
     }
     return STREE_INVALID_NODE_ID;
 }
 
-uint32_t
+snode *
 stree_query(
         stree *st, const unsigned char *query, CHARSET_PROC_CHAR2INT char2int)
 {
     if (!st || !query)
-        return STREE_INVALID_NODE_ID;
+        return NULL;
 
     char2int = charset_regulate_char2int(char2int);
 
     unsigned int code = charset_decode(char2int, &query);
     if (code == 0)
-        return STREE_INVALID_NODE_ID;
+        return NULL;
 
     uint32_t curr = 0;
     while (1)
@@ -259,11 +259,11 @@ stree_query(
         // Search from siblings
         curr = stree_find_siblings(st, node.start, node.end, code);
         if (curr == STREE_INVALID_NODE_ID)
-            break; // Not found the code (rune).
+            return NULL; // Not found the code (rune).
         // Proceed to the child node
         code = charset_decode(char2int, &query);
         if (code == 0)
             break; // Found the node.
     }
-    return curr;
+    return &st->nodes[curr];
 }

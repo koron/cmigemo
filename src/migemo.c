@@ -238,11 +238,11 @@ migemo_add_mtree_matches(migemo *mo, unsigned char *query)
 }
 
 static void
-migemo_add_stree_words(migemo *mo, uint32_t node_idx)
+migemo_add_stree_words(migemo *mo, snode *node)
 {
-    const unsigned char *p = stree_get_words(mo->stree, node_idx);
-    if (!p)
+    if (node->word_idx == STREE_INVALID_WORD_IDX)
         return;
+    const unsigned char *p = mo->stree->word_buf + node->word_idx;
     while (*p)
     {
         migemo_add_word(mo, p);
@@ -255,9 +255,10 @@ migemo_add_stree_children(migemo *mo, uint32_t start, uint32_t end)
 {
     for (uint32_t i = start; i < end; i++)
     {
-        migemo_add_stree_words(mo, i);
-        uint32_t child_start = 0, child_end = 0;
-        stree_get_children(mo->stree, i, &child_start, &child_end);
+        snode *node = mo->stree->nodes + i;
+        migemo_add_stree_words(mo, node);
+        uint32_t child_start = node->start;
+        uint32_t child_end = node->end;
         if (child_start < child_end)
             migemo_add_stree_children(mo, child_start, child_end);
     }
@@ -266,13 +267,13 @@ migemo_add_stree_children(migemo *mo, uint32_t start, uint32_t end)
 static void
 migemo_add_stree_matches(migemo *mo, unsigned char *query)
 {
-    uint32_t node_idx = stree_query(mo->stree, query, mo->char2int);
-    if (node_idx == STREE_INVALID_NODE_ID)
+    snode *node = stree_query(mo->stree, query, mo->char2int);
+    if (!node)
         return;
-    migemo_add_stree_words(mo, node_idx);
+    migemo_add_stree_words(mo, node);
     // Add words from children and decendant.
-    uint32_t start = 0, end = 0;
-    stree_get_children(mo->stree, node_idx, &start, &end);
+    uint32_t start = node->start;
+    uint32_t end = node->end;
     if (start < end)
         migemo_add_stree_children(mo, start, end);
 }

@@ -51,29 +51,9 @@ stree *stree_load(const char *filename);
 int stree_save(stree *st, const char *filename);
 
 // Query
-uint32_t stree_query(
+snode *stree_query(
         stree *st, const unsigned char *query, CHARSET_PROC_CHAR2INT char2int);
 
 #ifdef __cplusplus
 }
 #endif
-
-static inline const uint8_t *
-stree_get_words(stree *st, uint32_t node_idx)
-{
-    if (node_idx == STREE_INVALID_NODE_ID)
-        return NULL;
-    uint32_t word_idx = st->nodes[node_idx].word_idx;
-    if (word_idx == STREE_INVALID_WORD_IDX)
-        return NULL;
-    return st->word_buf + word_idx;
-}
-
-static inline void
-stree_get_children(stree *st, uint32_t node_idx, uint32_t *start, uint32_t *end)
-{
-    if (node_idx >= st->head.node_count)
-        return;
-    *start = st->nodes[node_idx].start;
-    *end = st->nodes[node_idx].end;
-}
