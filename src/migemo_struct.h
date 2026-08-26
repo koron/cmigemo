@@ -6,9 +6,9 @@
 
 #include "charset.h"
 #include "mtree.h"
-#include "stree.h"
 #include "romaji.h"
 #include "rxgen.h"
+#include "stree.h"
 
 // Migemo object
 struct migemo
