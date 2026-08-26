@@ -52,14 +52,16 @@ load_mtree_dictionary(migemo *mo, const char *dict_file)
     charset_getproc(mo->charset, &char2int, &int2char);
     migemo_setproc_char2int(mo, (MIGEMO_PROC_CHAR2INT)char2int);
     migemo_setproc_int2char(mo, (MIGEMO_PROC_INT2CHAR)int2char);
-    mo->char2int =
-            char2int && char2int != charset_utf8_char2int ? char2int : NULL;
+    mo->char2int = charset_regulate_char2int(char2int);
 
     FILE *fp = fopen(dict_file, "rt");
     if (!fp)
         return NULL;
     mtree *mt = mtree_load(mo->mtree, fp, char2int);
     fclose(fp);
+#if 0
+    mo->stree = stree_from_mtree(mo->mtree);
+#endif
     return mt;
 }
 
@@ -191,6 +193,7 @@ migemo_close(migemo *mo)
             romaji_close(mo->roma2hira);
         if (mo->rx)
             rxgen_close(mo->rx);
+        stree_destroy(mo->stree);
         if (mo->mtree)
             mtree_close(mo->mtree);
         free(mo);
@@ -198,7 +201,7 @@ migemo_close(migemo *mo)
 }
 
 static int
-migemo_add_word(migemo *mo, unsigned char *word)
+migemo_add_word(migemo *mo, const unsigned char *word)
 {
     return rxgen_add(mo->rx, word);
 }
@@ -234,6 +237,56 @@ migemo_add_mtree_matches(migemo *mo, unsigned char *query)
     }
 }
 
+static void
+migemo_add_stree_words(migemo *mo, snode *node)
+{
+    if (node->word_idx == STREE_INVALID_WORD_IDX)
+        return;
+    const unsigned char *p = mo->stree->word_buf + node->word_idx;
+    while (*p)
+    {
+        migemo_add_word(mo, p);
+        p += strlen(p) + 1;
+    }
+}
+
+static void
+migemo_add_stree_children(migemo *mo, uint32_t start, uint32_t end)
+{
+    for (uint32_t i = start; i < end; i++)
+    {
+        snode *node = mo->stree->nodes + i;
+        migemo_add_stree_words(mo, node);
+        uint32_t child_start = node->start;
+        uint32_t child_end = node->end;
+        if (child_start < child_end)
+            migemo_add_stree_children(mo, child_start, child_end);
+    }
+}
+
+static void
+migemo_add_stree_matches(migemo *mo, unsigned char *query)
+{
+    snode *node = stree_query(mo->stree, query, mo->char2int);
+    if (!node)
+        return;
+    migemo_add_stree_words(mo, node);
+    // Add words from children and decendant.
+    uint32_t start = node->start;
+    uint32_t end = node->end;
+    if (start < end)
+        migemo_add_stree_children(mo, start, end);
+}
+
+static void
+migemo_add_matches(migemo *mo, unsigned char *query)
+{
+    if (mo->stree)
+        migemo_add_stree_matches(mo, query);
+    else
+        migemo_add_mtree_matches(mo, query);
+}
+
 /// Convert input from Romaji to Kana and add it to the search keys.
 static void
 migemo_add_roma_variants(migemo *mo, unsigned char *query)
@@ -244,7 +297,7 @@ migemo_add_roma_variants(migemo *mo, unsigned char *query)
     {
         unsigned char *hira = wordlist_word(hira_item);
         migemo_add_word(mo, hira);
-        migemo_add_mtree_matches(mo, hira);
+        migemo_add_matches(mo, hira);
 
         wordlist *kata_list = romaji_convert_all(mo->hira2kata, hira);
         for (wordlist *kata_item = kata_list; kata_item;
@@ -252,7 +305,7 @@ migemo_add_roma_variants(migemo *mo, unsigned char *query)
         {
             unsigned char *kata = wordlist_word(kata_item);
             migemo_add_word(mo, kata);
-            migemo_add_mtree_matches(mo, kata);
+            migemo_add_matches(mo, kata);
 
             wordlist *han_list = romaji_convert_all(mo->zen2han, kata);
             for (wordlist *han_item = han_list; han_item;
@@ -350,7 +403,7 @@ migemo_process_word(migemo *mo, unsigned char *query)
     }
 
     // Dictionary search using a lowercase query.
-    migemo_add_mtree_matches(mo, lower);
+    migemo_add_matches(mo, lower);
 
     // Convert query to full-width and add to candidates
     wordlist *zen_list = romaji_convert_all(mo->han2zen, query);

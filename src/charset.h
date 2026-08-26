@@ -86,3 +86,9 @@ charset_decode(CHARSET_PROC_CHAR2INT proc, const unsigned char **pptr)
                   : charset_utf8_char2int_inner(*pptr, &code);
     return code;
 }
+
+static inline CHARSET_PROC_CHAR2INT
+charset_regulate_char2int(CHARSET_PROC_CHAR2INT proc)
+{
+    return proc && proc != charset_utf8_char2int ? proc : NULL;
+}

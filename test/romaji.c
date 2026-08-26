@@ -70,7 +70,7 @@ END:
 static int
 check_one(romaji *rj, const unsigned char *src, const unsigned char *want)
 {
-    return check_all(rj, src, (const unsigned char *[]){ want, NULL });
+    return check_all(rj, src, (const unsigned char *[]){want, NULL});
 }
 
 static int
@@ -122,7 +122,7 @@ test_roma2hira(void)
     if (r != 0)
         goto END;
 
-    r = check_all(rj, "", (const unsigned char *[]){ "", NULL });
+    r = check_all(rj, "", (const unsigned char *[]){"", NULL});
     if (r != 0)
         goto END;
 
@@ -140,8 +140,8 @@ test_roma2hira(void)
 
     r = check_all(rj, "nk",
             (const unsigned char *[]){"んか", "んけ", "んき", "んっ", "んこ",
-                    "んく", "んくぁ", "んきゃ", "んきぇ", "んきぃ",
-                    "んきょ", "んきゅ", NULL});
+                    "んく", "んくぁ", "んきゃ", "んきぇ", "んきぃ", "んきょ",
+                    "んきゅ", NULL});
     if (r != 0)
         goto END;
 

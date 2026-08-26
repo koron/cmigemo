@@ -8,12 +8,16 @@
 #include "mtree.h"
 #include "romaji.h"
 #include "rxgen.h"
+#include "stree.h"
 
 // Migemo object
 struct migemo
 {
     int enable;
+
     mtree *mtree;
+    stree *stree;
+
     int charset;
     romaji *roma2hira;
     romaji *hira2kata;

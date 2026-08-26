@@ -125,7 +125,7 @@ rxgen_setproc_char2int(rxgen *rx, CHARSET_PROC_CHAR2INT proc)
 {
     if (!rx)
         return;
-    rx->char2int = proc && proc != charset_utf8_char2int ? proc : NULL;
+    rx->char2int = charset_regulate_char2int(proc);
 }
 
 void
