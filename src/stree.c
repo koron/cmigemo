@@ -262,8 +262,7 @@ stree_find_siblings(stree *st, uint32_t start, uint32_t end, unsigned int code)
 }
 
 snode *
-stree_query(
-        stree *st, const unsigned char *query)
+stree_query(stree *st, const unsigned char *query)
 {
     if (!st || !query)
         return NULL;

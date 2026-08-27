@@ -22,7 +22,9 @@ profile:
 	cmake --build build --parallel --target profile
 
 format:
+	mv include/migemo.h.in include/migemo.h
 	find src test include bench -type f \( -name "*.c" -o -name "*.h" \) | xargs clang-format -i
+	mv include/migemo.h include/migemo.h.in
 
 format-cmake:
 	cmakefmt --in-place .

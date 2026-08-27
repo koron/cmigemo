@@ -12,21 +12,24 @@
 # define MIGEMO_CALLTYPE
 #endif
 
+// clang-format off
 #define MIGEMO_VERSION            "@PROJECT_VERSION@"
 #define MIGEMO_VERSION_MAJOR      @PROJECT_VERSION_MAJOR@
 #define MIGEMO_VERSION_MINOR      @PROJECT_VERSION_MINOR@
 #define MIGEMO_VERSION_PATCH      @PROJECT_VERSION_PATCH@
 #define MIGEMO_VERSION_PRERELEASE "@PROJECT_VERSION_PRERELEASE@"
+// clang-format on
 
 #define MIGEMO_DICT_FILENAME "migemo-dict"
 
 // for migemo_load()
-#define MIGEMO_DICTID_INVALID   0
-#define MIGEMO_DICTID_MIGEMO    1
-#define MIGEMO_DICTID_ROMA2HIRA 2
-#define MIGEMO_DICTID_HIRA2KATA 3
-#define MIGEMO_DICTID_HAN2ZEN   4
-#define MIGEMO_DICTID_ZEN2HAN   5
+#define MIGEMO_DICTID_INVALID      0
+#define MIGEMO_DICTID_MIGEMO       1
+#define MIGEMO_DICTID_ROMA2HIRA    2
+#define MIGEMO_DICTID_HIRA2KATA    3
+#define MIGEMO_DICTID_HAN2ZEN      4
+#define MIGEMO_DICTID_ZEN2HAN      5
+#define MIGEMO_DICTID_MIGEMO_SDICT 6
 
 // for migemo_set_operator()/migemo_get_operator().  see: rxgen.h
 #define MIGEMO_OPINDEX_OR         0
@@ -88,6 +91,43 @@ unsigned char *MIGEMO_CALLTYPE migemo_query(
 /// @param mo Migemo object.
 /// @param used_pattern Pointer to pattern string to free.
 void MIGEMO_CALLTYPE migemo_release(migemo *mo, unsigned char *used_pattern);
+
+//////////////////////////////////////////////////////////////////////////////
+// Static dictionary (sdict) related
+//
+// sdict (Static Dictionary) is a flattened, highly-optimized binary
+// representation of the standard dynamic dictionary (mtree). It offers
+// significant performance advantages:
+//
+//   - Fast Startup: Bypasses dictionary parsing during load.
+//   - Memory Efficiency: Reduces pointer overhead by using flat array storage.
+//   - High Performance: Improves CPU cache locality during query execution.
+//
+// You can convert an in-memory dictionary to sdict using
+// migemo_switch_sdict(), or save/load pre-compiled sdict files directly.
+
+/// Preserve migemo-dict to load incrementally, and rebuild.
+#define MIGEMO_SDICT_PRESERVE_MDICT 0
+/// Release migemo-dict to memory compaction.
+#define MIGEMO_SDICT_RELEASE_MDICT 1
+
+/// Convert current dictionary to sdict and switch active search engine.
+/// @param mo Migemo object.
+/// @param flags Option flags (e.g. MIGEMO_SDICT_PRESERVE_MDICT or
+/// MIGEMO_SDICT_RELEASE_MDICT).
+/// @return Non-zero on success, 0 on failure.
+int MIGEMO_CALLTYPE migemo_switch_sdict(migemo *mo, int flags);
+
+/// Save converted sdict data to a file.
+/// @param mo Migemo object.
+/// @param dict Output file path.
+/// @return Non-zero on success, 0 on failure.
+int MIGEMO_CALLTYPE migemo_save_sdict(migemo *mo, const char *dict_file);
+
+/// Open Migemo object directly with an sdict file.
+/// @param dict Path to sdict dictionary file.
+/// @return Pointer to created object, or NULL on failure.
+migemo *MIGEMO_CALLTYPE migemo_open_sdict(const char *dict_file);
 
 //////////////////////////////////////////////////////////////////////////////
 // Configurations
