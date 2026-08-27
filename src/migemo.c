@@ -267,7 +267,7 @@ migemo_add_stree_children(migemo *mo, uint32_t start, uint32_t end)
 static void
 migemo_add_stree_matches(migemo *mo, unsigned char *query)
 {
-    snode *node = stree_query(mo->stree, query, mo->char2int);
+    snode *node = stree_query(mo->stree, query);
     if (!node)
         return;
     migemo_add_stree_words(mo, node);
