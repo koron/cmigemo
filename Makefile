@@ -19,7 +19,7 @@ test:
 
 profile:
 	cmake -B build
-	cmake --build build --parallel --target profile
+	cmake --build build --target profile
 
 format:
 	mv include/migemo.h.in include/migemo.h

@@ -14,10 +14,6 @@
 #include "migemo.h"
 #include "migemo_struct.h"
 
-#ifndef DICTDIR
-# define DICTDIR "../../dict"
-#endif
-
 static bench_time_t
 profile_char_query(migemo *mo, int trial)
 {
@@ -42,24 +38,33 @@ int
 main(int argc, char **argv)
 {
     migemo *mo;
-    bench_time_t dur_load = 0, dur_query = 0;
+    bench_time_t dur_load = 0;
+    bench_time_t dur_query = 0;
+    bench_time_t dur_switch = 0;
+    bench_time_t dur_query2 = 0;
 
-    printf("Loading\n");
     TIME_MEASURE_ADD(dur_load)
     {
         mo = migemo_open(DICTDIR "/" MIGEMO_DICT_FILENAME);
     }
-    mtree_print_stat(mo->mtree, "mtree statistics");
+    if (!mo)
+        return 1;
 
-    if (mo != NULL)
+    dur_query = profile_char_query(mo, NUM_TRIAL);
+
+    TIME_MEASURE_ADD(dur_switch)
     {
-        printf("Quering\n");
-        dur_query = profile_char_query(mo, NUM_TRIAL);
-        migemo_close(mo);
+        migemo_switch_sdict(mo, MIGEMO_SDICT_PRESERVE_MDICT);
     }
-    printf("\n");
+
+    dur_query2 = profile_char_query(mo, NUM_TRIAL);
+
     printf("Results:\n");
-    printf("  load: %.9f secs\n", time_to_sec(dur_load));
-    printf("  query: %.9f secs\n", time_to_sec(dur_query));
+    printf("  load          : %.9f secs\n", time_to_sec(dur_load));
+    printf("  query (mdict) : %.9f secs\n", time_to_sec(dur_query));
+    printf("  switch        : %.9f secs\n", time_to_sec(dur_switch));
+    printf("  query (sdict) : %.9f secs\n", time_to_sec(dur_query2));
+
+    migemo_close(mo);
     return 0;
 }
