@@ -100,6 +100,43 @@ installation (e.g., for distribution packaging):
     cmake --install build --component dict
     ```
 
+## Static Dictionary (sdict)
+
+C/Migemo supports a pre-compiled binary dictionary format called **sdict**
+(Static Dictionary).
+
+### Benefits
+
+-   Fast Startup: Drastically reduces initialization/load time
+    (e.g., from ~50ms down to ~4ms).
+-   Memory Efficiency: Significantly reduces memory footprint
+    (e.g., from ~18MB down to ~8MB).
+-   Improved Performance: Enhances query execution speed due to better CPU
+    cache locality.
+
+### CLI Options
+
+`cmigemo` provides the following options for `sdict`:
+
+-   `--convert`: Converts loaded dynamic dictionaries to `sdict` in-memory and
+    continues execution. Useful for testing `sdict` performance quickly.
+-   `--save <dict>`: Saves the converted `sdict` to a specified file path
+    (implies `--convert`).
+-   `--sdict <dict>`: Loads a pre-compiled `sdict` file directly
+    (conflicts with `-d`/`-s`/`-u` and `--convert`/`--save`).
+
+### Trying sdict in Development
+
+```bash
+$ make
+
+# Generate and save an sdict file (using -w '' to exit immediately after saving)
+$ ./build/bin/cmigemo --save build/dict/utf-8/migemo-sdict -w ''
+
+# Launch cmigemo using the saved sdict
+$ ./build/bin/cmigemo --sdict build/dict/utf-8/migemo-sdict
+```
+
 ## Vim plugin
 
 If you want to use C/Migemo only as a vim plugin,
