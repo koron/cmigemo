@@ -1,13 +1,13 @@
 ---
 type: Directory Index
 title: "src Index"
-description: "C sources and headers for the migemo shared library core (dictionary tree, romaji, regexp, charset), with CMake build rules and Windows build support files."
+description: "C sources and headers for the migemo shared library core (dictionary tree, static tree, romaji, regexp, charset), with CMake build rules and Windows build support files."
 tags: [index]
 ---
 
 # Overview
 
-This directory holds the C implementation of the `migemo` shared library: the migemo tree (dictionary storage/query), romaji conversion, regular expression generation, character set/encoding handling, and supporting utilities (string buffer, word list, filename helpers), plus the CMake build script and Windows module-definition/resource files.
+This directory holds the C implementation of the `migemo` shared library: the migemo tree (dictionary storage/query), the static (serializable) tree, romaji conversion, regular expression generation, character set/encoding handling, and supporting utilities (string buffer, word list, filename helpers), plus the CMake build script and Windows module-definition/resource files.
 
 # Directory Contents
 
@@ -17,6 +17,8 @@ This directory holds the C implementation of the `migemo` shared library: the mi
 | [migemo_struct.h](./migemo_struct.h) | Header | Defines the internal `struct migemo` aggregating the mtree, romaji tables, and rxgen state. |
 | [mtree.c](./mtree.c) | Source | Migemo tree (mtree) operations for loading the dictionary and querying words. |
 | [mtree.h](./mtree.h) | Header | Public declarations of the migemo tree (mtree) operations. |
+| [stree.c](./stree.c) | Source | Static (flat, serializable) version of the mtree with load/save and query support. |
+| [stree.h](./stree.h) | Header | Public declarations of the static mtree (stree) serialization and query API. |
 | [romaji.c](./romaji.c) | Source | Romaji conversion support for input handling. |
 | [romaji.h](./romaji.h) | Header | Public declarations of the romaji conversion module. |
 | [rxgen.c](./rxgen.c) | Source | Regular expression generator producing patterns for matching input against the dictionary. |

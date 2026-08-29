@@ -30,3 +30,7 @@ C/Migemo is a C-language implementation of Migemo, a regexp pattern generator/ex
 | [doc/](./doc/) | Directory | Japanese README and Doxygen configuration for API documentation generation. |
 | [misc/](./misc/) | Directory | Reference C# wrapper and vim plugin (not part of the build). |
 | [.github/](./.github/) | Directory | GitHub CI workflows and Dependabot configuration. |
+
+# References
+- [Agent Guidelines](./AGENTS.md)
+- [Project Readme](./README.md)

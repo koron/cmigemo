@@ -1,23 +1,23 @@
 ---
 type: Directory Index
-title: "test Index"
-description: "CTest test suite (test1) for the cmigemo migemo library, with C sources, CMake build rules, and a static dictionary fixture."
+title: "Test Index"
+description: "Holds the C test programs and fixture dictionary for cmigemo's CTest suite"
 tags: [index]
 ---
 
 # Overview
-
-This directory contains the executable-based CTest suite for the cmigemo library. The `test1` binary is built from `main.c`, `test1.c`, and `test_rxgen.c`, verifies migemo query conversion and regular-expression generation behavior, and runs against the static `test1/migemo-dict` fixture.
+Contains the executable C tests for the migemo library (migemo queries, romaji conversion, and rxgen regexp generation) plus their shared test configuration and fixture dictionary, registered with CMake via `add_migemo_test`.
 
 # Directory Contents
 
 | File / Path | Type | Description |
 | :--- | :--- | :--- |
-| [CMakeLists.txt](./CMakeLists.txt) | Build | CMake rules that build the `test1` executable, register the `test_migemo1` CTest, and define the `check` target. |
-| [main.c](./main.c) | Source | Test runner entry point that invokes the test1 and test_rxgen test functions. |
-| [test1.c](./test1.c) | Source | Main library test that loads the migemo-dict and roma2hira fixtures and checks migemo_query output. |
-| [test_rxgen.c](./test_rxgen.c) | Source | Tests the rxgen regular-expression generator escape-character behavior and the migemo_set_escape_chars API. |
-| [test1/](./test1/) | Directory | Test fixture directory holding the static `migemo-dict` wordlist file. |
+| [CMakeLists.txt](./CMakeLists.txt) | File | Defines the CTest test targets and the `check` convenience target for all test executables. |
+| [migemo.c](./migemo.c) | File | Test program that asserts migemo_query results against expected conversions using the fixture dictionary. |
+| [romaji.c](./romaji.c) | File | Test program that verifies romaji-to-hiragana conversion output against expected wordlists. |
+| [rxgen.c](./rxgen.c) | File | Test program that checks regexp generation, including escape-character handling, in rxgen. |
+| [test_common.h](./test_common.h) | Header | Provides default test-directory macros such as the romaji dictionary directory path. |
+| [_testdata/](./_testdata) | Directory | Contains the `migemo-dict` fixture dictionary consumed by the migemo test. |
 
 # References
 - [Parent Directory](../index.md)
