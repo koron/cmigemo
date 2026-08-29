@@ -64,6 +64,8 @@ OPTIONS:\n\
   -d --dict <dict>      Use a file <dict> for dictionary.\n\
   -s --subdict <dict>   Sub dictionary files. (MAX %d times)\n\
   -u --userdict <dict>  Alias for -s/--subdict\n\
+     --convert          Convert the dictionary to static (sdict) and keep\n\
+                        using it.\n\
   -q --quiet            Show no message except results.\n\
   -v --vim              Use vim style regexp.\n\
   -e --emacs            Use emacs style regexp.\n\
@@ -122,6 +124,7 @@ main(int argc, char **argv)
     char *dict = NULL;
     char *subdict[MIGEMO_SUBDICT_MAX] = {0};
     int subdict_count = 0;
+    int convert = 0;
     migemo *mo;
     char *word = NULL;
     char *prgname = argv[0];
@@ -144,6 +147,8 @@ main(int argc, char **argv)
                          || !strcmp("-u", *argv))
                  && subdict_count < MIGEMO_SUBDICT_MAX)
             subdict[subdict_count++] = *++argv;
+        else if (!strcmp("--convert", *argv))
+            convert = 1;
         else if (argv[1] && (!strcmp("--word", *argv) || !strcmp("-w", *argv)))
             word = *++argv;
         else if (!strcmp("--quiet", *argv) || !strcmp("-q", *argv))
@@ -189,6 +194,18 @@ main(int argc, char **argv)
                 printf("migemo_load(%p, %d, \"%s\")=%d\n", mo,
                         MIGEMO_DICTID_MIGEMO, subdict[i], result);
         }
+    }
+
+    // Convert to static dictionary
+    if (convert)
+    {
+        if (migemo_switch_sdict(mo, MIGEMO_SDICT_RELEASE_MDICT) == 0)
+        {
+            printf("failed to convert dictionary\n");
+            return 1;
+        }
+        if (!word && !mode_quiet)
+            printf("converted to sdict\n");
     }
 
     // Configure operators for each editor.
