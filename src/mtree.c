@@ -11,40 +11,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "charset.h"
 #include "mtree.h"
 #include "strbuf.h"
 #include "trie.h"
-#include "wordlist.h"
 
 #define MNODE_BUFSIZE 16384
-
-#define MNODE_BLOCK_BYTES       (64 * 1024)
-#define MNODE_BLOCK_HEADER_SIZE (sizeof(void *) + sizeof(size_t))
-#define MNODE_BLOCK_SIZE                                                       \
-    ((MNODE_BLOCK_BYTES - MNODE_BLOCK_HEADER_SIZE) / sizeof(mnode))
-
-typedef struct mnode_block mnode_block;
-struct mnode_block
-{
-    mnode_block *next;
-    size_t used;
-    mnode nodes[MNODE_BLOCK_SIZE];
-};
-
-typedef struct mnode_arena
-{
-    mnode_block *head;
-    mnode_block *curr;
-} mnode_arena;
-
-struct mtree
-{
-    mnode *rootnode;
-    mnode_arena arena;
-
-    CHARSET_PROC_CHAR2INT char2int;
-};
 
 static void
 mnode_debug_stat_stub(

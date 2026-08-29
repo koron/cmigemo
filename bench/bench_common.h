@@ -8,6 +8,10 @@
 #include <stdint.h>
 #include <time.h>
 
+#ifndef DICTDIR
+# define DICTDIR "../../dict"
+#endif
+
 typedef uint64_t bench_time_t;
 
 #if defined(_MSC_VER)

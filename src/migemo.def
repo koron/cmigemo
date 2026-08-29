@@ -7,6 +7,11 @@ EXPORTS
 	migemo_close
 	migemo_query
 	migemo_release
+
+	migemo_switch_sdict
+	migemo_save_sdict
+	migemo_open_sdict
+
 	migemo_set_operator
 	migemo_get_operator
 	migemo_set_escape_chars

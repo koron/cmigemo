@@ -70,7 +70,23 @@ main(int argc, char **argv)
         return r;
     }
 
-    r = test_all(p);
+    if (test_all(p))
+    {
+        printf("Failed: mtree\n");
+        return 1;
+    }
+
+    if (migemo_switch_sdict(p, MIGEMO_SDICT_RELEASE_MDICT) == 0)
+    {
+        printf("Failed: migemo_switch_sdict\n");
+        return 1;
+    }
+    if (test_all(p))
+    {
+        printf("Failed: sdict\n");
+        return 1;
+    }
+
     migemo_close(p);
-    return r;
+    return 0;
 }

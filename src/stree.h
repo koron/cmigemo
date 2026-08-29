@@ -28,6 +28,7 @@ typedef struct stree_header
     uint8_t id[4];
     uint32_t node_count;
     uint32_t word_buf_size;
+    uint8_t charset;
 } stree_header;
 
 typedef struct stree
@@ -36,6 +37,8 @@ typedef struct stree
 
     snode *nodes;
     uint8_t *word_buf;
+
+    CHARSET_PROC_CHAR2INT char2int;
 } stree;
 
 #ifdef __cplusplus
@@ -51,8 +54,7 @@ stree *stree_load(const char *filename);
 int stree_save(stree *st, const char *filename);
 
 // Query
-snode *stree_query(
-        stree *st, const unsigned char *query, CHARSET_PROC_CHAR2INT char2int);
+snode *stree_query(stree *st, const unsigned char *query);
 
 #ifdef __cplusplus
 }

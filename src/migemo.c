@@ -52,16 +52,12 @@ load_mtree_dictionary(migemo *mo, const char *dict_file)
     charset_getproc(mo->charset, &char2int, &int2char);
     migemo_setproc_char2int(mo, (MIGEMO_PROC_CHAR2INT)char2int);
     migemo_setproc_int2char(mo, (MIGEMO_PROC_INT2CHAR)int2char);
-    mo->char2int = charset_regulate_char2int(char2int);
 
     FILE *fp = fopen(dict_file, "rt");
     if (!fp)
         return NULL;
     mtree *mt = mtree_load(mo->mtree, fp, char2int);
     fclose(fp);
-#if 0
-    mo->stree = stree_from_mtree(mo->mtree);
-#endif
     return mt;
 }
 
@@ -90,12 +86,34 @@ migemo_load(migemo *mo, int dict_id, const char *dict_file)
     // Load migemo dictionary
     if (dict_id == MIGEMO_DICTID_MIGEMO)
     {
+        if (!mo->mtree)
+            return 0; // ERROR: switched to sdict and released.
         mtree *mt = load_mtree_dictionary(mo, dict_file);
         if (!mt)
             return 0;
         mo->mtree = mt;
         mo->enable = 1;
         return dict_id; // Loaded successfully
+    }
+
+    // Load static dictionary (sdict)
+    if (dict_id == MIGEMO_DICTID_MIGEMO_SDICT)
+    {
+        stree *st = stree_load(dict_file);
+        if (!st)
+            return 0;
+        mo->stree = st;
+        mo->enable = 1;
+
+        // Setup charset.
+        mo->charset = st->head.charset;
+        CHARSET_PROC_CHAR2INT char2int = NULL;
+        CHARSET_PROC_INT2CHAR int2char = NULL;
+        charset_getproc(mo->charset, &char2int, &int2char);
+        migemo_setproc_char2int(mo, (MIGEMO_PROC_CHAR2INT)char2int);
+        migemo_setproc_int2char(mo, (MIGEMO_PROC_INT2CHAR)int2char);
+
+        return dict_id;
     }
 
     romaji *dict;
@@ -124,8 +142,8 @@ migemo_load(migemo *mo, int dict_id, const char *dict_file)
     return romaji_load(dict, dict_file, mo->char2int) == 0 ? dict_id : 0;
 }
 
-migemo *MIGEMO_CALLTYPE
-migemo_open(const char *dict)
+static migemo *
+migemo_open2(const char *dict, int dict_id)
 {
     migemo *mo = (migemo *)calloc(1, sizeof(migemo));
     if (!mo)
@@ -164,11 +182,8 @@ migemo_open(const char *dict)
         filename_join(h2z_dict, _MAX_PATH, tmp, DICT_HAN2ZEN);
         filename_join(z2h_dict, _MAX_PATH, tmp, DICT_ZEN2HAN);
 
-        mtree *mt = load_mtree_dictionary(mo, dict);
-        if (mt)
+        if (migemo_load(mo, dict_id, dict) != 0)
         {
-            mo->mtree = mt;
-            mo->enable = 1;
             romaji_load(mo->roma2hira, roma_dict, mo->char2int);
             romaji_load(mo->hira2kata, kata_dict, mo->char2int);
             romaji_load(mo->han2zen, h2z_dict, mo->char2int);
@@ -176,6 +191,12 @@ migemo_open(const char *dict)
         }
     }
     return mo;
+}
+
+migemo *MIGEMO_CALLTYPE
+migemo_open(const char *dict)
+{
+    return migemo_open2(dict, MIGEMO_DICTID_MIGEMO);
 }
 
 void MIGEMO_CALLTYPE
@@ -267,7 +288,7 @@ migemo_add_stree_children(migemo *mo, uint32_t start, uint32_t end)
 static void
 migemo_add_stree_matches(migemo *mo, unsigned char *query)
 {
-    snode *node = stree_query(mo->stree, query, mo->char2int);
+    snode *node = stree_query(mo->stree, query);
     if (!node)
         return;
     migemo_add_stree_words(mo, node);
@@ -504,7 +525,9 @@ migemo_set_operator(migemo *mo, int index, const unsigned char *op)
 const unsigned char *MIGEMO_CALLTYPE
 migemo_get_operator(migemo *mo, int index)
 {
-    return mo ? rxgen_get_operator(mo->rx, index) : NULL;
+    if (!mo)
+        return NULL;
+    return rxgen_get_operator(mo->rx, index);
 }
 
 /// Set custom characters to escape in generated regular expressions.
@@ -515,8 +538,9 @@ migemo_get_operator(migemo *mo, int index)
 void MIGEMO_CALLTYPE
 migemo_set_escape_chars(migemo *mo, const unsigned char *chars)
 {
-    if (mo)
-        rxgen_set_escape_chars(mo->rx, chars);
+    if (!mo)
+        return;
+    rxgen_set_escape_chars(mo->rx, chars);
 }
 
 /// Set a custom character conversion procedure (char -> int) for the Migemo
@@ -527,8 +551,10 @@ migemo_set_escape_chars(migemo *mo, const unsigned char *chars)
 void MIGEMO_CALLTYPE
 migemo_setproc_char2int(migemo *mo, MIGEMO_PROC_CHAR2INT proc)
 {
-    if (mo)
-        rxgen_setproc_char2int(mo->rx, (CHARSET_PROC_CHAR2INT)proc);
+    if (!mo)
+        return;
+    mo->char2int = charset_regulate_char2int(proc);
+    rxgen_setproc_char2int(mo->rx, (CHARSET_PROC_CHAR2INT)proc);
 }
 
 /// Set a custom character conversion procedure (int -> char) for the Migemo
@@ -539,8 +565,9 @@ migemo_setproc_char2int(migemo *mo, MIGEMO_PROC_CHAR2INT proc)
 void MIGEMO_CALLTYPE
 migemo_setproc_int2char(migemo *mo, MIGEMO_PROC_INT2CHAR proc)
 {
-    if (mo)
-        rxgen_setproc_int2char(mo->rx, (CHARSET_PROC_INT2CHAR)proc);
+    if (!mo)
+        return;
+    rxgen_setproc_int2char(mo->rx, (CHARSET_PROC_INT2CHAR)proc);
 }
 
 /// Check whether the main dictionary is loaded and ready for queries.
@@ -550,7 +577,9 @@ migemo_setproc_int2char(migemo *mo, MIGEMO_PROC_INT2CHAR proc)
 int MIGEMO_CALLTYPE
 migemo_is_enable(migemo *mo)
 {
-    return mo ? mo->enable : 0;
+    if (!mo)
+        return 0;
+    return mo->enable;
 }
 
 /// Retrieve the version string of the C/Migemo library.
@@ -560,4 +589,36 @@ const char *MIGEMO_CALLTYPE
 migemo_version(void)
 {
     return MIGEMO_VERSION MIGEMO_VERSION_PRERELEASE;
+}
+
+int MIGEMO_CALLTYPE
+migemo_switch_sdict(migemo *mo, int flags)
+{
+    if (!mo->mtree)
+        return 0;
+    if (mo->stree)
+        stree_destroy(mo->stree);
+    mo->stree = stree_from_mtree(mo->mtree);
+    if (!mo->stree)
+        return 0;
+    if (flags & MIGEMO_SDICT_RELEASE_MDICT)
+    {
+        mtree_close(mo->mtree);
+        mo->mtree = NULL;
+    }
+    return 1;
+}
+
+int MIGEMO_CALLTYPE
+migemo_save_sdict(migemo *mo, const char *dict_file)
+{
+    if (!mo->stree)
+        return 0;
+    return stree_save(mo->stree, dict_file) == 0 ? 1 : 0;
+}
+
+migemo *MIGEMO_CALLTYPE
+migemo_open_sdict(const char *dict_file)
+{
+    return migemo_open2(dict_file, MIGEMO_DICTID_MIGEMO_SDICT);
 }

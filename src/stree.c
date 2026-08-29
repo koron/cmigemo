@@ -124,6 +124,21 @@ stree_fill_mnode_siblings(stree_converter *cnv, mnode *node, uint32_t curr)
     return curr;
 }
 
+static uint8_t
+stree_char2int_to_charset(CHARSET_PROC_CHAR2INT char2int)
+{
+    if (char2int == charset_cp932_char2int)
+        return CHARSET_CP932;
+    else if (char2int == charset_eucjp_char2int)
+        return CHARSET_EUCJP;
+    else if (char2int == charset_utf8_char2int || char2int == NULL)
+        // With the introduction of default values for optimization purposes,
+        // NULL has also come to signify UTF-8.
+        return CHARSET_UTF8;
+    else
+        return CHARSET_NONE;
+}
+
 stree *
 stree_from_mtree(mtree *mt)
 {
@@ -135,6 +150,8 @@ stree_from_mtree(mtree *mt)
     stree *st = stree_alloc(&head);
     if (!st)
         return NULL;
+    st->char2int = charset_regulate_char2int(mt->char2int);
+    st->head.charset = stree_char2int_to_charset(mt->char2int);
 
     stree_converter cnv = {
             .st = st,
@@ -176,6 +193,11 @@ stree_load(const char *filename)
     if (fread(st->word_buf, sizeof(uint8_t), head.word_buf_size, fp)
             != head.word_buf_size)
         goto END;
+
+    // Setup charset.
+    CHARSET_PROC_CHAR2INT char2int = NULL;
+    charset_getproc(head.charset, &char2int, NULL);
+    st->char2int = charset_regulate_char2int(char2int);
 
     retval = st;
     st = NULL;
@@ -240,15 +262,12 @@ stree_find_siblings(stree *st, uint32_t start, uint32_t end, unsigned int code)
 }
 
 snode *
-stree_query(
-        stree *st, const unsigned char *query, CHARSET_PROC_CHAR2INT char2int)
+stree_query(stree *st, const unsigned char *query)
 {
     if (!st || !query)
         return NULL;
 
-    char2int = charset_regulate_char2int(char2int);
-
-    unsigned int code = charset_decode(char2int, &query);
+    unsigned int code = charset_decode(st->char2int, &query);
     if (code == 0)
         return NULL;
 
@@ -261,7 +280,7 @@ stree_query(
         if (curr == STREE_INVALID_NODE_ID)
             return NULL; // Not found the code (rune).
         // Proceed to the child node
-        code = charset_decode(char2int, &query);
+        code = charset_decode(st->char2int, &query);
         if (code == 0)
             break; // Found the node.
     }

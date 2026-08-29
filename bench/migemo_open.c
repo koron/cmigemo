@@ -11,10 +11,6 @@
 #include "bench_common.h"
 #include "migemo.h"
 
-#ifndef DICTDIR
-# define DICTDIR "../../dict"
-#endif
-
 #define CLOCK2SEC(t) ((double)(t) / (double)CLOCKS_PER_SEC)
 
 int
@@ -32,7 +28,7 @@ main(int argc, char **argv)
         TIME_MEASURE_ADD(sum_close) { migemo_close(mo); }
     }
     printf("Results:\n");
-    printf("  migemo_open:  %.3f secs\n", time_to_sec(sum_open));
-    printf("  migemo_close: %.3f secs\n", time_to_sec(sum_close));
+    printf("  migemo_open  : %.9f secs\n", time_to_sec(sum_open));
+    printf("  migemo_close : %.9f secs\n", time_to_sec(sum_close));
     return 0;
 }

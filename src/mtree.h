@@ -12,7 +12,10 @@
 #include "charset.h"
 #include "wordlist.h"
 
-typedef struct mtree mtree;
+#define MNODE_BLOCK_BYTES       (64 * 1024)
+#define MNODE_BLOCK_HEADER_SIZE (sizeof(void *) + sizeof(size_t))
+#define MNODE_BLOCK_SIZE                                                       \
+    ((MNODE_BLOCK_BYTES - MNODE_BLOCK_HEADER_SIZE) / sizeof(mnode))
 
 typedef struct mnode mnode;
 struct mnode
@@ -24,6 +27,28 @@ struct mnode
     unsigned int weight;
     wordlist *list;
 };
+
+typedef struct mnode_block mnode_block;
+struct mnode_block
+{
+    mnode_block *next;
+    size_t used;
+    mnode nodes[MNODE_BLOCK_SIZE];
+};
+
+typedef struct mnode_arena
+{
+    mnode_block *head;
+    mnode_block *curr;
+} mnode_arena;
+
+typedef struct mtree
+{
+    mnode *rootnode;
+    mnode_arena arena;
+
+    CHARSET_PROC_CHAR2INT char2int;
+} mtree;
 
 #ifdef __cplusplus
 extern "C" {
