@@ -47,10 +47,10 @@ Or just `rm -rf build`.
 ## Pre-requirements
 
 -   Building the program
-    -   CMake (3.16 or above)
+    -   CMake (3.21 or above)
     -   C11 compiler and binutils equivalents (gcc, clang, msvc or so)
 -   Building the dictionary
-    -   CMake (3.16 or above)
+    -   CMake (3.21 or above)
     -   curl
     -   iconv
     -   gzip
