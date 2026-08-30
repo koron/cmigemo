@@ -11,6 +11,7 @@ set(SKKDICT_BASEURL "https://skk-dev.github.io/dict")
 set(SKKDICT_FILE "SKK-JISYO.L")
 set(SKKDICT_UTF8_FILE "SKK-JISYO.L.utf-8")
 set(DICT_FILE "migemo-dict")
+set(SDICT_FILE "migemo-dict.sdict")
 set(DAT_FILES han2zen.dat hira2kata.dat roma2hira.dat zen2han.dat)
 
 set(SKKDICT_PATH "${CMAKE_CURRENT_BINARY_DIR}/${SKKDICT_FILE}")
@@ -74,6 +75,7 @@ add_custom_target(generate_base_dict DEPENDS ${BASE_DICT_PATH})
 function(add_dict_encoding_target ENCODING_NAME ICONV_ENCODING IGNORE_ERROR)
   set(OUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/${ENCODING_NAME}")
   set(OUT_DICT "${OUT_DIR}/${DICT_FILE}")
+  set(OUT_SDICT "${OUT_DIR}/${SDICT_FILE}")
 
   set(COMMANDS_LIST "")
 
@@ -184,8 +186,18 @@ function(add_dict_encoding_target ENCODING_NAME ICONV_ENCODING IGNORE_ERROR)
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMENT "Generating ${ENCODING_NAME} dictionary")
 
+  add_custom_command(
+    OUTPUT ${OUT_SDICT}
+    COMMAND cmigemo -d ${OUT_DICT} --save ${OUT_SDICT} -w ""
+    DEPENDS cmigemo ${OUT_DICT}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    COMMENT "Generating ${ENCODING_NAME} static dictionary (sdict)"
+    VERBATIM)
+
+  add_custom_target(sdict_${ENCODING_NAME} DEPENDS ${OUT_SDICT})
+
   # Custom targeting for registration to the overall target
-  add_custom_target(dict_${ENCODING_NAME} ALL DEPENDS ${OUT_DICT})
+  add_custom_target(dict_${ENCODING_NAME} ALL DEPENDS ${OUT_DICT} ${OUT_SDICT})
 
   add_dependencies(dict_${ENCODING_NAME} generate_base_dict)
 
@@ -202,3 +214,4 @@ add_dict_encoding_target("euc-jp" "EUC-JISX0213" FALSE)
 add_dict_encoding_target("cp932" "CP932" TRUE)
 
 add_custom_target(dictionaries DEPENDS dict_utf-8 dict_euc-jp dict_cp932)
+add_custom_target(sdict DEPENDS sdict_utf-8 sdict_euc-jp sdict_cp932)
