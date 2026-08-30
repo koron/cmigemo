@@ -39,6 +39,7 @@
 - `migemo-dict-zh` (Chinese dict) is copied only into `utf-8`; cp932 conversion tolerates iconv errors
 - Skip all dictionary work (and the curl/iconv/gzip/perl requirements): `cmake -B build -DBUILD_DICT=OFF`
 - Build only dictionaries: `cmake --build build --target dictionaries` (per-encoding `dict_<encoding>` targets also exist)
+- Build static dictionaries (sdict): `cmake --build build --target sdict` (per-encoding `sdict_<encoding>` targets also exist)
 
 ## Test
 

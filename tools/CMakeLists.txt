@@ -29,3 +29,8 @@ add_executable(romaji romaji.c)
 target_compile_definitions(romaji PUBLIC DICTDIR="${DEFAULT_DICTDIR}")
 
 target_link_libraries(romaji PRIVATE migemo_static)
+
+#------------------------------------------------------------------------------
+
+add_executable(gen_sdict gen_sdict.c)
+target_link_libraries(gen_sdict PRIVATE migemo_static)

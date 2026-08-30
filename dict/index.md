@@ -12,7 +12,7 @@ This directory holds the dictionary sources used by C/Migemo: the CMake build th
 
 | File / Path | Type | Description |
 | :--- | :--- | :--- |
-| [CMakeLists.txt](./CMakeLists.txt) | Build | CMake script that downloads SKK-JISYO.L and builds the `migemo-dict` files for the utf-8, euc-jp, and cp932 encodings. |
+| [CMakeLists.txt](./CMakeLists.txt) | Build | CMake script that downloads SKK-JISYO.L and builds the `migemo-dict` and static `migemo-sdict` files for the utf-8, euc-jp, and cp932 encodings. |
 | [han2zen.dat](./han2zen.dat) | Data | Half-width to full-width character conversion table. |
 | [hira2kata.dat](./hira2kata.dat) | Data | Hiragana to Katakana conversion table. |
 | [migemo-dict-zh](./migemo-dict-zh) | Data | Chinese dictionary mapping pinyin syllables to Chinese characters. |
