@@ -46,6 +46,37 @@ function normalizeOptions(options) {
 }
 
 /**
+ * Detects whether the dictionary data or file at path starts with static dictionary magic bytes ("MGS1").
+ * @param {Object} FS
+ * @param {Uint8Array|ArrayBuffer|null} dictData
+ * @param {string|null} dictPath
+ * @returns {boolean}
+ */
+function isSdict(FS, dictData, dictPath) {
+  if (dictData) {
+    const data = dictData instanceof Uint8Array ? dictData : new Uint8Array(dictData);
+    if (data.length >= 4) {
+      return data[0] === 0x4d && data[1] === 0x47 && data[2] === 0x53 && data[3] === 0x31;
+    }
+    return false;
+  }
+  if (dictPath && FS) {
+    try {
+      const stream = FS.open(dictPath, 'r');
+      const buf = new Uint8Array(4);
+      const numRead = FS.read(stream, buf, 0, 4, 0);
+      FS.close(stream);
+      if (numRead >= 4) {
+        return buf[0] === 0x4d && buf[1] === 0x47 && buf[2] === 0x53 && buf[3] === 0x31;
+      }
+    } catch (e) {
+      // Ignore reading error
+    }
+  }
+  return false;
+}
+
+/**
  * Ensures directory structure exists in Emscripten Virtual File System.
  * @param {Object} FS
  * @param {string} filePath
@@ -146,7 +177,10 @@ export async function init(options = {}) {
   }
 
   const migemoOpen = moduleInstance.cwrap('migemo_open', 'number', ['string']);
-  migemoInstance = migemoOpen(dictPath);
+  const migemoOpenSdict = moduleInstance.cwrap('migemo_open_sdict', 'number', ['string']);
+
+  const useSdict = isSdict(FS, opts.dictData, dictPath);
+  migemoInstance = useSdict ? migemoOpenSdict(dictPath) : migemoOpen(dictPath);
 
   if (!migemoInstance) {
     throw new Error(`Failed to initialize Migemo with dictPath: ${dictPath}`);
