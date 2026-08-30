@@ -68,6 +68,7 @@ async function runTests() {
   assert.ok(mod.ALLOC_NORMAL !== undefined, 'ALLOC_NORMAL should be exported on module');
 
   assert.ok(typeof mod._migemo_open === 'function', '_migemo_open C API should be exported');
+  assert.ok(typeof mod._migemo_open_sdict === 'function', '_migemo_open_sdict C API should be exported');
   assert.ok(typeof mod._migemo_close === 'function', '_migemo_close C API should be exported');
   assert.ok(typeof mod._migemo_query === 'function', '_migemo_query C API should be exported');
   assert.ok(typeof mod._migemo_release === 'function', '_migemo_release C API should be exported');
@@ -93,8 +94,75 @@ async function runTests() {
   const rx3 = query('ak');
   assert.ok(rx3.test('明'), 'Query using re-initialized dictPath should match "明"');
 
-  // Test 5: Close API
-  console.log('Test 5: Close API');
+  // Generate sdict for testing static dictionary initialization
+  console.log('Generating sdict test fixture...');
+  const setupInst = await init({
+    dictData: dictBuffer,
+    dictPath: '/temp/migemo-dict',
+    subdicts: {
+      roma2hira: roma2hiraBuf,
+      hira2kata: hira2kataBuf,
+      han2zen: han2zenBuf,
+      zen2han: zen2hanBuf
+    }
+  });
+  const setupMod = getModule();
+  assert.ok(typeof setupMod._migemo_switch_sdict === 'function', '_migemo_switch_sdict should be exported');
+  assert.ok(typeof setupMod._migemo_save_sdict === 'function', '_migemo_save_sdict should be exported');
+
+  const switchRes = setupMod._migemo_switch_sdict(setupInst, 1);
+  assert.strictEqual(switchRes, 1, 'migemo_switch_sdict should return 1');
+
+  const sdictFsPath = '/temp/sdict';
+  const migemoSaveSdict = setupMod.cwrap('migemo_save_sdict', 'number', ['number', 'string']);
+  const saveRes = migemoSaveSdict(setupInst, sdictFsPath);
+  assert.strictEqual(saveRes, 1, 'migemo_save_sdict should return 1');
+
+  const sdictBuffer = setupMod.FS.readFile(sdictFsPath);
+  assert.ok(sdictBuffer.length > 4, 'sdict buffer should have valid size');
+  assert.strictEqual(sdictBuffer[0], 0x4d, 'sdict header byte 0 is M');
+  assert.strictEqual(sdictBuffer[1], 0x47, 'sdict header byte 1 is G');
+  assert.strictEqual(sdictBuffer[2], 0x53, 'sdict header byte 2 is S');
+  assert.strictEqual(sdictBuffer[3], 0x31, 'sdict header byte 3 is 1');
+
+  // Test 5: Initialize with sdict dictData
+  console.log('Test 5: Initialize with sdict dictData');
+  const sdictInstance = await init({
+    dictData: sdictBuffer,
+    dictPath: '/test-sdict/sdict',
+    subdicts: {
+      roma2hira: roma2hiraBuf,
+      hira2kata: hira2kataBuf,
+      han2zen: han2zenBuf,
+      zen2han: zen2hanBuf
+    }
+  });
+
+  assert.ok(sdictInstance > 0, 'sdict instance pointer should be positive');
+  assert.strictEqual(isEnable(), true, 'isEnable() should be true for sdict');
+
+  const rxSdict = query('ak');
+  assert.ok(rxSdict instanceof RegExp, 'query() should return RegExp for sdict');
+  assert.ok(rxSdict.test('赤'), 'sdict query should match "赤"');
+  assert.ok(rxSdict.test('ak'), 'sdict query should match "ak"');
+
+  // Test 6: Initialize with sdict dictPath
+  console.log('Test 6: Initialize with sdict dictPath');
+  const sdictPathInFs = '/virtual/sdict/migemo-sdict';
+  const testMod = getModule();
+  testMod.FS.mkdirTree('/virtual/sdict');
+  testMod.FS.writeFile(sdictPathInFs, sdictBuffer);
+  testMod.FS.writeFile('/virtual/sdict/roma2hira.dat', roma2hiraBuf);
+
+  const sdictPathInstance = await init({ dictPath: sdictPathInFs });
+  assert.ok(sdictPathInstance > 0, 'sdict dictPath instance pointer should be positive');
+  assert.strictEqual(isEnable(), true, 'isEnable() should be true for sdict dictPath');
+
+  const rxSdictPath = query('ak');
+  assert.ok(rxSdictPath.test('明'), 'sdict dictPath query should match "明"');
+
+  // Test 7: Close API
+  console.log('Test 7: Close API');
   close();
   assert.strictEqual(getInstance(), 0, 'getInstance() should be 0 after close()');
   assert.strictEqual(isEnable(), false, 'isEnable() should be false after close()');

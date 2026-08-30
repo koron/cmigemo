@@ -19,7 +19,7 @@ target_link_options(
   PRIVATE
     "--js-library"
     "${CMAKE_CURRENT_SOURCE_DIR}/library.js"
-    "-sEXPORTED_FUNCTIONS=['_migemo_open','_migemo_close','_migemo_query','_migemo_release','_migemo_load','_migemo_is_enable','_migemo_set_escape_chars','_migemo_version','_malloc','_free']"
+    "-sEXPORTED_FUNCTIONS=['_migemo_open','_migemo_open_sdict','_migemo_switch_sdict','_migemo_save_sdict','_migemo_close','_migemo_query','_migemo_release','_migemo_load','_migemo_is_enable','_migemo_set_escape_chars','_migemo_version','_malloc','_free']"
     "-sEXPORTED_RUNTIME_METHODS=['FS','ccall','cwrap','UTF8ToString','allocate','ALLOC_NORMAL']"
     "-sMODULARIZE=1"
     "-sEXPORT_NAME='createMigemoModule'"
