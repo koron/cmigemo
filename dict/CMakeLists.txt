@@ -199,7 +199,7 @@ function(add_dict_encoding_target ENCODING_NAME ICONV_ENCODING IGNORE_ERROR)
   install(
     DIRECTORY "${MDICT_OUTDIR}/"
     DESTINATION "${CMAKE_INSTALL_DATADIR}/cmigemo/${ENCODING_NAME}"
-    COMPONENT dict)
+    COMPONENT mdict)
 
   #----------------------------------------------------------------------------
 
