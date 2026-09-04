@@ -193,8 +193,8 @@ function(add_dict_encoding_target ENCODING_NAME ICONV_ENCODING IGNORE_ERROR)
     COMMENT "Generating ${ENCODING_NAME} dictionary")
 
   # Custom targeting for registration to the overall target
-  add_custom_target(dict_${ENCODING_NAME} ALL DEPENDS ${MDICT_OUT})
-  add_dependencies(dict_${ENCODING_NAME} generate_base_dict)
+  add_custom_target(mdict_${ENCODING_NAME} ALL DEPENDS ${MDICT_OUT})
+  add_dependencies(mdict_${ENCODING_NAME} generate_base_dict)
 
   install(
     DIRECTORY "${MDICT_OUTDIR}/"
@@ -213,7 +213,7 @@ function(add_dict_encoding_target ENCODING_NAME ICONV_ENCODING IGNORE_ERROR)
     VERBATIM)
 
   add_custom_target(sdict_${ENCODING_NAME} ALL DEPENDS ${SDICT_OUT})
-  add_dependencies(sdict_${ENCODING_NAME} dict_${ENCODING_NAME})
+  add_dependencies(sdict_${ENCODING_NAME} mdict_${ENCODING_NAME})
 
   install(
     DIRECTORY "${SDICT_OUTDIR}/"
@@ -227,5 +227,5 @@ add_dict_encoding_target("utf-8" "UTF-8" FALSE)
 add_dict_encoding_target("euc-jp" "EUC-JISX0213" FALSE)
 add_dict_encoding_target("cp932" "CP932" TRUE)
 
-add_custom_target(dictionaries DEPENDS dict_utf-8 dict_euc-jp dict_cp932)
+add_custom_target(dictionaries DEPENDS mdict_utf-8 mdict_euc-jp mdict_cp932)
 add_custom_target(sdict DEPENDS sdict_utf-8 sdict_euc-jp sdict_cp932)
