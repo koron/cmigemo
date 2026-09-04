@@ -73,13 +73,17 @@ add_custom_target(generate_base_dict DEPENDS ${BASE_DICT_PATH})
 #------------------------------------------------------------------------------
 # A helper function that generates a dictionary for the specified encoding.
 function(add_dict_encoding_target ENCODING_NAME ICONV_ENCODING IGNORE_ERROR)
-  set(OUT_DIR "${CMAKE_CURRENT_BINARY_DIR}/${ENCODING_NAME}")
-  set(OUT_DICT "${OUT_DIR}/${DICT_FILE}")
-  set(OUT_SDICT "${OUT_DIR}/${SDICT_FILE}")
+  set(MDICT_OUTDIR "${CMAKE_CURRENT_BINARY_DIR}/mdict/${ENCODING_NAME}")
+  set(SDICT_OUTDIR "${CMAKE_CURRENT_BINARY_DIR}/sdict/${ENCODING_NAME}")
+  set(MDICT_OUT "${MDICT_OUTDIR}/${DICT_FILE}")
+  set(SDICT_OUT "${SDICT_OUTDIR}/${SDICT_FILE}")
 
   set(COMMANDS_LIST "")
 
-  set_property(DIRECTORY APPEND PROPERTY ADDITIONAL_CLEAN_FILES "${OUT_DIR}")
+  set_property(
+    DIRECTORY
+    APPEND
+    PROPERTY ADDITIONAL_CLEAN_FILES "${MDICT_OUTDIR}" "${SDICT_OUTDIR}")
 
   list(
     APPEND
@@ -88,7 +92,7 @@ function(add_dict_encoding_target ENCODING_NAME ICONV_ENCODING IGNORE_ERROR)
     ${CMAKE_COMMAND}
     -E
     make_directory
-    ${OUT_DIR})
+    ${MDICT_OUTDIR})
 
   foreach(dat ${DAT_FILES})
     if(ICONV_ENCODING STREQUAL "UTF-8")
@@ -100,7 +104,7 @@ function(add_dict_encoding_target ENCODING_NAME ICONV_ENCODING IGNORE_ERROR)
         -E
         copy
         ${CMAKE_CURRENT_SOURCE_DIR}/${dat}
-        ${OUT_DIR}/${dat})
+        ${MDICT_OUTDIR}/${dat})
     else()
       list(
         APPEND
@@ -113,7 +117,7 @@ function(add_dict_encoding_target ENCODING_NAME ICONV_ENCODING IGNORE_ERROR)
         ${ICONV_ENCODING}
         ${CMAKE_CURRENT_SOURCE_DIR}/${dat}
         >
-        ${OUT_DIR}/${dat})
+        ${MDICT_OUTDIR}/${dat})
     endif()
   endforeach()
 
@@ -127,7 +131,7 @@ function(add_dict_encoding_target ENCODING_NAME ICONV_ENCODING IGNORE_ERROR)
       -E
       copy
       ${CMAKE_CURRENT_SOURCE_DIR}/migemo-dict-zh
-      ${OUT_DIR}/)
+      ${MDICT_OUTDIR}/)
   endif()
 
   # Convert and copy the main dictionary: migemo-dict
@@ -140,7 +144,7 @@ function(add_dict_encoding_target ENCODING_NAME ICONV_ENCODING IGNORE_ERROR)
       -E
       copy
       ${BASE_DICT_PATH}
-      ${OUT_DICT})
+      ${MDICT_OUT})
   else()
     if(IGNORE_ERROR)
       list(
@@ -155,7 +159,7 @@ function(add_dict_encoding_target ENCODING_NAME ICONV_ENCODING IGNORE_ERROR)
         ${ICONV_ENCODING}
         ${BASE_DICT_PATH}
         >
-        ${OUT_DICT}
+        ${MDICT_OUT}
         ||
         ${CMAKE_COMMAND}
         -E
@@ -172,39 +176,51 @@ function(add_dict_encoding_target ENCODING_NAME ICONV_ENCODING IGNORE_ERROR)
         ${ICONV_ENCODING}
         ${BASE_DICT_PATH}
         >
-        ${OUT_DICT})
+        ${MDICT_OUT})
     endif()
   endif()
 
   set(DAT_PATHS ${DAT_FILES})
   list(TRANSFORM DAT_PATHS PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/")
 
+  #----------------------------------------------------------------------------
+
   add_custom_command(
-    OUTPUT ${OUT_DICT} ${COMMANDS_LIST}
+    OUTPUT ${MDICT_OUT} ${COMMANDS_LIST}
     DEPENDS
       ${BASE_DICT_PATH} ${DAT_PATHS} ${CMAKE_CURRENT_SOURCE_DIR}/migemo-dict-zh
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMENT "Generating ${ENCODING_NAME} dictionary")
 
-  add_custom_command(
-    OUTPUT ${OUT_SDICT}
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${OUT_DIR}
-    COMMAND gen_sdict ${OUT_DICT} ${OUT_SDICT}
-    DEPENDS gen_sdict ${OUT_DICT}
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    COMMENT "Generating ${ENCODING_NAME} static dictionary (sdict)"
-    VERBATIM)
-
   # Custom targeting for registration to the overall target
-  add_custom_target(dict_${ENCODING_NAME} ALL DEPENDS ${OUT_DICT})
-  add_custom_target(sdict_${ENCODING_NAME} DEPENDS ${OUT_SDICT})
-
-  add_dependencies(dict_${ENCODING_NAME} generate_base_dict)
+  add_custom_target(mdict_${ENCODING_NAME} ALL DEPENDS ${MDICT_OUT})
+  add_dependencies(mdict_${ENCODING_NAME} generate_base_dict)
 
   install(
-    DIRECTORY "${OUT_DIR}/"
+    DIRECTORY "${MDICT_OUTDIR}/"
     DESTINATION "${CMAKE_INSTALL_DATADIR}/cmigemo/${ENCODING_NAME}"
-    COMPONENT dict)
+    COMPONENT mdict)
+
+  #----------------------------------------------------------------------------
+
+  if(BUILD_SDICT)
+    add_custom_command(
+      OUTPUT ${SDICT_OUT}
+      COMMAND ${CMAKE_COMMAND} -E make_directory ${SDICT_OUTDIR}
+      COMMAND gen_sdict ${MDICT_OUT} ${SDICT_OUT}
+      DEPENDS gen_sdict ${MDICT_OUT}
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+      COMMENT "Generating ${ENCODING_NAME} static dictionary (sdict)"
+      VERBATIM)
+
+    add_custom_target(sdict_${ENCODING_NAME} ALL DEPENDS ${SDICT_OUT})
+    add_dependencies(sdict_${ENCODING_NAME} mdict_${ENCODING_NAME})
+
+    install(
+      DIRECTORY "${SDICT_OUTDIR}/"
+      DESTINATION "${CMAKE_INSTALL_DATADIR}/cmigemo/${ENCODING_NAME}"
+      COMPONENT sdict)
+  endif()
 endfunction()
 
 #------------------------------------------------------------------------------
@@ -213,5 +229,7 @@ add_dict_encoding_target("utf-8" "UTF-8" FALSE)
 add_dict_encoding_target("euc-jp" "EUC-JISX0213" FALSE)
 add_dict_encoding_target("cp932" "CP932" TRUE)
 
-add_custom_target(dictionaries DEPENDS dict_utf-8 dict_euc-jp dict_cp932)
-add_custom_target(sdict DEPENDS sdict_utf-8 sdict_euc-jp sdict_cp932)
+add_custom_target(dictionaries DEPENDS mdict_utf-8 mdict_euc-jp mdict_cp932)
+if(BUILD_SDICT)
+  add_custom_target(sdict DEPENDS sdict_utf-8 sdict_euc-jp sdict_cp932)
+endif()

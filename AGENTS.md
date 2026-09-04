@@ -38,8 +38,9 @@
 - Encodings: `utf-8`, `euc-jp`, `cp932`, each built into `build/dict/<encoding>/`; default: Windows = `cp932`, non-Windows = `utf-8`
 - `migemo-dict-zh` (Chinese dict) is copied only into `utf-8`; cp932 conversion tolerates iconv errors
 - Skip all dictionary work (and the curl/iconv/gzip/perl requirements): `cmake -B build -DBUILD_DICT=OFF`
-- Build only dictionaries: `cmake --build build --target dictionaries` (per-encoding `dict_<encoding>` targets also exist)
-- Build static dictionaries (sdict): `cmake --build build --target sdict` (per-encoding `sdict_<encoding>` targets also exist)
+- Build only text dictionaries: `cmake --build build --target mdict` (per-encoding `mdict_<encoding>` targets also exist)
+- Build only static dictionaries (sdict): `cmake --build build --target sdict` (per-encoding `sdict_<encoding>` targets also exist)
+- Build all dictionaries: `cmake --build build --target dictionaries`
 
 ## Test
 

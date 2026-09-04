@@ -20,6 +20,7 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 option(BUILD_DICT "Build dictionary files" ON)
+option(BUILD_SDICT "Build static dictionaries" ${BUILD_DICT})
 option(BUILD_TESTING "Build tests" ON)
 
 #------------------------------------------------------------------------------
@@ -89,5 +90,16 @@ string(TOLOWER "${CMAKE_SYSTEM_NAME}${SYSTEM_SUFFIX}-${CMAKE_SYSTEM_PROCESSOR}"
        SYSTEM_LOWER)
 set(CPACK_PACKAGE_FILE_NAME
     "${CMAKE_PROJECT_NAME}-${PROJECT_VERSION_FULL}-${SYSTEM_LOWER}")
+
+set(CPACK_ARCHIVE_COMPONENT_INSTALL ON)
+set(CPACK_COMPONENTS_GROUPING "ONE_PER_GROUP")
+
+set(CPACK_COMPONENT_CORE_GROUP "main")
+set(CPACK_COMPONENT_MDICT_GROUP "main")
+set(CPACK_COMPONENT_SDICT_GROUP "sdict")
+
+set(CPACK_ARCHIVE_MAIN_FILE_NAME "${CPACK_PACKAGE_FILE_NAME}")
+set(CPACK_ARCHIVE_SDICT_FILE_NAME
+    "${CMAKE_PROJECT_NAME}-${PROJECT_VERSION_FULL}-sdict")
 
 include(CPack)

@@ -15,7 +15,7 @@ target_compile_definitions(
   PUBLIC DICTDIR="${PROJECT_BINARY_DIR}/dict/utf-8")
 
 if(BUILD_DICT)
-  add_dependencies(migemo_profile dict_utf-8)
+  add_dependencies(migemo_profile mdict_utf-8)
 endif()
 
 find_program(GPROF_EXECUTABLE gprof)

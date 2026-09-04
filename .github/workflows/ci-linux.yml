@@ -51,5 +51,12 @@ jobs:
     - name: Upload the package
       uses: actions/upload-artifact@v7
       with:
-        path: build/cmigemo-*.tar.gz
+        path: build/cmigemo-*-linux-${{ matrix.arch }}.tar.gz
+        archive: false
+
+    - name: Upload the sdict package
+      if: matrix.arch == 'x86_64'
+      uses: actions/upload-artifact@v7
+      with:
+        path: build/cmigemo-*-sdict.tar.gz
         archive: false
