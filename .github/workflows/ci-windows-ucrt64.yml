@@ -68,5 +68,5 @@ jobs:
     - name: Upload the package
       uses: actions/upload-artifact@v7
       with:
-        path: build/cmigemo-*.zip
+        path: build/cmigemo-*-windows-ucrt64-amd64.zip
         archive: false

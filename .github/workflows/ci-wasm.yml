@@ -53,5 +53,5 @@ jobs:
     - name: Upload the package
       uses: actions/upload-artifact@v7
       with:
-        path: build-wasm/cmigemo-*.zip
+        path: build-wasm/cmigemo-*-wasm.zip
         archive: false
