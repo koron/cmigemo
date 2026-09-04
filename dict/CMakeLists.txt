@@ -203,22 +203,24 @@ function(add_dict_encoding_target ENCODING_NAME ICONV_ENCODING IGNORE_ERROR)
 
   #----------------------------------------------------------------------------
 
-  add_custom_command(
-    OUTPUT ${SDICT_OUT}
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${SDICT_OUTDIR}
-    COMMAND gen_sdict ${MDICT_OUT} ${SDICT_OUT}
-    DEPENDS gen_sdict ${MDICT_OUT}
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    COMMENT "Generating ${ENCODING_NAME} static dictionary (sdict)"
-    VERBATIM)
+  if(BUILD_SDICT)
+    add_custom_command(
+      OUTPUT ${SDICT_OUT}
+      COMMAND ${CMAKE_COMMAND} -E make_directory ${SDICT_OUTDIR}
+      COMMAND gen_sdict ${MDICT_OUT} ${SDICT_OUT}
+      DEPENDS gen_sdict ${MDICT_OUT}
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+      COMMENT "Generating ${ENCODING_NAME} static dictionary (sdict)"
+      VERBATIM)
 
-  add_custom_target(sdict_${ENCODING_NAME} ALL DEPENDS ${SDICT_OUT})
-  add_dependencies(sdict_${ENCODING_NAME} mdict_${ENCODING_NAME})
+    add_custom_target(sdict_${ENCODING_NAME} ALL DEPENDS ${SDICT_OUT})
+    add_dependencies(sdict_${ENCODING_NAME} mdict_${ENCODING_NAME})
 
-  install(
-    DIRECTORY "${SDICT_OUTDIR}/"
-    DESTINATION "${CMAKE_INSTALL_DATADIR}/cmigemo/${ENCODING_NAME}"
-    COMPONENT sdict)
+    install(
+      DIRECTORY "${SDICT_OUTDIR}/"
+      DESTINATION "${CMAKE_INSTALL_DATADIR}/cmigemo/${ENCODING_NAME}"
+      COMPONENT sdict)
+  endif()
 endfunction()
 
 #------------------------------------------------------------------------------
@@ -228,4 +230,6 @@ add_dict_encoding_target("euc-jp" "EUC-JISX0213" FALSE)
 add_dict_encoding_target("cp932" "CP932" TRUE)
 
 add_custom_target(dictionaries DEPENDS mdict_utf-8 mdict_euc-jp mdict_cp932)
-add_custom_target(sdict DEPENDS sdict_utf-8 sdict_euc-jp sdict_cp932)
+if(BUILD_SDICT)
+  add_custom_target(sdict DEPENDS sdict_utf-8 sdict_euc-jp sdict_cp932)
+endif()

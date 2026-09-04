@@ -20,6 +20,7 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 option(BUILD_DICT "Build dictionary files" ON)
+option(BUILD_SDICT "Build static dictionaries" ${BUILD_DICT})
 option(BUILD_TESTING "Build tests" ON)
 
 #------------------------------------------------------------------------------
