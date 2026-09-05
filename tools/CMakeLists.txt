@@ -1,9 +1,9 @@
 if(WIN32)
   set(CMIGEMO_DEFAULT_DICTDIR "${CMAKE_INSTALL_FULL_DATADIR}/cmigemo/cp932")
-  set(DEFAULT_DICTDIR "${PROJECT_BINARY_DIR}/dict/cp932")
+  set(DEFAULT_DICTDIR "${PROJECT_BINARY_DIR}/dict/mdict/cp932")
 else()
   set(CMIGEMO_DEFAULT_DICTDIR "${CMAKE_INSTALL_FULL_DATADIR}/cmigemo/utf-8")
-  set(DEFAULT_DICTDIR "${PROJECT_BINARY_DIR}/dict/utf-8")
+  set(DEFAULT_DICTDIR "${PROJECT_BINARY_DIR}/dict/mdict/utf-8")
 endif()
 
 #------------------------------------------------------------------------------

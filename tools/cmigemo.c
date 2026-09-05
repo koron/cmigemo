@@ -129,13 +129,13 @@ open_first_migemo(const char **found, const char **dicts)
 
 static const char *default_dicts[] = {
 #if _WIN32
-        "./dict/cp932/" MIGEMO_DICT_FILENAME,
-        "../dict/cp932/" MIGEMO_DICT_FILENAME,
-        "./build/dict/cp932/" MIGEMO_DICT_FILENAME,
+        "./dict/mdict/cp932/" MIGEMO_DICT_FILENAME,
+        "../dict/mdict/cp932/" MIGEMO_DICT_FILENAME,
+        "./build/dict/mdict/cp932/" MIGEMO_DICT_FILENAME,
 #else
-        "./dict/utf-8/" MIGEMO_DICT_FILENAME,
-        "../dict/utf-8/" MIGEMO_DICT_FILENAME,
-        "./build/dict/utf-8/" MIGEMO_DICT_FILENAME,
+        "./dict/mdict/utf-8/" MIGEMO_DICT_FILENAME,
+        "../dict/mdict/utf-8/" MIGEMO_DICT_FILENAME,
+        "./build/dict/mdict/utf-8/" MIGEMO_DICT_FILENAME,
 #endif
         "./dict/" MIGEMO_DICT_FILENAME,
         "../dict/" MIGEMO_DICT_FILENAME,
