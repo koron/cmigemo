@@ -12,7 +12,7 @@ target_include_directories(
 
 target_compile_definitions(
   migemo_profile
-  PUBLIC DICTDIR="${PROJECT_BINARY_DIR}/dict/utf-8")
+  PUBLIC DICTDIR="${PROJECT_BINARY_DIR}/dict/mdict/utf-8")
 
 if(BUILD_DICT)
   add_dependencies(migemo_profile mdict_utf-8)
