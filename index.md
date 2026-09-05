@@ -20,12 +20,12 @@ C/Migemo is a C-language implementation of Migemo, a regexp pattern generator/ex
 | [.clang-format](./.clang-format) | Config | clang-format configuration for the C sources. |
 | [.cmakefmt.yaml](./.cmakefmt.yaml) | Config | cmakefmt configuration for CMake formatting. |
 | [.gitignore](./.gitignore) | Config | Git ignore rules for build outputs and generated files. |
-| [src/](./src/index.md) | Directory Index | C sources and headers for the migemo shared library core (dictionary tree, romaji, regexp, charset), with CMake build rules and Windows build support files. |
+| [src/](./src/index.md) | Directory Index | C sources and headers for the migemo shared library core (dictionary tree, static tree, romaji, regexp generation, charset), with CMake build rules and Windows build support files. |
 | [dict/](./dict/index.md) | Directory Index | Dictionary sources for C/Migemo: build script, Perl conversion/optimization tools, static Japanese conversion tables, and a Chinese dictionary. |
-| [test/](./test/index.md) | Directory Index | CTest test suite (test1) for the cmigemo migemo library, with C sources, CMake build rules, and a static dictionary fixture. |
-| [bench/](./bench/index.md) | Directory Index | Benchmark and profiling tools for measuring migemo dictionary load and query performance. |
-| [tools/](./tools/index.md) | Directory Index | Console driver tools and their CMake build rules for the cmigemo project. |
-| [wasm/](./wasm/index.md) | Directory Index | WebAssembly port of cMigemo with its Emscripten build, JavaScript wrapper API, and browser demo. |
+| [test/](./test/index.md) | Directory Index | Unit test sources and build configuration for the migemo, romaji, and rxgen libraries. |
+| [bench/](./bench/index.md) | Directory Index | Benchmarks and profiling harnesses for measuring migemo dictionary loading and query performance. |
+| [tools/](./tools/index.md) | Directory Index | Contains the source programs for the cmigemo, romaji, and gen_sdict command-line tools and their CMake build rules. |
+| [wasm/](./wasm/index.md) | Directory Index | WebAssembly build of C/Migemo with its JavaScript API wrapper, demo page, dictionaries, and test files. |
 | [include/](./include/) | Directory | Public C API header template (migemo.h.in) for the migemo library. |
 | [doc/](./doc/) | Directory | Japanese README and Doxygen configuration for API documentation generation. |
 | [misc/](./misc/) | Directory | Reference C# wrapper and vim plugin (not part of the build). |

@@ -1,13 +1,13 @@
 ---
 type: Directory Index
 title: "src Index"
-description: "C sources and headers for the migemo shared library core (dictionary tree, static tree, romaji, regexp, charset), with CMake build rules and Windows build support files."
+description: "C sources and headers for the migemo shared library core (dictionary tree, static tree, romaji, regexp generation, charset), with CMake build rules and Windows build support files."
 tags: [index]
 ---
 
 # Overview
 
-This directory holds the C implementation of the `migemo` shared library: the migemo tree (dictionary storage/query), the static (serializable) tree, romaji conversion, regular expression generation, character set/encoding handling, and supporting utilities (string buffer, word list, filename helpers), plus the CMake build script and Windows module-definition/resource files.
+This directory holds the C implementation of the `migemo` shared library: the migemo tree (dictionary storage/query), the static (serializable) tree, romaji conversion, regular expression generation, character set/encoding handling, and supporting utilities (string buffer, word list, filename helpers, trie statistics), plus the CMake build script and Windows module-definition/resource files.
 
 # Directory Contents
 
@@ -24,7 +24,7 @@ This directory holds the C implementation of the `migemo` shared library: the mi
 | [rxgen.c](./rxgen.c) | Source | Regular expression generator producing patterns for matching input against the dictionary. |
 | [rxgen.h](./rxgen.h) | Header | Public declarations of the regular expression generator. |
 | [charset.c](./charset.c) | Source | Character set and multi-byte encoding conversion helpers (CP932, EUC-JP, UTF-8). |
-| [charset.h](./charset.h) | Header | Public declarations of the character set conversion module. |
+| [charset.h](./charset.h) | Header | Public declarations of the character set conversion module and charset enum. |
 | [strbuf.c](./strbuf.c) | Source | Dynamic string buffer implementation used throughout the library. |
 | [strbuf.h](./strbuf.h) | Header | Public declarations of the string buffer module. |
 | [trie.c](./trie.c) | Source | Trie statistics printing used for diagnosing the dictionary tree structure. |
