@@ -1,7 +1,3 @@
-find_package(zstd CONFIG REQUIRED)
-
-#------------------------------------------------------------------------------
-
 configure_file(
   "${PROJECT_SOURCE_DIR}/include/migemo.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/include/migemo.h"
@@ -34,6 +30,8 @@ target_include_directories(
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>)
 
+target_link_libraries(migemo_objects PRIVATE zstd_target)
+
 set_target_properties(migemo_objects PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 #------------------------------------------------------------------------------
@@ -57,7 +55,7 @@ set_target_properties(
     OUTPUT_NAME "migemo" VERSION ${PROJECT_VERSION} SOVERSION
     ${PROJECT_VERSION_MAJOR})
 
-target_link_libraries(migemo PRIVATE zstd)
+target_link_libraries(migemo PRIVATE zstd_target)
 
 #------------------------------------------------------------------------------
 
@@ -69,7 +67,7 @@ target_include_directories(
     ${PROJECT_SOURCE_DIR}/src $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>)
 
-target_link_libraries(migemo_static PRIVATE zstd)
+target_link_libraries(migemo_static PRIVATE zstd_target)
 
 #------------------------------------------------------------------------------
 
