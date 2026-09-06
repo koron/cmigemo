@@ -6,6 +6,10 @@ find_program(CURL_EXECUTABLE curl REQUIRED)
 find_program(ICONV_EXECUTABLE iconv REQUIRED)
 find_program(GZIP_EXECUTABLE gzip REQUIRED)
 
+if(ENABLE_ZSTD)
+  find_program(ZSTD_EXECUTABLE zstd REQUIRED)
+endif()
+
 #------------------------------------------------------------------------------
 set(SKKDICT_BASEURL "https://skk-dev.github.io/dict")
 set(SKKDICT_FILE "SKK-JISYO.L")
@@ -178,6 +182,18 @@ function(add_dict_encoding_target ENCODING_NAME ICONV_ENCODING IGNORE_ERROR)
         >
         ${MDICT_OUT})
     endif()
+  endif()
+
+  if(ENABLE_ZSTD)
+    list(
+      APPEND
+      COMMANDS_LIST
+      COMMAND
+      ${ZSTD_EXECUTABLE}
+      --force
+      --ultra
+      -22
+      ${MDICT_OUT})
   endif()
 
   set(DAT_PATHS ${DAT_FILES})

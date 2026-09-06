@@ -23,6 +23,21 @@ option(BUILD_DICT "Build dictionary files" ON)
 option(BUILD_SDICT "Build static dictionaries" ${BUILD_DICT})
 option(BUILD_TESTING "Build tests" ON)
 
+option(ENABLE_ZSTD "Enable zstd compressed stream support" ON)
+
+#------------------------------------------------------------------------------
+
+if(ENABLE_ZSTD)
+  find_package(zstd CONFIG QUIET)
+  if(TARGET zstd::libzstd)
+    add_library(zstd_target ALIAS zstd::libzstd)
+  elseif(TARGET zstd::libzstd_shared)
+    add_library(zstd_target ALIAS zstd::libzstd_shared)
+  elseif(TARGET zstd::libzstd_static)
+    add_library(zstd_target ALIAS zstd::libzstd_static)
+  endif()
+endif()
+
 #------------------------------------------------------------------------------
 
 include(GNUInstallDirs)

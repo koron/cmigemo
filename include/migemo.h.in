@@ -20,6 +20,8 @@
 #define MIGEMO_VERSION_PRERELEASE "@PROJECT_VERSION_PRERELEASE@"
 // clang-format on
 
+#cmakedefine01 MIGEMO_ENABLE_ZSTD
+
 #define MIGEMO_DICT_FILENAME "migemo-dict"
 
 // for migemo_load()

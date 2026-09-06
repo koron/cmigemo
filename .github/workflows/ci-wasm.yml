@@ -25,7 +25,7 @@ jobs:
 
     - name: Build
       run: |
-        emcmake cmake -B build-wasm -DBUILD_DICT=ON -DBUILD_SDICT=OFF -DCMAKE_BUILD_TYPE=Release
+        emcmake cmake -B build-wasm -DBUILD_DICT=ON -DBUILD_SDICT=OFF -DENABLE_ZSTD=OFF -DCMAKE_BUILD_TYPE=Release
         cmake --build build-wasm
 
     - name: Test

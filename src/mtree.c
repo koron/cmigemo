@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "ioreader.h"
 #include "mtree.h"
 #include "strbuf.h"
 #include "trie.h"
@@ -252,7 +253,7 @@ mtree_scan_to_next_break(
 
 typedef struct
 {
-    FILE *fp;
+    ioreader *fp;
     size_t avail;
     size_t head;
     int err;
@@ -268,10 +269,10 @@ mtree_readline(mtree_file *mf, size_t *line_len)
     {
         if (mf->read_request)
         {
-            size_t len = fread(mf->buf + mf->avail, 1,
+            size_t len = ioreader_read(mf->buf + mf->avail, 1,
                     sizeof(mf->buf) - mf->avail - 1, mf->fp);
-            mf->err = ferror(mf->fp);
-            mf->eof = feof(mf->fp);
+            mf->err = ioreader_error(mf->fp);
+            mf->eof = ioreader_eof(mf->fp);
             if (len == 0 || mf->err != 0)
                 return NULL;
             mf->head = 0;
@@ -312,8 +313,8 @@ mtree_readline(mtree_file *mf, size_t *line_len)
 }
 
 // Batch add data from a file to existing nodes.
-mtree *
-mtree_load(mtree *mt, FILE *fp, CHARSET_PROC_CHAR2INT char2int)
+static mtree *
+mtree_load_inner(mtree *mt, ioreader *fp, CHARSET_PROC_CHAR2INT char2int)
 {
     mt->char2int = charset_regulate_char2int(char2int);
 
@@ -386,6 +387,18 @@ mtree_load(mtree *mt, FILE *fp, CHARSET_PROC_CHAR2INT char2int)
 
     mt->rootnode = mnode_balance(mt->rootnode);
     return mt;
+}
+
+// Batch add data from a file to existing nodes.
+mtree *
+mtree_load(mtree *mt, const char *filename, CHARSET_PROC_CHAR2INT char2int)
+{
+    ioreader *fp = ioreader_open(filename, "rt");
+    if (!fp)
+        return NULL;
+    mtree *retval = mtree_load_inner(mt, fp, char2int);
+    ioreader_close(fp);
+    return retval;
 }
 
 mtree *

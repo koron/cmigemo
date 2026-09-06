@@ -19,7 +19,7 @@ jobs:
     - name: Install dependencies via Homebrew
       run: |
         brew update
-        brew install tree
+        brew install tree zstd
 
     - uses: actions/checkout@v7
 
