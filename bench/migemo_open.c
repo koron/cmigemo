@@ -13,22 +13,29 @@
 
 #define CLOCK2SEC(t) ((double)(t) / (double)CLOCKS_PER_SEC)
 
-int
-main(int argc, char **argv)
+void
+profile_migemo_open(const char *filename, int trial)
 {
-    int trial = NUM_TRIAL;
     migemo *mo;
     bench_time_t sum_open = 0, sum_close = 0;
     for (int i = 0; i < trial; i++)
     {
-        TIME_MEASURE_ADD(sum_open)
-        {
-            mo = migemo_open(DICTDIR "/" MIGEMO_DICT_FILENAME);
-        }
+        TIME_MEASURE_ADD(sum_open) { mo = migemo_open(filename); }
         TIME_MEASURE_ADD(sum_close) { migemo_close(mo); }
     }
-    printf("Results:\n");
+    printf("Results: (filename=%s, trial=%d)\n", filename, trial);
     printf("  migemo_open  : %.9f secs\n", time_to_sec(sum_open));
     printf("  migemo_close : %.9f secs\n", time_to_sec(sum_close));
+}
+
+int
+main(int argc, char **argv)
+{
+    profile_migemo_open(DICTDIR "/" MIGEMO_DICT_FILENAME, 1);
+    profile_migemo_open(DICTDIR "/" MIGEMO_DICT_FILENAME, NUM_TRIAL);
+#if MIGEMO_ENABLE_ZSTD
+    profile_migemo_open(DICTDIR "/" MIGEMO_DICT_FILENAME ".zst", 1);
+    profile_migemo_open(DICTDIR "/" MIGEMO_DICT_FILENAME ".zst", NUM_TRIAL);
+#endif
     return 0;
 }

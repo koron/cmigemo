@@ -1,3 +1,19 @@
+if(TARGET zstd_target)
+  set(MIGEMO_ENABLE_ZSTD 1)
+  set(IOREADER_SRC ioreader_zstd.c)
+  message(STATUS "zstd support: ENABLED")
+else()
+  set(MIGEMO_ENABLE_ZSTD 0)
+  set(IOREADER_SRC ioreader_plain.c)
+  if(NOT ENABLE_ZSTD)
+    message(STATUS "zstd support: DISABLED by option")
+  else()
+    message(STATUS "zstd support: DISABLED (zstd not found)")
+  endif()
+endif()
+
+#------------------------------------------------------------------------------
+
 configure_file(
   "${PROJECT_SOURCE_DIR}/include/migemo.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/include/migemo.h"
@@ -9,18 +25,6 @@ configure_file(
   @ONLY)
 
 #------------------------------------------------------------------------------
-
-if(TARGET zstd_target)
-  set(IOREADER_SRC ioreader_zstd.c)
-  message(STATUS "zstd support: ENABLED")
-else()
-  set(IOREADER_SRC ioreader_plain.c)
-  if(NOT ENABLE_ZSTD)
-    message(STATUS "zstd support: DISABLED by option")
-  else()
-    message(STATUS "zstd support: DISABLED (zstd not found)")
-  endif()
-endif()
 
 add_library(
   migemo_objects
