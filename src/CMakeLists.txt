@@ -10,11 +10,23 @@ configure_file(
 
 #------------------------------------------------------------------------------
 
+if(TARGET zstd_target)
+  set(IOREADER_SRC ioreader_zstd.c)
+  message(STATUS "zstd support: ENABLED")
+else()
+  set(IOREADER_SRC ioreader_plain.c)
+  if(NOT ENABLE_ZSTD)
+    message(STATUS "zstd support: DISABLED by option")
+  else()
+    message(STATUS "zstd support: DISABLED (zstd not found)")
+  endif()
+endif()
+
 add_library(
   migemo_objects
   charset.c
   filename.c
-  ioreader.c
+  ${IOREADER_SRC}
   migemo.c
   mtree.c
   stree.c
@@ -30,7 +42,9 @@ target_include_directories(
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>)
 
-target_link_libraries(migemo_objects PRIVATE zstd_target)
+if(TARGET zstd_target)
+  target_link_libraries(migemo_objects PRIVATE zstd_target)
+endif()
 
 set_target_properties(migemo_objects PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
@@ -55,7 +69,9 @@ set_target_properties(
     OUTPUT_NAME "migemo" VERSION ${PROJECT_VERSION} SOVERSION
     ${PROJECT_VERSION_MAJOR})
 
-target_link_libraries(migemo PRIVATE zstd_target)
+if(TARGET zstd_target)
+  target_link_libraries(migemo PRIVATE zstd_target)
+endif()
 
 #------------------------------------------------------------------------------
 
@@ -67,7 +83,9 @@ target_include_directories(
     ${PROJECT_SOURCE_DIR}/src $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>)
 
-target_link_libraries(migemo_static PRIVATE zstd_target)
+if(TARGET zstd_target)
+  target_link_libraries(migemo_static PRIVATE zstd_target)
+endif()
 
 #------------------------------------------------------------------------------
 

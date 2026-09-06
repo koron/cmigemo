@@ -14,7 +14,9 @@ target_compile_definitions(
   migemo_profile
   PUBLIC DICTDIR="${PROJECT_BINARY_DIR}/dict/mdict/utf-8")
 
-target_link_libraries(migemo_profile PRIVATE zstd_target)
+if(TARGET zstd_target)
+  target_link_libraries(migemo_profile PRIVATE zstd_target)
+endif()
 
 if(BUILD_DICT)
   add_dependencies(migemo_profile mdict_utf-8)

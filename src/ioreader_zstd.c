@@ -1,6 +1,6 @@
 // vim:set ts=8 sts=4 sw=4 tw=0 et:
 //
-// ioreader.c - A layer that transparently handles raw files and zstd.
+// ioreader_zstd.c - A layer that transparently handles raw files and zstd.
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -50,7 +50,8 @@ ioreader_open(const char *filename, const char *mode)
 
     // Setup zstd context
     r->dctx = ZSTD_createDCtx();
-    if (!r->dctx) {
+    if (!r->dctx)
+    {
         free(r);
         fclose(fp);
         return NULL;
@@ -80,16 +81,17 @@ ioreader_read(void *ptr, size_t size, size_t nmemb, ioreader *r)
         return fread(ptr, size, nmemb, r->fp);
 
     ZSTD_outBuffer out = {
-        .dst = ptr,
-        .size = size * nmemb,
-        .pos = 0
+            .dst = ptr,
+            .size = size * nmemb,
+            .pos = 0,
     };
 
-    while (out.pos < out.size) {
-        if (r->in.pos == r->in.size) {
-            if (feof(r->fp) && r->zstd_last == 0) {
+    while (out.pos < out.size)
+    {
+        if (r->in.pos == r->in.size)
+        {
+            if (feof(r->fp) && r->zstd_last == 0)
                 break;
-            }
             size_t read_bytes = fread(r->buf, 1, r->cap, r->fp);
             if (read_bytes == 0)
                 break;
@@ -100,7 +102,8 @@ ioreader_read(void *ptr, size_t size, size_t nmemb, ioreader *r)
 
         r->zstd_last = ZSTD_decompressStream(r->dctx, &out, &r->in);
         r->zstd_err = ZSTD_isError(r->zstd_last);
-        if (r->zstd_err) {
+        if (r->zstd_err)
+        {
             return 0;
         }
     }
@@ -123,7 +126,6 @@ ioreader_error(ioreader *r)
 {
     if (!r)
         return 0;
-    // TODO: support zstd
     if (!r->dctx)
         return ferror(r->fp);
 
