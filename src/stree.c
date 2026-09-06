@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "ioreader.h"
 #include "mtree.h"
 #include "stree.h"
 
@@ -171,13 +172,13 @@ stree_load(const char *filename)
 {
     stree *retval = NULL, *st = NULL;
 
-    FILE *fp = fopen(filename, "rb");
+    ioreader *fp = ioreader_open(filename, "rb");
     if (!fp)
         goto END;
 
     // Load the header
     stree_header head = {0};
-    if (fread(&head, sizeof(head), 1, fp) < 1)
+    if (ioreader_read(&head, sizeof(head), 1, fp) < 1)
         goto END;
     if (memcmp(head.id, STREE_HEAD_ID_V1, 4) != 0)
         goto END;
@@ -188,9 +189,10 @@ stree_load(const char *filename)
         goto END;
 
     // Load buffers
-    if (fread(st->nodes, sizeof(snode), head.node_count, fp) != head.node_count)
+    if (ioreader_read(st->nodes, sizeof(snode), head.node_count, fp)
+            != head.node_count)
         goto END;
-    if (fread(st->word_buf, sizeof(uint8_t), head.word_buf_size, fp)
+    if (ioreader_read(st->word_buf, sizeof(uint8_t), head.word_buf_size, fp)
             != head.word_buf_size)
         goto END;
 
@@ -205,7 +207,7 @@ END:
     if (st)
         stree_destroy(st);
     if (fp)
-        fclose(fp);
+        ioreader_close(fp);
     return retval;
 }
 

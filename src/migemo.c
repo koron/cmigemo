@@ -53,11 +53,9 @@ load_mtree_dictionary(migemo *mo, const char *dict_file)
     migemo_setproc_char2int(mo, (MIGEMO_PROC_CHAR2INT)char2int);
     migemo_setproc_int2char(mo, (MIGEMO_PROC_INT2CHAR)int2char);
 
-    FILE *fp = fopen(dict_file, "rt");
-    if (!fp)
+    mtree *mt = mtree_load(mo->mtree, dict_file, char2int);
+    if (!mt)
         return NULL;
-    mtree *mt = mtree_load(mo->mtree, fp, char2int);
-    fclose(fp);
     return mt;
 }
 

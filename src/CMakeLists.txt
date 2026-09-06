@@ -1,3 +1,7 @@
+find_package(zstd CONFIG REQUIRED)
+
+#------------------------------------------------------------------------------
+
 configure_file(
   "${PROJECT_SOURCE_DIR}/include/migemo.h.in"
   "${CMAKE_CURRENT_BINARY_DIR}/include/migemo.h"
@@ -14,6 +18,7 @@ add_library(
   migemo_objects
   charset.c
   filename.c
+  ioreader.c
   migemo.c
   mtree.c
   stree.c
@@ -52,6 +57,8 @@ set_target_properties(
     OUTPUT_NAME "migemo" VERSION ${PROJECT_VERSION} SOVERSION
     ${PROJECT_VERSION_MAJOR})
 
+target_link_libraries(migemo PRIVATE zstd)
+
 #------------------------------------------------------------------------------
 
 add_library(migemo_static STATIC $<TARGET_OBJECTS:migemo_objects>)
@@ -61,6 +68,8 @@ target_include_directories(
   PUBLIC
     ${PROJECT_SOURCE_DIR}/src $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>)
+
+target_link_libraries(migemo_static PRIVATE zstd)
 
 #------------------------------------------------------------------------------
 

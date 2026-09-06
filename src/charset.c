@@ -9,9 +9,10 @@
 #define BUFLEN_DETECT 4096
 
 #include <limits.h>
-#include <stdio.h>
+#include <stddef.h>
 
 #include "charset.h"
+#include "ioreader.h"
 
 int
 charset_none_int2char(unsigned int in, unsigned char *out)
@@ -286,12 +287,12 @@ int
 charset_detect_file(const char *path)
 {
     int charset = CHARSET_NONE;
-    FILE *fp;
-    if ((fp = fopen(path, "rt")) != NULL)
+    ioreader *fp;
+    if ((fp = ioreader_open(path, "rt")) != NULL)
     {
         unsigned char buf[BUFLEN_DETECT];
-        size_t len = fread(buf, sizeof(buf[0]), sizeof(buf), fp);
-        fclose(fp);
+        size_t len = ioreader_read(buf, sizeof(buf[0]), sizeof(buf), fp);
+        ioreader_close(fp);
         if (len > 0 && len <= INT_MAX)
             charset = charset_detect_buf(buf, (int)len);
     }
