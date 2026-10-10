@@ -78,16 +78,14 @@ add_custom_target(generate_base_dict DEPENDS ${BASE_DICT_PATH})
 # A helper function that generates a dictionary for the specified encoding.
 function(add_dict_encoding_target ENCODING_NAME ICONV_ENCODING IGNORE_ERROR)
   set(MDICT_OUTDIR "${CMAKE_CURRENT_BINARY_DIR}/mdict/${ENCODING_NAME}")
-  set(SDICT_OUTDIR "${CMAKE_CURRENT_BINARY_DIR}/sdict/${ENCODING_NAME}")
   set(MDICT_OUT "${MDICT_OUTDIR}/${DICT_FILE}")
-  set(SDICT_OUT "${SDICT_OUTDIR}/${SDICT_FILE}")
 
   set(COMMANDS_LIST "")
 
   set_property(
     DIRECTORY
     APPEND
-    PROPERTY ADDITIONAL_CLEAN_FILES "${MDICT_OUTDIR}" "${SDICT_OUTDIR}")
+    PROPERTY ADDITIONAL_CLEAN_FILES "${MDICT_OUTDIR}")
 
   list(
     APPEND
@@ -200,6 +198,7 @@ function(add_dict_encoding_target ENCODING_NAME ICONV_ENCODING IGNORE_ERROR)
   list(TRANSFORM DAT_PATHS PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/")
 
   #----------------------------------------------------------------------------
+  # Generate migemo dictionary.
 
   add_custom_command(
     OUTPUT ${MDICT_OUT} ${COMMANDS_LIST}
@@ -218,6 +217,20 @@ function(add_dict_encoding_target ENCODING_NAME ICONV_ENCODING IGNORE_ERROR)
     COMPONENT mdict)
 
   #----------------------------------------------------------------------------
+  # Generate static dictionary (sdict).
+
+  set(SDICT_OUTDIR "${CMAKE_CURRENT_BINARY_DIR}/sdict/${ENCODING_NAME}")
+  set(SDICT_OUT "${SDICT_OUTDIR}/${SDICT_FILE}")
+  if(ENABLE_ZSTD)
+    set(SDICT_TARGET "${SDICT_OUT}.zst")
+  else()
+    set(SDICT_TARGET "${SDICT_OUT}")
+  endif()
+
+  set_property(
+    DIRECTORY
+    APPEND
+    PROPERTY ADDITIONAL_CLEAN_FILES "${SDICT_OUTDIR}")
 
   if(BUILD_SDICT)
     add_custom_command(
@@ -229,7 +242,15 @@ function(add_dict_encoding_target ENCODING_NAME ICONV_ENCODING IGNORE_ERROR)
       COMMENT "Generating ${ENCODING_NAME} static dictionary (sdict)"
       VERBATIM)
 
-    add_custom_target(sdict_${ENCODING_NAME} ALL DEPENDS ${SDICT_OUT})
+    add_custom_command(
+      OUTPUT ${SDICT_OUT}.zst
+      COMMAND ${ZSTD_EXECUTABLE} --force --ultra -22 ${SDICT_OUT}
+      DEPENDS ${SDICT_OUT}
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+      COMMENT "Generating ${ENCODING_NAME} compressed sdict"
+      VERBATIM)
+
+    add_custom_target(sdict_${ENCODING_NAME} ALL DEPENDS ${SDICT_TARGET})
     add_dependencies(sdict_${ENCODING_NAME} mdict_${ENCODING_NAME})
 
     install(
